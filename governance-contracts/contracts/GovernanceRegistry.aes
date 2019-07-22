@@ -1,0 +1,3 @@
+contract GovernanceRegistry =
+   type state = ()
+   entrypoint main(x : int) = x
