@@ -25,18 +25,33 @@ namespace List =
      e :: l' => f(e) :: map(f, l')
 
 contract Poll =
-  entrypoint title : () => string
+
+  record overview =
+    { address : address
+    , title : string
+    , is_listed : bool
+    , close_height : option(int)
+    , votes_count : int }
+
+  entrypoint overview : () => overview
 
 contract Registry =
 
+  type polls = map(int, Poll)
+
   record state =
-    { polls : list(Poll) }
+    { polls : polls
+    , seq_id : int }
 
   entrypoint init() : state =
-    { polls = [] }
+    { polls = {},
+      seq_id = 0 }
 
   stateful entrypoint add_poll(poll: Poll) =
-    put(state{ polls = poll :: state.polls })
+    put(state{ polls[state.seq_id] = poll, seq_id = state.seq_id + 1 })
 
-  entrypoint get_polls() : list(string) =
-    List.map(((poll) => poll.title()), state.polls)
+  entrypoint polls_overview() =
+    let zip_seq_id_poll_overview = (seq_poll_tuple) =>
+      switch(seq_poll_tuple)
+        (seq_id, poll) => (seq_id, poll.overview())
+    List.map(zip_seq_id_poll_overview, Map.to_list(state.polls))

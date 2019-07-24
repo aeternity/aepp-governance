@@ -20,11 +20,40 @@
 
 contract Poll =
 
+  record overview =
+    { address : address
+    , title : string
+    , is_listed : bool
+    , close_height : option(int)
+    , votes_count : int }
+
+  record metadata =
+    { title : string
+    , description : string
+    , link : string
+    , is_listed : bool }
+
+  type vote_option = map(int, string)
+
+  type votes = map(address, int)
+
   record state =
-    { title : string }
+    { metadata : metadata
+    , vote_options : vote_option
+    , close_height : option(int)
+    , votes : votes}
 
-  entrypoint init(title : string) : state =
-    { title = title }
+  entrypoint init(metadata : metadata, vote_options : vote_option, close_height : option(int)) : state =
+    { metadata = metadata,
+      vote_options = vote_options,
+      close_height = close_height,
+      votes = {} }
 
-  entrypoint title() : string =
-    state.title
+  entrypoint get_state() : state = state
+
+  entrypoint overview() : overview =
+    { address = Contract.address,
+      title = state.metadata.title,
+      is_listed = state.metadata.is_listed,
+      close_height = state.close_height,
+      votes_count = Map.size(state.votes) } //TODO count is not a good metric

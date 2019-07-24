@@ -29,7 +29,7 @@ const config = {
 
 describe('Governance Contracts', () => {
 
-    let owner, ownerKeypair, registryContract;
+    let owner, ownerKeypair, registryContract, pollContract;
 
     before(async () => {
         ownerKeypair = wallets[0];
@@ -49,15 +49,56 @@ describe('Governance Contracts', () => {
         assert.equal(init.result.returnType, 'ok');
     });
 
-    it('Add Poll', async ()  => {
-        let pollContract = await owner.getContractInstance(pollSource);
-        const init = await pollContract.methods.init('Testing');
+    it('Add Poll', async () => {
+        pollContract = await owner.getContractInstance(pollSource);
+
+        const metadata = {
+            title: "Testing",
+            description: "This Poll is created for Testing purposes only",
+            link: "https://aeternity.com/",
+            is_listed: true
+        };
+        const vote_options = {0: "Yes, test more", 1: "No, test less", 2: "Who cares?"};
+        const close_height = Promise.reject();
+
+        const init = await pollContract.methods.init(metadata, vote_options, close_height);
         assert.equal(init.result.returnType, 'ok');
 
         let addPoll = await registryContract.methods.add_poll(init.address);
         assert.equal(addPoll.result.returnType, 'ok');
+    });
 
-        let getPolls = await registryContract.methods.get_polls();
-        assert.deepEqual(getPolls.decodedResult, ['Testing']);
+    it('Polls Overview', async () => {
+        let pollsOverview = await registryContract.methods.polls_overview();
+        assert.lengthOf(pollsOverview.decodedResult, 1);
+        assert.deepEqual(pollsOverview.decodedResult[0], [0, {
+            address: pollContract.deployInfo.address.replace("ct_", "ak_"),
+            close_height: "None", //TODO will this be fixed in SDK?
+            is_listed: true,
+            title: "Testing",
+            votes_count: 0
+        }]);
+    });
+
+    it('Get Poll', async () => {
+        let pollsOverview = await registryContract.methods.polls_overview();
+        let address = pollsOverview.decodedResult[0][1].address.replace("ak_", "ct_");
+        pollContract = await owner.getContractInstance(pollSource, {contractAddress: address});
+        let pollState = await pollContract.methods.get_state();
+        assert.deepEqual(pollState.decodedResult, {
+            close_height: undefined,
+            metadata:
+                {
+                    description: 'This Poll is created for Testing purposes only',
+                    is_listed: true,
+                    link: 'https://aeternity.com/',
+                    title: 'Testing'
+                },
+            vote_options:
+                [[0, 'Yes, test more'],
+                    [1, 'No, test less'],
+                    [2, 'Who cares?']],
+            votes: []
+        });
     });
 });
