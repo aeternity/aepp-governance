@@ -19,7 +19,7 @@ const Deployer = require('forgae-lib').Deployer;
 const deploy = async (network, privateKey, compiler) => {
     let deployer = new Deployer(network, privateKey, compiler)
 
-    await deployer.deploy("./contracts/GovernanceRegistry.aes")
+    await deployer.deploy("./contracts/Registry.aes")
 };
 
 module.exports = {

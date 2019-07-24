@@ -18,7 +18,8 @@
 const Universal = require('@aeternity/aepp-sdk').Universal;
 
 
-const governanceRegistrySource = "./contracts/GovernanceRegistry.aes";
+const registrySource = utils.readFileRelative('./contracts/Registry.aes', 'utf-8');
+const pollSource = utils.readFileRelative('./contracts/Poll.aes', 'utf-8');
 
 const config = {
     host: 'http://localhost:3001/',
@@ -28,7 +29,7 @@ const config = {
 
 describe('Governance Contracts', () => {
 
-    let owner, ownerKeypair, contract;
+    let owner, ownerKeypair, registryContract;
 
     before(async () => {
         ownerKeypair = wallets[0];
@@ -42,11 +43,21 @@ describe('Governance Contracts', () => {
         });
     });
 
-
     it('Deploying Governance', async () => {
-        let contractSource = utils.readFileRelative(governanceRegistrySource, 'utf-8');
-        contract = await owner.getContractInstance(contractSource);
-        const deploy = await contract.methods.init();
-        assert.equal(deploy.result.returnType, 'ok');
-    })
+        registryContract = await owner.getContractInstance(registrySource);
+        const init = await registryContract.methods.init();
+        assert.equal(init.result.returnType, 'ok');
+    });
+
+    it('Add Poll', async ()  => {
+        let pollContract = await owner.getContractInstance(pollSource);
+        const init = await pollContract.methods.init('Testing');
+        assert.equal(init.result.returnType, 'ok');
+
+        let addPoll = await registryContract.methods.add_poll(init.address);
+        assert.equal(addPoll.result.returnType, 'ok');
+
+        let getPolls = await registryContract.methods.get_polls();
+        assert.deepEqual(getPolls.decodedResult, ['Testing']);
+    });
 });
