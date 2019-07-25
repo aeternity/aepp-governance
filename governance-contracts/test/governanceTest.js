@@ -87,18 +87,30 @@ describe('Governance Contracts', () => {
         let pollState = await pollContract.methods.get_state();
         assert.deepEqual(pollState.decodedResult, {
             close_height: undefined,
-            metadata:
-                {
-                    description: 'This Poll is created for Testing purposes only',
-                    is_listed: true,
-                    link: 'https://aeternity.com/',
-                    title: 'Testing'
-                },
-            vote_options:
-                [[0, 'Yes, test more'],
-                    [1, 'No, test less'],
-                    [2, 'Who cares?']],
+            metadata: {
+                description: 'This Poll is created for Testing purposes only',
+                is_listed: true,
+                link: 'https://aeternity.com/',
+                title: 'Testing'
+            },
+            vote_options: [[0, 'Yes, test more'], [1, 'No, test less'], [2, 'Who cares?']],
             votes: []
         });
+    });
+
+    it('Add Vote', async () => {
+        pollContract = await owner.getContractInstance(pollSource, {contractAddress: pollContract.deployInfo.address});
+        let vote = await pollContract.methods.vote(2);
+        assert.equal(vote.result.returnType, 'ok');
+
+        let pollState = await pollContract.methods.get_state();
+
+        assert.deepEqual(pollState.decodedResult.votes, [['ak_fUq2NesPXcYZ1CcqBcGC3StpdnQw3iVxMA3YSeCNAwfN4myQk', 2]]);
+    });
+
+    it('Add Vote; Failing, option not known', async () => {
+        pollContract = await owner.getContractInstance(pollSource, {contractAddress: pollContract.deployInfo.address});
+        let voteError = await pollContract.methods.vote(3).catch(e => e);
+        assert.include(voteError.decodedError, 'VOTE_OPTION_NOT_KNOWN');
     });
 });

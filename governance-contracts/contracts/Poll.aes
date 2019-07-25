@@ -49,6 +49,11 @@ contract Poll =
       close_height = close_height,
       votes = {} }
 
+  stateful entrypoint vote(option : int) =
+    // TODO check if vote is closed
+    require(Map.member(option, state.vote_options), "VOTE_OPTION_NOT_KNOWN")
+    put(state{ votes[Call.caller] = option})
+
   entrypoint get_state() : state = state
 
   entrypoint overview() : overview =
