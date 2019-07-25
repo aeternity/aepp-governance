@@ -29,10 +29,11 @@ const config = {
 
 describe('Governance Contracts', () => {
 
-    let owner, ownerKeypair, registryContract, pollContract;
+    let owner, otherKeypair, ownerKeypair, registryContract, pollContract;
 
     before(async () => {
         ownerKeypair = wallets[0];
+        otherKeypair = wallets[1];
         owner = await Universal({
             url: config.host,
             internalUrl: config.internalHost,
@@ -104,7 +105,6 @@ describe('Governance Contracts', () => {
         assert.equal(vote.result.returnType, 'ok');
 
         let pollState = await pollContract.methods.get_state();
-
         assert.deepEqual(pollState.decodedResult.votes, [['ak_fUq2NesPXcYZ1CcqBcGC3StpdnQw3iVxMA3YSeCNAwfN4myQk', 2]]);
     });
 
@@ -112,5 +112,13 @@ describe('Governance Contracts', () => {
         pollContract = await owner.getContractInstance(pollSource, {contractAddress: pollContract.deployInfo.address});
         let voteError = await pollContract.methods.vote(3).catch(e => e);
         assert.include(voteError.decodedError, 'VOTE_OPTION_NOT_KNOWN');
+    });
+
+    it('Add Delegation', async () => {
+        let addDelegation = await registryContract.methods.delegate(otherKeypair.publicKey);
+        assert.equal(addDelegation.result.returnType, 'ok');
+
+        let registryState = await registryContract.methods.get_state();
+        assert.deepEqual(registryState.decodedResult.delegations, [[ownerKeypair.publicKey, otherKeypair.publicKey]]);
     });
 });

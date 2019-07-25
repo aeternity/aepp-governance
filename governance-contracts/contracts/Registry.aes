@@ -39,16 +39,25 @@ contract Registry =
 
   type polls = map(int, Poll)
 
+  type delegations = map(address, address)
+
   record state =
     { polls : polls
-    , seq_id : int }
+    , seq_id : int
+    , delegations : delegations }
 
   entrypoint init() : state =
     { polls = {},
-      seq_id = 0 }
+      seq_id = 0,
+      delegations = {} }
 
   stateful entrypoint add_poll(poll: Poll) =
     put(state{ polls[state.seq_id] = poll, seq_id = state.seq_id + 1 })
+
+  stateful entrypoint delegate(delegatee : address) =
+    put(state{ delegations[Call.caller] = delegatee })
+
+  entrypoint get_state() : state = state
 
   entrypoint polls_overview() =
     let zip_seq_id_poll_overview = (seq_poll_tuple) =>
