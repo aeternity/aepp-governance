@@ -39,6 +39,8 @@ contract Registry =
 
   type polls = map(int, Poll)
 
+  // delegation from delegator to delegatee, delegatee will be globally allowed to take power of delegator
+  // votes by delegator will overwrite delegation for one poll
   type delegations = map(address, address)
 
   record state =
@@ -56,6 +58,9 @@ contract Registry =
 
   stateful entrypoint delegate(delegatee : address) =
     put(state{ delegations[Call.caller] = delegatee })
+
+  stateful entrypoint revoke_delegation() =
+    put(state{ delegations = Map.delete(Call.caller, state.delegations) })
 
   entrypoint get_state() : state = state
 

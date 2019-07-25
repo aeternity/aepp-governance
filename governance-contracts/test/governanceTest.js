@@ -121,4 +121,12 @@ describe('Governance Contracts', () => {
         let registryState = await registryContract.methods.get_state();
         assert.deepEqual(registryState.decodedResult.delegations, [[ownerKeypair.publicKey, otherKeypair.publicKey]]);
     });
+
+    it('Revoke Delegation', async () => {
+        let revokeDelegation = await registryContract.methods.revoke_delegation();
+        assert.equal(revokeDelegation.result.returnType, 'ok');
+
+        let registryState = await registryContract.methods.get_state();
+        assert.deepEqual(registryState.decodedResult.delegations, []);
+    });
 });
