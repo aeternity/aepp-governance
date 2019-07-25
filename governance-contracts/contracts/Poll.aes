@@ -59,6 +59,9 @@ contract Poll =
 
   entrypoint get_state() : state = state
 
+  entrypoint voted_option(voter : address) : option(int) =
+    Map.lookup(voter, state.votes)
+
   entrypoint overview() : overview =
     { address = Contract.address,
       title = state.metadata.title,

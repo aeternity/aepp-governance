@@ -137,4 +137,37 @@ describe('Governance Contracts', () => {
         let registryState = await registryContract.methods.get_state();
         assert.deepEqual(registryState.decodedResult.delegations, []);
     });
+
+    it('Has Voted or Delegated', async () => {
+        let hasVotedOrDelegated1 = await registryContract.methods.has_voted_or_delegated(ownerKeypair.publicKey, 0);
+        assert.deepEqual(hasVotedOrDelegated1.decodedResult, {
+            has_voted: false,
+            has_delegated: false,
+            delegated_to: undefined,
+            voter_or_delegatee_vote_option: undefined
+        });
+
+        // add delegation
+        await registryContract.methods.delegate(otherKeypair.publicKey);
+        let hasVotedOrDelegated2 = await registryContract.methods.has_voted_or_delegated(ownerKeypair.publicKey, 0);
+        assert.deepEqual(hasVotedOrDelegated2.decodedResult, {
+            has_voted: false,
+            has_delegated: true,
+            delegated_to: otherKeypair.publicKey,
+            voter_or_delegatee_vote_option: undefined
+        });
+
+        //TODO test delegate voted
+
+        // add vote
+        await pollContract.methods.vote(2);
+        let hasVotedOrDelegated3 = await registryContract.methods.has_voted_or_delegated(ownerKeypair.publicKey, 0);
+        assert.deepEqual(hasVotedOrDelegated3.decodedResult, {
+            has_voted: true,
+            has_delegated: true,
+            delegated_to: otherKeypair.publicKey,
+            voter_or_delegatee_vote_option: 2
+        });
+
+    });
 });

@@ -24,6 +24,12 @@ namespace List =
      [] => []
      e :: l' => f(e) :: map(f, l')
 
+namespace Option =
+  function is_defined(o : option('a)) =
+    switch(o)
+      Some(_) => true
+      None => false
+
 contract Poll =
 
   record overview =
@@ -34,6 +40,7 @@ contract Poll =
     , votes_count : int }
 
   entrypoint overview : () => overview
+  entrypoint voted_option : (address) => option(int)
 
 contract Registry =
 
@@ -47,6 +54,12 @@ contract Registry =
     { polls : polls
     , seq_id : int
     , delegations : delegations }
+
+  record voted_or_delegated =
+    { has_voted : bool
+    , has_delegated : bool
+    , delegated_to : option(address)
+    , voter_or_delegatee_vote_option : option(int) }
 
   entrypoint init() : state =
     { polls = {},
@@ -63,6 +76,25 @@ contract Registry =
     put(state{ delegations = Map.delete(Call.caller, state.delegations) })
 
   entrypoint get_state() : state = state
+
+  entrypoint has_voted_or_delegated(account : address, poll_id : int) : voted_or_delegated =
+    let account_delegated = Map.lookup(account, state.delegations)
+    let poll = require_poll_by_id(poll_id)
+    let voted_option = poll.voted_option(account)
+    let voter_or_delegatee_vote_option =
+      switch((voted_option, account_delegated))
+        (Some(voted_voter), _) => Some(voted_voter)
+        (None, Some(delegatee)) => poll.voted_option(delegatee)
+        _  => None
+    { has_voted = Option.is_defined(voted_option),
+      has_delegated = Option.is_defined(account_delegated),
+      delegated_to = account_delegated,
+      voter_or_delegatee_vote_option = voter_or_delegatee_vote_option }
+
+  private function require_poll_by_id(poll_id : int) : Poll =
+    switch(Map.lookup(poll_id, state.polls))
+      None => abort("POLL_ID_NOT_KNOWN")
+      Some(poll) => poll
 
   entrypoint polls_overview() =
     let zip_seq_id_poll_overview = (seq_poll_tuple) =>
