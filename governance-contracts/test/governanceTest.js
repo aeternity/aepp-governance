@@ -108,6 +108,14 @@ describe('Governance Contracts', () => {
         assert.deepEqual(pollState.decodedResult.votes, [['ak_fUq2NesPXcYZ1CcqBcGC3StpdnQw3iVxMA3YSeCNAwfN4myQk', 2]]);
     });
 
+    it('Revoke Vote', async () => {
+        let revokeVote = await pollContract.methods.revoke_vote();
+        assert.equal(revokeVote.result.returnType, 'ok');
+
+        let pollState = await pollContract.methods.get_state();
+        assert.deepEqual(pollState.decodedResult.votes, []);
+    });
+
     it('Add Vote; Failing, option not known', async () => {
         pollContract = await owner.getContractInstance(pollSource, {contractAddress: pollContract.deployInfo.address});
         let voteError = await pollContract.methods.vote(3).catch(e => e);

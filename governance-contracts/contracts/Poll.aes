@@ -54,6 +54,9 @@ contract Poll =
     require(Map.member(option, state.vote_options), "VOTE_OPTION_NOT_KNOWN")
     put(state{ votes[Call.caller] = option})
 
+  stateful entrypoint revoke_vote() =
+    put(state{ votes = Map.delete(Call.caller, state.votes) })
+
   entrypoint get_state() : state = state
 
   entrypoint overview() : overview =
