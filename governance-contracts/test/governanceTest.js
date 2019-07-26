@@ -117,6 +117,25 @@ describe('Governance Contracts', () => {
         assert.deepEqual(pollState.decodedResult.votes, [['ak_fUq2NesPXcYZ1CcqBcGC3StpdnQw3iVxMA3YSeCNAwfN4myQk', 2]]);
     });
 
+    it('Add Vote; Failing, poll already closed', async () => {
+        const otherPollContract = await otherClient.getContractInstance(pollSource);
+
+        const metadata = {
+            title: "Testing",
+            description: "This Poll is created for Testing purposes only",
+            link: "https://aeternity.com/",
+            is_listed: true
+        };
+        const vote_options = {0: "Only Option"};
+        const close_height = Promise.resolve(await ownerClient.height());
+
+        const init = await otherPollContract.methods.init(metadata, vote_options, close_height);
+        assert.equal(init.result.returnType, 'ok');
+
+        let voteError = await otherPollContract.methods.vote(0).catch(e => e);
+        assert.include(voteError.decodedError, 'POLL_ALREADY_CLOSED');
+    });
+
     it('Revoke Vote', async () => {
         let revokeVote = await pollContract.methods.revoke_vote();
         assert.equal(revokeVote.result.returnType, 'ok');

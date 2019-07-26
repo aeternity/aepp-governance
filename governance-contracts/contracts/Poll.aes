@@ -44,13 +44,14 @@ contract Poll =
     , votes : votes}
 
   entrypoint init(metadata : metadata, vote_options : vote_option, close_height : option(int)) : state =
+    //TODO more checks on metadata, vote_option and height?
     { metadata = metadata,
       vote_options = vote_options,
       close_height = close_height,
       votes = {} }
 
   stateful entrypoint vote(option : int) =
-    // TODO check if vote is closed
+    require(vote_not_closed(), "POLL_ALREADY_CLOSED")
     require(Map.member(option, state.vote_options), "VOTE_OPTION_NOT_KNOWN")
     put(state{ votes[Call.caller] = option})
 
@@ -68,3 +69,8 @@ contract Poll =
       is_listed = state.metadata.is_listed,
       close_height = state.close_height,
       votes_count = Map.size(state.votes) } //TODO count is not a good metric
+
+  function vote_not_closed() : bool =
+    switch(state.close_height)
+      Some(close_height) => close_height > Chain.block_height
+      None => true
