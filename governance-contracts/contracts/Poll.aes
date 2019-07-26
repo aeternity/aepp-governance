@@ -44,11 +44,13 @@ contract Poll =
     , votes : votes}
 
   entrypoint init(metadata : metadata, vote_options : vote_option, close_height : option(int)) : state =
-    //TODO more checks on metadata, vote_option and height?
+    //TODO consider more checks on metadata, vote_option and height
     { metadata = metadata,
       vote_options = vote_options,
       close_height = close_height,
       votes = {} }
+
+  // STATEFULL FUNCTIONS
 
   stateful entrypoint vote(option : int) =
     require(vote_not_closed(), "POLL_ALREADY_CLOSED")
@@ -57,6 +59,8 @@ contract Poll =
 
   stateful entrypoint revoke_vote() =
     put(state{ votes = Map.delete(Call.caller, state.votes) })
+
+  // STATELESS PUBLIC FUNCTIONS
 
   entrypoint get_state() : state = state
 
@@ -69,6 +73,8 @@ contract Poll =
       is_listed = state.metadata.is_listed,
       close_height = state.close_height,
       votes_count = Map.size(state.votes) } //TODO count is not a good metric
+
+  // INTERNAL HELPER FUNCTIONS
 
   function vote_not_closed() : bool =
     switch(state.close_height)

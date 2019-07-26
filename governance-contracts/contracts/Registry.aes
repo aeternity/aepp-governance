@@ -25,13 +25,12 @@ namespace List =
      e :: l' => f(e) :: map(f, l')
 
 namespace Option =
-  function is_defined(o : option('a)) =
+  function is_defined(o : option('a)) : bool =
     switch(o)
       Some(_) => true
       None => false
 
 contract Poll =
-
   record overview =
     { address : address
     , title : string
@@ -41,6 +40,8 @@ contract Poll =
 
   entrypoint overview : () => overview
   entrypoint voted_option : (address) => option(int)
+
+// ACTUAL CONTRACT
 
 contract Registry =
 
@@ -66,6 +67,8 @@ contract Registry =
       seq_id = 0,
       delegations = {} }
 
+  // STATEFULL FUNCTIONS
+
   stateful entrypoint add_poll(poll: Poll) =
     put(state{ polls[state.seq_id] = poll, seq_id = state.seq_id + 1 })
 
@@ -74,6 +77,8 @@ contract Registry =
 
   stateful entrypoint revoke_delegation() =
     put(state{ delegations = Map.delete(Call.caller, state.delegations) })
+
+  // STATELESS PUBLIC FUNCTIONS
 
   entrypoint get_state() : state = state
 
@@ -91,13 +96,15 @@ contract Registry =
       delegated_to = account_delegated,
       voter_or_delegatee_vote_option = voter_or_delegatee_vote_option }
 
-  private function require_poll_by_id(poll_id : int) : Poll =
-    switch(Map.lookup(poll_id, state.polls))
-      None => abort("POLL_ID_NOT_KNOWN")
-      Some(poll) => poll
-
-  entrypoint polls_overview() =
+  entrypoint polls_overview() : list((int, Poll.overview)) =
     let zip_seq_id_poll_overview = (seq_poll_tuple) =>
       switch(seq_poll_tuple)
         (seq_id, poll) => (seq_id, poll.overview())
     List.map(zip_seq_id_poll_overview, Map.to_list(state.polls))
+
+  // INTERNAL HELPER FUNCTIONS
+
+  function require_poll_by_id(poll_id : int) : Poll =
+    switch(Map.lookup(poll_id, state.polls))
+      None => abort("POLL_ID_NOT_KNOWN")
+      Some(poll) => poll
