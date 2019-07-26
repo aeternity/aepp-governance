@@ -1,0 +1,20 @@
+dist: xenial
+sudo: false
+
+language: node_js
+node_js: '10'
+
+env:
+  global:
+   - DIR=/home/travis/build/aeternity/aepp-governance
+
+jobs:
+  include:
+    - stage: contracts
+      script:
+       - cd $DIR/governance-contracts
+       - npm install -g forgae
+       - npm install
+       - forgae node
+       - forgae test
+
