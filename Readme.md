@@ -2,7 +2,7 @@
 
 This repository will hold the full system used for the aeternity polling system.
 It consists of the used smart contracts, including their tests.
-A trustless backend service used for aggregation and caching results for better presentation.
+A trustless backend service used for aggregation and caching of results for better presentation.
 Additionally there will be an frontend-aepp that allows for user-friendly registration, discovery and participation in polls.
 
 ## Introduction
@@ -31,3 +31,4 @@ Due to building this as smart contract system a few limitations are introduced, 
 
  - Each poll should be a single smart contract and in the future there could be multiple registries that provide different views on the same polls
  - Standardizing the polling system as aeternity aexpansion could yield more powerful alternative implementations without breaking compatibility in the future
+ - Certain events should be logged in the smart contract to be able to listen for them
