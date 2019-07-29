@@ -16,10 +16,11 @@
       <br/>
 
       <div v-for="[id, title] in pollState.vote_options">
-        <ae-check v-model="voteOption" @value="id" type="radio">
+        <ae-check v-model="voteOption" :value="id" type="radio" @change="vote()">
           {{title}}
         </ae-check>
       </div>
+      <span v-if="delegatorHasVoted">(delegatee voted for account)</span>
     </div>
   </div>
 </template>
@@ -36,20 +37,29 @@
             return {
                 pollId: null,
                 voteOption: null,
+                pollContract: null,
+                hasVotedOrDelegated: {},
                 pollState: {}
             }
         },
         computed: {},
-        methods: {},
+        methods: {
+            async vote() {
+                await this.pollContract.methods.vote(this.voteOption);
+            }
+        },
         async mounted() {
             this.pollId = this.$route.params.id;
 
+            this.hasVotedOrDelegated = (await aeternity.contract.methods.has_voted_or_delegated(aeternity.address, this.pollId)).decodedResult;
+            this.voteOption = this.hasVotedOrDelegated.voter_or_delegatee_vote_option;
+            this.delegatorHasVoted = !this.hasVotedOrDelegated.has_voted && this.hasVotedOrDelegated.has_delegated && this.voteOption !== undefined;
+
             const pollsOverview = await aeternity.contract.methods.polls_overview();
             const pollOverviewData = pollsOverview.decodedResult.find(([id, _]) => id == this.pollId)[1];
-            const pollContract = await aeternity.client.getContractInstance(pollContractSource, {contractAddress: pollOverviewData.address.replace('ak_', 'ct_')});
+            this.pollContract = await aeternity.client.getContractInstance(pollContractSource, {contractAddress: pollOverviewData.address.replace('ak_', 'ct_')});
 
-            this.pollState = (await pollContract.methods.get_state()).decodedResult;
-            console.log(this.pollState)
+            this.pollState = (await this.pollContract.methods.get_state()).decodedResult;
         }
     }
 </script>
