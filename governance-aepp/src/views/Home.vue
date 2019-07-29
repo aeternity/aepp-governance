@@ -1,23 +1,23 @@
 <template>
   <div>
     <h1 class="h1">Governance Aepp</h1>
-    <div v-if="address && balance">
-      <span>{{address}}</span>
-      <br/>
-      <span>Balance: {{balance}} AE</span>
-    </div>
     <br/>
     <div v-if="polls">
       <div v-for="[id, data] in polls">
         <a @click="$router.push(`/poll/${id}`)">#{{id}} {{data.title}} ({{data.votes_count}} votes)</a>
-        <br />
+        <br/>
         <span>{{closeHeight(data.close_height)}}</span>
-        <br />
+        <br/>
+        <br/>
       </div>
     </div>
 
     <div @click="$router.push('create')" class="fixed bottom-0 right-0 p-8">
       <ae-icon name="plus" fill="primary" face="round"
+               class="ae-icon-size shadow"></ae-icon>
+    </div>
+    <div @click="$router.push('account')" class="fixed bottom-0 left-0 p-8">
+      <ae-icon name="contacts" fill="primary" face="round"
                class="ae-icon-size shadow"></ae-icon>
     </div>
 
@@ -26,7 +26,7 @@
 
 <script>
     import aeternity from "~/utils/aeternityNetwork";
-    import { AeIcon } from '@aeternity/aepp-components/'
+    import {AeIcon} from '@aeternity/aepp-components/'
 
     export default {
         name: 'Home',
@@ -34,15 +34,14 @@
         data() {
             return {
                 address: null,
-                height: null,
                 balance: null,
                 polls: []
             }
         },
         computed: {},
         methods: {
-            closeHeight(close_height){
-                if(close_height === "None") return "poll never closes"
+            closeHeight(close_height) {
+                if (close_height === "None") return "poll never closes"
                 return `poll closes at block ${close_height.Some[0]}`
             }
         },

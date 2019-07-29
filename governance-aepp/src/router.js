@@ -2,6 +2,7 @@ import Router from 'vue-router'
 import Home from './views/Home.vue'
 import Create from './views/Create.vue'
 import Poll from "./views/Poll.vue";
+import Account from "./views/Account.vue";
 
 const routes = [
   {
@@ -14,6 +15,11 @@ const routes = [
     name: 'create',
     component: Create,
     meta: {title: 'Create'}
+  }, {
+    path: '/account',
+    name: 'account',
+    component: Account,
+    meta: {title: 'Account'}
   }, {
     path: '/poll/:id',
     name: 'poll',
