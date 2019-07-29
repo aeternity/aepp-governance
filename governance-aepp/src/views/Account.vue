@@ -14,19 +14,22 @@
     </div>
     <br/>
     <span v-if="delegation">
-    Delegated to: {{delegation.delegatee}}
+    Delegated to: <router-link :to="`/account/${delegation.delegatee}`">{{delegation.delegatee}}</router-link>
     </span>
-    <div>
+    <div v-if="isOwnAccount">
       <ae-input label="Delegatee" v-model="delegatee" aeddress>
       </ae-input>
       <ae-button face="round" fill="primary" extend @click="createDelegation()">Create Delegation</ae-button>
     </div>
     <br/>
-    <div>
+    <div v-if="delegations.length">
       Delegations
-      <span v-for="{delegator, _, delegatorAmount} in delegations">
-        {{delegator}} for {{delegatorAmount}} AE
-      </span>
+      <div v-for="{delegator, _, delegatorAmount} in delegations">
+        <router-link :to="`/account/${delegator}`">{{delegator}}</router-link>
+        for {{delegatorAmount}} AE
+        <br/>
+        <br/>
+      </div>
     </div>
   </div>
 </template>
@@ -49,6 +52,10 @@
             }
         },
         computed: {},
+        beforeRouteUpdate(to, from, next) {
+            next();
+            this.loadData();
+        },
         methods: {
             async createDelegation() {
                 if (this.delegatee.includes('ak_')) {
@@ -58,9 +65,13 @@
                 }
             },
             async loadData() {
-                this.address = aeternity.address;
-                this.balance = aeternity.balance;
-                const delegationsResult = await aeternity.contract.methods.delegations(this.address)
+                this.delegations = [];
+                this.delegation = null;
+                this.address = this.$route.params.account;
+                this.isOwnAccount = this.address === aeternity.address;
+
+                this.balance = BlockchainUtil.atomsToAe(await aeternity.client.balance(this.address));
+                const delegationsResult = await aeternity.contract.methods.delegations(this.address);
                 const allDelegations = await Promise.all(delegationsResult.decodedResult.map(async ([delegator, delegatee]) => {
                     return {
                         delegator: delegator,

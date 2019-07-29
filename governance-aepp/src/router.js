@@ -16,7 +16,7 @@ const routes = [
     component: Create,
     meta: {title: 'Create'}
   }, {
-    path: '/account',
+    path: '/account/:account',
     name: 'account',
     component: Account,
     meta: {title: 'Account'}
