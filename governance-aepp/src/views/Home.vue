@@ -1,51 +1,49 @@
 <template>
   <div>
-    <h1>Governance Aepp</h1>
+    <h1 class="h1">Governance Aepp</h1>
     <div v-if="address && balance">
       <span>{{address}}</span>
       <br/>
       <span>Balance: {{balance}} AE</span>
     </div>
-    <br />
+    <br/>
     <div v-if="polls">
       <div v-for="[id, data] in polls">
-        <span>#{{id}} {{data.title}} ({{data.votes_count}} votes)</span>
+        <a @click="$router.push(`/poll/${id}`)">#{{id}} {{data.title}} ({{data.votes_count}} votes)</a>
+        <br />
+        <span>{{closeHeight(data.close_height)}}</span>
+        <br />
       </div>
     </div>
+
+    <div @click="$router.push('create')" class="fixed bottom-0 right-0 p-8">
+      <ae-icon name="plus" fill="primary" face="round"
+               class="ae-icon-size shadow"></ae-icon>
+    </div>
+
   </div>
 </template>
 
 <script>
     import aeternity from "~/utils/aeternityNetwork";
-    import pollContractSource from '../../../governance-contracts/contracts/Poll.aes'
+    import { AeIcon } from '@aeternity/aepp-components/'
 
     export default {
         name: 'Home',
-        components: {},
+        components: {AeIcon},
         data() {
             return {
-                aeternity: null,
                 address: null,
+                height: null,
                 balance: null,
                 polls: []
             }
         },
         computed: {},
         methods: {
-            async createPoll() {
-                const metadata = {
-                    title: "Testing",
-                    description: "This Poll is created for Testing purposes only",
-                    link: "https://aeternity.com/",
-                    is_listed: true
-                };
-                const vote_options = {0: "Yes, test more", 1: "No, test less", 2: "Who cares?"};
-                const close_height = Promise.reject();
-
-                const pollContract = await aeternity.client.getContractInstance(pollContractSource);
-                const init = await pollContract.methods.init(metadata, vote_options, close_height);
-                const addPoll = await aeternity.contract.methods.add_poll(init.address);
-                console.log("addPoll", addPoll)
+            closeHeight(close_height){
+                if(close_height === "None") return "poll never closes"
+                return `poll closes at block ${close_height.Some[0]}`
             }
         },
         async mounted() {
@@ -53,10 +51,7 @@
             this.address = aeternity.address;
             this.balance = aeternity.balance;
             const pollsOverview = await aeternity.contract.methods.polls_overview();
-            console.log(pollsOverview.decodedResult[0]);
             this.polls = pollsOverview.decodedResult;
-
-            //await this.createPoll();
         }
     }
 </script>
