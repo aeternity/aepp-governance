@@ -75,7 +75,7 @@ describe('Governance Contracts', () => {
         assert.equal(init.result.returnType, 'ok');
 
         let addPoll = await registryContract.methods.add_poll(init.address);
-        assert.equal(addPoll.result.returnType, 'ok');
+        assert.equal(addPoll.decodedResult, 0);
     });
 
     it('Polls Overview', async () => {
@@ -104,7 +104,8 @@ describe('Governance Contracts', () => {
                 title: 'Testing'
             },
             vote_options: [[0, 'Yes, test more'], [1, 'No, test less'], [2, 'Who cares?']],
-            votes: []
+            votes: [],
+            author: ownerKeypair.publicKey
         });
     });
 

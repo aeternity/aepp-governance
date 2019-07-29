@@ -13,6 +13,8 @@
       <br/>
       Link: <a @href="pollState.metadata.link">{{pollState.metadata.link}}</a>
       <br/>
+      Author: <router-link :to="`/account/${pollState.author}`">{{pollState.author}}</router-link>
+      <br/>
       <br/>
 
       <div v-for="[id, title] in pollState.vote_options">

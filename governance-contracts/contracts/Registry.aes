@@ -79,8 +79,10 @@ contract Registry =
 
   // STATEFULL FUNCTIONS
 
-  stateful entrypoint add_poll(poll: Poll) =
+  stateful entrypoint add_poll(poll: Poll) : int =
+    let poll_seq_id = state.seq_id
     put(state{ polls[state.seq_id] = poll, seq_id = state.seq_id + 1 })
+    poll_seq_id
 
   stateful entrypoint delegate(delegatee : address) =
     require(Call.caller != delegatee, "CALLER_IS_DELEGATEE_DISALLOWED")
@@ -98,6 +100,12 @@ contract Registry =
       switch(delegation_tuple)
         (delegator, delegatee) => delegator == account || delegatee == account
     Map.from_list(List.filter(filter_delegations_account, Map.to_list(state.delegations)))
+
+  // TODO function to discover delegators recursively
+
+  // TODO function to find polls by voter account
+
+  // TODO function to find polls by author account
 
   entrypoint has_voted_or_delegated(account : address, poll_id : int) : voted_or_delegated =
     let account_delegated = Map.lookup(account, state.delegations)

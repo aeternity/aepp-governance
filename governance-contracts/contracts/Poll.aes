@@ -41,14 +41,16 @@ contract Poll =
     { metadata : metadata
     , vote_options : vote_option
     , close_height : option(int)
-    , votes : votes}
+    , votes : votes
+    , author : address }
 
   entrypoint init(metadata : metadata, vote_options : vote_option, close_height : option(int)) : state =
     //TODO consider more checks on metadata, vote_option and height
     { metadata = metadata,
       vote_options = vote_options,
       close_height = close_height,
-      votes = {} }
+      votes = {},
+      author = Call.caller }
 
   // STATEFULL FUNCTIONS
 

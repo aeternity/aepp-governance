@@ -63,6 +63,7 @@
                     const addPoll = await aeternity.contract.methods.add_poll(init.address);
                     console.log("addPoll", addPoll)
 
+
                     this.createMetadata = {
                         title: "",
                         description: "",
@@ -71,6 +72,8 @@
                     };
                     this.optionsString = ""
                     this.closeHeightString = ""
+
+                    this.$router.push(`/poll/${addPoll.decodedResult}`);
                 }
             }
         }
