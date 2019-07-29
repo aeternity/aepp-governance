@@ -154,6 +154,9 @@ describe('Governance Contracts', () => {
         let addDelegation = await registryContract.methods.delegate(otherKeypair.publicKey);
         assert.equal(addDelegation.result.returnType, 'ok');
 
+        let addDelegationError = await registryContract.methods.delegate(ownerKeypair.publicKey).catch(e => e);
+        assert.include(addDelegationError.decodedError, 'CALLER_IS_DELEGATEE_DISALLOWED');
+
         let registryState = await registryContract.methods.get_state();
         assert.deepEqual(registryState.decodedResult.delegations, [[ownerKeypair.publicKey, otherKeypair.publicKey]]);
 

@@ -83,6 +83,7 @@ contract Registry =
     put(state{ polls[state.seq_id] = poll, seq_id = state.seq_id + 1 })
 
   stateful entrypoint delegate(delegatee : address) =
+    require(Call.caller != delegatee, "CALLER_IS_DELEGATEE_DISALLOWED")
     put(state{ delegations[Call.caller] = delegatee })
 
   stateful entrypoint revoke_delegation() =
