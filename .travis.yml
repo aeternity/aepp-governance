@@ -10,6 +10,13 @@ env:
 
 jobs:
   include:
+
+    - stage: aepp
+      script: 
+       - cd $DIR/governance-aepp
+       - npm install
+       - npm run build
+
     - stage: contracts
       script:
        - cd $DIR/governance-contracts
