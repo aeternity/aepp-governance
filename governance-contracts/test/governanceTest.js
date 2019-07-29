@@ -156,6 +156,12 @@ describe('Governance Contracts', () => {
 
         let registryState = await registryContract.methods.get_state();
         assert.deepEqual(registryState.decodedResult.delegations, [[ownerKeypair.publicKey, otherKeypair.publicKey]]);
+
+        let delegationsFrom = await registryContract.methods.delegations(ownerKeypair.publicKey);
+        assert.deepEqual(delegationsFrom.decodedResult, [[ownerKeypair.publicKey, otherKeypair.publicKey]]);
+
+        let delegationsFor = await registryContract.methods.delegations(otherKeypair.publicKey);
+        assert.deepEqual(delegationsFor.decodedResult, [[ownerKeypair.publicKey, otherKeypair.publicKey]]);
     });
 
     it('Revoke Delegation', async () => {

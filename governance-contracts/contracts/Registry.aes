@@ -24,6 +24,16 @@ namespace List =
      [] => []
      e :: l' => f(e) :: map(f, l')
 
+  function filter(f : ('a) => bool, l : list('a)) = filter'(f, l, [])
+  private function filter'(f : ('a) => bool, l : list('a), acc : list('a)) =
+    switch(l)
+      [] => acc
+      e :: l' =>
+        if(f(e))
+          filter'(f, l', e :: acc)
+        else
+          filter'(f, l', acc)
+
 namespace Option =
   function is_defined(o : option('a)) : bool =
     switch(o)
@@ -81,6 +91,12 @@ contract Registry =
   // STATELESS PUBLIC FUNCTIONS
 
   entrypoint get_state() : state = state
+
+  entrypoint delegations(account : address) : delegations =
+    let filter_delegations_account = (delegation_tuple) =>
+      switch(delegation_tuple)
+        (delegator, delegatee) => delegator == account || delegatee == account
+    Map.from_list(List.filter(filter_delegations_account, Map.to_list(state.delegations)))
 
   entrypoint has_voted_or_delegated(account : address, poll_id : int) : voted_or_delegated =
     let account_delegated = Map.lookup(account, state.delegations)
