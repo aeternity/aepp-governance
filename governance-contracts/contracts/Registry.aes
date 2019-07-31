@@ -35,9 +35,6 @@ namespace List =
           filter'(f, l', acc)
 
 namespace Tuple =
-  function pair_first(tuple) =
-    switch(tuple)
-      (e, _) => e
   function pair_second(tuple) =
     switch(tuple)
       (_, e) => e
@@ -110,12 +107,9 @@ contract Registry =
 
   // TODO function to find polls by author account
 
-  entrypoint delegators_chain(account : address, chain_acc : list((address, address))) : list((address, address)) =
+  entrypoint delegators(account : address) : delegations =
     let filter_delegations_account = (delegation_tuple) => Tuple.pair_second(delegation_tuple) == account
-    let delegator_delegation = List.filter(filter_delegations_account, Map.to_list(state.delegations))
-    switch(delegator_delegation)
-      [] => chain_acc
-      delegation :: _ => delegators_chain(Tuple.pair_first(delegation), delegation :: chain_acc)
+    Map.from_list(List.filter(filter_delegations_account, Map.to_list(state.delegations)))
 
   entrypoint has_voted_or_delegated(account : address, poll_id : int) : voted_or_delegated =
     let account_delegated = Map.lookup(account, state.delegations)

@@ -166,10 +166,10 @@ describe('Governance Contracts', () => {
         let delegationsFrom = await registryContract.methods.delegatee(ownerKeypair.publicKey);
         assert.equal(delegationsFrom.decodedResult, secondKeypair.publicKey);
 
-        let delegationsFor1 = await registryContract.methods.delegators_chain(ownerKeypair.publicKey, []);
+        let delegationsFor1 = await registryContract.methods.delegators(ownerKeypair.publicKey, []);
         assert.deepEqual(delegationsFor1.decodedResult, []);
 
-        let delegationsFor2 = await registryContract.methods.delegators_chain(secondKeypair.publicKey, []);
+        let delegationsFor2 = await registryContract.methods.delegators(secondKeypair.publicKey, []);
         assert.deepEqual(delegationsFor2.decodedResult, [[ownerKeypair.publicKey, secondKeypair.publicKey]]);
     });
 
@@ -181,16 +181,16 @@ describe('Governance Contracts', () => {
         assert.deepEqual(registryState.decodedResult.delegations, []);
     });
 
-    it('Delegators Chain', async () => {
-        let addDelegation1 = await registryContract.methods.delegate(secondKeypair.publicKey);
+    it('Get Delegators', async () => {
+        let addDelegation1 = await registryContract.methods.delegate(thirdKeypair.publicKey);
         assert.equal(addDelegation1.result.returnType, 'ok');
 
         const secondClientRegistryContract = await secondClient.getContractInstance(registrySource, {contractAddress: registryContract.deployInfo.address});
         let addDelegation2 = await secondClientRegistryContract.methods.delegate(thirdKeypair.publicKey);
         assert.equal(addDelegation2.result.returnType, 'ok');
 
-        let delegationsFor = await registryContract.methods.delegators_chain(thirdKeypair.publicKey, []);
-        assert.deepEqual(delegationsFor.decodedResult, [[ownerKeypair.publicKey, secondKeypair.publicKey], [secondKeypair.publicKey, thirdKeypair.publicKey]]);
+        let delegationsFor = await registryContract.methods.delegators(thirdKeypair.publicKey, []);
+        assert.deepEqual(delegationsFor.decodedResult, [[ownerKeypair.publicKey, thirdKeypair.publicKey], [secondKeypair.publicKey, thirdKeypair.publicKey]]);
 
         let revokeDelegation1 = await registryContract.methods.revoke_delegation();
         assert.equal(revokeDelegation1.result.returnType, 'ok');

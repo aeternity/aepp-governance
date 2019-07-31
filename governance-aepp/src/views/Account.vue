@@ -14,7 +14,7 @@
     </div>
     <br/>
     <span v-if="delegation">
-    Delegated to: <router-link :to="`/account/${delegation.delegatee}`">{{delegation.delegatee}}</router-link>
+    Delegated to: <router-link :to="`/account/${delegation}`">{{delegation}}</router-link>
     </span>
     <div v-if="isOwnAccount">
       <ae-input label="Delegatee" v-model="delegatee" aeddress>
@@ -24,9 +24,9 @@
     <br/>
     <div v-if="delegations.length">
       Delegations
-      <div v-for="{delegator, _, delegatorAmount} in delegations">
+      <div v-for="{delegator, _, delegatorAmount, includesIndirectDelegations} in delegations">
         <router-link :to="`/account/${delegator}`">{{delegator}}</router-link>
-        for {{delegatorAmount}} AE
+        for {{delegatorAmount}} AE <span v-if="includesIndirectDelegations">(includes more indirect delegations)</span>
         <br/>
         <br/>
       </div>
@@ -46,8 +46,9 @@
             return {
                 address: null,
                 balance: null,
-                delegation: null,
                 delegatee: "",
+                isOwnAccount: false,
+                delegation: null,
                 delegations: []
             }
         },
@@ -71,17 +72,19 @@
                 this.isOwnAccount = this.address === aeternity.address;
 
                 this.balance = BlockchainUtil.atomsToAe(await aeternity.client.balance(this.address));
-                const delegationsResult = await aeternity.contract.methods.delegations(this.address);
-                const allDelegations = await Promise.all(delegationsResult.decodedResult.map(async ([delegator, delegatee]) => {
+
+                this.delegation = (await aeternity.contract.methods.delegatee(this.address)).decodedResult;
+
+                const delegationsResult = await aeternity.contract.methods.delegators(this.address);
+                this.delegations = await Promise.all(delegationsResult.decodedResult.map(async ([delegator, delegatee]) => {
+                    const delegateeDelegations = (await aeternity.contract.methods.delegators(delegator)).decodedResult;
                     return {
                         delegator: delegator,
                         delegatee: delegatee,
-                        delegatorAmount: BlockchainUtil.atomsToAe(await aeternity.client.balance(delegator))
+                        delegatorAmount: BlockchainUtil.atomsToAe(await aeternity.client.balance(delegator)),
+                        includesIndirectDelegations: delegateeDelegations.length !== 0
                     }
                 }));
-
-                this.delegation = allDelegations.find(delegation => delegation.delegator === this.address);
-                this.delegations = allDelegations.filter(delegation => delegation.delegatee === this.address);
             }
         },
         async mounted() {
