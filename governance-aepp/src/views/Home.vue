@@ -1,5 +1,8 @@
 <template>
   <div>
+    <div class="overlay-loader" v-show="showLoading">
+      <BiggerLoader></BiggerLoader>
+    </div>
     <h1 class="h1">Governance Aepp</h1>
     <br/>
     <div v-if="polls">
@@ -27,12 +30,14 @@
 <script>
     import aeternity from "~/utils/aeternity";
     import {AeIcon} from '@aeternity/aepp-components/'
+    import BiggerLoader from '../components/BiggerLoader'
 
     export default {
         name: 'Home',
-        components: {AeIcon},
+        components: {AeIcon, BiggerLoader},
         data() {
             return {
+                showLoading: true,
                 address: null,
                 balance: null,
                 polls: []
@@ -51,6 +56,7 @@
             this.balance = aeternity.balance;
             const pollsOverview = await aeternity.contract.methods.polls_overview();
             this.polls = pollsOverview.decodedResult;
+            this.showLoading = false;
         }
     }
 </script>

@@ -1,5 +1,8 @@
 <template>
   <div>
+    <div class="overlay-loader" v-show="showLoading">
+      <BiggerLoader></BiggerLoader>
+    </div>
     <div @click="$router.push('/')" class="fixed top-0 right-0 p-8">
       <ae-icon name="close" fill="primary" face="round"
                class="ae-icon-size shadow"></ae-icon>
@@ -16,16 +19,18 @@
     </div>
     <br/>
     <span v-if="delegation">
-    Delegated to: <router-link :to="`/account/${delegation}`">{{delegation}}</router-link>
+      <h2 class="h2">Delegated to: </h2>
+      <router-link :to="`/account/${delegation}`">{{delegation}}</router-link>
     </span>
     <div v-if="isOwnAccount">
       <ae-input label="Delegatee" v-model="delegatee" aeddress>
       </ae-input>
       <ae-button face="round" fill="primary" extend @click="createDelegation()">Create Delegation</ae-button>
     </div>
+    <br v-else/>
     <br/>
     <div v-if="delegations.length">
-      Delegations
+      <h2 class="h2">Delegations</h2>
       <div v-for="{delegator, _, delegatorAmount, includesIndirectDelegations} in delegations">
         <router-link :to="`/account/${delegator}`">{{delegator}}</router-link>
         for {{delegatorAmount}} AE <span v-if="includesIndirectDelegations">(includes more indirect delegations)</span>
@@ -41,12 +46,14 @@
     import {AeIcon, AeButton, AeInput} from '@aeternity/aepp-components/'
     import BlockchainUtil from "~/utils/util";
     import axios from 'axios'
+    import BiggerLoader from '../components/BiggerLoader'
 
     export default {
         name: 'Home',
-        components: {AeIcon, AeButton, AeInput},
+        components: {AeIcon, AeButton, AeInput, BiggerLoader},
         data() {
             return {
+                showLoading: true,
                 address: null,
                 balance: null,
                 power: null,
@@ -64,11 +71,13 @@
         methods: {
             async createDelegation() {
                 if (this.delegatee.includes('ak_')) {
+                    this.showLoading = true;
                     await aeternity.contract.methods.delegate(this.delegatee);
                     await this.loadData();
                 }
             },
             async loadData() {
+                this.showLoading = true;
                 this.delegatee = null;
                 this.delegations = [];
                 this.delegation = null;
@@ -91,8 +100,9 @@
                     }
                 }));
 
-                axios.get(`http://localhost:3000/delegatedPower/${this.address}`)
-                    .then(res => this.power = BlockchainUtil.atomsToAe(res.data));
+                const delegatedPower = await axios.get(`http://localhost:3000/delegatedPower/${this.address}`).then(res => res.data);
+                this.power = BlockchainUtil.atomsToAe(delegatedPower);
+                this.showLoading = false;
             }
         },
         async mounted() {

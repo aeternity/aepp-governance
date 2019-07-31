@@ -1,5 +1,8 @@
 <template>
   <div>
+    <div class="overlay-loader" v-show="showLoading">
+      <BiggerLoader></BiggerLoader>
+    </div>
     <div @click="$router.push('/')" class="fixed top-0 right-0 p-8">
       <ae-icon name="close" fill="primary" face="round"
                class="ae-icon-size shadow"></ae-icon>
@@ -46,12 +49,14 @@
     import pollContractSource from '../../../governance-contracts/contracts/Poll.aes'
     import axios from 'axios'
     import BlockchainUtil from "~/utils/util";
+    import BiggerLoader from '../components/BiggerLoader'
 
     export default {
         name: 'Home',
-        components: {AeIcon, AeCheck, AeToolbar},
+        components: {AeIcon, AeCheck, AeToolbar, BiggerLoader},
         data() {
             return {
+                showLoading: true,
                 pollId: null,
                 voteOption: null,
                 pollContract: null,
@@ -63,6 +68,7 @@
         computed: {},
         methods: {
             async vote() {
+                this.showLoading = true;
                 await this.pollContract.methods.vote(this.voteOption);
                 await this.loadData();
             },
@@ -82,8 +88,9 @@
 
                 this.pollState = (await this.pollContract.methods.get_state()).decodedResult;
 
-                axios.get(`http://localhost:3000/votesState/${pollAddress}`)
-                    .then(res => this.pollVotesState = {...res.data, ...{totalStakeAE: BlockchainUtil.atomsToAe(res.data.totalStake).toFixed(2)}});
+                const votesState = await axios.get(`http://localhost:3000/votesState/${pollAddress}`).then(res => res.data);
+                this.pollVotesState = {...votesState, ...{totalStakeAE: BlockchainUtil.atomsToAe(votesState.totalStake).toFixed(2)}};
+                this.showLoading = false;
             }
         },
         async mounted() {

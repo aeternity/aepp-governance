@@ -17,8 +17,8 @@ aeternity.nodeUrl = "https://sdk-testnet.aepps.com/";
 
 aeternity.cache = {};
 aeternity.cache.totalSupply = {};
-aeternity.cache.getTotalSupply = (height) => aeternity.cache.totalSupply[height % 100];
-aeternity.cache.setTotalSupply = (height, totalSupply) => aeternity.cache.totalSupply = {...aeternity.cache.totalSupply, ...{[height % 100]: totalSupply}};
+aeternity.cache.getTotalSupply = (height) => aeternity.cache.totalSupply[(height / 100).toFixed()];
+aeternity.cache.setTotalSupply = (height, totalSupply) => aeternity.cache.totalSupply = {...aeternity.cache.totalSupply, ...{[(height / 100).toFixed()]: totalSupply}};
 
 aeternity.init = async () => {
     aeternity.client = await Universal({

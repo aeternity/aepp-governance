@@ -1,5 +1,8 @@
 <template>
   <div>
+    <div class="overlay-loader" v-show="showLoading">
+      <BiggerLoader></BiggerLoader>
+    </div>
     <div @click="$router.push('/')" class="fixed top-0 right-0 p-8">
       <ae-icon name="close" fill="primary" face="round"
                class="ae-icon-size shadow"></ae-icon>
@@ -29,12 +32,14 @@
     import aeternity from "~/utils/aeternity";
     import {AeIcon, AeButton, AeInput, AeCheck} from "@aeternity/aepp-components";
     import pollContractSource from '../../../governance-contracts/contracts/Poll.aes'
+    import BiggerLoader from '../components/BiggerLoader'
 
     export default {
         name: 'Home',
-        components: {AeIcon, AeButton, AeInput, AeCheck},
+        components: {AeIcon, AeButton, AeInput, AeCheck, BiggerLoader},
         data() {
             return {
+                showLoading: false,
                 createMetadata: {
                     title: "",
                     description: "",
@@ -50,7 +55,7 @@
         methods: {
             async createPoll() {
                 if (this.createMetadata.title.length >= 3 && this.optionsString.length >= 3) {
-
+                    this.showLoading = true;
                     const close_height = isNaN(parseInt(this.closeHeightString)) ? Promise.reject() : Promise.resolve(parseInt(this.closeHeightString));
                     const options = this.optionsString.split(',').reduce(({seq, res}, cur) => {
                         console.log("seq", seq, "res", res, "cur", cur)
