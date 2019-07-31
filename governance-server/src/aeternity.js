@@ -15,6 +15,11 @@ const aeternity = {};
 aeternity.nodeUrl = "http://192.168.0.100:8081/";
 aeternity.nodeUrl = "https://sdk-testnet.aepps.com/";
 
+aeternity.cache = {};
+aeternity.cache.totalSupply = {};
+aeternity.cache.getTotalSupply = (height) => aeternity.cache.totalSupply[height % 100];
+aeternity.cache.setTotalSupply = (height, totalSupply) => aeternity.cache.totalSupply = {...aeternity.cache.totalSupply, ...{[height % 100]: totalSupply}};
+
 aeternity.init = async () => {
     aeternity.client = await Universal({
         url: aeternity.nodeUrl,
@@ -54,8 +59,13 @@ aeternity.delegators = async (address) => {
 };
 
 aeternity.tokenSupply = async (height) => {
+    var cache = aeternity.cache.getTotalSupply(height);
+    if(cache) return cache;
     const result = await axios.get(`${aeternity.nodeUrl}v2/debug/token-supply/height/${height}`);
-    return new BigNumber(result.data.total).toFixed();
+    const value = new BigNumber(result.data.total).toFixed();
+    aeternity.cache.setTotalSupply(height, value);
+
+    return value;
 };
 
 aeternity.pollDetails = async (pollOverviews) => {
@@ -70,7 +80,9 @@ aeternity.pollDetails = async (pollOverviews) => {
 };
 
 aeternity.pollVotesState = async (address) => {
+    var start = new Date().getTime();
     const pollState = await aeternity.pollState(address);
+    console.log("pollState", new Date().getTime() - start, "ms");
 
     const votingAccounts = pollState.votes.map(([account, option]) => {
         return {
@@ -80,13 +92,20 @@ aeternity.pollVotesState = async (address) => {
     });
     const votingAccountList = votingAccounts.map(({account, _}) => account);
 
+    start = new Date().getTime();
     const stakesAtHeight = await aeternity.stakesAtHeight(votingAccounts, pollState.close_height, votingAccountList);
+    console.log("stakesAtHeight", new Date().getTime() - start, "ms");
+
     const totalStake = stakesAtHeight.map(vote => vote.stake).reduce((acc, cur) => acc.plus(cur), new BigNumber('0')).toFixed();
     const stakesForOption = aeternity.stakesForOption(pollState.vote_options, stakesAtHeight, totalStake);
 
     const height = await aeternity.client.height();
     const closingHeightOrCurrentHeight = pollState.close_height ? pollState.close_height <= height ? pollState.close_height : height : height;
+
+    start = new Date().getTime();
     const tokenSupply = await aeternity.tokenSupply(closingHeightOrCurrentHeight);
+    console.log("tokenSupply", new Date().getTime() - start, "ms");
+
     const percentOfTotalSupply = new BigNumber(totalStake).dividedBy(tokenSupply).multipliedBy(100).toFixed(4);
     return {
         pollState: pollState,
@@ -98,6 +117,9 @@ aeternity.pollVotesState = async (address) => {
 };
 
 aeternity.balanceAtHeightOrZero = async (account, height) => {
+
+    console.log("         balanceAtHeightOrZero", account, height);
+
     const heightOption = height ? {height: height} : {};
 
     return aeternity.client.balance(account, heightOption).catch(async (e) => {
@@ -150,15 +172,18 @@ aeternity.stakesForOption = (voteOptions, votingAccountStakes, totalStake) => {
 };
 
 
-aeternity.delegationTree = async (address, closeHeight, ignoreAccounts = []) => {
+aeternity.delegationTree = async (address, height, ignoreAccounts = []) => {
     if (!aeternity.client) await aeternity.init();
 
-    const height = await aeternity.client.height();
-    const closingHeightOrCurrentHeight = closeHeight ? closeHeight <= height ? closeHeight : height : height;
     const initialAddress = address;
 
     async function discoverDelegationChain(address) {
-        return (await aeternity.delegators(address)).reduce(async (promiseAcc, [delegator, _]) => {
+
+        var start = new Date().getTime();
+        const delegators = await aeternity.delegators(address);
+        console.log("      aeternity.delegators", new Date().getTime()-start,"ms");
+
+        return delegators.reduce(async (promiseAcc, [delegator, _]) => {
 
             const ignoreAccount = delegator === initialAddress || ignoreAccounts.includes(delegator);
             const recursiveDelegations = ignoreAccount ? [] : await discoverDelegationChain(delegator);
@@ -166,7 +191,7 @@ aeternity.delegationTree = async (address, closeHeight, ignoreAccounts = []) => 
             if (ignoreAccount) {
                 return promiseAcc;
             } else {
-                const delegatorBalance = await aeternity.balanceAtHeightOrZero(delegator, closingHeightOrCurrentHeight);
+                const delegatorBalance = await aeternity.balanceAtHeightOrZero(delegator, height);
                 return {
                     ...(await promiseAcc), ...{
                         [delegator]: {
@@ -183,8 +208,12 @@ aeternity.delegationTree = async (address, closeHeight, ignoreAccounts = []) => 
 };
 
 aeternity.balancePlusVotingPower = async (address, height, ignoreAccounts = []) => {
+    var start = new Date().getTime();
+
     const balance = await aeternity.balanceAtHeightOrZero(address, height);
     const delegatedPower = await aeternity.delegatedPower(address, height, ignoreAccounts);
+
+    console.log("   balancePlusVotingPower", new Date().getTime() - start, "ms");
 
     return new BigNumber(balance).plus(new BigNumber(delegatedPower)).toFixed();
 };
