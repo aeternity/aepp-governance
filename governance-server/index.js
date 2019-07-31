@@ -1,8 +1,32 @@
 const aeternity = require("./src/aeternity");
+const express = require('express');
+const cors = require('cors');
 
-const test = async () => {
-    const data = await aeternity.pollVotesState("ak_vGKZPqdXgWAQon5wdG8P1hKgcKE31VWc2rWK5jCswZKiJRQpG");
-    console.log(data);
+const app = express();
+
+const errorHandler = (f) => {
+    return (req, res, next) => {
+        try {
+            f(req, res, next);
+        } catch (e) {
+            next(e);
+        }
+    }
 };
 
-test();
+app.use(cors({
+    origin: '*',
+    optionsSuccessStatus: 200,
+    methods: [ 'GET', 'OPTIONS']
+}));
+
+app.get('/votesState/:address', errorHandler(async (req, res) => {
+    if (!req.params.address) return res.sendStatus(400);
+    const address = req.params.address;
+
+    const data = await aeternity.pollVotesState(address);
+    res.json(data)
+}));
+
+aeternity.init();
+app.listen(3000);

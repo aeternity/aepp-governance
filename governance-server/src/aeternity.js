@@ -27,6 +27,7 @@ aeternity.init = async () => {
     });
 
     aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: 'ct_21AkKmq4JkQf9Mwu8kNcnFTpFGf5q7xDqToaUJ7hfph5bSZF6v'})
+    console.log("initialized aeternity sdk")
 };
 
 aeternity.pollsOverview = async () => {
