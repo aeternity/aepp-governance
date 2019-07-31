@@ -1,6 +1,7 @@
 const fs = require('fs');
 const Universal = require('@aeternity/aepp-sdk').Universal;
 const BigNumber = require('bignumber.js');
+const axios = require('axios');
 
 const registryContractSource = fs.readFileSync(__dirname + "/../../governance-contracts/contracts/Registry.aes", "utf-8");
 const pollContractSource = fs.readFileSync(__dirname + "/../../governance-contracts/contracts/Poll.aes", "utf-8");
@@ -11,10 +12,12 @@ const groupBy = (xs, key) => xs.reduce((acc, x) => Object.assign({}, acc, {
 
 const aeternity = {};
 
-const init = async () => {
+aeternity.nodeUrl = "https://sdk-testnet.aepps.com/";
+
+aeternity.init = async () => {
     aeternity.client = await Universal({
-        url: "https://sdk-testnet.aepps.com/",
-        internalUrl: "https://sdk-testnet.aepps.com/",
+        url: aeternity.nodeUrl,
+        internalUrl: aeternity.nodeUrl,
         keypair: {
             publicKey: "ak_11111111111111111111111111111111273Yts",
             secretKey: ""
@@ -27,18 +30,23 @@ const init = async () => {
 };
 
 aeternity.pollsOverview = async () => {
-    if (!aeternity.client) await init();
+    if (!aeternity.client) await aeternity.init();
 
     const polls = await aeternity.contract.methods.polls_overview();
     return polls.decodedResult;
 };
 
 aeternity.pollState = async (address) => {
-    if (!aeternity.client) await init();
+    if (!aeternity.client) await aeternity.init();
 
     const pollContract = await aeternity.client.getContractInstance(pollContractSource, {contractAddress: address.replace("ak_", "ct_")});
     const pollState = await pollContract.methods.get_state();
     return pollState.decodedResult;
+};
+
+aeternity.tokenSupply = async (height) => {
+    const result = await axios.get(`${aeternity.nodeUrl}v2/debug/token-supply/height/${height}`);
+    return new BigNumber(result.data.total).toFixed();
 };
 
 aeternity.pollDetails = async (pollOverviews) => {
@@ -54,7 +62,6 @@ aeternity.pollDetails = async (pollOverviews) => {
 
 aeternity.pollVotesState = async (address) => {
     const pollState = await aeternity.pollState(address);
-    console.log(pollState);
 
     const votingAccounts = pollState.votes.map(([account, option]) => {
         return {
@@ -67,11 +74,16 @@ aeternity.pollVotesState = async (address) => {
     const totalStake = stakesAtHeight.map(vote => vote.stake).reduce((acc, cur) => acc.plus(cur), new BigNumber('0')).toFixed();
     const stakesForOption = aeternity.stakesForOption(stakesAtHeight, totalStake);
 
+    const height = await aeternity.client.height();
+    const closingHeightOrCurrentHeight = pollState.close_height ? pollState.close_height <= height ? pollState.close_height : height : height;
+    const tokenSupply = await aeternity.tokenSupply(closingHeightOrCurrentHeight);
+    const percentOfTotalSupply = new BigNumber(totalStake).dividedBy(tokenSupply).multipliedBy(100).toFixed(4);
     return {
         pollState: pollState,
         stakesAtHeight: stakesAtHeight,
         stakesForOption: stakesForOption,
-        totalStake: totalStake
+        totalStake: totalStake,
+        percentOfTotalSupply: percentOfTotalSupply
     };
 };
 
