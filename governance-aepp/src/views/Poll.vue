@@ -29,7 +29,7 @@
         <ae-check class="vote-check" v-model="voteOption" :value="id" type="radio" @change="vote()"></ae-check>
 
         <div class="vote-bar-container" v-if="pollVotesState.stakesForOption">
-          <ae-toolbar :fill="voteOption==id ? 'custom' : ''" class="vote-bar"
+          <ae-toolbar :fill="delegateeVoteOption==id ? 'custom' : ''" class="vote-bar"
                       :style="{'width': `${pollVotesState.stakesForOption[id].percentageOfTotal}%`}">{{title}}
             ({{pollVotesState.stakesForOption[id].percentageOfTotal}}%)
           </ae-toolbar>
@@ -58,6 +58,7 @@
             return {
                 showLoading: true,
                 pollId: null,
+                delegateeVoteOption: null,
                 voteOption: null,
                 pollContract: null,
                 hasVotedOrDelegated: {},
@@ -78,8 +79,9 @@
                 this.pollId = this.$route.params.id;
 
                 this.hasVotedOrDelegated = (await aeternity.contract.methods.has_voted_or_delegated(aeternity.address, this.pollId)).decodedResult;
-                this.voteOption = this.hasVotedOrDelegated.voter_or_delegatee_vote_option;
-                this.delegatorHasVoted = !this.hasVotedOrDelegated.has_voted && this.hasVotedOrDelegated.has_delegated && this.voteOption !== undefined;
+                this.delegatorHasVoted = !this.hasVotedOrDelegated.has_voted && this.hasVotedOrDelegated.has_delegated && this.hasVotedOrDelegated.voter_or_delegatee_vote_option !== undefined;
+                this.delegateeVoteOption = this.hasVotedOrDelegated.voter_or_delegatee_vote_option;
+                this.voteOption = this.delegatorHasVoted ? null : this.hasVotedOrDelegated.voter_or_delegatee_vote_option;
 
                 const pollsOverview = await aeternity.contract.methods.polls_overview();
                 const pollOverviewData = pollsOverview.decodedResult.find(([id, _]) => id == this.pollId)[1];
