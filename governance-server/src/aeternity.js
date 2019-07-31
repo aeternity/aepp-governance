@@ -12,6 +12,7 @@ const groupBy = (xs, key) => xs.reduce((acc, x) => Object.assign({}, acc, {
 
 const aeternity = {};
 
+aeternity.nodeUrl = "http://192.168.0.100:8081/";
 aeternity.nodeUrl = "https://sdk-testnet.aepps.com/";
 
 aeternity.init = async () => {
@@ -77,10 +78,9 @@ aeternity.pollVotesState = async (address) => {
             option: option
         };
     });
+    const votingAccountList = votingAccounts.map(({account, _}) => account);
 
-    // TODO include delegation chain in calculation
-
-    const stakesAtHeight = await aeternity.stakesAtHeight(votingAccounts, pollState.close_height);
+    const stakesAtHeight = await aeternity.stakesAtHeight(votingAccounts, pollState.close_height, votingAccountList);
     const totalStake = stakesAtHeight.map(vote => vote.stake).reduce((acc, cur) => acc.plus(cur), new BigNumber('0')).toFixed();
     const stakesForOption = aeternity.stakesForOption(pollState.vote_options, stakesAtHeight, totalStake);
 
@@ -114,13 +114,12 @@ aeternity.balanceAtHeightOrZero = async (account, height) => {
     });
 };
 
-aeternity.stakesAtHeight = async (votingAccounts, closeHeight) => {
+aeternity.stakesAtHeight = async (votingAccounts, closeHeight, ignoreAccounts) => {
     const votingAccountStakes = [];
     for (let vote of votingAccounts) {
-        const balanceAtHeight = await aeternity.balanceAtHeightOrZero(vote.account, closeHeight);
-        votingAccountStakes.push({...vote, ...{stake: balanceAtHeight}}) // append stake to vote object
+        const balancePlusVotingPowerAtHeight = await aeternity.balancePlusVotingPower(vote.account, closeHeight, ignoreAccounts);
+        votingAccountStakes.push({...vote, ...{stake: balancePlusVotingPowerAtHeight}}) // append stake to vote object
     }
-
     return votingAccountStakes;
 };
 
@@ -130,7 +129,6 @@ aeternity.stakesForOption = (voteOptions, votingAccountStakes, totalStake) => {
     }, {});
 
     const votesByOption = {...voteOptionsEmptyVotes, ...groupBy(votingAccountStakes, 'option')};
-    console.log(votesByOption);
     const stakesForOption = Object.keys(votesByOption).reduce(function (acc, option) {
         const votes = votesByOption[option]
             .sort((a, b) => a.account.localeCompare(b.account))
@@ -152,7 +150,7 @@ aeternity.stakesForOption = (voteOptions, votingAccountStakes, totalStake) => {
 };
 
 
-aeternity.delegationTree = async (address, closeHeight) => {
+aeternity.delegationTree = async (address, closeHeight, ignoreAccounts = []) => {
     if (!aeternity.client) await aeternity.init();
 
     const height = await aeternity.client.height();
@@ -162,22 +160,21 @@ aeternity.delegationTree = async (address, closeHeight) => {
     async function discoverDelegationChain(address) {
         return (await aeternity.delegators(address)).reduce(async (promiseAcc, [delegator, _]) => {
 
-            const delegatorBalance = await aeternity.balanceAtHeightOrZero(delegator, closingHeightOrCurrentHeight);
+            const ignoreAccount = delegator === initialAddress || ignoreAccounts.includes(delegator);
+            const recursiveDelegations = ignoreAccount ? [] : await discoverDelegationChain(delegator);
 
-            const recursiveDelegations = delegator === initialAddress ? [] : await discoverDelegationChain(delegator);
-
-            if (delegator !== initialAddress) {
+            if (ignoreAccount) {
+                return promiseAcc;
+            } else {
+                const delegatorBalance = await aeternity.balanceAtHeightOrZero(delegator, closingHeightOrCurrentHeight);
                 return {
                     ...(await promiseAcc), ...{
                         [delegator]: {
                             delegations: recursiveDelegations,
-                            balance: delegatorBalance,
-                            loopingDelegation: false
+                            balance: delegatorBalance
                         }
                     }
                 };
-            } else {
-                return {...(await promiseAcc), ...{loopingDelegation: true}};
             }
         }, Promise.resolve({}));
     }
@@ -185,19 +182,26 @@ aeternity.delegationTree = async (address, closeHeight) => {
     return discoverDelegationChain(address);
 };
 
-aeternity.delegatedPower = async (address) => {
-    const delegationTree = await aeternity.delegationTree(address);
+aeternity.balancePlusVotingPower = async (address, height, ignoreAccounts = []) => {
+    const balance = await aeternity.balanceAtHeightOrZero(address, height);
+    const delegatedPower = await aeternity.delegatedPower(address, height, ignoreAccounts);
+
+    return new BigNumber(balance).plus(new BigNumber(delegatedPower)).toFixed();
+};
+
+aeternity.delegatedPower = async (address, closeHeight, ignoreAccounts = []) => {
 
     function sumDelegatedPower(delegationTree) {
         return Object.keys(delegationTree).reduce((acc, delegator) => {
             const delegation = delegationTree[delegator];
-            const subDelegationBalances = delegation.delegations.loopingDelegation ? new BigNumber('0') : sumDelegatedPower(delegation.delegations);
+            const subDelegationBalances = delegation.delegations === {} ? new BigNumber('0') : sumDelegatedPower(delegation.delegations);
 
             return acc.plus(new BigNumber(delegation.balance)).plus(subDelegationBalances)
         }, new BigNumber('0'))
     }
 
-    return sumDelegatedPower(delegationTree).toFixed();
+    const initialDelegationTree = await aeternity.delegationTree(address, closeHeight, ignoreAccounts);
+    return sumDelegatedPower(initialDelegationTree).toFixed();
 };
 
 module.exports = aeternity;

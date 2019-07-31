@@ -67,6 +67,8 @@
                 await this.loadData();
             },
             async loadData() {
+                //TODO correctly discover if voting power has been delegated
+
                 this.pollId = this.$route.params.id;
 
                 this.hasVotedOrDelegated = (await aeternity.contract.methods.has_voted_or_delegated(aeternity.address, this.pollId)).decodedResult;
