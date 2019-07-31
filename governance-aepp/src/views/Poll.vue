@@ -41,11 +41,11 @@
 </template>
 
 <script>
-    import aeternity from "~/utils/aeternityNetwork";
+    import aeternity from "~/utils/aeternity";
     import {AeIcon, AeCheck, AeToolbar} from '@aeternity/aepp-components/'
     import pollContractSource from '../../../governance-contracts/contracts/Poll.aes'
     import axios from 'axios'
-    import BlockchainUtil from "~/utils/blockchainUtil";
+    import BlockchainUtil from "~/utils/util";
 
     export default {
         name: 'Home',

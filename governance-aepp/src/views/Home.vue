@@ -25,7 +25,7 @@
 </template>
 
 <script>
-    import aeternity from "~/utils/aeternityNetwork";
+    import aeternity from "~/utils/aeternity";
     import {AeIcon} from '@aeternity/aepp-components/'
 
     export default {

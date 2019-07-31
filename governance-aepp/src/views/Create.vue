@@ -26,7 +26,7 @@
 </template>
 
 <script>
-    import aeternity from "~/utils/aeternityNetwork";
+    import aeternity from "~/utils/aeternity";
     import {AeIcon, AeButton, AeInput, AeCheck} from "@aeternity/aepp-components";
     import pollContractSource from '../../../governance-contracts/contracts/Poll.aes'
 

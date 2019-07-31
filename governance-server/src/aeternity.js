@@ -26,7 +26,7 @@ aeternity.init = async () => {
         compilerUrl: "https://compiler.aepps.com"
     });
 
-    aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: 'ct_21AkKmq4JkQf9Mwu8kNcnFTpFGf5q7xDqToaUJ7hfph5bSZF6v'})
+    aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: 'ct_2enw9SGKdLVgAdhnS9bxZGmpWvWvj4z1Co2mhCaDwXcrevzree'})
     console.log("initialized aeternity sdk")
 };
 

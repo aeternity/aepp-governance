@@ -1,5 +1,5 @@
 import Aepp from '@aeternity/aepp-sdk/es/ae/aepp'
-import BlockchainUtil from '../utils/blockchainUtil'
+import BlockchainUtil from './util'
 import registryContractSource from '../../../governance-contracts/contracts/Registry.aes'
 
 const aeternity = {
@@ -28,7 +28,7 @@ aeternity.initProvider = async () => {
       .then(balance => `${BlockchainUtil.atomsToAe(balance)}`.replace(',', ''))
       .catch(() => '0')
     aeternity.networkId = (await aeternity.client.getNodeInfo()).nodeNetworkId
-    aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: 'ct_21AkKmq4JkQf9Mwu8kNcnFTpFGf5q7xDqToaUJ7hfph5bSZF6v'})
+    aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: 'ct_2enw9SGKdLVgAdhnS9bxZGmpWvWvj4z1Co2mhCaDwXcrevzree'})
     return true
   } catch (e) {
     console.warn(e)

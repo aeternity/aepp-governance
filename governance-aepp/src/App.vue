@@ -21,7 +21,7 @@
 
   import { AeMain } from '@aeternity/aepp-components'
   import CriticalErrorOverlay from '~/components/CriticalErrorOverlay'
-  import aeternity from '~/utils/aeternityNetwork.js'
+  import aeternity from '~/utils/aeternity.js'
   import BiggerLoader from './components/BiggerLoader'
 
   export default {

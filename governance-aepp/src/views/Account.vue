@@ -35,9 +35,9 @@
 </template>
 
 <script>
-    import aeternity from "~/utils/aeternityNetwork";
+    import aeternity from "~/utils/aeternity";
     import {AeIcon, AeButton, AeInput} from '@aeternity/aepp-components/'
-    import BlockchainUtil from "~/utils/blockchainUtil";
+    import BlockchainUtil from "~/utils/util";
 
     export default {
         name: 'Home',
