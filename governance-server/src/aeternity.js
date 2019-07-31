@@ -73,7 +73,7 @@ aeternity.pollVotesState = async (address) => {
 
     const stakesAtHeight = await aeternity.stakesAtHeight(votingAccounts, pollState.close_height);
     const totalStake = stakesAtHeight.map(vote => vote.stake).reduce((acc, cur) => acc.plus(cur), new BigNumber('0')).toFixed();
-    const stakesForOption = aeternity.stakesForOption(stakesAtHeight, totalStake);
+    const stakesForOption = aeternity.stakesForOption(pollState.vote_options, stakesAtHeight, totalStake);
 
     const height = await aeternity.client.height();
     const closingHeightOrCurrentHeight = pollState.close_height ? pollState.close_height <= height ? pollState.close_height : height : height;
@@ -110,8 +110,13 @@ aeternity.stakesAtHeight = async (votingAccounts, closeHeight) => {
     return votingAccountStakes;
 };
 
-aeternity.stakesForOption = (votingAccountStakes, totalStake) => {
-    const votesByOption = groupBy(votingAccountStakes, 'option');
+aeternity.stakesForOption = (voteOptions, votingAccountStakes, totalStake) => {
+    const voteOptionsEmptyVotes = voteOptions.reduce((acc, [id, _]) => {
+        return {...acc, ...{[id.toString()]: []}}
+    }, {});
+
+    const votesByOption = {...voteOptionsEmptyVotes, ...groupBy(votingAccountStakes, 'option')};
+    console.log(votesByOption);
     const stakesForOption = Object.keys(votesByOption).reduce(function (acc, option) {
         const votes = votesByOption[option]
             .sort((a, b) => a.account.localeCompare(b.account))
@@ -122,9 +127,10 @@ aeternity.stakesForOption = (votingAccountStakes, totalStake) => {
         }, new BigNumber('0')).toFixed();
 
         // divide by total stake to get percentage of total
-        const percentageOfTotal = new BigNumber(optionStake).dividedBy(totalStake).multipliedBy(100).toFixed(2);
+        const percentageOfTotal = new BigNumber(optionStake).dividedBy(totalStake).multipliedBy(100);
+        const percentageOfTotalString = percentageOfTotal.isNaN() ? new BigNumber('0') : percentageOfTotal.toFixed(2);
 
-        acc.push({option: option, optionStake: optionStake, percentageOfTotal: percentageOfTotal, votes: votes}); // add stakes and votes for option to final result
+        acc.push({option: option, optionStake: optionStake, percentageOfTotal: percentageOfTotalString, votes: votes}); // add stakes and votes for option to final result
         return acc;
     }, []);
 
