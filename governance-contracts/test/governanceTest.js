@@ -29,11 +29,13 @@ const config = {
 
 describe('Governance Contracts', () => {
 
-    let ownerClient, otherClient, otherKeypair, ownerKeypair, registryContract, pollContract;
+    let ownerKeypair, ownerClient, secondKeypair, secondClient, thirdKeypair;
+    let registryContract, pollContract;
 
     before(async () => {
         ownerKeypair = wallets[0];
-        otherKeypair = wallets[1];
+        secondKeypair = wallets[1];
+        thirdKeypair = wallets[2];
         ownerClient = await Universal({
             url: config.host,
             internalUrl: config.internalHost,
@@ -43,10 +45,10 @@ describe('Governance Contracts', () => {
             compilerUrl: config.compilerUrl
         });
 
-        otherClient = await Universal({
+        secondClient = await Universal({
             url: config.host,
             internalUrl: config.internalHost,
-            keypair: otherKeypair,
+            keypair: secondKeypair,
             nativeMode: true,
             networkId: 'ae_devnet',
             compilerUrl: config.compilerUrl
@@ -119,7 +121,7 @@ describe('Governance Contracts', () => {
     });
 
     it('Add Vote; Failing, poll already closed', async () => {
-        const otherPollContract = await otherClient.getContractInstance(pollSource);
+        const otherPollContract = await secondClient.getContractInstance(pollSource);
 
         const metadata = {
             title: "Testing",
@@ -152,20 +154,23 @@ describe('Governance Contracts', () => {
     });
 
     it('Add Delegation', async () => {
-        let addDelegation = await registryContract.methods.delegate(otherKeypair.publicKey);
-        assert.equal(addDelegation.result.returnType, 'ok');
+        let addDelegation1 = await registryContract.methods.delegate(secondKeypair.publicKey);
+        assert.equal(addDelegation1.result.returnType, 'ok');
 
         let addDelegationError = await registryContract.methods.delegate(ownerKeypair.publicKey).catch(e => e);
         assert.include(addDelegationError.decodedError, 'CALLER_IS_DELEGATEE_DISALLOWED');
 
         let registryState = await registryContract.methods.get_state();
-        assert.deepEqual(registryState.decodedResult.delegations, [[ownerKeypair.publicKey, otherKeypair.publicKey]]);
+        assert.deepEqual(registryState.decodedResult.delegations, [[ownerKeypair.publicKey, secondKeypair.publicKey]]);
 
-        let delegationsFrom = await registryContract.methods.delegations(ownerKeypair.publicKey);
-        assert.deepEqual(delegationsFrom.decodedResult, [[ownerKeypair.publicKey, otherKeypair.publicKey]]);
+        let delegationsFrom = await registryContract.methods.delegatee(ownerKeypair.publicKey);
+        assert.equal(delegationsFrom.decodedResult, secondKeypair.publicKey);
 
-        let delegationsFor = await registryContract.methods.delegations(otherKeypair.publicKey);
-        assert.deepEqual(delegationsFor.decodedResult, [[ownerKeypair.publicKey, otherKeypair.publicKey]]);
+        let delegationsFor1 = await registryContract.methods.delegators_chain(ownerKeypair.publicKey, []);
+        assert.deepEqual(delegationsFor1.decodedResult, []);
+
+        let delegationsFor2 = await registryContract.methods.delegators_chain(secondKeypair.publicKey, []);
+        assert.deepEqual(delegationsFor2.decodedResult, [[ownerKeypair.publicKey, secondKeypair.publicKey]]);
     });
 
     it('Revoke Delegation', async () => {
@@ -174,6 +179,24 @@ describe('Governance Contracts', () => {
 
         let registryState = await registryContract.methods.get_state();
         assert.deepEqual(registryState.decodedResult.delegations, []);
+    });
+
+    it('Delegators Chain', async () => {
+        let addDelegation1 = await registryContract.methods.delegate(secondKeypair.publicKey);
+        assert.equal(addDelegation1.result.returnType, 'ok');
+
+        const secondClientRegistryContract = await secondClient.getContractInstance(registrySource, {contractAddress: registryContract.deployInfo.address});
+        let addDelegation2 = await secondClientRegistryContract.methods.delegate(thirdKeypair.publicKey);
+        assert.equal(addDelegation2.result.returnType, 'ok');
+
+        let delegationsFor = await registryContract.methods.delegators_chain(thirdKeypair.publicKey, []);
+        assert.deepEqual(delegationsFor.decodedResult, [[ownerKeypair.publicKey, secondKeypair.publicKey], [secondKeypair.publicKey, thirdKeypair.publicKey]]);
+
+        let revokeDelegation1 = await registryContract.methods.revoke_delegation();
+        assert.equal(revokeDelegation1.result.returnType, 'ok');
+
+        let revokeDelegation2 = await secondClientRegistryContract.methods.revoke_delegation();
+        assert.equal(revokeDelegation2.result.returnType, 'ok');
     });
 
     it('Has Voted or Delegated', async () => {
@@ -186,23 +209,23 @@ describe('Governance Contracts', () => {
         });
 
         // add delegation
-        await registryContract.methods.delegate(otherKeypair.publicKey);
+        await registryContract.methods.delegate(secondKeypair.publicKey);
         let hasVotedOrDelegated2 = await registryContract.methods.has_voted_or_delegated(ownerKeypair.publicKey, 0);
         assert.deepEqual(hasVotedOrDelegated2.decodedResult, {
             has_voted: false,
             has_delegated: true,
-            delegated_to: otherKeypair.publicKey,
+            delegated_to: secondKeypair.publicKey,
             voter_or_delegatee_vote_option: undefined
         });
 
         // add vote by delegatee
-        const otherPollContract = await otherClient.getContractInstance(pollSource, {contractAddress: pollContract.deployInfo.address});
+        const otherPollContract = await secondClient.getContractInstance(pollSource, {contractAddress: pollContract.deployInfo.address});
         await otherPollContract.methods.vote(1);
         let hasVotedOrDelegated3 = await registryContract.methods.has_voted_or_delegated(ownerKeypair.publicKey, 0);
         assert.deepEqual(hasVotedOrDelegated3.decodedResult, {
             has_voted: false,
             has_delegated: true,
-            delegated_to: otherKeypair.publicKey,
+            delegated_to: secondKeypair.publicKey,
             voter_or_delegatee_vote_option: 1
         });
 
@@ -212,11 +235,11 @@ describe('Governance Contracts', () => {
         assert.deepEqual(hasVotedOrDelegated4.decodedResult, {
             has_voted: true,
             has_delegated: true,
-            delegated_to: otherKeypair.publicKey,
+            delegated_to: secondKeypair.publicKey,
             voter_or_delegatee_vote_option: 2
         });
 
-        let hasVotedOrDelegated5 = await registryContract.methods.has_voted_or_delegated(otherKeypair.publicKey, 0);
+        let hasVotedOrDelegated5 = await registryContract.methods.has_voted_or_delegated(secondKeypair.publicKey, 0);
         assert.deepEqual(hasVotedOrDelegated5.decodedResult, {
             has_voted: true,
             has_delegated: false,

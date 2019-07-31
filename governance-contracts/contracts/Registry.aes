@@ -34,6 +34,14 @@ namespace List =
         else
           filter'(f, l', acc)
 
+namespace Tuple =
+  function pair_first(tuple) =
+    switch(tuple)
+      (e, _) => e
+  function pair_second(tuple) =
+    switch(tuple)
+      (_, e) => e
+
 namespace Option =
   function is_defined(o : option('a)) : bool =
     switch(o)
@@ -95,17 +103,19 @@ contract Registry =
 
   entrypoint get_state() : state = state
 
-  entrypoint delegations(account : address) : delegations =
-    let filter_delegations_account = (delegation_tuple) =>
-      switch(delegation_tuple)
-        (delegator, delegatee) => delegator == account || delegatee == account
-    Map.from_list(List.filter(filter_delegations_account, Map.to_list(state.delegations)))
-
-  // TODO function to discover delegators recursively
+  entrypoint delegatee(account : address) : option(address) =
+    Map.lookup(account, state.delegations)
 
   // TODO function to find polls by voter account
 
   // TODO function to find polls by author account
+
+  entrypoint delegators_chain(account : address, chain_acc : list((address, address))) : list((address, address)) =
+    let filter_delegations_account = (delegation_tuple) => Tuple.pair_second(delegation_tuple) == account
+    let delegator_delegation = List.filter(filter_delegations_account, Map.to_list(state.delegations))
+    switch(delegator_delegation)
+      [] => chain_acc
+      delegation :: _ => delegators_chain(Tuple.pair_first(delegation), delegation :: chain_acc)
 
   entrypoint has_voted_or_delegated(account : address, poll_id : int) : voted_or_delegated =
     let account_delegated = Map.lookup(account, state.delegations)

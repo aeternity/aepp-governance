@@ -71,6 +71,8 @@ aeternity.pollVotesState = async (address) => {
         };
     });
 
+    // TODO include delegation chain in calculation
+
     const stakesAtHeight = await aeternity.stakesAtHeight(votingAccounts, pollState.close_height);
     const totalStake = stakesAtHeight.map(vote => vote.stake).reduce((acc, cur) => acc.plus(cur), new BigNumber('0')).toFixed();
     const stakesForOption = aeternity.stakesForOption(pollState.vote_options, stakesAtHeight, totalStake);
