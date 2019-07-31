@@ -17,7 +17,7 @@ const errorHandler = (f) => {
 app.use(cors({
     origin: '*',
     optionsSuccessStatus: 200,
-    methods: [ 'GET', 'OPTIONS']
+    methods: ['GET', 'OPTIONS']
 }));
 
 app.get('/votesState/:address', errorHandler(async (req, res) => {
@@ -25,6 +25,14 @@ app.get('/votesState/:address', errorHandler(async (req, res) => {
     const address = req.params.address;
 
     const data = await aeternity.pollVotesState(address);
+    res.json(data)
+}));
+
+app.get('/delegatedPower/:address', errorHandler(async (req, res) => {
+    if (!req.params.address) return res.sendStatus(400);
+    const address = req.params.address;
+
+    const data = await aeternity.delegatedPower(address);
     res.json(data)
 }));
 

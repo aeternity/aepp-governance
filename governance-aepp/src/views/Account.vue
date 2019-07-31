@@ -11,6 +11,8 @@
       <span>{{address}}</span>
       <br/>
       <span>Stake: {{balance}} AE</span>
+      <br/>
+      <span>est. delegated Power: {{power}} AE</span>
     </div>
     <br/>
     <span v-if="delegation">
@@ -38,6 +40,7 @@
     import aeternity from "~/utils/aeternity";
     import {AeIcon, AeButton, AeInput} from '@aeternity/aepp-components/'
     import BlockchainUtil from "~/utils/util";
+    import axios from 'axios'
 
     export default {
         name: 'Home',
@@ -46,6 +49,7 @@
             return {
                 address: null,
                 balance: null,
+                power: null,
                 delegatee: "",
                 isOwnAccount: false,
                 delegation: null,
@@ -62,12 +66,13 @@
                 if (this.delegatee.includes('ak_')) {
                     await aeternity.contract.methods.delegate(this.delegatee);
                     await this.loadData();
-                    this.delegatee = null;
                 }
             },
             async loadData() {
+                this.delegatee = null;
                 this.delegations = [];
                 this.delegation = null;
+                this.power = null;
                 this.address = this.$route.params.account;
                 this.isOwnAccount = this.address === aeternity.address;
 
@@ -85,6 +90,9 @@
                         includesIndirectDelegations: delegateeDelegations.length !== 0
                     }
                 }));
+
+                axios.get(`http://localhost:3000/delegatedPower/${this.address}`)
+                    .then(res => this.power = BlockchainUtil.atomsToAe(res.data));
             }
         },
         async mounted() {

@@ -45,6 +45,13 @@ aeternity.pollState = async (address) => {
     return pollState.decodedResult;
 };
 
+aeternity.delegators = async (address) => {
+    if (!aeternity.client) await aeternity.init();
+
+    const delegators = await aeternity.contract.methods.delegators(address);
+    return delegators.decodedResult;
+};
+
 aeternity.tokenSupply = async (height) => {
     const result = await axios.get(`${aeternity.nodeUrl}v2/debug/token-supply/height/${height}`);
     return new BigNumber(result.data.total).toFixed();
@@ -90,22 +97,27 @@ aeternity.pollVotesState = async (address) => {
     };
 };
 
+aeternity.balanceAtHeightOrZero = async (account, height) => {
+    const heightOption = height ? {height: height} : {};
+
+    return aeternity.client.balance(account, heightOption).catch(async (e) => {
+        if (e.message.includes("Height not available")) {
+            // account balance will fail if not yet at closing height, use current height for a temporary result
+            return await aeternity.client.balance(account).catch((e) => {
+                console.error(e);
+                return '0'
+            });
+        } else {
+            // account balance will fail if account didn't exist at closing height, so stake is 0
+            return '0';
+        }
+    });
+};
+
 aeternity.stakesAtHeight = async (votingAccounts, closeHeight) => {
     const votingAccountStakes = [];
     for (let vote of votingAccounts) {
-        const closingHeightOptions = closeHeight ? {height: closeHeight} : {};
-        const balanceAtHeight = await aeternity.client.balance(vote.account, closingHeightOptions).catch(async (e) => {
-            if (e.message.includes("Height not available")) {
-                // account balance will fail if not yet at closing height, use current height for a temporary result
-                return await aeternity.client.balance(vote.account).catch((e) => {
-                    console.error(e);
-                    return '0'
-                });
-            } else {
-                // account balance will fail if account didn't exist at closing height, so stake is 0
-                return '0';
-            }
-        });
+        const balanceAtHeight = await aeternity.balanceAtHeightOrZero(vote.account, closeHeight);
         votingAccountStakes.push({...vote, ...{stake: balanceAtHeight}}) // append stake to vote object
     }
 
@@ -137,6 +149,55 @@ aeternity.stakesForOption = (voteOptions, votingAccountStakes, totalStake) => {
     }, []);
 
     return stakesForOption;
+};
+
+
+aeternity.delegationTree = async (address, closeHeight) => {
+    if (!aeternity.client) await aeternity.init();
+
+    const height = await aeternity.client.height();
+    const closingHeightOrCurrentHeight = closeHeight ? closeHeight <= height ? closeHeight : height : height;
+    const initialAddress = address;
+
+    async function discoverDelegationChain(address) {
+        return (await aeternity.delegators(address)).reduce(async (promiseAcc, [delegator, _]) => {
+
+            const delegatorBalance = await aeternity.balanceAtHeightOrZero(delegator, closingHeightOrCurrentHeight);
+
+            const recursiveDelegations = delegator === initialAddress ? [] : await discoverDelegationChain(delegator);
+
+            if (delegator !== initialAddress) {
+                return {
+                    ...(await promiseAcc), ...{
+                        [delegator]: {
+                            delegations: recursiveDelegations,
+                            balance: delegatorBalance,
+                            loopingDelegation: false
+                        }
+                    }
+                };
+            } else {
+                return {...(await promiseAcc), ...{loopingDelegation: true}};
+            }
+        }, Promise.resolve({}));
+    }
+
+    return discoverDelegationChain(address);
+};
+
+aeternity.delegatedPower = async (address) => {
+    const delegationTree = await aeternity.delegationTree(address);
+
+    function sumDelegatedPower(delegationTree) {
+        return Object.keys(delegationTree).reduce((acc, delegator) => {
+            const delegation = delegationTree[delegator];
+            const subDelegationBalances = delegation.delegations.loopingDelegation ? new BigNumber('0') : sumDelegatedPower(delegation.delegations);
+
+            return acc.plus(new BigNumber(delegation.balance)).plus(subDelegationBalances)
+        }, new BigNumber('0'))
+    }
+
+    return sumDelegatedPower(delegationTree).toFixed();
 };
 
 module.exports = aeternity;
