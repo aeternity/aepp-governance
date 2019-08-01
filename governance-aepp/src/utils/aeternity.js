@@ -137,4 +137,9 @@ aeternity.initClient = async () => {
   return result
 }
 
+aeternity.verifyAddress = async () => {
+  const currAddress = await aeternity.client.address()
+  return currAddress !== aeternity.address
+}
+
 export default aeternity

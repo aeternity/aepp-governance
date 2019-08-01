@@ -36,6 +36,14 @@
         errorClick: () => {}
       }
     },
+      methods: {
+          async checkAndReloadProvider() {
+              if (!aeternity) return
+
+              const changesDetected = await aeternity.verifyAddress()
+              if (changesDetected) this.$router.go();
+          }
+      },
     async created () {
       // Bypass check if there is already an active wallet
       try {
@@ -62,6 +70,8 @@
 
         //await wallet.init()
         //console.log(wallet.walletName)
+
+        setInterval(this.checkAndReloadProvider, 1000)
       } catch (e) {
         console.error('INIT ERROR', e)
         this.error = 'Could not connect to your wallet. Please make sure you grant this application access to your wallet.'
