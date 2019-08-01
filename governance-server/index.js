@@ -36,5 +36,13 @@ app.get('/delegatedPower/:address', errorHandler(async (req, res) => {
     res.json(data)
 }));
 
+app.get('/delegatedPower/:address', errorHandler(async (req, res) => {
+    if (!req.params.address) return res.sendStatus(400);
+    const address = req.params.address;
+
+    const data = await aeternity.delegatedPower(address);
+    res.json(data)
+}));
+
 aeternity.init();
 app.listen(3000);

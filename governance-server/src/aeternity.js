@@ -60,7 +60,7 @@ aeternity.delegators = async (address) => {
 
 aeternity.tokenSupply = async (height) => {
     var cache = aeternity.cache.getTotalSupply(height);
-    if(cache) return cache;
+    if (cache) return cache;
     const result = await axios.get(`${aeternity.nodeUrl}v2/debug/token-supply/height/${height}`);
     const value = new BigNumber(result.data.total).toFixed();
     aeternity.cache.setTotalSupply(height, value);
@@ -139,8 +139,15 @@ aeternity.balanceAtHeightOrZero = async (account, height) => {
 aeternity.stakesAtHeight = async (votingAccounts, closeHeight, ignoreAccounts) => {
     const votingAccountStakes = [];
     for (let vote of votingAccounts) {
-        const balancePlusVotingPowerAtHeight = await aeternity.balancePlusVotingPower(vote.account, closeHeight, ignoreAccounts);
-        votingAccountStakes.push({...vote, ...{stake: balancePlusVotingPowerAtHeight}}) // append stake to vote object
+        const {votingPower, balance, delegatedPower, _, flattenedDelegationTree} = await aeternity.balancePlusVotingPower(vote.account, closeHeight, ignoreAccounts);
+        votingAccountStakes.push({
+            ...vote, ...{
+                stake: votingPower,
+                balance: balance,
+                delegated: delegatedPower,
+                delegators: flattenedDelegationTree
+            }
+        }) // append stake to vote object
     }
     return votingAccountStakes;
 };
@@ -181,7 +188,7 @@ aeternity.delegationTree = async (address, height, ignoreAccounts = []) => {
 
         var start = new Date().getTime();
         const delegators = await aeternity.delegators(address);
-        console.log("      aeternity.delegators", new Date().getTime()-start,"ms");
+        console.log("      aeternity.delegators", new Date().getTime() - start, "ms");
 
         return delegators.reduce(async (promiseAcc, [delegator, _]) => {
 
@@ -211,26 +218,48 @@ aeternity.balancePlusVotingPower = async (address, height, ignoreAccounts = []) 
     var start = new Date().getTime();
 
     const balance = await aeternity.balanceAtHeightOrZero(address, height);
-    const delegatedPower = await aeternity.delegatedPower(address, height, ignoreAccounts);
+    const {delegatedPower, delegationTree, flattenedDelegationTree} = await aeternity.delegatedPower(address, height, ignoreAccounts);
 
     console.log("   balancePlusVotingPower", new Date().getTime() - start, "ms");
 
-    return new BigNumber(balance).plus(new BigNumber(delegatedPower)).toFixed();
+    return {
+        votingPower: new BigNumber(balance).plus(new BigNumber(delegatedPower)).toFixed(),
+        balance: balance,
+        delegatedPower: delegatedPower,
+        delegationTree: delegationTree,
+        flattenedDelegationTree: flattenedDelegationTree
+    }
 };
 
 aeternity.delegatedPower = async (address, closeHeight, ignoreAccounts = []) => {
 
     function sumDelegatedPower(delegationTree) {
-        return Object.keys(delegationTree).reduce((acc, delegator) => {
+        return Object.keys(delegationTree).reduce(({delegatedPower, flattenedDelegationTree}, delegator) => {
             const delegation = delegationTree[delegator];
-            const subDelegationBalances = delegation.delegations === {} ? new BigNumber('0') : sumDelegatedPower(delegation.delegations);
 
-            return acc.plus(new BigNumber(delegation.balance)).plus(subDelegationBalances)
-        }, new BigNumber('0'))
+            const recursionResult = Object.keys(delegation.delegations).length === 0
+                ? {
+                    delegatedPower: new BigNumber('0'),
+                    flattenedDelegationTree: [{delegator: delegator, balance: delegation.balance}]
+                }
+                : sumDelegatedPower(delegation.delegations);
+
+            return {
+                delegatedPower: delegatedPower.plus(new BigNumber(delegation.balance)).plus(recursionResult.delegatedPower),
+                flattenedDelegationTree: flattenedDelegationTree.concat(recursionResult.flattenedDelegationTree)
+            }
+        }, {delegatedPower: new BigNumber('0'), flattenedDelegationTree: []})
     }
 
     const initialDelegationTree = await aeternity.delegationTree(address, closeHeight, ignoreAccounts);
-    return sumDelegatedPower(initialDelegationTree).toFixed();
+    const {delegatedPower, flattenedDelegationTree} = sumDelegatedPower(initialDelegationTree);
+    console.log("3", delegatedPower, flattenedDelegationTree);
+
+    return {
+        delegatedPower: delegatedPower.toFixed(),
+        delegationTree: initialDelegationTree,
+        flattenedDelegationTree: flattenedDelegationTree
+    };
 };
 
 module.exports = aeternity;

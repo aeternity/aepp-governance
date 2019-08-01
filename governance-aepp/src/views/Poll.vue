@@ -24,7 +24,7 @@
       Percentage of total supply: {{pollVotesState.percentOfTotalSupply}}%
       <br/>
       <br/>
-      <div v-if="delegatorHasVoted">includes vote by
+      <div v-if="delegateeVoteOption != null">includes vote by
         <router-link :to="`/account/${accountAddress}`"> (sub-)delegatee</router-link>
         <br/>
         <span class="text-xs">vote to overwrite, revokation of delegation possible in account</span>
@@ -33,7 +33,7 @@
         <ae-check class="vote-check" v-model="voteOption" :value="id" type="radio" @change="vote()"></ae-check>
 
         <div class="vote-bar-container" v-if="pollVotesState.stakesForOption">
-          <ae-toolbar :fill="delegateeVoteOption===id ? 'custom' : ''" class="vote-bar"
+          <ae-toolbar :fill="delegateeVoteOption===id || voteOption===id ? 'custom' : ''" class="vote-bar"
                       :style="{'width': `${pollVotesState.stakesForOption[id].percentageOfTotal}%`}">{{title}}
             ({{pollVotesState.stakesForOption[id].percentageOfTotal}}%)
           </ae-toolbar>
@@ -66,7 +66,6 @@
                 delegateeVoteOption: null,
                 voteOption: null,
                 pollContract: null,
-                hasVotedOrDelegated: {},
                 pollState: {},
                 pollVotesState: {}
             }
@@ -84,16 +83,8 @@
                 await this.loadData();
             },
             async loadData() {
-                //TODO correctly discover if voting power has been delegated
-
                 this.pollId = this.$route.params.id;
                 this.accountAddress = aeternity.address;
-
-                this.hasVotedOrDelegated = (await aeternity.contract.methods.has_voted_or_delegated(aeternity.address, this.pollId)).decodedResult;
-                this.delegatorHasVoted = !this.hasVotedOrDelegated.has_voted && this.hasVotedOrDelegated.has_delegated && this.hasVotedOrDelegated.voter_or_delegatee_vote_option !== undefined;
-                this.delegateeVoteOption = this.hasVotedOrDelegated.voter_or_delegatee_vote_option;
-                console.log("this.hasVotedOrDelegated.voter_or_delegatee_vote_option", this.hasVotedOrDelegated.voter_or_delegatee_vote_option)
-                this.voteOption = this.delegatorHasVoted ? null : this.hasVotedOrDelegated.voter_or_delegatee_vote_option;
 
                 const pollsOverview = await aeternity.contract.methods.polls_overview();
                 const pollOverviewData = pollsOverview.decodedResult.find(([id, _]) => id == this.pollId)[1];
@@ -102,10 +93,17 @@
 
                 this.pollState = (await this.pollContract.methods.get_state()).decodedResult;
 
+                // TODO correctly discover if voting power has been delegated
+                const accountVote = this.pollState.votes.find(([voter, _]) => voter === this.accountAddress);
+                this.voteOption = accountVote ? accountVote[1] : null;
+
                 const votesState = await axios.get(`http://localhost:3000/votesState/${pollAddress}`).then(res => res.data);
                 this.pollVotesState = {...votesState, ...{totalStakeAE: BlockchainUtil.atomsToAe(votesState.totalStake).toFixed(2)}};
+
+                const delegationIncludesAccount = this.pollVotesState.stakesForOption.find(data => data.votes.some(vote => vote.delegators.some(delegation => delegation.delegator === this.accountAddress)));
+                this.delegateeVoteOption = delegationIncludesAccount ? parseInt(delegationIncludesAccount.option) : null;
+
                 this.showLoading = false;
-                console.log("voteOption", this.voteOption, this.voteOption != null);
             }
         },
         async mounted() {
