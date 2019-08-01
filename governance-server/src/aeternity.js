@@ -12,8 +12,8 @@ const groupBy = (xs, key) => xs.reduce((acc, x) => Object.assign({}, acc, {
 
 const aeternity = {};
 
-aeternity.nodeUrl = "http://192.168.0.100:8081/";
-aeternity.nodeUrl = "https://sdk-testnet.aepps.com/";
+aeternity.nodeUrl = "http://localhost:3001/";
+//aeternity.nodeUrl = "https://sdk-testnet.aepps.com/";
 
 aeternity.cache = {};
 aeternity.cache.totalSupply = {};
@@ -29,10 +29,10 @@ aeternity.init = async () => {
             secretKey: ""
         },
         networkId: "ae_uat",
-        compilerUrl: "https://compiler.aepps.com"
+        compilerUrl: "http://localhost:3080"
     });
 
-    aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: 'ct_Ju7DXw8coKJdYbJF3oh9AaSYKSL3mTxR2zJtSQ4iGP5Rvhs1v'})
+    aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: 'ct_2n1MVAiBLWi7zK4dm4UvAfrziu4xK1AKE9zcYC99TKeiPw2LKN'})
     console.log("initialized aeternity sdk")
 };
 
