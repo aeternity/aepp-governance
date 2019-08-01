@@ -25,7 +25,10 @@
     <div v-if="isOwnAccount">
       <ae-input label="Delegatee" v-model="delegatee" aeddress>
       </ae-input>
-      <ae-button face="round" fill="primary" extend @click="createDelegation()">Create Delegation</ae-button>
+      <div class="revokation-buttons">
+        <ae-button face="round" fill="primary" extend @click="createDelegation()">Create</ae-button>
+        <ae-button face="round" extend @click="revokeDelegation()" v-if="delegation">Revoke</ae-button>
+      </div>
     </div>
     <br v-else/>
     <br/>
@@ -76,6 +79,11 @@
                     await this.loadData();
                 }
             },
+            async revokeDelegation() {
+                this.showLoading = true;
+                await aeternity.contract.methods.revoke_delegation();
+                await this.loadData();
+            },
             async loadData() {
                 this.showLoading = true;
                 this.delegatee = null;
@@ -112,5 +120,7 @@
 </script>
 
 <style scoped>
-
+  .revokation-buttons {
+    display: flex;
+  }
 </style>

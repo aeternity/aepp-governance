@@ -24,12 +24,16 @@
       Percentage of total supply: {{pollVotesState.percentOfTotalSupply}}%
       <br/>
       <br/>
-
+      <div v-if="delegatorHasVoted">includes vote by
+        <router-link :to="`/account/${accountAddress}`"> (sub-)delegatee</router-link>
+        <br/>
+        <span class="text-xs">vote to overwrite, revokation of delegation possible in account</span>
+      </div>
       <div class="vote-container" v-for="[id, title] in pollState.vote_options">
         <ae-check class="vote-check" v-model="voteOption" :value="id" type="radio" @change="vote()"></ae-check>
 
         <div class="vote-bar-container" v-if="pollVotesState.stakesForOption">
-          <ae-toolbar :fill="delegateeVoteOption==id ? 'custom' : ''" class="vote-bar"
+          <ae-toolbar :fill="delegateeVoteOption===id ? 'custom' : ''" class="vote-bar"
                       :style="{'width': `${pollVotesState.stakesForOption[id].percentageOfTotal}%`}">{{title}}
             ({{pollVotesState.stakesForOption[id].percentageOfTotal}}%)
           </ae-toolbar>
@@ -38,14 +42,14 @@
           {{title}}
         </div>
       </div>
-      <span v-if="delegatorHasVoted">(delegatee voted for account)</span>
     </div>
+    <ae-button face="round" extend @click="revokeVote()" v-if="voteOption!=null">Revoke Vote</ae-button>
   </div>
 </template>
 
 <script>
     import aeternity from "~/utils/aeternity";
-    import {AeIcon, AeCheck, AeToolbar} from '@aeternity/aepp-components/'
+    import {AeIcon, AeCheck, AeButton, AeToolbar} from '@aeternity/aepp-components/'
     import pollContractSource from '../../../governance-contracts/contracts/Poll.aes'
     import axios from 'axios'
     import BlockchainUtil from "~/utils/util";
@@ -53,9 +57,10 @@
 
     export default {
         name: 'Home',
-        components: {AeIcon, AeCheck, AeToolbar, BiggerLoader},
+        components: {AeIcon, AeCheck, AeButton, AeToolbar, BiggerLoader},
         data() {
             return {
+                accountAddress: null,
                 showLoading: true,
                 pollId: null,
                 delegateeVoteOption: null,
@@ -73,14 +78,21 @@
                 await this.pollContract.methods.vote(this.voteOption);
                 await this.loadData();
             },
+            async revokeVote() {
+                this.showLoading = true;
+                await this.pollContract.methods.revoke_vote();
+                await this.loadData();
+            },
             async loadData() {
                 //TODO correctly discover if voting power has been delegated
 
                 this.pollId = this.$route.params.id;
+                this.accountAddress = aeternity.address;
 
                 this.hasVotedOrDelegated = (await aeternity.contract.methods.has_voted_or_delegated(aeternity.address, this.pollId)).decodedResult;
                 this.delegatorHasVoted = !this.hasVotedOrDelegated.has_voted && this.hasVotedOrDelegated.has_delegated && this.hasVotedOrDelegated.voter_or_delegatee_vote_option !== undefined;
                 this.delegateeVoteOption = this.hasVotedOrDelegated.voter_or_delegatee_vote_option;
+                console.log("this.hasVotedOrDelegated.voter_or_delegatee_vote_option", this.hasVotedOrDelegated.voter_or_delegatee_vote_option)
                 this.voteOption = this.delegatorHasVoted ? null : this.hasVotedOrDelegated.voter_or_delegatee_vote_option;
 
                 const pollsOverview = await aeternity.contract.methods.polls_overview();
@@ -93,6 +105,7 @@
                 const votesState = await axios.get(`http://localhost:3000/votesState/${pollAddress}`).then(res => res.data);
                 this.pollVotesState = {...votesState, ...{totalStakeAE: BlockchainUtil.atomsToAe(votesState.totalStake).toFixed(2)}};
                 this.showLoading = false;
+                console.log("voteOption", this.voteOption, this.voteOption != null);
             }
         },
         async mounted() {
