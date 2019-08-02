@@ -253,7 +253,6 @@ aeternity.delegatedPower = async (address, closeHeight, ignoreAccounts = []) => 
 
     const initialDelegationTree = await aeternity.delegationTree(address, closeHeight, ignoreAccounts);
     const {delegatedPower, flattenedDelegationTree} = sumDelegatedPower(initialDelegationTree);
-    console.log("3", delegatedPower, flattenedDelegationTree);
 
     return {
         delegatedPower: delegatedPower.toFixed(),

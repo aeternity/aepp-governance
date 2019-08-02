@@ -26,8 +26,9 @@
       <ae-input label="Delegatee" v-model="delegatee" aeddress>
       </ae-input>
       <div class="revokation-buttons">
-        <ae-button face="round" fill="primary" extend @click="createDelegation()">Create</ae-button>
         <ae-button face="round" extend @click="revokeDelegation()" v-if="delegation">Revoke</ae-button>
+        <ae-button face="round" fill="primary" extend @click="createDelegation()" v-if="delegation">Update</ae-button>
+        <ae-button face="round" fill="primary" extend @click="createDelegation()" v-else>Create</ae-button>
       </div>
     </div>
     <br v-else/>
@@ -109,7 +110,7 @@
                 }));
 
                 const delegatedPower = await axios.get(`http://localhost:3000/delegatedPower/${this.address}`).then(res => res.data);
-                this.power = BlockchainUtil.atomsToAe(delegatedPower);
+                this.power = BlockchainUtil.atomsToAe(delegatedPower.delegatedPower);
                 this.showLoading = false;
             }
         },

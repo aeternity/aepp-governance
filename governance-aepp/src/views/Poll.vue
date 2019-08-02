@@ -29,31 +29,49 @@
         <br/>
         <span class="text-xs">vote to overwrite, revokation of delegation possible in account</span>
       </div>
-      <div class="vote-container" v-for="[id, title] in pollState.vote_options">
-        <ae-check class="vote-check" v-model="voteOption" :value="id" type="radio" @change="vote()"></ae-check>
-
-        <div class="vote-bar-container" v-if="pollVotesState.stakesForOption">
-          <ae-toolbar :fill="delegateeVoteOption===id || voteOption===id ? 'custom' : ''" class="vote-bar"
-                      :style="{'width': `${pollVotesState.stakesForOption[id].percentageOfTotal}%`}">{{title}}
-            ({{pollVotesState.stakesForOption[id].percentageOfTotal}}%)
-          </ae-toolbar>
+      <div v-for="[id, title] in pollState.vote_options">
+        <div class="vote-container">
+          <ae-check class="vote-check" v-model="voteOption" :value="id" type="radio" @change="vote()"></ae-check>
+          <div class="vote-bar-container" v-if="pollVotesState.stakesForOption">
+            <ae-toolbar :fill="delegateeVoteOption===id || voteOption===id ? 'custom' : ''" class="vote-bar"
+                        :style="{'width': `${pollVotesState.stakesForOption[id].percentageOfTotal}%`}">
+              {{title}}
+            </ae-toolbar>
+          </div>
+          <div class="vote-bar-container" v-else>
+            {{title}}
+          </div>
         </div>
-        <div class="vote-bar-container" v-else>
-          {{title}}
+        <div class="vote-detail">
+          {{pollVotesState.stakesForOption[id].optionStakeAE}} AE -
+          {{pollVotesState.stakesForOption[id].percentageOfTotal}}% -
+          <a @click="showVoters(id)">{{pollVotesState.stakesForOption[id].votesCount}} Votes</a> -
+          {{pollVotesState.stakesForOption[id].delegatorsCount}} Delegators
+        </div>
+        <div class="vote-detail" v-if="votersForOption.id != null && votersForOption.id == id">
+          <div v-for="voter in votersForOption.voters">
+            {{voter.stakeAE}} AE -
+            <span v-if="voter.delegatorsCount">{{voter.delegatorsCount}} Delegators -</span>
+            <router-link :to="`/account/${voter.account}`">{{voter.account}}</router-link>
+          </div>
         </div>
       </div>
     </div>
-    <ae-button face="round" extend @click="revokeVote()" v-if="voteOption!=null">Revoke Vote</ae-button>
+    <div v-if="voteOption!=null">
+      <br/>
+      <ae-button face="round" extend @click="revokeVote()">Revoke Vote</ae-button>
+    </div>
   </div>
 </template>
 
 <script>
     import aeternity from "~/utils/aeternity";
-    import {AeIcon, AeCheck, AeButton, AeToolbar} from '@aeternity/aepp-components/'
+    import {AeButton, AeCheck, AeIcon, AeToolbar} from '@aeternity/aepp-components/'
     import pollContractSource from '../../../governance-contracts/contracts/Poll.aes'
     import axios from 'axios'
     import BlockchainUtil from "~/utils/util";
-    import BiggerLoader from '../components/BiggerLoader'
+    import BiggerLoader from '../components/BiggerLoader';
+    import BigNumber from 'bignumber.js';
 
     export default {
         name: 'Home',
@@ -67,7 +85,8 @@
                 voteOption: null,
                 pollContract: null,
                 pollState: {},
-                pollVotesState: {}
+                pollVotesState: {},
+                votersForOption: {}
             }
         },
         computed: {},
@@ -82,9 +101,33 @@
                 await this.pollContract.methods.revoke_vote();
                 await this.loadData();
             },
+            showVoters(id) {
+                if (this.votersForOption.id != null && this.votersForOption.id == id) {
+                    this.votersForOption = {};
+                    return;
+                }
+
+                const votes = this.pollVotesState.stakesForOption.find(option => option.option === id.toString()).votes;
+                const votesAggregation = votes.map(vote => {
+                    return {
+                        account: vote.account,
+                        stake: vote.stake,
+                        stakeAE: BlockchainUtil.atomsToAe(vote.stake).toFixed(0),
+                        delegatorsCount: vote.delegators.length
+                    };
+                });
+
+                this.votersForOption = {
+                    id: id,
+                    voters: votesAggregation.sort((a, b) => new BigNumber(b.stake).comparedTo(new BigNumber(a.stake)))
+                };
+            },
             async loadData() {
+                //TODO show current account info
+
                 this.pollId = this.$route.params.id;
                 this.accountAddress = aeternity.address;
+                this.votersForOption = {};
 
                 const pollsOverview = await aeternity.contract.methods.polls_overview();
                 const pollOverviewData = pollsOverview.decodedResult.find(([id, _]) => id == this.pollId)[1];
@@ -93,12 +136,21 @@
 
                 this.pollState = (await this.pollContract.methods.get_state()).decodedResult;
 
-                // TODO correctly discover if voting power has been delegated
                 const accountVote = this.pollState.votes.find(([voter, _]) => voter === this.accountAddress);
                 this.voteOption = accountVote ? accountVote[1] : null;
 
                 const votesState = await axios.get(`http://localhost:3000/votesState/${pollAddress}`).then(res => res.data);
-                this.pollVotesState = {...votesState, ...{totalStakeAE: BlockchainUtil.atomsToAe(votesState.totalStake).toFixed(2)}};
+                const appendVotesState = {
+                    ...votesState, ...{
+                        stakesForOption: votesState.stakesForOption.map(option => {
+                            option.votesCount = option.votes.length;
+                            option.delegatorsCount = option.votes.reduce((acc, vote) => acc + vote.delegators.length, 0);
+                            option.optionStakeAE = BlockchainUtil.atomsToAe(option.optionStake).toFixed(0);
+                            return option
+                        })
+                    }
+                };
+                this.pollVotesState = {...appendVotesState, ...{totalStakeAE: BlockchainUtil.atomsToAe(votesState.totalStake).toFixed(2)}};
 
                 const delegationIncludesAccount = this.pollVotesState.stakesForOption.find(data => data.votes.some(vote => vote.delegators.some(delegation => delegation.delegator === this.accountAddress)));
                 this.delegateeVoteOption = delegationIncludesAccount ? parseInt(delegationIncludesAccount.option) : null;
@@ -114,7 +166,7 @@
 
 <style scoped>
   .vote-container {
-    margin: 10px 0;
+    margin-top: 10px;
     display: flex;
   }
 
@@ -130,5 +182,10 @@
   .ae-toolbar.custom {
     color: black;
     background-color: #FF0D6A;
+  }
+
+  .vote-detail {
+    color: #4f4f4f;
+    font-size: 0.8rem;
   }
 </style>
