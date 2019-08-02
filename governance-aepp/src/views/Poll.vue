@@ -25,12 +25,31 @@
           :address="pollState.author"
         />
       </div>
+      Stake: {{pollVotesState.totalStakeAE}} AE ({{pollVotesState.percentOfTotalSupply}}%)
+
+      <div class="flex flex-col mx-4 mt-4" v-if="accountAddress && totalStake">
+        <div class="bg-white rounded-lg p-4 shadow">
+          <div>
+            <div class="label mb-2">
+              Voter Account
+            </div>
+            <ae-identity-light
+              :collapsed="true"
+              :balance="balance.toFixed(2)"
+              :address="accountAddress"
+              :active="true"
+            />
+            <hr class="border-t border-gray-200"/>
+            <div class="label mb-2">
+              est. delegated stake {{delegateStake}} AE
+            </div>
+            est. voting stake {{totalStake}} AE
+          </div>
+        </div>
+      </div>
+
       <br/>
-      Stake: {{pollVotesState.totalStakeAE}} AE
-      <br/>
-      Percentage of total supply: {{pollVotesState.percentOfTotalSupply}}%
-      <br/>
-      <br/>
+
       <div v-if="delegateeVoteOption != null">includes vote by
         <router-link :to="`/account/${accountAddress}`"> (sub-)delegatee</router-link>
         <br/>
@@ -50,8 +69,8 @@
           </div>
         </div>
         <div class="vote-detail">
-          {{pollVotesState.stakesForOption[id].optionStakeAE}} AE -
-          {{pollVotesState.stakesForOption[id].percentageOfTotal}}% -
+          {{pollVotesState.stakesForOption[id].percentageOfTotal}}%
+          ({{pollVotesState.stakesForOption[id].optionStakeAE}} AE) -
           <a @click="showVoters(id)">{{pollVotesState.stakesForOption[id].votesCount}} Votes</a> -
           {{pollVotesState.stakesForOption[id].delegatorsCount}} Delegators
         </div>
@@ -90,6 +109,9 @@
         data() {
             return {
                 accountAddress: null,
+                balance: null,
+                delegateStake: null,
+                totalStake: null,
                 showLoading: true,
                 pollId: null,
                 delegateeVoteOption: null,
@@ -142,6 +164,9 @@
                 this.accountAddress = aeternity.address;
                 this.votersForOption = {};
 
+                const balance = await aeternity.client.balance(aeternity.address);
+                this.balance = BlockchainUtil.atomsToAe(balance);
+
                 const pollsOverview = await aeternity.contract.methods.polls_overview();
                 const pollOverviewData = pollsOverview.decodedResult.find(([id, _]) => id == this.pollId)[1];
                 const pollAddress = pollOverviewData.address.replace('ak_', 'ct_');
@@ -167,6 +192,10 @@
 
                 const delegationIncludesAccount = this.pollVotesState.stakesForOption.find(data => data.votes.some(vote => vote.delegators.some(delegation => delegation.delegator === this.accountAddress)));
                 this.delegateeVoteOption = delegationIncludesAccount ? parseInt(delegationIncludesAccount.option) : null;
+
+                const delegatedPower = await axios.get(`http://localhost:3000/delegatedPower/${this.accountAddress}`).then(res => res.data);
+                this.delegateStake = BlockchainUtil.atomsToAe(delegatedPower.delegatedPower).toFixed(2);
+                this.totalStake = BlockchainUtil.atomsToAe(new BigNumber(balance).plus(delegatedPower.delegatedPower)).toFixed(2);
 
                 this.showLoading = false;
             }

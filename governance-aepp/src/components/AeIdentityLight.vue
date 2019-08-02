@@ -93,7 +93,7 @@
             },
         },
         filters: {
-            shorten: value => value.substr(0, 15),
+            shorten: value => value.substr(0, 12),
         },
     }
 </script>
