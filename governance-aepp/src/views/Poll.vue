@@ -27,8 +27,8 @@
       </div>
       Stake: {{pollVotesState.totalStakeAE}} AE ({{pollVotesState.percentOfTotalSupply}}%)
 
-      <div class="flex flex-col mx-4 mt-4" v-if="accountAddress && totalStake">
-        <div class="bg-white rounded-lg p-4 shadow">
+      <div class="flex flex-col mx-2 mt-2 mb-6" v-if="accountAddress && totalStake">
+        <div class="bg-white rounded p-2 shadow">
           <div>
             <div class="label mb-2">
               Voter Account
@@ -40,15 +40,12 @@
               :active="true"
             />
             <hr class="border-t border-gray-200"/>
-            <div class="label mb-2">
-              est. delegated stake {{delegateStake}} AE
-            </div>
-            est. voting stake {{totalStake}} AE
+            <div class="label text-xs">est. delegated stake {{delegateStake}} AE</div>
+            <div class="label text-xs mb-1">(delegators votes overwrite delegation per poll)</div>
+            <div class="-mb-1">est. voting stake <strong>{{totalStake}} AE</strong></div>
           </div>
         </div>
       </div>
-
-      <br/>
 
       <div v-if="delegateeVoteOption != null">includes vote by
         <router-link :to="`/account/${accountAddress}`"> (sub-)delegatee</router-link>
@@ -68,19 +65,20 @@
             {{title}}
           </div>
         </div>
-        <div class="vote-detail">
+        <div class="label text-xs my-1">
           {{pollVotesState.stakesForOption[id].percentageOfTotal}}%
           ({{pollVotesState.stakesForOption[id].optionStakeAE}} AE) -
           <a @click="showVoters(id)">{{pollVotesState.stakesForOption[id].votesCount}} Votes</a> -
           {{pollVotesState.stakesForOption[id].delegatorsCount}} Delegators
         </div>
-        <div class="vote-detail" v-if="votersForOption.id != null && votersForOption.id == id">
+        <div class="label text-xs" v-if="votersForOption.id != null && votersForOption.id == id">
           <div v-for="voter in votersForOption.voters">
             <ae-identity-light
               :collapsed="true"
               :balance="voter.delegatorsStakeText"
               :currency="''"
               :address="voter.account"
+              class="mx-2"
             />
           </div>
         </div>
@@ -88,7 +86,7 @@
     </div>
     <div v-if="voteOption!=null">
       <br/>
-      <ae-button face="round" extend @click="revokeVote()">Revoke Vote</ae-button>
+      <ae-button face="flat" extend @click="revokeVote()">Revoke Vote</ae-button>
     </div>
   </div>
 </template>
@@ -148,7 +146,7 @@
                         stake: vote.stake,
                         stakeAE: stakeAE,
                         delegatorsCount: vote.delegators.length,
-                        delegatorsStakeText: `${vote.delegators.length ? vote.delegators.length + " Delegators - " : ""} ${stakeAE} AE`
+                        delegatorsStakeText: `${vote.delegators.length ? vote.delegators.length + " D - " : ""} ${stakeAE} AE`
                     };
                 });
 
@@ -158,7 +156,8 @@
                 };
             },
             async loadData() {
-                //TODO show current account info
+                //TODO show which delegator voted for account
+                //TODO show correct voting stake for poll
 
                 this.pollId = this.$route.params.id;
                 this.accountAddress = aeternity.address;
@@ -193,7 +192,7 @@
                 const delegationIncludesAccount = this.pollVotesState.stakesForOption.find(data => data.votes.some(vote => vote.delegators.some(delegation => delegation.delegator === this.accountAddress)));
                 this.delegateeVoteOption = delegationIncludesAccount ? parseInt(delegationIncludesAccount.option) : null;
 
-                const delegatedPower = await axios.get(`http://localhost:3000/delegatedPower/${this.accountAddress}`).then(res => res.data);
+                const delegatedPower = await axios.get(`http://localhost:3000/delegatedPower/${this.accountAddress}?poll=${pollAddress}`).then(res => res.data);
                 this.delegateStake = BlockchainUtil.atomsToAe(delegatedPower.delegatedPower).toFixed(2);
                 this.totalStake = BlockchainUtil.atomsToAe(new BigNumber(balance).plus(delegatedPower.delegatedPower)).toFixed(2);
 
@@ -226,12 +225,11 @@
     background-color: #FF0D6A;
   }
 
-  .vote-detail {
-    color: #4f4f4f;
-    font-size: 0.8rem;
-  }
-
   .author {
     display: flex;
+  }
+
+  .ae-button.flat{
+    height: 40px;
   }
 </style>

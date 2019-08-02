@@ -11,8 +11,8 @@
     <h1 class="h1">Account</h1>
     <br/>
 
-    <div class="flex flex-col mx-4 mt-4" v-if="address && balance">
-      <div class="bg-white rounded-t-lg p-4 shadow">
+    <div class="flex flex-col mx-2 mt-2" v-if="address && balance">
+      <div class="bg-white rounded-t p-2 shadow">
         <div>
           <div class="label mb-2">
             Account
@@ -24,37 +24,35 @@
             :active="true"
           />
           <hr class="border-t border-gray-200"/>
-          <div class="label mb-2">
-            est. delegated stake {{delegateStake}} AE
-          </div>
-          est. voting stake {{totalStake}} AE
+          <div class="label text-xs mb-1">est. delegated stake {{delegateStake}} AE</div>
+          <div class="-mb-1">est. voting stake <strong>{{totalStake}} AE</strong></div>
         </div>
       </div>
-      <div class="bg-gray-300 rounded-b-lg p-3 cursor-pointer flex justify-center">
+      <div class="bg-gray-300 rounded-b  p-2 cursor-pointer flex justify-center">
         <a href="https://forum.aeternity.com/" target="_blank" class="label text-sm">NEED ASSISTANCE?</a>
       </div>
     </div>
     <br/>
     <div v-if="delegation">
-      <h2 class="h2">Delegated to: </h2>
+      <h2 class="h2">Delegatee</h2>
       <ae-identity-light
         :collapsed="true"
         :balance="''"
         :currency="''"
         :address="delegation"
+        class="mx-4 mb-2"
       />
     </div>
     <div v-if="isOwnAccount">
-      <ae-input label="Delegatee" v-model="delegatee" aeddress>
-      </ae-input>
+      <ae-input class=" mx-2 mt-2" label="Delegatee" v-model="delegatee" aeddress></ae-input>
       <div class="revokation-buttons">
-        <ae-button face="round" extend @click="revokeDelegation()" v-if="delegation">Revoke</ae-button>
-        <ae-button face="round" fill="primary" extend @click="createDelegation()" v-if="delegation">Update</ae-button>
-        <ae-button face="round" fill="primary" extend @click="createDelegation()" v-else>Create</ae-button>
+        <ae-button-group v-if="delegation" class="w-full">
+          <ae-button face="flat" @click="revokeDelegation()">Revoke</ae-button>
+          <ae-button face="flat" fill="primary" @click="createDelegation()">Update</ae-button>
+        </ae-button-group>
+        <ae-button face="flat" extend fill="primary" @click="createDelegation()" v-else>Create</ae-button>
       </div>
     </div>
-    <br v-else/>
-    <br/>
     <div v-if="delegations.length">
       <h2 class="h2">Delegations</h2>
       <div v-for="{delegator, _, delegatorAmount, includesIndirectDelegations} in delegations" class="max-w-xs">
@@ -62,8 +60,9 @@
           :collapsed="true"
           :balance="delegatorAmount.toFixed(2)"
           :address="delegator"
+          class="mx-4"
         />
-        <span v-if="includesIndirectDelegations" class="text-xs">(includes more indirect delegations)</span>
+        <div v-if="includesIndirectDelegations" class="mx-4 mb-1 text-xs">(includes more indirect delegations)</div>
       </div>
     </div>
   </div>
@@ -71,7 +70,7 @@
 
 <script>
     import aeternity from "~/utils/aeternity";
-    import {AeIcon, AeButton, AeInput, AeText} from '@aeternity/aepp-components/'
+    import {AeIcon, AeButton, AeButtonGroup, AeInput, AeText} from '@aeternity/aepp-components/'
     import BlockchainUtil from "~/utils/util";
     import axios from 'axios'
     import BiggerLoader from '../components/BiggerLoader'
@@ -80,7 +79,7 @@
 
     export default {
         name: 'Home',
-        components: {AeIcon, AeButton, AeInput, BiggerLoader, AeIdentityLight, AeText},
+        components: {AeIcon, AeButton, AeButtonGroup, AeInput, BiggerLoader, AeIdentityLight, AeText},
         data() {
             return {
                 showLoading: true,
@@ -152,5 +151,10 @@
 <style scoped>
   .revokation-buttons {
     display: flex;
+    margin-top: -8px;
+  }
+
+  .ae-input-container {
+    width: inherit;
   }
 </style>

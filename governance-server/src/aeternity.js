@@ -79,7 +79,7 @@ aeternity.pollDetails = async (pollOverviews) => {
     }))
 };
 
-aeternity.pollVotesState = async (address) => {
+aeternity.pollStateAndVotingAccounts = async (address) => {
     var start = new Date().getTime();
     const pollState = await aeternity.pollState(address);
     console.log("pollState", new Date().getTime() - start, "ms");
@@ -92,7 +92,18 @@ aeternity.pollVotesState = async (address) => {
     });
     const votingAccountList = votingAccounts.map(({account, _}) => account);
 
-    start = new Date().getTime();
+    return {
+        pollState: pollState,
+        votingAccounts: votingAccounts,
+        votingAccountList: votingAccountList
+    }
+};
+
+aeternity.pollVotesState = async (address) => {
+
+    const {pollState, votingAccounts, votingAccountList} = await aeternity.pollStateAndVotingAccounts(address);
+
+    var start = new Date().getTime();
     const stakesAtHeight = await aeternity.stakesAtHeight(votingAccounts, pollState.close_height, votingAccountList);
     console.log("stakesAtHeight", new Date().getTime() - start, "ms");
 
@@ -259,6 +270,11 @@ aeternity.delegatedPower = async (address, closeHeight, ignoreAccounts = []) => 
         delegationTree: initialDelegationTree,
         flattenedDelegationTree: flattenedDelegationTree
     };
+};
+
+aeternity.delegatedPowerPoll = async (address, pollContract) => {
+    const {votingAccountList} = await aeternity.pollStateAndVotingAccounts(pollContract);
+    return aeternity.delegatedPower(address, null, votingAccountList)
 };
 
 module.exports = aeternity;
