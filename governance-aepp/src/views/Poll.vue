@@ -16,8 +16,15 @@
       <br/>
       Link: <a @href="pollState.metadata.link">{{pollState.metadata.link}}</a>
       <br/>
-      Author:
-      <router-link :to="`/account/${pollState.author}`">{{pollState.author}}</router-link>
+      <div class="author">
+        Author:&nbsp;
+        <ae-identity-light
+          :collapsed="true"
+          :balance="''"
+          :currency="''"
+          :address="pollState.author"
+        />
+      </div>
       <br/>
       Stake: {{pollVotesState.totalStakeAE}} AE
       <br/>
@@ -50,9 +57,12 @@
         </div>
         <div class="vote-detail" v-if="votersForOption.id != null && votersForOption.id == id">
           <div v-for="voter in votersForOption.voters">
-            {{voter.stakeAE}} AE -
-            <span v-if="voter.delegatorsCount">{{voter.delegatorsCount}} Delegators -</span>
-            <router-link :to="`/account/${voter.account}`">{{voter.account}}</router-link>
+            <ae-identity-light
+              :collapsed="true"
+              :balance="voter.delegatorsStakeText"
+              :currency="''"
+              :address="voter.account"
+            />
           </div>
         </div>
       </div>
@@ -71,11 +81,12 @@
     import axios from 'axios'
     import BlockchainUtil from "~/utils/util";
     import BiggerLoader from '../components/BiggerLoader';
+    import AeIdentityLight from '../components/AeIdentityLight'
     import BigNumber from 'bignumber.js';
 
     export default {
         name: 'Home',
-        components: {AeIcon, AeCheck, AeButton, AeToolbar, BiggerLoader},
+        components: {AeIcon, AeCheck, AeButton, AeToolbar, BiggerLoader, AeIdentityLight},
         data() {
             return {
                 accountAddress: null,
@@ -109,11 +120,13 @@
 
                 const votes = this.pollVotesState.stakesForOption.find(option => option.option === id.toString()).votes;
                 const votesAggregation = votes.map(vote => {
+                    const stakeAE = BlockchainUtil.atomsToAe(vote.stake).toFixed(2);
                     return {
                         account: vote.account,
                         stake: vote.stake,
-                        stakeAE: BlockchainUtil.atomsToAe(vote.stake).toFixed(0),
-                        delegatorsCount: vote.delegators.length
+                        stakeAE: stakeAE,
+                        delegatorsCount: vote.delegators.length,
+                        delegatorsStakeText: `${vote.delegators.length ? vote.delegators.length + " Delegators - " : ""} ${stakeAE} AE`
                     };
                 });
 
@@ -145,7 +158,7 @@
                         stakesForOption: votesState.stakesForOption.map(option => {
                             option.votesCount = option.votes.length;
                             option.delegatorsCount = option.votes.reduce((acc, vote) => acc + vote.delegators.length, 0);
-                            option.optionStakeAE = BlockchainUtil.atomsToAe(option.optionStake).toFixed(0);
+                            option.optionStakeAE = BlockchainUtil.atomsToAe(option.optionStake).toFixed(2);
                             return option
                         })
                     }
@@ -187,5 +200,9 @@
   .vote-detail {
     color: #4f4f4f;
     font-size: 0.8rem;
+  }
+
+  .author {
+    display: flex;
   }
 </style>
