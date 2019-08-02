@@ -10,18 +10,40 @@
 
     <h1 class="h1">Account</h1>
     <br/>
-    <div v-if="address && balance">
-      <span>{{address}}</span>
-      <br/>
-      <span>Stake: {{balance}} AE</span>
-      <br/>
-      <span>est. delegated Power: {{power}} AE</span>
+
+    <div class="flex flex-col mx-4 mt-4" v-if="address && balance">
+      <div class="bg-white rounded-t-lg p-4 shadow">
+        <div>
+          <div class="label mb-2">
+            Account
+          </div>
+          <ae-identity-light
+            :collapsed="true"
+            :balance="balance.toFixed(2)"
+            :address="address"
+            :active="true"
+          />
+          <hr class="border-t border-gray-200"/>
+          <div class="label mb-2">
+            est. delegated stake {{delegateStake}} AE
+          </div>
+          est. voting stake {{totalStake}} AE
+        </div>
+      </div>
+      <div class="bg-gray-300 rounded-b-lg p-3 cursor-pointer flex justify-center">
+        <a href="https://forum.aeternity.com/" target="_blank" class="label text-sm">NEED ASSISTANCE?</a>
+      </div>
     </div>
     <br/>
-    <span v-if="delegation">
+    <div v-if="delegation">
       <h2 class="h2">Delegated to: </h2>
-      <router-link :to="`/account/${delegation}`">{{delegation}}</router-link>
-    </span>
+      <ae-identity-light
+        :collapsed="true"
+        :balance="''"
+        :currency="''"
+        :address="delegation"
+      />
+    </div>
     <div v-if="isOwnAccount">
       <ae-input label="Delegatee" v-model="delegatee" aeddress>
       </ae-input>
@@ -35,11 +57,13 @@
     <br/>
     <div v-if="delegations.length">
       <h2 class="h2">Delegations</h2>
-      <div v-for="{delegator, _, delegatorAmount, includesIndirectDelegations} in delegations">
-        <router-link :to="`/account/${delegator}`">{{delegator}}</router-link>
-        for {{delegatorAmount}} AE <span v-if="includesIndirectDelegations">(includes more indirect delegations)</span>
-        <br/>
-        <br/>
+      <div v-for="{delegator, _, delegatorAmount, includesIndirectDelegations} in delegations" class="max-w-xs">
+        <ae-identity-light
+          :collapsed="true"
+          :balance="delegatorAmount.toFixed(2)"
+          :address="delegator"
+        />
+        <span v-if="includesIndirectDelegations" class="text-xs">(includes more indirect delegations)</span>
       </div>
     </div>
   </div>
@@ -47,14 +71,16 @@
 
 <script>
     import aeternity from "~/utils/aeternity";
-    import {AeIcon, AeButton, AeInput} from '@aeternity/aepp-components/'
+    import {AeIcon, AeButton, AeInput, AeText} from '@aeternity/aepp-components/'
     import BlockchainUtil from "~/utils/util";
     import axios from 'axios'
     import BiggerLoader from '../components/BiggerLoader'
+    import AeIdentityLight from '../components/AeIdentityLight'
+    import BigNumber from 'bignumber.js';
 
     export default {
         name: 'Home',
-        components: {AeIcon, AeButton, AeInput, BiggerLoader},
+        components: {AeIcon, AeButton, AeInput, BiggerLoader, AeIdentityLight, AeText},
         data() {
             return {
                 showLoading: true,
@@ -90,11 +116,13 @@
                 this.delegatee = null;
                 this.delegations = [];
                 this.delegation = null;
-                this.power = null;
+                this.delegateStake = null;
+                this.totalStake = null;
                 this.address = this.$route.params.account;
                 this.isOwnAccount = this.address === aeternity.address;
 
-                this.balance = BlockchainUtil.atomsToAe(await aeternity.client.balance(this.address));
+                const balance = await aeternity.client.balance(this.address);
+                this.balance = BlockchainUtil.atomsToAe(balance);
 
                 this.delegation = (await aeternity.contract.methods.delegatee(this.address)).decodedResult;
 
@@ -110,7 +138,8 @@
                 }));
 
                 const delegatedPower = await axios.get(`http://localhost:3000/delegatedPower/${this.address}`).then(res => res.data);
-                this.power = BlockchainUtil.atomsToAe(delegatedPower.delegatedPower);
+                this.delegateStake = BlockchainUtil.atomsToAe(delegatedPower.delegatedPower).toFixed(2);
+                this.totalStake = BlockchainUtil.atomsToAe(new BigNumber(balance).plus(delegatedPower.delegatedPower)).toFixed(2);
                 this.showLoading = false;
             }
         },

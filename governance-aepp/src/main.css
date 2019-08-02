@@ -103,3 +103,10 @@ a {
   background-color: rgba(255, 255, 255, 0.85);
   overflow: hidden;
 }
+
+.label {
+  font-size: 13px;
+  line-height: 1.23;
+  color: #76818c;
+}
+
