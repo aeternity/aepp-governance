@@ -37,26 +37,32 @@
               :collapsed="true"
               :balance="balance.toFixed(2)"
               :address="accountAddress"
-              :active="true"
             />
             <hr class="border-t border-gray-200"/>
             <div class="label text-xs">est. delegated stake {{delegateStake}} AE</div>
-            <div class="label text-xs mb-1">(delegators votes overwrite delegation per poll)</div>
+            <div class="label text-xs mb-1">(delegators votes can overwrite delegation)</div>
             <div class="-mb-1">est. voting stake <strong>{{totalStake}} AE</strong></div>
           </div>
         </div>
       </div>
 
-      <div v-if="delegateeVoteOption != null">includes vote by
-        <router-link :to="`/account/${accountAddress}`"> (sub-)delegatee</router-link>
-        <br/>
-        <span class="text-xs">vote to overwrite, revokation of delegation possible in account</span>
+      <div v-if="delegateeVote.option != null">includes vote by (sub-)delegatee
+        <ae-identity-light
+          :collapsed="true"
+          :balance="''"
+          :currency="''"
+          :address="delegateeVote.account"
+        />
+        <div class="text-xs">
+          vote to overwrite,
+          <router-link :to="`/account/${accountAddress}`">or manage delegation</router-link>
+        </div>
       </div>
       <div v-for="[id, title] in pollState.vote_options">
         <div class="vote-container">
           <ae-check class="vote-check" v-model="voteOption" :value="id" type="radio" @change="vote()"></ae-check>
           <div class="vote-bar-container" v-if="pollVotesState.stakesForOption">
-            <ae-toolbar :fill="delegateeVoteOption===id || voteOption===id ? 'custom' : ''" class="vote-bar"
+            <ae-toolbar :fill="delegateeVote.option===id || voteOption===id ? 'custom' : ''" class="vote-bar"
                         :style="{'width': `${pollVotesState.stakesForOption[id].percentageOfTotal}%`}">
               {{title}}
             </ae-toolbar>
@@ -112,7 +118,7 @@
                 totalStake: null,
                 showLoading: true,
                 pollId: null,
-                delegateeVoteOption: null,
+                delegateeVote: {},
                 voteOption: null,
                 pollContract: null,
                 pollState: {},
@@ -156,9 +162,6 @@
                 };
             },
             async loadData() {
-                //TODO show which delegator voted for account
-                //TODO show correct voting stake for poll
-
                 this.pollId = this.$route.params.id;
                 this.accountAddress = aeternity.address;
                 this.votersForOption = {};
@@ -189,8 +192,9 @@
                 };
                 this.pollVotesState = {...appendVotesState, ...{totalStakeAE: BlockchainUtil.atomsToAe(votesState.totalStake).toFixed(2)}};
 
-                const delegationIncludesAccount = this.pollVotesState.stakesForOption.find(data => data.votes.some(vote => vote.delegators.some(delegation => delegation.delegator === this.accountAddress)));
-                this.delegateeVoteOption = delegationIncludesAccount ? parseInt(delegationIncludesAccount.option) : null;
+                this.delegateeVote = this.pollVotesState.stakesForOption
+                    .map(data => data.votes.find(vote => vote.delegators
+                        .some(delegation => delegation.delegator === this.accountAddress))).find(x => x) || {};
 
                 const delegatedPower = await axios.get(`http://localhost:3000/delegatedPower/${this.accountAddress}?poll=${pollAddress}`).then(res => res.data);
                 this.delegateStake = BlockchainUtil.atomsToAe(delegatedPower.delegatedPower).toFixed(2);
@@ -229,7 +233,7 @@
     display: flex;
   }
 
-  .ae-button.flat{
+  .ae-button.flat {
     height: 40px;
   }
 </style>
