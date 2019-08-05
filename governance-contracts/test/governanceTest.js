@@ -88,7 +88,8 @@ describe('Governance Contracts', () => {
             close_height: "None", //TODO will this be fixed in SDK?
             is_listed: true,
             title: "Testing",
-            votes_count: 0
+            votes_count: 0,
+            is_closed: false
         }]);
     });
 

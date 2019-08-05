@@ -51,10 +51,12 @@ contract Poll =
     , title : string
     , is_listed : bool
     , close_height : option(int)
-    , votes_count : int }
+    , votes_count : int
+    , is_closed : bool }
 
   entrypoint overview : () => overview
   entrypoint voted_option : (address) => option(int)
+  entrypoint is_author : (address) => bool
 
 // ACTUAL CONTRACT
 

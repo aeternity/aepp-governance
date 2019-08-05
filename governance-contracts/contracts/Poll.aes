@@ -25,7 +25,8 @@ contract Poll =
     , title : string
     , is_listed : bool
     , close_height : option(int)
-    , votes_count : int }
+    , votes_count : int
+    , is_closed : bool }
 
   record metadata =
     { title : string
@@ -64,6 +65,8 @@ contract Poll =
 
   // STATELESS PUBLIC FUNCTIONS
 
+  entrypoint is_author(author : address) : bool = state.author == author
+
   entrypoint get_state() : state = state
 
   entrypoint voted_option(voter : address) : option(int) =
@@ -74,7 +77,8 @@ contract Poll =
       title = state.metadata.title,
       is_listed = state.metadata.is_listed,
       close_height = state.close_height,
-      votes_count = Map.size(state.votes) } //TODO count is not a good metric
+      votes_count = Map.size(state.votes), //TODO count is not a good metric
+      is_closed = !vote_not_closed() }
 
   // INTERNAL HELPER FUNCTIONS
 
