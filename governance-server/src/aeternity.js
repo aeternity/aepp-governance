@@ -16,6 +16,7 @@ aeternity.nodeUrl = "http://localhost:3001/";
 //aeternity.nodeUrl = "https://sdk-testnet.aepps.com/";
 
 aeternity.cache = {};
+aeternity.cache.delegations = [];
 aeternity.cache.totalSupply = {};
 aeternity.cache.getTotalSupply = (height) => aeternity.cache.totalSupply[(height / 100).toFixed()];
 aeternity.cache.setTotalSupply = (height, totalSupply) => aeternity.cache.totalSupply = {...aeternity.cache.totalSupply, ...{[(height / 100).toFixed()]: totalSupply}};
@@ -32,7 +33,7 @@ aeternity.init = async () => {
         compilerUrl: "http://localhost:3080"
     });
 
-    aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: 'ct_wMqd9RcYUJLXp1QkqCEzTQQ8vue7LXueoDCwt3kAcTRY126ya'})
+    aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: 'ct_HhrGPwPeAUPXaqSht7wsh2cuG4YV5MwWdewVD3SZA4EK7tgbP'})
     console.log("initialized aeternity sdk")
 };
 
@@ -54,8 +55,20 @@ aeternity.pollState = async (address) => {
 aeternity.delegators = async (address) => {
     if (!aeternity.client) await aeternity.init();
 
+    if (aeternity.cache.delegations.length) {
+       return aeternity.cache.delegations.filter(([_, delegatee]) => delegatee === address);
+    }
+
     const delegators = await aeternity.contract.methods.delegators(address);
     return delegators.decodedResult;
+};
+
+aeternity.delegations = async () => {
+    if (!aeternity.client) await aeternity.init();
+
+    const delegations = (await aeternity.contract.methods.get_state()).decodedResult.delegations;
+    aeternity.cache.delegations = delegations;
+    return delegations;
 };
 
 aeternity.tokenSupply = async (height) => {
@@ -102,6 +115,8 @@ aeternity.pollStateAndVotingAccounts = async (address) => {
 aeternity.pollVotesState = async (address) => {
 
     const {pollState, votingAccounts, votingAccountList} = await aeternity.pollStateAndVotingAccounts(address);
+
+    await aeternity.delegations();
 
     var start = new Date().getTime();
     const stakesAtHeight = await aeternity.stakesAtHeight(votingAccounts, pollState.close_height, votingAccountList);
@@ -243,6 +258,8 @@ aeternity.balancePlusVotingPower = async (address, height, ignoreAccounts = []) 
 };
 
 aeternity.delegatedPower = async (address, closeHeight, ignoreAccounts = []) => {
+
+    await aeternity.delegations();
 
     function sumDelegatedPower(delegationTree) {
         return Object.keys(delegationTree).reduce(({delegatedPower, flattenedDelegationTree}, delegator) => {
