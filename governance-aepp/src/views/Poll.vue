@@ -21,13 +21,14 @@
         <ae-identity-light
           :collapsed="true"
           :balance="''"
-          :currency="''"
           :address="pollState.author"
         />
       </div>
-      Stake: {{pollVotesState.totalStakeAE}} AE ({{pollVotesState.percentOfTotalSupply}}%)
+      <span v-if="totalStake">
+        Stake: {{pollVotesState.totalStake | toAE}} ({{pollVotesState.percentOfTotalSupply}}%)
+      </span>
 
-      <div class="flex flex-col mx-2 mt-2 mb-6" v-if="accountAddress && totalStake">
+      <div class="flex flex-col mx-2 mt-2 mb-6" v-if="accountAddress">
         <div class="bg-white rounded p-2 shadow">
           <div>
             <div class="label mb-2">
@@ -35,13 +36,16 @@
             </div>
             <ae-identity-light
               :collapsed="true"
-              :balance="balance.toFixed(2)"
+              :balance="balance"
               :address="accountAddress"
             />
-            <hr class="border-t border-gray-200"/>
-            <div class="label text-xs">est. delegated stake {{delegateStake}} AE</div>
-            <div class="label text-xs mb-1">(delegators votes can overwrite delegation)</div>
-            <div class="-mb-1">est. voting stake <strong>{{totalStake}} AE</strong></div>
+            <div v-if="totalStake!= null && delegatedPower != null">
+              <hr class="border-t border-gray-200"/>
+              <div class="label text-xs">est. delegated stake {{delegatedPower | toAE}}</div>
+              <div class="label text-xs mb-1">(delegators votes can overwrite delegation)</div>
+              <div class="-mb-1">est. voting stake <strong>{{totalStake | toAE}}</strong></div>
+            </div>
+            <span v-else class="label text-xs">can't load delegation information, may include delegated stake or (sub-)delegatee already voted</span>
           </div>
         </div>
       </div>
@@ -50,7 +54,6 @@
         <ae-identity-light
           :collapsed="true"
           :balance="''"
-          :currency="''"
           :address="delegateeVote.account"
         />
         <div class="text-xs">
@@ -61,7 +64,7 @@
       <div v-for="[id, title] in pollState.vote_options">
         <div class="vote-container">
           <ae-check class="vote-check" v-model="voteOption" :value="id" type="radio" @change="vote()"></ae-check>
-          <div class="vote-bar-container" v-if="pollVotesState.stakesForOption">
+          <div class="vote-bar-container" v-if="pollVotesState && pollVotesState.stakesForOption">
             <ae-toolbar :fill="delegateeVote.option===id || voteOption===id ? 'custom' : ''" class="vote-bar"
                         :style="{'width': `${pollVotesState.stakesForOption[id].percentageOfTotal}%`}">
               {{title}}
@@ -71,18 +74,18 @@
             {{title}}
           </div>
         </div>
-        <div class="label text-xs my-1">
+        <div class="label text-xs my-1" v-if="pollVotesState">
           {{pollVotesState.stakesForOption[id].percentageOfTotal}}%
-          ({{pollVotesState.stakesForOption[id].optionStakeAE}} AE) -
-          <a @click="showVoters(id)">{{pollVotesState.stakesForOption[id].votesCount}} Votes</a> -
+          ({{pollVotesState.stakesForOption[id].optionStake | toAE}}) -
+          <a @click="showVoters(id)">{{pollVotesState.stakesForOption[id].votes.length}} Votes</a> -
           {{pollVotesState.stakesForOption[id].delegatorsCount}} Delegators
         </div>
         <div class="label text-xs" v-if="votersForOption.id != null && votersForOption.id == id">
           <div v-for="voter in votersForOption.voters">
             <ae-identity-light
               :collapsed="true"
-              :balance="voter.delegatorsStakeText"
-              :currency="''"
+              :additionalText="voter.delegatorsCount ? voter.delegatorsCount + ' D - ' : ''"
+              :balance="voter.stake"
               :address="voter.account"
               class="mx-2"
             />
@@ -101,8 +104,7 @@
     import aeternity from "~/utils/aeternity";
     import {AeButton, AeCheck, AeIcon, AeToolbar} from '@aeternity/aepp-components/'
     import pollContractSource from '../../../governance-contracts/contracts/Poll.aes'
-    import axios from 'axios'
-    import BlockchainUtil from "~/utils/util";
+    import Backend from "~/utils/backend";
     import BiggerLoader from '../components/BiggerLoader';
     import AeIdentityLight from '../components/AeIdentityLight'
     import BigNumber from 'bignumber.js';
@@ -114,7 +116,6 @@
             return {
                 accountAddress: null,
                 balance: null,
-                delegateStake: null,
                 totalStake: null,
                 showLoading: true,
                 pollId: null,
@@ -122,8 +123,9 @@
                 voteOption: null,
                 pollContract: null,
                 pollState: {},
-                pollVotesState: {},
-                votersForOption: {}
+                pollVotesState: null,
+                votersForOption: {},
+                delegatedPower: null,
             }
         },
         computed: {},
@@ -146,13 +148,10 @@
 
                 const votes = this.pollVotesState.stakesForOption.find(option => option.option === id.toString()).votes;
                 const votesAggregation = votes.map(vote => {
-                    const stakeAE = BlockchainUtil.atomsToAe(vote.stake).toFixed(2);
                     return {
                         account: vote.account,
                         stake: vote.stake,
-                        stakeAE: stakeAE,
-                        delegatorsCount: vote.delegators.length,
-                        delegatorsStakeText: `${vote.delegators.length ? vote.delegators.length + " D - " : ""} ${stakeAE} AE`
+                        delegatorsCount: vote.delegators.length
                     };
                 });
 
@@ -166,8 +165,7 @@
                 this.accountAddress = aeternity.address;
                 this.votersForOption = {};
 
-                const balance = await aeternity.client.balance(aeternity.address);
-                this.balance = BlockchainUtil.atomsToAe(balance);
+                this.balance = await aeternity.client.balance(aeternity.address);
 
                 const pollsOverview = await aeternity.contract.methods.polls_overview();
                 const pollOverviewData = pollsOverview.decodedResult.find(([id, _]) => id == this.pollId)[1];
@@ -179,26 +177,18 @@
                 const accountVote = this.pollState.votes.find(([voter, _]) => voter === this.accountAddress);
                 this.voteOption = accountVote ? accountVote[1] : null;
 
-                const votesState = await axios.get(`http://localhost:3000/votesState/${pollAddress}`).then(res => res.data);
-                const appendVotesState = {
-                    ...votesState, ...{
-                        stakesForOption: votesState.stakesForOption.map(option => {
-                            option.votesCount = option.votes.length;
-                            option.delegatorsCount = option.votes.reduce((acc, vote) => acc + vote.delegators.length, 0);
-                            option.optionStakeAE = BlockchainUtil.atomsToAe(option.optionStake).toFixed(2);
-                            return option
-                        })
-                    }
-                };
-                this.pollVotesState = {...appendVotesState, ...{totalStakeAE: BlockchainUtil.atomsToAe(votesState.totalStake).toFixed(2)}};
+                await Backend.votesState(pollAddress).then((votesState) => {
+                    this.pollVotesState = votesState;
 
-                this.delegateeVote = this.pollVotesState.stakesForOption
-                    .map(data => data.votes.find(vote => vote.delegators
-                        .some(delegation => delegation.delegator === this.accountAddress))).find(x => x) || {};
+                    this.delegateeVote = this.pollVotesState.stakesForOption
+                        .map(data => data.votes.find(vote => vote.delegators
+                            .some(delegation => delegation.delegator === this.accountAddress))).find(x => x) || {};
+                }).catch(console.error);
 
-                const delegatedPower = await axios.get(`http://localhost:3000/delegatedPower/${this.accountAddress}?poll=${pollAddress}`).then(res => res.data);
-                this.delegateStake = BlockchainUtil.atomsToAe(delegatedPower.delegatedPower).toFixed(2);
-                this.totalStake = BlockchainUtil.atomsToAe(new BigNumber(balance).plus(delegatedPower.delegatedPower)).toFixed(2);
+                await Backend.delegatedPower(this.accountAddress, pollAddress).then(delegatedPower => {
+                    this.delegatedPower = delegatedPower.delegatedPower;
+                    this.totalStake = new BigNumber(this.balance).plus(this.delegatedPower);
+                }).catch(console.error);
 
                 this.showLoading = false;
             }

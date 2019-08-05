@@ -10,6 +10,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import App from './App.vue'
 import router from './router'
+import * as filters from './utils/filters'
 
 /**
  * Documentation of the new components are here.
@@ -54,6 +55,9 @@ console.info('about to render Vue App')
  * Also looks nice.
  */
 
+Object.keys(filters).forEach(key => {
+  Vue.filter(key, filters[key])
+})
 
 export default new Vue({
   router: router,

@@ -10,7 +10,8 @@
       </span>
       <div class="balances">
         <div class="balance token">
-          <span class="amount">{{balance}}</span>
+          <span class="amount">{{additionalText}}</span>
+          <span class="amount">{{balance | toAE}}</span>
           <span class="currency-symbol">{{currency}}</span>
         </div>
       </div>
@@ -46,7 +47,7 @@
             },
             currency: {
                 type: String,
-                default: 'AE'
+                default: ''
             },
             /**
              * An identity address
@@ -58,6 +59,10 @@
             /**
              * An identity balance in AE
              */
+            additionalText: {
+                type: String,
+                default: "",
+            },
             balance: {
                 type: String,
                 default: "0",
