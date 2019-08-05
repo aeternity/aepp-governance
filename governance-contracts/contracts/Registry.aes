@@ -57,6 +57,8 @@ contract Poll =
   entrypoint overview : () => overview
   entrypoint voted_option : (address) => option(int)
   entrypoint is_author : (address) => bool
+  entrypoint has_voted : (address) => bool
+  entrypoint is_closed : (bool) => bool
 
 // ACTUAL CONTRACT
 
@@ -105,21 +107,33 @@ contract Registry =
   entrypoint delegatee(account : address) : option(address) =
     Map.lookup(account, state.delegations)
 
-  // TODO function to find polls by voter account
-
-  // TODO function to find polls by author account
-
   entrypoint delegators(account : address) : delegations =
     let filter_delegations_account = (delegation_tuple) => Tuple.pair_second(delegation_tuple) == account
     Map.from_list(List.filter(filter_delegations_account, Map.to_list(state.delegations)))
 
   entrypoint polls_overview() : list((int, Poll.overview)) =
-    let zip_seq_id_poll_overview = (seq_poll_tuple) =>
-      switch(seq_poll_tuple)
-        (seq_id, poll) => (seq_id, poll.overview())
-    List.map(zip_seq_id_poll_overview, Map.to_list(state.polls))
+    map_poll_overview(Map.to_list(state.polls))
+
+  entrypoint polls_by_voter(voter : address) : list((int, Poll.overview)) =
+    find_polls_filter(((poll) => poll.has_voted(voter)))
+
+  entrypoint polls_by_author(author : address) : list((int, Poll.overview)) =
+    find_polls_filter(((poll) => poll.is_author(author)))
+
+  entrypoint polls_by_closed(closed : bool) : list((int, Poll.overview)) =
+    find_polls_filter(((poll) => poll.is_closed(closed)))
 
   // INTERNAL HELPER FUNCTIONS
+
+  function find_polls_filter(poll_filter : ((Poll) => bool)) : list((int, Poll.overview)) =
+    let filter_polls_list = (seq_poll_tuple) => switch(seq_poll_tuple)
+      (_, poll) => poll_filter(poll)
+    map_poll_overview(List.filter(filter_polls_list, Map.to_list(state.polls)))
+
+  function map_poll_overview(poll_seq_list : list((int, Poll))) : list((int, Poll.overview)) =
+    let zip_seq_id_poll_overview = (seq_poll_tuple) => switch(seq_poll_tuple)
+      (seq_id, poll) => (seq_id, poll.overview())
+    List.map(zip_seq_id_poll_overview, poll_seq_list)
 
   function require_poll_by_id(poll_id : int) : Poll =
     switch(Map.lookup(poll_id, state.polls))

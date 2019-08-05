@@ -199,4 +199,32 @@ describe('Governance Contracts', () => {
         let revokeDelegation2 = await secondClientRegistryContract.methods.revoke_delegation();
         assert.equal(revokeDelegation2.result.returnType, 'ok');
     });
+
+    it('Find Polls by Author', async () => {
+        const pollsByAuthor1 = await registryContract.methods.polls_by_author(ownerKeypair.publicKey)
+        assert.lengthOf(pollsByAuthor1.decodedResult, 1);
+
+        const pollsByAuthor2 = await registryContract.methods.polls_by_author(secondKeypair.publicKey)
+        assert.lengthOf(pollsByAuthor2.decodedResult, 0);
+    });
+
+    it('Find Polls by Voter', async () => {
+        const pollsByVoter1 = await registryContract.methods.polls_by_voter(ownerKeypair.publicKey)
+        assert.lengthOf(pollsByVoter1.decodedResult, 0);
+
+        await pollContract.methods.vote(1);
+        const pollsByVoter2 = await registryContract.methods.polls_by_voter(ownerKeypair.publicKey)
+        assert.lengthOf(pollsByVoter2.decodedResult, 1);
+
+        const pollsByVoter3 = await registryContract.methods.polls_by_voter(secondKeypair.publicKey)
+        assert.lengthOf(pollsByVoter3.decodedResult, 0);
+    });
+
+    it('Find Polls by Closed', async () => {
+        const pollsByClosed1 = await registryContract.methods.polls_by_closed(true);
+        assert.lengthOf(pollsByClosed1.decodedResult, 0);
+
+        const pollsByClosed2 = await registryContract.methods.polls_by_closed(false);
+        assert.lengthOf(pollsByClosed2.decodedResult, 1);
+    });
 });
