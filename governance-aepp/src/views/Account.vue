@@ -65,6 +65,19 @@
         <div v-if="includesIndirectDelegations" class="mx-4 mb-1 text-xs">(includes more indirect delegations)</div>
       </div>
     </div>
+    <div v-if="authorOfPolls.length">
+      <h2 class="h2">Poll Author</h2>
+      <div v-for="[id, data] in authorOfPolls">
+        <a @click="$router.push(`/poll/${id}`)">#{{id}} {{data.title}} ({{data.votes_count}} votes)</a>
+        <br/>
+      </div>
+    </div>  <div v-if="votedInPolls.length">
+      <h2 class="h2">Voted in Polls</h2>
+      <div v-for="[id, data] in votedInPolls">
+        <a @click="$router.push(`/poll/${id}`)">#{{id}} {{data.title}}</a>
+        <br/>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -89,7 +102,9 @@
                 delegatee: "",
                 isOwnAccount: false,
                 delegation: null,
-                delegations: []
+                delegations: [],
+                votedInPolls: [],
+                authorOfPolls: []
             }
         },
         computed: {},
@@ -122,6 +137,12 @@
 
                 const balance = await aeternity.client.balance(this.address);
                 this.balance = BlockchainUtil.atomsToAe(balance);
+
+
+                this.votedInPolls = (await aeternity.contract.methods.polls_by_voter(this.address)).decodedResult;
+                this.authorOfPolls = (await aeternity.contract.methods.polls_by_author(this.address)).decodedResult;
+
+                console.log(this.votedInPolls, this.authorOfPolls);
 
                 this.delegation = (await aeternity.contract.methods.delegatee(this.address)).decodedResult;
 
