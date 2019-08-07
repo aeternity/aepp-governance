@@ -167,9 +167,8 @@
 
                 this.balance = await aeternity.client.balance(aeternity.address);
 
-                const pollsOverview = await aeternity.contract.methods.polls_overview();
-                const pollOverviewData = pollsOverview.decodedResult.find(([id, _]) => id == this.pollId)[1];
-                const pollAddress = pollOverviewData.address.replace('ak_', 'ct_');
+                const poll = await aeternity.contract.methods.poll(this.pollId);
+                const pollAddress = poll.decodedResult[1];
                 this.pollContract = await aeternity.client.getContractInstance(pollContractSource, {contractAddress: pollAddress});
 
                 this.pollState = (await this.pollContract.methods.get_state()).decodedResult;

@@ -33,7 +33,7 @@ aeternity.init = async () => {
         compilerUrl: "http://localhost:3080"
     });
 
-    aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: 'ct_HhrGPwPeAUPXaqSht7wsh2cuG4YV5MwWdewVD3SZA4EK7tgbP'})
+    aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: 'ct_2ZuUGf4yxxYu3tQFBzLvaAJgDdnbSvY4SjZEviFyvxAUh7osEC'})
     console.log("initialized aeternity sdk")
 };
 
@@ -66,7 +66,7 @@ aeternity.delegators = async (address) => {
 aeternity.delegations = async () => {
     if (!aeternity.client) await aeternity.init();
 
-    const delegations = (await aeternity.contract.methods.get_state()).decodedResult.delegations;
+    const delegations = (await aeternity.contract.methods.delegations()).decodedResult;
     aeternity.cache.delegations = delegations;
     return delegations;
 };

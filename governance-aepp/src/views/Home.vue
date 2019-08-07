@@ -6,11 +6,8 @@
     <h1 class="h1">Governance Aepp</h1>
     <br/>
     <div v-if="polls">
-      <div v-for="[id, data] in polls">
-        <a @click="$router.push(`/poll/${id}`)">#{{id}} {{data.title}} ({{data.votes_count}} votes)</a>
-        <br/>
-        <span>{{closeHeight(data.close_height)}}</span>
-        <br/>
+      <div v-for="[id, [title, _]] in polls">
+        <a @click="$router.push(`/poll/${id}`)">#{{id}} {{title}}</a>
         <br/>
       </div>
     </div>
@@ -44,18 +41,12 @@
             }
         },
         computed: {},
-        methods: {
-            closeHeight(close_height) {
-                if (close_height === "None") return "poll never closes"
-                return `poll closes at block ${close_height.Some[0]}`
-            }
-        },
+        methods: {},
         async mounted() {
             await aeternity.initClient();
             this.address = aeternity.address;
             this.balance = aeternity.balance;
-            const pollsOverview = await aeternity.contract.methods.polls_overview();
-            this.polls = pollsOverview.decodedResult;
+            this.polls = (await aeternity.contract.methods.polls()).decodedResult;
             this.showLoading = false;
         }
     }

@@ -80,23 +80,14 @@ describe('Governance Contracts', () => {
         assert.equal(addPoll.decodedResult, 0);
     });
 
-    it('Polls Overview', async () => {
-        let pollsOverview = await registryContract.methods.polls_overview();
-        assert.lengthOf(pollsOverview.decodedResult, 1);
-        assert.deepEqual(pollsOverview.decodedResult[0], [0, {
-            address: pollContract.deployInfo.address.replace("ct_", "ak_"),
-            close_height: "None", //TODO will this be fixed in SDK?
-            is_listed: true,
-            title: "Testing",
-            votes_count: 0,
-            is_closed: false
-        }]);
+    it('Get Polls', async () => {
+        const polls = await registryContract.methods.polls();
+        assert.deepEqual(polls.decodedResult, [[0, ['Testing', pollContract.deployInfo.address]]])
     });
 
     it('Get Poll', async () => {
-        let pollsOverview = await registryContract.methods.polls_overview();
-        let address = pollsOverview.decodedResult[0][1].address.replace("ak_", "ct_");
-        pollContract = await ownerClient.getContractInstance(pollSource, {contractAddress: address});
+        const polls = await registryContract.methods.polls();
+        pollContract = await ownerClient.getContractInstance(pollSource, {contractAddress: polls.decodedResult[0][1][1]});
         let pollState = await pollContract.methods.get_state();
         assert.deepEqual(pollState.decodedResult, {
             close_height: undefined,
@@ -110,6 +101,20 @@ describe('Governance Contracts', () => {
             votes: [],
             author: ownerKeypair.publicKey
         });
+
+        let title = await pollContract.methods.title();
+        assert.equal(title.decodedResult, 'Testing');
+
+        let metadata = await pollContract.methods.metadata();
+        assert.deepEqual(metadata.decodedResult, {
+            description: 'This Poll is created for Testing purposes only',
+            is_listed: true,
+            link: 'https://aeternity.com/',
+            title: 'Testing'
+        });
+
+        let votes = await pollContract.methods.votes();
+        assert.deepEqual(votes.decodedResult, []);
     });
 
     it('Add Vote', async () => {
@@ -161,8 +166,8 @@ describe('Governance Contracts', () => {
         let addDelegationError = await registryContract.methods.delegate(ownerKeypair.publicKey).catch(e => e);
         assert.include(addDelegationError.decodedError, 'CALLER_IS_DELEGATEE_DISALLOWED');
 
-        let registryState = await registryContract.methods.get_state();
-        assert.deepEqual(registryState.decodedResult.delegations, [[ownerKeypair.publicKey, secondKeypair.publicKey]]);
+        let delegations = await registryContract.methods.delegations();
+        assert.deepEqual(delegations.decodedResult, [[ownerKeypair.publicKey, secondKeypair.publicKey]]);
 
         let delegationsFrom = await registryContract.methods.delegatee(ownerKeypair.publicKey);
         assert.equal(delegationsFrom.decodedResult, secondKeypair.publicKey);
@@ -178,8 +183,8 @@ describe('Governance Contracts', () => {
         let revokeDelegation = await registryContract.methods.revoke_delegation();
         assert.equal(revokeDelegation.result.returnType, 'ok');
 
-        let registryState = await registryContract.methods.get_state();
-        assert.deepEqual(registryState.decodedResult.delegations, []);
+        let delegations = await registryContract.methods.delegations();
+        assert.deepEqual(delegations.decodedResult, []);
     });
 
     it('Get Delegators', async () => {
@@ -198,33 +203,5 @@ describe('Governance Contracts', () => {
 
         let revokeDelegation2 = await secondClientRegistryContract.methods.revoke_delegation();
         assert.equal(revokeDelegation2.result.returnType, 'ok');
-    });
-
-    it('Find Polls by Author', async () => {
-        const pollsByAuthor1 = await registryContract.methods.polls_by_author(ownerKeypair.publicKey)
-        assert.lengthOf(pollsByAuthor1.decodedResult, 1);
-
-        const pollsByAuthor2 = await registryContract.methods.polls_by_author(secondKeypair.publicKey)
-        assert.lengthOf(pollsByAuthor2.decodedResult, 0);
-    });
-
-    it('Find Polls by Voter', async () => {
-        const pollsByVoter1 = await registryContract.methods.polls_by_voter(ownerKeypair.publicKey)
-        assert.lengthOf(pollsByVoter1.decodedResult, 0);
-
-        await pollContract.methods.vote(1);
-        const pollsByVoter2 = await registryContract.methods.polls_by_voter(ownerKeypair.publicKey)
-        assert.lengthOf(pollsByVoter2.decodedResult, 1);
-
-        const pollsByVoter3 = await registryContract.methods.polls_by_voter(secondKeypair.publicKey)
-        assert.lengthOf(pollsByVoter3.decodedResult, 0);
-    });
-
-    it('Find Polls by Closed', async () => {
-        const pollsByClosed1 = await registryContract.methods.polls_by_closed(true);
-        assert.lengthOf(pollsByClosed1.decodedResult, 0);
-
-        const pollsByClosed2 = await registryContract.methods.polls_by_closed(false);
-        assert.lengthOf(pollsByClosed2.decodedResult, 1);
     });
 });

@@ -63,20 +63,11 @@
                         return {seq: seq + 1, res: res}
                     }, {seq: 0, res: {}}).res;
                     const pollContract = await aeternity.client.getContractInstance(pollContractSource);
-                    console.log(this.createMetadata, options, close_height)
+
                     const init = await pollContract.methods.init(this.createMetadata, options, close_height);
                     const addPoll = await aeternity.contract.methods.add_poll(init.address);
                     console.log("addPoll", addPoll)
 
-
-                    this.createMetadata = {
-                        title: "",
-                        description: "",
-                        link: "",
-                        is_listed: true,
-                    };
-                    this.optionsString = ""
-                    this.closeHeightString = ""
 
                     this.$router.push(`/poll/${addPoll.decodedResult}`);
                 }

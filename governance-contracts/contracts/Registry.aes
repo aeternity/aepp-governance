@@ -19,11 +19,6 @@
 // DO NEVER USE THIS WITHOUT SECURITY AUDIT FIRST
 
 namespace List =
-  function map(f : 'a => 'b, l : list('a)) : list('b) =
-    switch(l)
-     [] => []
-     e :: l' => f(e) :: map(f, l')
-
   function filter(f : ('a) => bool, l : list('a)) = filter'(f, l, [])
   private function filter'(f : ('a) => bool, l : list('a), acc : list('a)) =
     switch(l)
@@ -39,32 +34,14 @@ namespace Tuple =
     switch(tuple)
       (_, e) => e
 
-namespace Option =
-  function is_defined(o : option('a)) : bool =
-    switch(o)
-      Some(_) => true
-      None => false
-
 contract Poll =
-  record overview =
-    { address : address
-    , title : string
-    , is_listed : bool
-    , close_height : option(int)
-    , votes_count : int
-    , is_closed : bool }
-
-  entrypoint overview : () => overview
-  entrypoint voted_option : (address) => option(int)
-  entrypoint is_author : (address) => bool
-  entrypoint has_voted : (address) => bool
-  entrypoint is_closed : (bool) => bool
+  entrypoint title : () => string
 
 // ACTUAL CONTRACT
 
 contract Registry =
 
-  type polls = map(int, Poll)
+  type polls = map(int, (string, Poll))
 
   // delegation from delegator to delegatee, delegatee will be globally allowed to take power of delegator
   // votes by delegator will overwrite delegation for one poll
@@ -90,7 +67,7 @@ contract Registry =
 
   stateful entrypoint add_poll(poll: Poll) : int =
     let poll_seq_id = state.seq_id
-    put(state{ polls[state.seq_id] = poll, seq_id = state.seq_id + 1 })
+    put(state{ polls[state.seq_id] = (poll.title(), poll), seq_id = state.seq_id + 1 })
     poll_seq_id
 
   stateful entrypoint delegate(delegatee : address) =
@@ -102,7 +79,11 @@ contract Registry =
 
   // STATELESS PUBLIC FUNCTIONS
 
-  entrypoint get_state() : state = state
+  entrypoint delegations() : delegations = state.delegations
+
+  entrypoint polls() : polls = state.polls
+
+  entrypoint poll(poll_id) : (string, Poll) = require_poll_by_id(poll_id)
 
   entrypoint delegatee(account : address) : option(address) =
     Map.lookup(account, state.delegations)
@@ -111,31 +92,9 @@ contract Registry =
     let filter_delegations_account = (delegation_tuple) => Tuple.pair_second(delegation_tuple) == account
     Map.from_list(List.filter(filter_delegations_account, Map.to_list(state.delegations)))
 
-  entrypoint polls_overview() : list((int, Poll.overview)) =
-    map_poll_overview(Map.to_list(state.polls))
-
-  entrypoint polls_by_voter(voter : address) : list((int, Poll.overview)) =
-    find_polls_filter(((poll) => poll.has_voted(voter)))
-
-  entrypoint polls_by_author(author : address) : list((int, Poll.overview)) =
-    find_polls_filter(((poll) => poll.is_author(author)))
-
-  entrypoint polls_by_closed(closed : bool) : list((int, Poll.overview)) =
-    find_polls_filter(((poll) => poll.is_closed(closed)))
-
   // INTERNAL HELPER FUNCTIONS
 
-  function find_polls_filter(poll_filter : ((Poll) => bool)) : list((int, Poll.overview)) =
-    let filter_polls_list = (seq_poll_tuple) => switch(seq_poll_tuple)
-      (_, poll) => poll_filter(poll)
-    map_poll_overview(List.filter(filter_polls_list, Map.to_list(state.polls)))
-
-  function map_poll_overview(poll_seq_list : list((int, Poll))) : list((int, Poll.overview)) =
-    let zip_seq_id_poll_overview = (seq_poll_tuple) => switch(seq_poll_tuple)
-      (seq_id, poll) => (seq_id, poll.overview())
-    List.map(zip_seq_id_poll_overview, poll_seq_list)
-
-  function require_poll_by_id(poll_id : int) : Poll =
+  function require_poll_by_id(poll_id : int) : (string, Poll) =
     switch(Map.lookup(poll_id, state.polls))
       None => abort("POLL_ID_NOT_KNOWN")
       Some(poll) => poll

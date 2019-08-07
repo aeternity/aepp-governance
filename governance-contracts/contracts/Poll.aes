@@ -65,16 +65,21 @@ contract Poll =
 
   // STATELESS PUBLIC FUNCTIONS
 
+  entrypoint get_state() : state = state
+
+  entrypoint title() : string = state.metadata.title
+
+  entrypoint metadata() : metadata = state.metadata
+
+  entrypoint votes() : votes = state.votes
+
   entrypoint is_author(author : address) : bool = state.author == author
 
   entrypoint has_voted(voter : address) : bool = Map.member(voter, state.votes)
 
   entrypoint is_closed(closed : bool) : bool = vote_not_closed() != closed
 
-  entrypoint get_state() : state = state
-
-  entrypoint voted_option(voter : address) : option(int) =
-    Map.lookup(voter, state.votes)
+  entrypoint voted_option(voter : address) : option(int) = Map.lookup(voter, state.votes)
 
   entrypoint overview() : overview =
     { address = Contract.address,

@@ -33,7 +33,7 @@ const seq_count = 2;
 
 const additional_wallets = [];
 
-describe('Governance Contracts Performance', () => {
+describe.skip('Governance Contracts Performance', () => {
 
     let client, registryContract;
 
@@ -111,12 +111,8 @@ describe('Governance Contracts Performance', () => {
         await new Promise(resolve => setTimeout(resolve, 5000));
 
         const start1 = new Date().getTime();
-        await registryContract.methods.polls_overview()
+        await registryContract.methods.polls()
             .then(res => console.log("   Overview", res.decodedResult.length, new Date().getTime() - start1, "ms"));
-
-        const start2 = new Date().getTime();
-        await registryContract.methods.polls_by_author(additional_wallets[0].publicKey)
-            .then(res => console.log("   ByAuthor", res.decodedResult.length, new Date().getTime() - start2, "ms"));
     });
 
     it('Add Lots of Delegates and Votes to Poll', async () => {
@@ -168,7 +164,7 @@ describe('Governance Contracts Performance', () => {
         }, Promise.resolve({}));
 
         const start1 = new Date().getTime();
-        await registryContract.methods.polls_overview()
+        await registryContract.methods.polls()
             .then(res => console.log("   Overview", res.decodedResult.length, new Date().getTime() - start1, "ms"));
 
         const start2 = new Date().getTime();
