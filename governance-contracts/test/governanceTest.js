@@ -82,12 +82,14 @@ describe('Governance Contracts', () => {
 
     it('Get Polls', async () => {
         const polls = await registryContract.methods.polls();
-        assert.deepEqual(polls.decodedResult, [[0, ['Testing', pollContract.deployInfo.address]]])
+        assert.equal(polls.decodedResult[0][1].title, 'Testing');
+        assert.equal(polls.decodedResult[0][1].poll, pollContract.deployInfo.address);
+        assert.equal(polls.decodedResult[0][1].close_height, undefined);
     });
 
     it('Get Poll', async () => {
         const polls = await registryContract.methods.polls();
-        pollContract = await ownerClient.getContractInstance(pollSource, {contractAddress: polls.decodedResult[0][1][1]});
+        pollContract = await ownerClient.getContractInstance(pollSource, {contractAddress: polls.decodedResult[0][1].poll});
         let pollState = await pollContract.methods.get_state();
         assert.deepEqual(pollState.decodedResult, {
             close_height: undefined,

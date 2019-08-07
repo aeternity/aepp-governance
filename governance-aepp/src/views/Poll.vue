@@ -25,7 +25,7 @@
         />
       </div>
       <span v-if="totalStake">
-        Stake: {{pollVotesState.totalStake | toAE}} ({{pollVotesState.percentOfTotalSupply}}%)
+        Stake: {{pollVotesState.totalStake | toAE}} ({{pollVotesState.percentOfTotalSupply | formatPercent}})
       </span>
 
       <div class="flex flex-col mx-2 mt-2 mb-6" v-if="accountAddress">
@@ -75,7 +75,7 @@
           </div>
         </div>
         <div class="label text-xs my-1" v-if="pollVotesState">
-          {{pollVotesState.stakesForOption[id].percentageOfTotal}}%
+          {{pollVotesState.stakesForOption[id].percentageOfTotal | formatPercent}}
           ({{pollVotesState.stakesForOption[id].optionStake | toAE}}) -
           <a @click="showVoters(id)">{{pollVotesState.stakesForOption[id].votes.length}} Votes</a> -
           {{pollVotesState.stakesForOption[id].delegatorsCount}} Delegators
@@ -168,7 +168,7 @@
                 this.balance = await aeternity.client.balance(aeternity.address);
 
                 const poll = await aeternity.contract.methods.poll(this.pollId);
-                const pollAddress = poll.decodedResult[1];
+                const pollAddress = poll.decodedResult.poll;
                 this.pollContract = await aeternity.client.getContractInstance(pollContractSource, {contractAddress: pollAddress});
 
                 this.pollState = (await this.pollContract.methods.get_state()).decodedResult;

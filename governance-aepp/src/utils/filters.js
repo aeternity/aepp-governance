@@ -7,3 +7,11 @@ export function toAE(num) {
     return "";
   }
 }
+
+export function formatPercent(num) {
+  if (num) {
+    return Number(num).toFixed(2) + "%";
+  } else {
+    return "";
+  }
+}

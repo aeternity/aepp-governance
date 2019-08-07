@@ -36,12 +36,18 @@ namespace Tuple =
 
 contract Poll =
   entrypoint title : () => string
+  entrypoint close_height : () => option(int)
 
 // ACTUAL CONTRACT
 
 contract Registry =
 
-  type polls = map(int, (string, Poll))
+  record poll_data =
+    { poll : Poll
+    , title : string
+    , close_height : option(int) }
+
+  type polls = map(int, poll_data)
 
   // delegation from delegator to delegatee, delegatee will be globally allowed to take power of delegator
   // votes by delegator will overwrite delegation for one poll
@@ -52,12 +58,6 @@ contract Registry =
     , seq_id : int
     , delegations : delegations }
 
-  record voted_or_delegated =
-    { has_voted : bool
-    , has_delegated : bool
-    , delegated_to : option(address)
-    , voter_or_delegatee_vote_option : option(int) }
-
   entrypoint init() : state =
     { polls = {},
       seq_id = 0,
@@ -67,7 +67,8 @@ contract Registry =
 
   stateful entrypoint add_poll(poll: Poll) : int =
     let poll_seq_id = state.seq_id
-    put(state{ polls[state.seq_id] = (poll.title(), poll), seq_id = state.seq_id + 1 })
+    let poll_data = { poll = poll, title = poll.title(), close_height = poll.close_height() }
+    put(state{ polls[state.seq_id] = poll_data, seq_id = state.seq_id + 1 })
     poll_seq_id
 
   stateful entrypoint delegate(delegatee : address) =
@@ -83,7 +84,7 @@ contract Registry =
 
   entrypoint polls() : polls = state.polls
 
-  entrypoint poll(poll_id) : (string, Poll) = require_poll_by_id(poll_id)
+  entrypoint poll(poll_id) : poll_data = require_poll_by_id(poll_id)
 
   entrypoint delegatee(account : address) : option(address) =
     Map.lookup(account, state.delegations)
@@ -94,7 +95,7 @@ contract Registry =
 
   // INTERNAL HELPER FUNCTIONS
 
-  function require_poll_by_id(poll_id : int) : (string, Poll) =
+  function require_poll_by_id(poll_id : int) : poll_data =
     switch(Map.lookup(poll_id, state.polls))
       None => abort("POLL_ID_NOT_KNOWN")
-      Some(poll) => poll
+      Some(poll_data) => poll_data

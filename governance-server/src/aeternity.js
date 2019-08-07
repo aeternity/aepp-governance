@@ -17,9 +17,15 @@ aeternity.nodeUrl = "http://localhost:3001/";
 
 aeternity.cache = {};
 aeternity.cache.delegations = [];
+
 aeternity.cache.totalSupply = {};
 aeternity.cache.getTotalSupply = (height) => aeternity.cache.totalSupply[(height / 100).toFixed()];
 aeternity.cache.setTotalSupply = (height, totalSupply) => aeternity.cache.totalSupply = {...aeternity.cache.totalSupply, ...{[(height / 100).toFixed()]: totalSupply}};
+
+aeternity.cache.pollDetails = {};
+aeternity.cache.getPollDetails = (height, address) => aeternity.cache.pollDetails[(height / 10).toFixed() + address];
+aeternity.cache.setPollDetails = (height, address, details) => aeternity.cache.pollDetails = {...aeternity.cache.pollDetails, ...{[(height / 10).toFixed() + address]: details}};
+
 
 aeternity.init = async () => {
     aeternity.client = await Universal({
@@ -33,14 +39,14 @@ aeternity.init = async () => {
         compilerUrl: "http://localhost:3080"
     });
 
-    aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: 'ct_2ZuUGf4yxxYu3tQFBzLvaAJgDdnbSvY4SjZEviFyvxAUh7osEC'})
+    aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: 'ct_25L2eJYKHmkMUV6BG5rmzTDSRaLgqovDR9PAis2pFZnvcXd4SN'})
     console.log("initialized aeternity sdk")
 };
 
 aeternity.pollsOverview = async () => {
     if (!aeternity.client) await aeternity.init();
 
-    const polls = await aeternity.contract.methods.polls_overview();
+    const polls = await aeternity.contract.methods.polls();
     return polls.decodedResult;
 };
 
@@ -56,7 +62,7 @@ aeternity.delegators = async (address) => {
     if (!aeternity.client) await aeternity.init();
 
     if (aeternity.cache.delegations.length) {
-       return aeternity.cache.delegations.filter(([_, delegatee]) => delegatee === address);
+        return aeternity.cache.delegations.filter(([_, delegatee]) => delegatee === address);
     }
 
     const delegators = await aeternity.contract.methods.delegators(address);
@@ -72,7 +78,7 @@ aeternity.delegations = async () => {
 };
 
 aeternity.tokenSupply = async (height) => {
-    var cache = aeternity.cache.getTotalSupply(height);
+    const cache = aeternity.cache.getTotalSupply(height);
     if (cache) return cache;
     const result = await axios.get(`${aeternity.nodeUrl}v2/debug/token-supply/height/${height}`);
     const value = new BigNumber(result.data.total).toFixed();
@@ -81,21 +87,33 @@ aeternity.tokenSupply = async (height) => {
     return value;
 };
 
-aeternity.pollDetails = async (pollOverviews) => {
-    return Promise.all(pollOverviews.map(async ([id, data]) => {
-        const pollState = await aeternity.pollState(data.address);
-        return {
+aeternity.pollOverview = async () => {
+    const start = new Date().getTime();
+
+    const height = await aeternity.client.height();
+    const polls = await aeternity.pollsOverview();
+
+    const pollOverview = await Promise.all(polls.map(async ([id, data]) => {
+        const cache = aeternity.cache.getPollDetails(height, data.poll);
+        if (cache) return cache;
+
+        const details = {
             id: id,
-            data: data,
-            state: pollState
-        }
-    }))
+            details: await aeternity.overviewPollVotesState(data.poll, height)
+        };
+
+        aeternity.cache.setPollDetails(height, data.poll, details);
+        return details;
+    }));
+
+    console.log("pollOverview", new Date().getTime() - start, "ms");
+    return pollOverview;
 };
 
 aeternity.pollStateAndVotingAccounts = async (address) => {
     var start = new Date().getTime();
     const pollState = await aeternity.pollState(address);
-    console.log("pollState", new Date().getTime() - start, "ms");
+    console.log("   pollState", new Date().getTime() - start, "ms");
 
     const votingAccounts = pollState.votes.map(([account, option]) => {
         return {
@@ -109,6 +127,19 @@ aeternity.pollStateAndVotingAccounts = async (address) => {
         pollState: pollState,
         votingAccounts: votingAccounts,
         votingAccountList: votingAccountList
+    }
+};
+
+aeternity.overviewPollVotesState = async (address, height) => {
+    const {pollState, votingAccounts, votingAccountList} = await aeternity.pollStateAndVotingAccounts(address);
+    const stakesAtHeight = await aeternity.stakesAtHeight(votingAccounts, pollState.close_height, votingAccountList);
+    const totalStake = stakesAtHeight.map(vote => vote.stake).reduce((acc, cur) => acc.plus(cur), new BigNumber('0')).toFixed();
+    const closingHeightOrCurrentHeight = pollState.close_height ? pollState.close_height <= height ? pollState.close_height : height : height;
+    const tokenSupply = await aeternity.tokenSupply(closingHeightOrCurrentHeight);
+    const percentOfTotalSupply = new BigNumber(totalStake).dividedBy(tokenSupply).multipliedBy(100).toFixed();
+    return {
+        voteCount: votingAccounts.length,
+        percentOfTotalSupply: percentOfTotalSupply
     }
 };
 
@@ -132,7 +163,7 @@ aeternity.pollVotesState = async (address) => {
     const tokenSupply = await aeternity.tokenSupply(closingHeightOrCurrentHeight);
     console.log("tokenSupply", new Date().getTime() - start, "ms");
 
-    const percentOfTotalSupply = new BigNumber(totalStake).dividedBy(tokenSupply).multipliedBy(100).toFixed(4);
+    const percentOfTotalSupply = new BigNumber(totalStake).dividedBy(tokenSupply).multipliedBy(100).toFixed();
     return {
         pollState: pollState,
         stakesAtHeight: stakesAtHeight,
@@ -195,7 +226,7 @@ aeternity.stakesForOption = (voteOptions, votingAccountStakes, totalStake) => {
 
         // divide by total stake to get percentage of total
         const percentageOfTotal = new BigNumber(optionStake).dividedBy(totalStake).multipliedBy(100);
-        const percentageOfTotalString = percentageOfTotal.isNaN() ? new BigNumber('0') : percentageOfTotal.toFixed(2);
+        const percentageOfTotalString = percentageOfTotal.isNaN() ? new BigNumber('0') : percentageOfTotal.toFixed();
 
         acc.push({option: option, optionStake: optionStake, percentageOfTotal: percentageOfTotalString, votes: votes}); // add stakes and votes for option to final result
         return acc;

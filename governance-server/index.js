@@ -44,5 +44,10 @@ app.get('/delegatedPower/:address', errorHandler(async (req, res) => {
     res.json(data)
 }));
 
+app.get('/pollOverview', errorHandler(async (req, res) => {
+    const data = await aeternity.pollOverview();
+    res.json(data)
+}));
+
 aeternity.init();
 app.listen(3000);

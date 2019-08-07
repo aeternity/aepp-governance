@@ -136,8 +136,8 @@
 
                 this.balance = await aeternity.client.balance(this.address);
 
-                this.votedInPolls = (await aeternity.contract.methods.polls_by_voter(this.address)).decodedResult;
-                this.authorOfPolls = (await aeternity.contract.methods.polls_by_author(this.address)).decodedResult;
+                //this.votedInPolls = (await aeternity.contract.methods.polls_by_voter(this.address)).decodedResult;
+                //this.authorOfPolls = (await aeternity.contract.methods.polls_by_author(this.address)).decodedResult;
 
                 this.delegation = (await aeternity.contract.methods.delegatee(this.address)).decodedResult;
 

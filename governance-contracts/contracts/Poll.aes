@@ -69,6 +69,8 @@ contract Poll =
 
   entrypoint title() : string = state.metadata.title
 
+  entrypoint close_height() : option(int) = state.close_height
+
   entrypoint metadata() : metadata = state.metadata
 
   entrypoint votes() : votes = state.votes
