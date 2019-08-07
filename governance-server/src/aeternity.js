@@ -16,15 +16,30 @@ aeternity.nodeUrl = "http://localhost:3001/";
 //aeternity.nodeUrl = "https://sdk-testnet.aepps.com/";
 
 aeternity.cache = {};
-aeternity.cache.delegations = [];
+
+const KeyHeightOrTime = (height, data) => height ? KeyHeight(height, data) : KeyTime(data);
+const KeyHeight = (height, data) => (height / 100).toFixed() + (data ? data : "");
+const KeyTime = (data) => (new Date().getTime() / 60000).toFixed() + (data ? data : "");
+
+aeternity.cache.height = {};
+aeternity.cache.getHeight = () => aeternity.cache.height[KeyTime()];
+aeternity.cache.setHeight = (height) => aeternity.cache.height = {...aeternity.cache.height, ...{[KeyTime()]: height}};
 
 aeternity.cache.totalSupply = {};
-aeternity.cache.getTotalSupply = (height) => aeternity.cache.totalSupply[(height / 100).toFixed()];
-aeternity.cache.setTotalSupply = (height, totalSupply) => aeternity.cache.totalSupply = {...aeternity.cache.totalSupply, ...{[(height / 100).toFixed()]: totalSupply}};
+aeternity.cache.getTotalSupply = (height) => aeternity.cache.totalSupply[KeyHeight(height)];
+aeternity.cache.setTotalSupply = (height, totalSupply) => aeternity.cache.totalSupply = {...aeternity.cache.totalSupply, ...{[KeyHeight(height)]: totalSupply}};
 
 aeternity.cache.pollDetails = {};
-aeternity.cache.getPollDetails = (height, address) => aeternity.cache.pollDetails[(height / 10).toFixed() + address];
-aeternity.cache.setPollDetails = (height, address, details) => aeternity.cache.pollDetails = {...aeternity.cache.pollDetails, ...{[(height / 10).toFixed() + address]: details}};
+aeternity.cache.getPollDetails = (height, address) => aeternity.cache.pollDetails[KeyHeight(height, address)];
+aeternity.cache.setPollDetails = (height, address, details) => aeternity.cache.pollDetails = {...aeternity.cache.pollDetails, ...{[KeyHeight(height, address)]: details}};
+
+aeternity.cache.balance = {};
+aeternity.cache.getBalance = (height, address) => aeternity.cache.balance[KeyHeightOrTime(height, address)];
+aeternity.cache.setBalance = (height, address, balance) => aeternity.cache.balance = {...aeternity.cache.balance, ...{[KeyHeightOrTime(height, address)]: balance}};
+
+aeternity.cache.delegations = {};
+aeternity.cache.getDelegations = () => aeternity.cache.delegations[KeyTime()];
+aeternity.cache.setDelegations = (delegations) => aeternity.cache.delegations = {...aeternity.cache.delegations, ...{[KeyTime()]: delegations}};
 
 
 aeternity.init = async () => {
@@ -39,7 +54,7 @@ aeternity.init = async () => {
         compilerUrl: "http://localhost:3080"
     });
 
-    aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: 'ct_25L2eJYKHmkMUV6BG5rmzTDSRaLgqovDR9PAis2pFZnvcXd4SN'})
+    aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: 'ct_WD9muf4ueaZp9ohEVZo4BZbdondM88gNV9yRRcjb7BM3PdEFk'})
     console.log("initialized aeternity sdk")
 };
 
@@ -59,55 +74,52 @@ aeternity.pollState = async (address) => {
 };
 
 aeternity.delegators = async (address) => {
-    if (!aeternity.client) await aeternity.init();
-
-    if (aeternity.cache.delegations.length) {
-        return aeternity.cache.delegations.filter(([_, delegatee]) => delegatee === address);
-    }
-
-    const delegators = await aeternity.contract.methods.delegators(address);
-    return delegators.decodedResult;
+    const delegations = await aeternity.delegations();
+    return delegations.filter(([_, delegatee]) => delegatee === address);
 };
 
 aeternity.delegations = async () => {
-    if (!aeternity.client) await aeternity.init();
+    const cache = aeternity.cache.getDelegations();
+    if (cache) return cache;
 
+    if (!aeternity.client) await aeternity.init();
     const delegations = (await aeternity.contract.methods.delegations()).decodedResult;
-    aeternity.cache.delegations = delegations;
+    aeternity.cache.setDelegations(delegations);
     return delegations;
 };
 
 aeternity.tokenSupply = async (height) => {
     const cache = aeternity.cache.getTotalSupply(height);
     if (cache) return cache;
+
     const result = await axios.get(`${aeternity.nodeUrl}v2/debug/token-supply/height/${height}`);
     const value = new BigNumber(result.data.total).toFixed();
     aeternity.cache.setTotalSupply(height, value);
-
     return value;
 };
 
-aeternity.pollOverview = async () => {
-    const start = new Date().getTime();
+aeternity.cachedHeight = async () => {
+    const cache = aeternity.cache.getHeight();
+    if (cache) return cache;
 
+    if (!aeternity.client) await aeternity.init();
     const height = await aeternity.client.height();
-    const polls = await aeternity.pollsOverview();
+    aeternity.cache.setHeight(height);
 
-    const pollOverview = await Promise.all(polls.map(async ([id, data]) => {
-        const cache = aeternity.cache.getPollDetails(height, data.poll);
-        if (cache) return cache;
+    return height;
+};
 
-        const details = {
-            id: id,
-            details: await aeternity.overviewPollVotesState(data.poll, height)
-        };
+aeternity.pollOverview = async (address) => {
+    const start = new Date().getTime();
+    const height = await aeternity.cachedHeight();
 
-        aeternity.cache.setPollDetails(height, data.poll, details);
-        return details;
-    }));
+    const cache = aeternity.cache.getPollDetails(height, address);
+    if (cache) return cache;
 
-    console.log("pollOverview", new Date().getTime() - start, "ms");
-    return pollOverview;
+    const details = await aeternity.overviewPollVotesState(address, height);
+    aeternity.cache.setPollDetails(height, address, details);
+    console.log("pollOverview", address, new Date().getTime() - start, "ms");
+    return details;
 };
 
 aeternity.pollStateAndVotingAccounts = async (address) => {
@@ -156,7 +168,7 @@ aeternity.pollVotesState = async (address) => {
     const totalStake = stakesAtHeight.map(vote => vote.stake).reduce((acc, cur) => acc.plus(cur), new BigNumber('0')).toFixed();
     const stakesForOption = aeternity.stakesForOption(pollState.vote_options, stakesAtHeight, totalStake);
 
-    const height = await aeternity.client.height();
+    const height = await aeternity.cachedHeight();
     const closingHeightOrCurrentHeight = pollState.close_height ? pollState.close_height <= height ? pollState.close_height : height : height;
 
     start = new Date().getTime();
@@ -174,12 +186,13 @@ aeternity.pollVotesState = async (address) => {
 };
 
 aeternity.balanceAtHeightOrZero = async (account, height) => {
+    const cache = aeternity.cache.getBalance(height, account);
+    if (cache) return cache;
 
     console.log("         balanceAtHeightOrZero", account, height);
-
     const heightOption = height ? {height: height} : {};
 
-    return aeternity.client.balance(account, heightOption).catch(async (e) => {
+    const balance = await aeternity.client.balance(account, heightOption).catch(async (e) => {
         if (e.message.includes("Height not available")) {
             // account balance will fail if not yet at closing height, use current height for a temporary result
             return await aeternity.client.balance(account).catch((e) => {
@@ -191,6 +204,9 @@ aeternity.balanceAtHeightOrZero = async (account, height) => {
             return '0';
         }
     });
+
+    aeternity.cache.setBalance(height, account, balance);
+    return balance;
 };
 
 aeternity.stakesAtHeight = async (votingAccounts, closeHeight, ignoreAccounts) => {
@@ -289,9 +305,6 @@ aeternity.balancePlusVotingPower = async (address, height, ignoreAccounts = []) 
 };
 
 aeternity.delegatedPower = async (address, closeHeight, ignoreAccounts = []) => {
-
-    await aeternity.delegations();
-
     function sumDelegatedPower(delegationTree) {
         return Object.keys(delegationTree).reduce(({delegatedPower, flattenedDelegationTree}, delegator) => {
             const delegation = delegationTree[delegator];

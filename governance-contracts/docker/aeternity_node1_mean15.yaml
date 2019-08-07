@@ -6,11 +6,12 @@ peers:
 http:
   external:
     port: 3013
+    acceptors: 99
   internal:
     debug_endpoints: true
     port: 3113
     listen_address: 0.0.0.0
-
+    acceptors: 99
 
 websocket:
   channel:

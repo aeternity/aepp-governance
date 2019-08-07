@@ -29,8 +29,8 @@ backend.delegatedPower = (account, poll) => wrapTry(async () => {
   return axios.get(`http://localhost:3000/delegatedPower/${account}`).then(res => res.data);
 });
 
-backend.pollOverview = () => wrapTry(async () => {
-  return axios.get(`http://localhost:3000/pollOverview`).then(res => res.data);
-});
+backend.pollOverview = async (address) => {
+  return axios.get(`http://localhost:3000/pollOverview/${address}`).then(res => res.data);
+};
 
 export default backend;
