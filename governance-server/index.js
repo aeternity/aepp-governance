@@ -1,6 +1,8 @@
-const aeternity = require("./src/aeternity");
 const express = require('express');
 const cors = require('cors');
+
+const logic = require("./src/logic");
+const aeternity = require("./src/aeternity");
 
 const app = express();
 
@@ -25,7 +27,7 @@ app.get('/votesState/:address', errorHandler(async (req, res) => {
     const address = req.params.address;
 
     const start = new Date().getTime();
-    const data = await aeternity.pollVotesState(address);
+    const data = await logic.pollVotesState(address);
 
     if (new Date().getTime() - start > 10) console.log("\npollVotesState", address, new Date().getTime() - start, "ms");
     res.json(data)
@@ -37,8 +39,8 @@ app.get('/delegatedPower/:address', errorHandler(async (req, res) => {
 
     const start = new Date().getTime();
     const data = req.query.poll
-        ? await aeternity.delegatedPowerPoll(address, req.query.poll)
-        : await aeternity.delegatedPower(address);
+        ? await logic.delegatedPowerPoll(address, req.query.poll)
+        : await logic.delegatedPower(address);
 
     if (new Date().getTime() - start > 10) console.log("\ndelegatedPower", address, req.query.poll, new Date().getTime() - start, "ms");
     res.json(data)
@@ -49,7 +51,7 @@ app.get('/pollOverview/:address', errorHandler(async (req, res) => {
     const address = req.params.address;
 
     const start = new Date().getTime();
-    const data = await aeternity.pollOverview(address);
+    const data = await logic.pollOverview(address);
 
     if (new Date().getTime() - start > 10) console.log("\npollOverview", address, new Date().getTime() - start, "ms");
     res.json(data)
