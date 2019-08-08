@@ -58,16 +58,14 @@
                     this.showLoading = true;
                     const close_height = isNaN(parseInt(this.closeHeightString)) ? Promise.reject() : Promise.resolve(parseInt(this.closeHeightString));
                     const options = this.optionsString.split(',').reduce(({seq, res}, cur) => {
-                        console.log("seq", seq, "res", res, "cur", cur)
+                        console.log("seq", seq, "res", res, "cur", cur);
                         res = Object.assign(res, {[seq]: cur.trim()});
                         return {seq: seq + 1, res: res}
                     }, {seq: 0, res: {}}).res;
-                    const pollContract = await aeternity.client.getContractInstance(pollContractSource);
 
+                    const pollContract = await aeternity.client.getContractInstance(pollContractSource);
                     const init = await pollContract.methods.init(this.createMetadata, options, close_height);
                     const addPoll = await aeternity.contract.methods.add_poll(init.address);
-                    console.log("addPoll", addPoll)
-
 
                     this.$router.push(`/poll/${addPoll.decodedResult}`);
                 }

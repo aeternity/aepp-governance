@@ -43,16 +43,10 @@
         },
         async mounted() {
             await aeternity.initClient();
-            const height = await aeternity.client.height();
 
             this.address = aeternity.address;
             this.balance = aeternity.balance;
-            const polls = await aeternity.contract.methods.polls();
-            this.polls = polls.decodedResult
-                .filter(([_, data]) => data.close_height ? data.close_height > height : true)
-                .sort((a, b) => {
-                return (a[1].close_height ||  b[1].close_height) ? (!a[1].close_height ? -1 : !b[1].close_height ? -1 : a[1].close_height - b[1].close_height) : 0;
-            });
+            this.polls = await aeternity.polls();
 
             this.showLoading = false;
         }

@@ -170,7 +170,6 @@
                 const poll = await aeternity.contract.methods.poll(this.pollId);
                 const pollAddress = poll.decodedResult.poll;
                 this.pollContract = await aeternity.client.getContractInstance(pollContractSource, {contractAddress: pollAddress});
-
                 this.pollState = (await this.pollContract.methods.get_state()).decodedResult;
 
                 const accountVote = this.pollState.votes.find(([voter, _]) => voter === this.accountAddress);

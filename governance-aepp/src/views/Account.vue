@@ -125,32 +125,25 @@
                 await aeternity.contract.methods.revoke_delegation();
                 await this.loadData();
             },
-            async loadData() {
+            resetData() {
                 this.showLoading = true;
                 this.delegatee = null;
                 this.delegations = [];
                 this.delegation = null;
                 this.totalStake = null;
+            },
+            async loadData() {
+                this.resetData();
+
                 this.address = this.$route.params.account;
                 this.isOwnAccount = this.address === aeternity.address;
 
                 this.balance = await aeternity.client.balance(this.address);
+                this.delegation = await aeternity.delegation(this.address);
+                this.delegations = await aeternity.delegations(this.address);
 
                 //this.votedInPolls = (await aeternity.contract.methods.polls_by_voter(this.address)).decodedResult;
                 //this.authorOfPolls = (await aeternity.contract.methods.polls_by_author(this.address)).decodedResult;
-
-                this.delegation = (await aeternity.contract.methods.delegatee(this.address)).decodedResult;
-
-                const delegationsResult = await aeternity.contract.methods.delegators(this.address);
-                this.delegations = await Promise.all(delegationsResult.decodedResult.map(async ([delegator, delegatee]) => {
-                    const delegateeDelegations = (await aeternity.contract.methods.delegators(delegator)).decodedResult;
-                    return {
-                        delegator: delegator,
-                        delegatee: delegatee,
-                        delegatorAmount: await aeternity.client.balance(delegator),
-                        includesIndirectDelegations: delegateeDelegations.length !== 0
-                    }
-                }));
 
                 await Backend.delegatedPower(this.address).then(delegatedPower => {
                     this.delegatedPower = delegatedPower.delegatedPower;
