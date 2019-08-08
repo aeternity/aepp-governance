@@ -50,32 +50,33 @@ describe.skip('Governance Contracts Performance', () => {
             compilerUrl: config.compilerUrl
         });
 
+        registryContract = await client.getContractInstance(registrySource);
+        await registryContract.methods.init().then(init => console.log(init.address));
+
         await [...Array(account_count).keys()].reduce(async (promiseAcc, id) => {
             await promiseAcc;
             const keypair = Crypto.generateKeyPair();
             additional_wallets.push(keypair);
-            process.stdout.write(".")
-            return client.spend(((Math.random() * Math.floor(100)) + 0.2) * 1000000000000000000, keypair.publicKey);
+            process.stdout.write(".");
+            return client.spend(((Math.random() * 100) + 0.2) * 1000000000000000000, keypair.publicKey);
         }, Promise.resolve({}));
 
-        console.log("funded", additional_wallets);
-
-        registryContract = await client.getContractInstance(registrySource);
-        await registryContract.methods.init().then(init => console.log(init.address));
+        console.log("funded", additional_wallets.length);
     });
 
     it('Add Lots of Polls to Registry', async () => {
+        const height = await client.height();
         const createAndAddPoll = async (client) => {
             const pollContract = await client.getContractInstance(pollSource);
 
             const metadata = {
-                title: "Testing",
+                title: "Testing " + Math.random().toString(36).substring(7),
                 description: "This Poll is created for Testing purposes only",
                 link: "https://aeternity.com/",
-                is_listed: true
+                is_listed: !!Math.round(Math.random())
             };
             const vote_options = {0: "Yes, test more", 1: "No, test less", 2: "Who cares?"};
-            const close_height = Promise.reject();
+            const close_height = Math.round(Math.random()) ? Promise.reject() : Promise.resolve(height + Math.floor(Math.random() * 1000));
 
             const init = await pollContract.methods.init(metadata, vote_options, close_height);
             assert.equal(init.result.returnType, 'ok');

@@ -26,8 +26,8 @@ app.get('/votesState/:address', errorHandler(async (req, res) => {
 
     const start = new Date().getTime();
     const data = await aeternity.pollVotesState(address);
-    console.log("- pollVotesState", new Date().getTime() - start, "ms");
 
+    if (new Date().getTime() - start > 10) console.log("\npollVotesState", address, new Date().getTime() - start, "ms");
     res.json(data)
 }));
 
@@ -39,15 +39,19 @@ app.get('/delegatedPower/:address', errorHandler(async (req, res) => {
     const data = req.query.poll
         ? await aeternity.delegatedPowerPoll(address, req.query.poll)
         : await aeternity.delegatedPower(address);
-    console.log("- delegatedPower", new Date().getTime() - start, "ms");
 
+    if (new Date().getTime() - start > 10) console.log("\ndelegatedPower", address, req.query.poll, new Date().getTime() - start, "ms");
     res.json(data)
 }));
 
 app.get('/pollOverview/:address', errorHandler(async (req, res) => {
+    if (!req.params.address) return res.sendStatus(400);
     const address = req.params.address;
 
+    const start = new Date().getTime();
     const data = await aeternity.pollOverview(address);
+
+    if (new Date().getTime() - start > 10) console.log("\npollOverview", address, new Date().getTime() - start, "ms");
     res.json(data)
 }));
 
