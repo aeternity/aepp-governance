@@ -64,18 +64,16 @@
         <div v-if="includesIndirectDelegations" class="mx-4 mb-1 text-xs">(includes more indirect delegations)</div>
       </div>
     </div>
-    <div v-if="authorOfPolls.length">
+    <div v-if="authorOfPolls.length" class="mt-1">
       <h2 class="h2">Poll Author</h2>
       <div v-for="[id, data] in authorOfPolls">
         <PollListing :id="id" :data="data"/>
-        <br/>
       </div>
     </div>
-    <div v-if="votedInPolls.length">
+    <div v-if="votedInPolls.length" class="mt-1">
       <h2 class="h2">Voted in Polls</h2>
       <div v-for="[id, data] in votedInPolls">
         <PollListing :id="id" :data="data"/>
-        <br/>
       </div>
     </div>
   </div>

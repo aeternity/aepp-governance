@@ -20,12 +20,12 @@ aeternity.init = async () => {
         compilerUrl: "http://localhost:3080"
     });
 
-    aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: 'ct_2kWCEEgo35ic93wAfpeaugVKeYYyaupCUQHs3u6YUDHLQPRcUd'})
+    aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: 'ct_2kWCEEgo35ic93wAfpeaugVKeYYyaupCUQHs3u6YUDHLQPRcUd'});
     console.log("initialized aeternity sdk")
 };
 
 aeternity.polls = async () => {
-    return cache.getOrSet(["polls"], async () => (await aeternity.contract.methods.polls()).decodedResult, true);
+    return cache.getOrSet(["polls"], async () => (await aeternity.contract.methods.polls()).decodedResult, 60);
 };
 
 aeternity.pollState = async (address) => {
@@ -42,7 +42,7 @@ aeternity.delegators = async (address) => {
 };
 
 aeternity.delegations = async () => {
-    return cache.getOrSet(["delegations"], async () => (await aeternity.contract.methods.delegations()).decodedResult, true);
+    return cache.getOrSet(["delegations"], async () => (await aeternity.contract.methods.delegations()).decodedResult, 60);
 };
 
 aeternity.tokenSupply = async (height) => {
@@ -53,7 +53,7 @@ aeternity.tokenSupply = async (height) => {
 };
 
 aeternity.height = async () => {
-    return cache.getOrSet(["height"], () => aeternity.client.height(), true);
+    return cache.getOrSet(["height"], () => aeternity.client.height(), 30);
 };
 
 module.exports = aeternity;

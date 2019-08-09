@@ -20,8 +20,7 @@
       v-if="!collapsed"
       v-for="(chunk, idx) in chunkAddress"
       :key="idx"
-      class="chunk-row"
-    >
+      class="chunk-row">
       <div v-for="(data, idx) in chunk" :key="idx" class="chunk">
         {{data}}
       </div>

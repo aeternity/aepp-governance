@@ -6,23 +6,25 @@ const set = promisify(client.set).bind(client);
 
 const cache = {};
 
-const KeyHeightOrTime = (height, data) => height ? KeyHeight(height, data) : KeyTime(data);
-const KeyHeight = (height, data) => (height / 10).toFixed() + (data ? data : "");
-const KeyTime = (data) => (new Date().getTime() / 30000).toFixed() + (data ? data : "");
-
-cache.getOrSet = async (keys, asyncFetchData, expire = false) => {
+cache.getOrSet = async (keys, asyncFetchData, expire = null) => {
     const key = keys.join(":");
     const value = await get(key);
     if (value) return JSON.parse(value);
 
     const data = await asyncFetchData();
+    cache.set(keys, data, expire);
+    return data;
+};
+
+cache.set = async (keys, data, expire = null) => {
+    const key = keys.join(":");
+
     console.log("\n   cache set", key);
     if (expire) {
-        await set(key, JSON.stringify(data), "EX", 60);
+        await set(key, JSON.stringify(data), "EX", expire);
     } else {
         await set(key, JSON.stringify(data));
     }
-    return data;
 };
 
 module.exports = cache;

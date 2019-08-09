@@ -21,7 +21,7 @@ logic.accountPollVoterAuthor = async (address) => {
 
     return polls.reduce(async (promiseAcc, [id, data]) => {
         const acc = await promiseAcc;
-        const {pollState, votingAccountList} = await logic.pollStateAndVotingAccounts(data.poll);
+        const {pollState, votingAccountList} = await logic.pollStateAndVotingAccounts(data.poll, true);
 
         if (pollState.author === address) acc.authorOfPolls.push([id, data]);
         if (votingAccountList.includes(address)) acc.votedInPolls.push([id, data]);
@@ -65,21 +65,32 @@ logic.pollVotesState = async (address) => {
     };
 };
 
-logic.pollStateAndVotingAccounts = async (address) => {
-    const pollState = await aeternity.pollState(address);
+logic.pollStateAndVotingAccounts = async (address, cached = false) => {
+    const result = async () => {
+        const pollState = await aeternity.pollState(address);
 
-    const votingAccounts = pollState.votes.map(([account, option]) => {
+        const votingAccounts = pollState.votes.map(([account, option]) => {
+            return {
+                account: account,
+                option: option
+            };
+        });
+        const votingAccountList = votingAccounts.map(({account, _}) => account);
+
         return {
-            account: account,
-            option: option
-        };
-    });
-    const votingAccountList = votingAccounts.map(({account, _}) => account);
+            pollState: pollState,
+            votingAccounts: votingAccounts,
+            votingAccountList: votingAccountList
+        }
+    };
 
-    return {
-        pollState: pollState,
-        votingAccounts: votingAccounts,
-        votingAccountList: votingAccountList
+
+    if (cached) {
+        return cache.getOrSet(["pollStateAndVotingAccounts", address], result, 60);
+    } else {
+        const data = await result();
+        cache.set(["pollStateAndVotingAccounts", address], data, 60);
+        return data;
     }
 };
 

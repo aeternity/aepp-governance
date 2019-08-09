@@ -1,13 +1,14 @@
 <template>
-  <div>
-    <a @click="$router.push(`/poll/${id}`)">#{{id}} {{data.title}}</a>
-    <span v-if="voteCount != null">({{voteCount}} votes)</span>
-    <ae-loader v-if="voteCount == null && loading"/>
-    <br/>
-    <span v-if="percentOfTotalSupply">{{percentOfTotalSupply | formatPercent}} stake - </span>
-    <span>{{closeHeight(data.close_height)}}</span>
-    <br/>
-    <br/>
+  <div class="mb-2">
+    <div>
+      <a @click="$router.push(`/poll/${id}`)">#{{id}} {{data.title}}</a>
+      <span v-if="voteCount != null">({{voteCount}} votes)</span>
+      <ae-loader v-if="voteCount == null && loading"/>
+    </div>
+    <div>
+      <span v-if="percentOfTotalSupply">{{percentOfTotalSupply | formatPercent}} stake - </span>
+      <span>{{closeHeight(data.close_height)}}</span>
+    </div>
   </div>
 </template>
 
