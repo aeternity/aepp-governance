@@ -67,13 +67,13 @@
     <div v-if="authorOfPolls.length" class="mt-1">
       <h2 class="h2">Poll Author</h2>
       <div v-for="[id, data] in authorOfPolls">
-        <PollListing :id="id" :data="data"/>
+        <PollListing :id="id" :data="data" class="mx-4"/>
       </div>
     </div>
     <div v-if="votedInPolls.length" class="mt-1">
       <h2 class="h2">Voted in Polls</h2>
       <div v-for="[id, data] in votedInPolls">
-        <PollListing :id="id" :data="data"/>
+        <PollListing :id="id" :data="data" class="mx-4"/>
       </div>
     </div>
   </div>
@@ -128,6 +128,8 @@
                 this.showLoading = true;
                 this.delegatee = null;
                 this.delegations = [];
+                this.votedInPolls = [];
+                this.authorOfPolls = [];
                 this.delegation = null;
                 this.totalStake = null;
             },
