@@ -44,6 +44,7 @@ contract Registry =
 
   record poll_data =
     { poll : Poll
+    , is_listed : bool
     , title : string
     , close_height : option(int) }
 
@@ -65,9 +66,9 @@ contract Registry =
 
   // STATEFULL FUNCTIONS
 
-  stateful entrypoint add_poll(poll: Poll) : int =
+  stateful entrypoint add_poll(poll : Poll, is_listed : bool) : int =
     let poll_seq_id = state.seq_id
-    let poll_data = { poll = poll, title = poll.title(), close_height = poll.close_height() }
+    let poll_data = { poll = poll, is_listed = is_listed, title = poll.title(), close_height = poll.close_height() }
     put(state{ polls[state.seq_id] = poll_data, seq_id = state.seq_id + 1 })
     poll_seq_id
 

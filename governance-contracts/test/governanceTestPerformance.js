@@ -33,7 +33,7 @@ const seq_count = 2;
 
 const additional_wallets = [];
 
-describe.skip('Governance Contracts Performance', () => {
+describe('Governance Contracts Performance', () => {
 
     let client, registryContract;
 
@@ -72,8 +72,7 @@ describe.skip('Governance Contracts Performance', () => {
             const metadata = {
                 title: "Testing " + Math.random().toString(36).substring(7),
                 description: "This Poll is created for Testing purposes only",
-                link: "https://aeternity.com/",
-                is_listed: !!Math.round(Math.random())
+                link: "https://aeternity.com/"
             };
             const vote_options = {0: "Yes, test more", 1: "No, test less", 2: "Who cares?"};
             const close_height = Math.round(Math.random()) ? Promise.reject() : Promise.resolve(height + Math.floor(Math.random() * 1000));
@@ -82,7 +81,7 @@ describe.skip('Governance Contracts Performance', () => {
             assert.equal(init.result.returnType, 'ok');
 
             const contract = await client.getContractInstance(registrySource, {contractAddress: registryContract.deployInfo.address});
-            await contract.methods.add_poll(init.address).catch(e => console.error(e.message));
+            await contract.methods.add_poll(init.address, !!Math.round(Math.random())).catch(e => console.error(e.message));
             console.log("added poll");
 
             return true;
@@ -122,14 +121,13 @@ describe.skip('Governance Contracts Performance', () => {
         const metadata = {
             title: "Testing",
             description: "This Poll is created for Testing purposes only",
-            link: "https://aeternity.com/",
-            is_listed: true
+            link: "https://aeternity.com/"
         };
         const vote_options = {0: "Yes, test more", 1: "No, test less", 2: "Who cares?", 3: "WHAT", 4: "Maybe?!"};
         const close_height = Promise.reject();
 
         const init = await pollContract.methods.init(metadata, vote_options, close_height);
-        await registryContract.methods.add_poll(init.address);
+        await registryContract.methods.add_poll(init.address, true);
 
         await Promise.all(additional_wallets.map(async wallet => {
             const client = await Universal({

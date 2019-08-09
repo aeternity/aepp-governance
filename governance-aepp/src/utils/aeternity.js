@@ -27,7 +27,7 @@ aeternity.initProvider = async () => {
       .then(balance => `${Util.atomsToAe(balance)}`.replace(',', ''))
       .catch(() => '0');
     aeternity.networkId = (await aeternity.client.getNodeInfo()).nodeNetworkId;
-    aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: 'ct_2kWCEEgo35ic93wAfpeaugVKeYYyaupCUQHs3u6YUDHLQPRcUd'});
+    aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: 'ct_2dPo948JddJ75w3NmB9CaSDBe8te9x5oA1xb6t3x1c12TesBiT'});
     return true;
   } catch (e) {
     console.warn(e);
@@ -161,6 +161,7 @@ aeternity.polls = async () => {
   const height = await aeternity.client.height();
   const polls = await aeternity.contract.methods.polls();
   return polls.decodedResult
+    .filter(([_, data]) => data.is_listed)
     .filter(([_, data]) => data.close_height ? data.close_height > height : true)
     .sort((a, b) => {
       return (a[1].close_height ||  b[1].close_height) ? (!a[1].close_height ? -1 : !b[1].close_height ? -1 : a[1].close_height - b[1].close_height) : 0;

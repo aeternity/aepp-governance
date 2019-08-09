@@ -67,8 +67,7 @@ describe('Governance Contracts', () => {
         const metadata = {
             title: "Testing",
             description: "This Poll is created for Testing purposes only",
-            link: "https://aeternity.com/",
-            is_listed: true
+            link: "https://aeternity.com/"
         };
         const vote_options = {0: "Yes, test more", 1: "No, test less", 2: "Who cares?"};
         const close_height = Promise.reject();
@@ -76,13 +75,14 @@ describe('Governance Contracts', () => {
         const init = await pollContract.methods.init(metadata, vote_options, close_height);
         assert.equal(init.result.returnType, 'ok');
 
-        let addPoll = await registryContract.methods.add_poll(init.address);
+        let addPoll = await registryContract.methods.add_poll(init.address, true);
         assert.equal(addPoll.decodedResult, 0);
     });
 
     it('Get Polls', async () => {
         const polls = await registryContract.methods.polls();
         assert.equal(polls.decodedResult[0][1].title, 'Testing');
+        assert.equal(polls.decodedResult[0][1].is_listed, true);
         assert.equal(polls.decodedResult[0][1].poll, pollContract.deployInfo.address);
         assert.equal(polls.decodedResult[0][1].close_height, undefined);
     });
@@ -95,7 +95,6 @@ describe('Governance Contracts', () => {
             close_height: undefined,
             metadata: {
                 description: 'This Poll is created for Testing purposes only',
-                is_listed: true,
                 link: 'https://aeternity.com/',
                 title: 'Testing'
             },
@@ -110,7 +109,6 @@ describe('Governance Contracts', () => {
         let metadata = await pollContract.methods.metadata();
         assert.deepEqual(metadata.decodedResult, {
             description: 'This Poll is created for Testing purposes only',
-            is_listed: true,
             link: 'https://aeternity.com/',
             title: 'Testing'
         });
@@ -134,8 +132,7 @@ describe('Governance Contracts', () => {
         const metadata = {
             title: "Testing",
             description: "This Poll is created for Testing purposes only",
-            link: "https://aeternity.com/",
-            is_listed: true
+            link: "https://aeternity.com/"
         };
         const vote_options = {0: "Only Option"};
         const close_height = Promise.resolve(await ownerClient.height());

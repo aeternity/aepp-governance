@@ -20,7 +20,7 @@ aeternity.init = async () => {
         compilerUrl: "http://localhost:3080"
     });
 
-    aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: 'ct_2kWCEEgo35ic93wAfpeaugVKeYYyaupCUQHs3u6YUDHLQPRcUd'});
+    aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: 'ct_2dPo948JddJ75w3NmB9CaSDBe8te9x5oA1xb6t3x1c12TesBiT'});
     console.log("initialized aeternity sdk")
 };
 

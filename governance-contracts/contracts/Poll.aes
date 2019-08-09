@@ -23,7 +23,6 @@ contract Poll =
   record overview =
     { address : address
     , title : string
-    , is_listed : bool
     , close_height : option(int)
     , votes_count : int
     , is_closed : bool }
@@ -31,8 +30,7 @@ contract Poll =
   record metadata =
     { title : string
     , description : string
-    , link : string
-    , is_listed : bool }
+    , link : string }
 
   type vote_option = map(int, string)
 
@@ -86,7 +84,6 @@ contract Poll =
   entrypoint overview() : overview =
     { address = Contract.address,
       title = state.metadata.title,
-      is_listed = state.metadata.is_listed,
       close_height = state.close_height,
       votes_count = Map.size(state.votes), //TODO count is not a good metric
       is_closed = !vote_not_closed() }
