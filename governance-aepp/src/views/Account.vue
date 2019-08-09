@@ -67,14 +67,14 @@
     <div v-if="authorOfPolls.length">
       <h2 class="h2">Poll Author</h2>
       <div v-for="[id, data] in authorOfPolls">
-        <a @click="$router.push(`/poll/${id}`)">#{{id}} {{data.title}} ({{data.votes_count}} votes)</a>
+        <PollListing :id="id" :data="data"/>
         <br/>
       </div>
     </div>
     <div v-if="votedInPolls.length">
       <h2 class="h2">Voted in Polls</h2>
       <div v-for="[id, data] in votedInPolls">
-        <a @click="$router.push(`/poll/${id}`)">#{{id}} {{data.title}}</a>
+        <PollListing :id="id" :data="data"/>
         <br/>
       </div>
     </div>
@@ -88,10 +88,11 @@
     import AeIdentityLight from '../components/AeIdentityLight'
     import BigNumber from 'bignumber.js';
     import Backend from "~/utils/backend";
+    import PollListing from "~/components/PollListing";
 
     export default {
         name: 'Home',
-        components: {AeIcon, AeButton, AeButtonGroup, AeInput, BiggerLoader, AeIdentityLight, AeText},
+        components: {AeIcon, AeButton, AeButtonGroup, AeInput, BiggerLoader, AeIdentityLight, AeText, PollListing},
         data() {
             return {
                 showLoading: true,
@@ -142,13 +143,16 @@
                 this.delegation = await aeternity.delegation(this.address);
                 this.delegations = await aeternity.delegations(this.address);
 
-                //this.votedInPolls = (await aeternity.contract.methods.polls_by_voter(this.address)).decodedResult;
-                //this.authorOfPolls = (await aeternity.contract.methods.polls_by_author(this.address)).decodedResult;
-
                 await Backend.delegatedPower(this.address).then(delegatedPower => {
                     this.delegatedPower = delegatedPower.delegatedPower;
                     this.totalStake = new BigNumber(this.balance).plus(this.delegatedPower);
                 }).catch(console.error);
+
+                await Backend.accountPollVoterAuthor(this.address).then(data => {
+                    this.votedInPolls = data.votedInPolls;
+                    this.authorOfPolls = data.authorOfPolls;
+                }).catch(console.error);
+
 
                 this.showLoading = false;
             }

@@ -57,5 +57,16 @@ app.get('/pollOverview/:address', errorHandler(async (req, res) => {
     res.json(data)
 }));
 
+app.get('/accountPollVoterAuthor/:address', errorHandler(async (req, res) => {
+    if (!req.params.address) return res.sendStatus(400);
+    const address = req.params.address;
+
+    const start = new Date().getTime();
+    const data = await logic.accountPollVoterAuthor(address);
+
+    if (new Date().getTime() - start > 10) console.log("\naccountPollVoterAuthor", address, new Date().getTime() - start, "ms");
+    res.json(data)
+}));
+
 aeternity.init();
 app.listen(3000);

@@ -16,6 +16,20 @@ logic.pollOverview = async (address) => {
     return cache.getOrSet(["pollOverview", address, height], () => logic.overviewPollVotesState(address, height));
 };
 
+logic.accountPollVoterAuthor = async (address) => {
+    const polls = await aeternity.polls();
+
+    return polls.reduce(async (promiseAcc, [id, data]) => {
+        const acc = await promiseAcc;
+        const {pollState, votingAccountList} = await logic.pollStateAndVotingAccounts(data.poll);
+
+        if (pollState.author === address) acc.authorOfPolls.push([id, data]);
+        if (votingAccountList.includes(address)) acc.votedInPolls.push([id, data]);
+
+        return acc;
+    }, Promise.resolve({votedInPolls: [], authorOfPolls: []}));
+};
+
 logic.overviewPollVotesState = async (address, height) => {
     const {pollState, votingAccounts, votingAccountList} = await logic.pollStateAndVotingAccounts(address);
     const stakesAtHeight = await logic.stakesAtHeight(votingAccounts, pollState.close_height, votingAccountList);

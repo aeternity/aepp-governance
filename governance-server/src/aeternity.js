@@ -24,11 +24,8 @@ aeternity.init = async () => {
     console.log("initialized aeternity sdk")
 };
 
-aeternity.pollsOverview = async () => {
-    if (!aeternity.client) await aeternity.init();
-
-    const polls = await aeternity.contract.methods.polls();
-    return polls.decodedResult;
+aeternity.polls = async () => {
+    return cache.getOrSet(["polls"], async () => (await aeternity.contract.methods.polls()).decodedResult, true);
 };
 
 aeternity.pollState = async (address) => {
