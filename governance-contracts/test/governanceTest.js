@@ -135,6 +135,10 @@ describe('Governance Contracts', () => {
     it('Add Vote', async () => {
         pollContract = await ownerClient.getContractInstance(pollSource, {contractAddress: pollContract.deployInfo.address});
         let vote = await pollContract.methods.vote(2);
+        assert.equal(topicHashFromResult(vote), hashTopic('Vote'));
+        assert.equal(encodeEventAddress(vote, 0, "ct_"), pollContract.deployInfo.address);
+        assert.equal(encodeEventAddress(vote, 1, "ak_"), ownerKeypair.publicKey);
+        assert.equal(eventArgument(vote, 2), 2);
         assert.equal(vote.result.returnType, 'ok');
 
         let pollState = await pollContract.methods.get_state();
@@ -161,6 +165,9 @@ describe('Governance Contracts', () => {
 
     it('Revoke Vote', async () => {
         let revokeVote = await pollContract.methods.revoke_vote();
+        assert.equal(topicHashFromResult(revokeVote), hashTopic('RevokeVote'));
+        assert.equal(encodeEventAddress(revokeVote, 0, "ct_"), pollContract.deployInfo.address);
+        assert.equal(encodeEventAddress(revokeVote, 1, "ak_"), ownerKeypair.publicKey);
         assert.equal(revokeVote.result.returnType, 'ok');
 
         let pollState = await pollContract.methods.get_state();

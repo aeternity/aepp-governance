@@ -43,6 +43,10 @@ contract Poll =
     , votes : votes
     , author : address }
 
+  datatype event =
+      Vote(address, address, int)
+    | RevokeVote(address, address)
+
   entrypoint init(metadata : metadata, vote_options : vote_option, close_height : option(int)) : state =
     //TODO consider more checks on metadata, vote_option and height
     { metadata = metadata,
@@ -57,9 +61,11 @@ contract Poll =
     require(vote_not_closed(), "POLL_ALREADY_CLOSED")
     require(Map.member(option, state.vote_options), "VOTE_OPTION_NOT_KNOWN")
     put(state{ votes[Call.caller] = option})
+    Chain.event(Vote(Contract.address, Call.caller, option))
 
   stateful entrypoint revoke_vote() =
     put(state{ votes = Map.delete(Call.caller, state.votes) })
+    Chain.event(RevokeVote(Contract.address, Call.caller))
 
   // STATELESS PUBLIC FUNCTIONS
 
