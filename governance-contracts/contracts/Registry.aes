@@ -64,20 +64,28 @@ contract Registry =
       seq_id = 0,
       delegations = {} }
 
+  datatype event =
+      AddPoll(Poll, int)
+    | Delegation(address, address)
+    | RevokeDelegation(address)
+
   // STATEFULL FUNCTIONS
 
   stateful entrypoint add_poll(poll : Poll, is_listed : bool) : int =
     let poll_seq_id = state.seq_id
     let poll_data = { poll = poll, is_listed = is_listed, title = poll.title(), close_height = poll.close_height() }
     put(state{ polls[state.seq_id] = poll_data, seq_id = state.seq_id + 1 })
+    Chain.event(AddPoll(poll, poll_seq_id))
     poll_seq_id
 
   stateful entrypoint delegate(delegatee : address) =
     require(Call.caller != delegatee, "CALLER_IS_DELEGATEE_DISALLOWED")
     put(state{ delegations[Call.caller] = delegatee })
+    Chain.event(Delegation(Call.caller, delegatee))
 
   stateful entrypoint revoke_delegation() =
     put(state{ delegations = Map.delete(Call.caller, state.delegations) })
+    Chain.event(RevokeDelegation(Call.caller))
 
   // STATELESS PUBLIC FUNCTIONS
 

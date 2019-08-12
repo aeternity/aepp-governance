@@ -16,6 +16,8 @@
  */
 
 const Universal = require('@aeternity/aepp-sdk').Universal;
+const Bytes = require('@aeternity/aepp-sdk/es/utils/bytes');
+const blake2b = require('blake2b');
 
 
 const registrySource = utils.readFileRelative('./contracts/Registry.aes', 'utf-8');
@@ -55,6 +57,9 @@ describe('Governance Contracts', () => {
         });
     });
 
+    const hashTopic = topic => blake2b(32).update(Buffer.from(topic)).digest('hex');
+    const topicHashFromResult = result => Bytes.toBytes(result.result.log[0].topics[0], true).toString('hex');
+
     it('Deploying Governance', async () => {
         registryContract = await ownerClient.getContractInstance(registrySource);
         const init = await registryContract.methods.init();
@@ -76,6 +81,8 @@ describe('Governance Contracts', () => {
         assert.equal(init.result.returnType, 'ok');
 
         let addPoll = await registryContract.methods.add_poll(init.address, true);
+        console.log(addPoll.result.log[0].topics); // TODO test content of event
+        assert.equal(topicHashFromResult(addPoll), hashTopic('AddPoll'));
         assert.equal(addPoll.decodedResult, 0);
     });
 
@@ -160,6 +167,7 @@ describe('Governance Contracts', () => {
 
     it('Add Delegation', async () => {
         let addDelegation1 = await registryContract.methods.delegate(secondKeypair.publicKey);
+        assert.equal(topicHashFromResult(addDelegation1), hashTopic('Delegation'));
         assert.equal(addDelegation1.result.returnType, 'ok');
 
         let addDelegationError = await registryContract.methods.delegate(ownerKeypair.publicKey).catch(e => e);
@@ -180,6 +188,7 @@ describe('Governance Contracts', () => {
 
     it('Revoke Delegation', async () => {
         let revokeDelegation = await registryContract.methods.revoke_delegation();
+        assert.equal(topicHashFromResult(revokeDelegation), hashTopic('RevokeDelegation'));
         assert.equal(revokeDelegation.result.returnType, 'ok');
 
         let delegations = await registryContract.methods.delegations();
