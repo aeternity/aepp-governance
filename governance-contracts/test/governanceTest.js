@@ -15,9 +15,13 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
+import {encodeBase58Check, encodeUnsigned, hash} from "@aeternity/aepp-sdk/es/utils/crypto";
+
 const Universal = require('@aeternity/aepp-sdk').Universal;
 const Bytes = require('@aeternity/aepp-sdk/es/utils/bytes');
+const Crypto = require('@aeternity/aepp-sdk').Crypto;
 const blake2b = require('blake2b');
+const BN = require('bn.js');
 
 
 const registrySource = utils.readFileRelative('./contracts/Registry.aes', 'utf-8');
@@ -60,6 +64,9 @@ describe('Governance Contracts', () => {
     const hashTopic = topic => blake2b(32).update(Buffer.from(topic)).digest('hex');
     const topicHashFromResult = result => Bytes.toBytes(result.result.log[0].topics[0], true).toString('hex');
 
+    const eventArgument = (result, index) => result.result.log[0].topics[index + 1];
+    const encodeEventAddress = (result, index, prefix) => `${prefix}${Crypto.encodeBase58Check(new BN(result.result.log[0].topics[index + 1]).toBuffer('be', 32))}`;
+
     it('Deploying Governance', async () => {
         registryContract = await ownerClient.getContractInstance(registrySource);
         const init = await registryContract.methods.init();
@@ -81,8 +88,9 @@ describe('Governance Contracts', () => {
         assert.equal(init.result.returnType, 'ok');
 
         let addPoll = await registryContract.methods.add_poll(init.address, true);
-        console.log(addPoll.result.log[0].topics); // TODO test content of event
         assert.equal(topicHashFromResult(addPoll), hashTopic('AddPoll'));
+        assert.equal(encodeEventAddress(addPoll, 0, "ct_"), init.address);
+        assert.equal(eventArgument(addPoll, 1), addPoll.decodedResult);
         assert.equal(addPoll.decodedResult, 0);
     });
 
@@ -168,6 +176,9 @@ describe('Governance Contracts', () => {
     it('Add Delegation', async () => {
         let addDelegation1 = await registryContract.methods.delegate(secondKeypair.publicKey);
         assert.equal(topicHashFromResult(addDelegation1), hashTopic('Delegation'));
+        assert.equal(encodeEventAddress(addDelegation1, 0, "ak_"), ownerKeypair.publicKey);
+        assert.equal(encodeEventAddress(addDelegation1, 1, "ak_"), secondKeypair.publicKey);
+
         assert.equal(addDelegation1.result.returnType, 'ok');
 
         let addDelegationError = await registryContract.methods.delegate(ownerKeypair.publicKey).catch(e => e);
@@ -189,6 +200,7 @@ describe('Governance Contracts', () => {
     it('Revoke Delegation', async () => {
         let revokeDelegation = await registryContract.methods.revoke_delegation();
         assert.equal(topicHashFromResult(revokeDelegation), hashTopic('RevokeDelegation'));
+        assert.equal(encodeEventAddress(revokeDelegation, 0, "ak_"), ownerKeypair.publicKey);
         assert.equal(revokeDelegation.result.returnType, 'ok');
 
         let delegations = await registryContract.methods.delegations();
