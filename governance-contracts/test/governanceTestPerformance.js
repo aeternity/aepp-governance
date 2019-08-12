@@ -33,7 +33,7 @@ const seq_count = 2;
 
 const additional_wallets = [];
 
-describe('Governance Contracts Performance', () => {
+describe.skip('Governance Contracts Performance', () => {
 
     let client, registryContract;
 
@@ -50,8 +50,8 @@ describe('Governance Contracts Performance', () => {
             compilerUrl: config.compilerUrl
         });
 
-        registryContract = await client.getContractInstance(registrySource);
-        await registryContract.methods.init().then(init => console.log(init.address));
+        registryContract = await client.getContractInstance(registrySource, {contractAddress: 'ct_2dPo948JddJ75w3NmB9CaSDBe8te9x5oA1xb6t3x1c12TesBiT'});
+        //await registryContract.methods.init().then(init => console.log(init.address));
 
         await [...Array(account_count).keys()].reduce(async (promiseAcc, id) => {
             await promiseAcc;
@@ -129,20 +129,6 @@ describe('Governance Contracts Performance', () => {
         const init = await pollContract.methods.init(metadata, vote_options, close_height);
         await registryContract.methods.add_poll(init.address, true);
 
-        await Promise.all(additional_wallets.map(async wallet => {
-            const client = await Universal({
-                url: config.host,
-                internalUrl: config.internalHost,
-                keypair: wallet,
-                nativeMode: true,
-                networkId: 'ae_devnet',
-                compilerUrl: config.compilerUrl
-            });
-
-            const contract = await client.getContractInstance(registrySource, {contractAddress: registryContract.deployInfo.address});
-            return contract.methods.delegate(additional_wallets[Math.floor(Math.random() * account_count / 2)].publicKey).catch(e => console.error(e.message));
-        })).catch(console.error);
-
         await additional_wallets.reduce(async (promiseAcc, wallet) => {
             await promiseAcc;
             if (Math.floor(Math.random() * 1.5)) return Promise.resolve();
@@ -161,6 +147,26 @@ describe('Governance Contracts Performance', () => {
             const contract = await client.getContractInstance(pollSource, {contractAddress: init.address});
             return contract.methods.vote(Math.floor(Math.random() * 5)).catch(e => console.error(e.message));
         }, Promise.resolve({}));
+
+        await additional_wallets.reduce(async (promiseAcc, wallet) => {
+            if (Math.floor(Math.random() * 2.5)) return Promise.resolve();
+
+            await promiseAcc;
+            const client = await Universal({
+                url: config.host,
+                internalUrl: config.internalHost,
+                keypair: wallet,
+                nativeMode: true,
+                networkId: 'ae_devnet',
+                compilerUrl: config.compilerUrl
+            });
+
+            process.stdout.write(";");
+
+            const contract = await client.getContractInstance(registrySource, {contractAddress: registryContract.deployInfo.address});
+            return contract.methods.delegate(additional_wallets[Math.floor(Math.random() * account_count / 2)].publicKey).catch(e => console.error(e.message));
+        }, Promise.resolve({}));
+
 
         const start1 = new Date().getTime();
         await registryContract.methods.polls()
