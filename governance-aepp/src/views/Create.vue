@@ -16,7 +16,7 @@
     <ae-input v-model="createMetadata.description" label="Description"></ae-input>
     <ae-input v-model="createMetadata.link" label="Link"></ae-input>
     <br/>
-    <ae-check v-model="createMetadata.is_listed" type="checkbox">
+    <ae-check v-model="is_listed" type="checkbox">
       Should be listed
     </ae-check>
     <br/><br/>
@@ -44,8 +44,8 @@
                     title: "",
                     description: "",
                     link: "",
-                    is_listed: true,
                 },
+                is_listed: true,
                 optionsString: "",
                 closeHeightString: "",
                 polls: []
@@ -65,7 +65,7 @@
 
                     const pollContract = await aeternity.client.getContractInstance(pollContractSource);
                     const init = await pollContract.methods.init(this.createMetadata, options, close_height);
-                    const addPoll = await aeternity.contract.methods.add_poll(init.address);
+                    const addPoll = await aeternity.contract.methods.add_poll(init.address, is_listed);
 
                     this.$router.push(`/poll/${addPoll.decodedResult}`);
                 }
