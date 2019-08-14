@@ -170,7 +170,7 @@ logic.balanceAtHeight = async (account, height) => {
         });
 
         return balance;
-    });
+    }, 120);
 };
 
 logic.delegationTree = async (address, height, ignoreAccounts = []) => {

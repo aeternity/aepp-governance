@@ -62,7 +62,7 @@ const handleContractEvent = async (event) => {
         case "Delegation":
             await cache.delByPrefix(["delegations"]);
             break;
-            case "RevokeDelegation":
+        case "RevokeDelegation":
             await cache.delByPrefix(["delegations"]);
             break;
         case "Vote":
@@ -83,6 +83,7 @@ cache.startInvalidator = (aeternity) => {
     wsclient.on('connect', connection => {
         cache.wsconnection = connection;
         cache.wsconnection.send(JSON.stringify({op: "subscribe", payload: "key_blocks"}));
+        cache.wsconnection.send(JSON.stringify({op: "subscribe", payload: "transactions"}));
         cache.wsconnection.send(JSON.stringify({
             op: "subscribe",
             payload: "object",
@@ -93,6 +94,15 @@ cache.startInvalidator = (aeternity) => {
                 const data = JSON.parse(message.utf8Data);
                 if (data.subscription === "key_blocks") {
                     await cache.delByPrefix(["height"]);
+                }
+                if (data.subscription === "transactions") {
+                    switch (data.payload.tx.type) {
+                        // TODO consider invalidating cache for other transaction types that may change balance significantly
+                        case "SpendTx":
+                            await cache.delByPrefix(["balanceAtHeight", undefined, data.payload.tx.sender_id]);
+                            await cache.delByPrefix(["balanceAtHeight", undefined, data.payload.tx.recipient_id]);
+                            break;
+                    }
                 }
                 if (data.subscription === "object") {
                     const event = await aeternity.transactionEvent(data.payload.hash);
