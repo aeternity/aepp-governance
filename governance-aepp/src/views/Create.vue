@@ -65,7 +65,7 @@
 
                     const pollContract = await aeternity.client.getContractInstance(pollContractSource);
                     const init = await pollContract.methods.init(this.createMetadata, options, close_height);
-                    const addPoll = await aeternity.contract.methods.add_poll(init.address, is_listed);
+                    const addPoll = await aeternity.contract.methods.add_poll(init.address, this.is_listed);
 
                     this.$router.push(`/poll/${addPoll.decodedResult}`);
                 }

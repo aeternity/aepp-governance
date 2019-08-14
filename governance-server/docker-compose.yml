@@ -11,7 +11,7 @@ services:
       - 5432:5432
 
   middleware:
-    image: aeternity/aepp-middleware:0.8.2
+    image: aeternity/aepp-middleware
     entrypoint: ./aepp-middleware -p -s -w
     environment:
       - RUST_LOG=aepp_middleware

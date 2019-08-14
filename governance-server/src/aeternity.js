@@ -27,7 +27,7 @@ aeternity.init = async () => {
 };
 
 aeternity.polls = async () => {
-    return cache.getOrSet(["polls"], async () => (await aeternity.contract.methods.polls()).decodedResult, 60);
+    return cache.getOrSet(["polls"], async () => (await aeternity.contract.methods.polls()).decodedResult, 120);
 };
 
 aeternity.pollState = async (address) => {
@@ -51,11 +51,11 @@ aeternity.tokenSupply = async (height) => {
     return cache.getOrSet(["totalSupply", height], async () => {
         const result = await axios.get(`${aeternity.nodeUrl}v2/debug/token-supply/height/${height}`);
         return new BigNumber(result.data.total).toFixed();
-    });
+    }, 3600);
 };
 
 aeternity.height = async () => {
-    return cache.getOrSet(["height"], () => aeternity.client.height(), 30);
+    return cache.getOrSet(["height"], () => aeternity.client.height(), 120);
 };
 
 aeternity.transactionEvent = async (hash) => {
