@@ -4,12 +4,14 @@ const BigNumber = require('bignumber.js');
 const axios = require('axios');
 
 const cache = require('./cache');
+const util = require("./util");
 
 const registryContractSource = fs.readFileSync(__dirname + "/../../governance-contracts/contracts/Registry.aes", "utf-8");
 const pollContractSource = fs.readFileSync(__dirname + "/../../governance-contracts/contracts/Poll.aes", "utf-8");
 
 const aeternity = {};
 
+aeternity.contractAddress = "ct_2T5Mks5YXoWQzuvMdABPXt1aEaycCkoMANsSsv7F89fpNw44Nt";
 aeternity.nodeUrl = "http://localhost:3001/";
 //aeternity.nodeUrl = "https://sdk-testnet.aepps.com/";
 
@@ -20,7 +22,7 @@ aeternity.init = async () => {
         compilerUrl: "http://localhost:3080"
     });
 
-    aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: 'ct_2dPo948JddJ75w3NmB9CaSDBe8te9x5oA1xb6t3x1c12TesBiT'});
+    aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: aeternity.contractAddress});
     console.log("initialized aeternity sdk")
 };
 
@@ -54,6 +56,36 @@ aeternity.tokenSupply = async (height) => {
 
 aeternity.height = async () => {
     return cache.getOrSet(["height"], () => aeternity.client.height(), 30);
+};
+
+aeternity.transactionEvent = async (hash) => {
+    const tx = await aeternity.client.getTxInfo(hash);
+    if (tx.log.length === 1) {
+        const topics = ["AddPoll", "Delegation", "RevokeDelegation"];
+        const topic = topics.find(topic => util.hashTopic(topic) === util.topicHashFromResult(tx.log));
+        switch (topic) {
+            case "AddPoll":
+                return {
+                    topic: topic,
+                    poll: util.encodeEventAddress(tx.log, 0, "ct_"),
+                    seq_id: util.eventArgument(tx.log, 1)
+                };
+            case "Delegation":
+                return {
+                    topic: topic,
+                    delegator: util.encodeEventAddress(tx.log, 0, "ak_"),
+                    delegatee: util.encodeEventAddress(tx.log, 1, "ak_")
+                };
+            case "RevokeDelegation":
+                return {
+                    topic: topic,
+                    delegator: util.encodeEventAddress(tx.log, 0, "ak_"),
+                };
+            default:
+                return {topic: topic};
+        }
+    }
+    return null;
 };
 
 module.exports = aeternity;

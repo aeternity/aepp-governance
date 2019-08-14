@@ -1,8 +1,9 @@
-var redis = require("redis"),
-    client = redis.createClient();
+const redis = require("redis");
+const client = redis.createClient();
 const {promisify} = require('util');
 const get = promisify(client.get).bind(client);
 const set = promisify(client.set).bind(client);
+const WebSocketClient = require('websocket').client;
 
 const cache = {};
 
@@ -25,6 +26,22 @@ cache.set = async (keys, data, expire = null) => {
     } else {
         await set(key, JSON.stringify(data));
     }
+};
+
+cache.startInvalidator = (aeternity) => {
+    const wsclient = new WebSocketClient();
+    wsclient.connect("ws://127.0.0.1:3020");
+    wsclient.on('connect', connection => {
+        const subscribe = JSON.stringify({op: "subscribe", payload: "object", target: aeternity.contractAddress});
+        connection.send(subscribe);
+        connection.on('message', async message => {
+            if (message.type === 'utf8' && message.utf8Data.includes("payload")) {
+                const data = JSON.parse(message.utf8Data);
+                const event = await aeternity.transactionEvent(data.payload.hash);
+                console.log(event);
+            }
+        });
+    });
 };
 
 module.exports = cache;

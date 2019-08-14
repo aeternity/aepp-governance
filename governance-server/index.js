@@ -1,8 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 
-const logic = require("./src/logic");
 const aeternity = require("./src/aeternity");
+const cache = require("./src/cache");
+const logic = require("./src/logic");
 
 const app = express();
 
@@ -69,4 +70,5 @@ app.get('/accountPollVoterAuthor/:address', errorHandler(async (req, res) => {
 }));
 
 aeternity.init();
+cache.startInvalidator(aeternity);
 app.listen(3000);
