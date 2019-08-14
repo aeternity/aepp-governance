@@ -9,6 +9,8 @@ const WebSocketClient = require('websocket').client;
 
 const cache = {};
 
+cache.wsconnection = null;
+
 cache.getOrSet = async (keys, asyncFetchData, expire = null) => {
     const key = keys.join(":");
     const value = await get(key);
@@ -30,46 +32,75 @@ cache.set = async (keys, data, expire = null) => {
     }
 };
 
-cache.delByPrefix = async (prefix) => {
+cache.delByPrefix = async (prefixes) => {
+    const prefix = prefixes.join(":");
     const rows = await keys(prefix + "*");
-    console.log("delByPrefix", rows);
+    if (rows.length) console.log("delByPrefix", rows);
     await Promise.all(rows.map(key => del(key)));
 };
 
+const addPollInvalidationListeners = async (aeternity) => {
+    const polls = await aeternity.polls();
+    polls.forEach(([_, data]) => addPollInvalidationListener(data.poll));
+};
+
+const addPollInvalidationListener = async (poll) => {
+    if (cache.wsconnection) {
+        cache.wsconnection.send(JSON.stringify({op: "subscribe", payload: "object", target: poll}));
+    } else {
+        setTimeout(addPollInvalidationListener(poll), 30000);
+    }
+};
+
+const handleContractEvent = async (event) => {
+    console.log("handleContractEvent", event);
+    switch (event.topic) {
+        case "AddPoll":
+            await cache.delByPrefix(["polls"]);
+            addPollInvalidationListener(event.poll);
+            break;
+        case "Delegation":
+            await cache.delByPrefix(["delegations"]);
+            break;
+            case "RevokeDelegation":
+            await cache.delByPrefix(["delegations"]);
+            break;
+        case "Vote":
+            await cache.delByPrefix(["pollOverview", event.poll]);
+            await cache.delByPrefix(["pollStateAndVotingAccounts", event.poll]);
+            break;
+        case "RevokeVote":
+            await cache.delByPrefix(["pollOverview", event.poll]);
+            await cache.delByPrefix(["pollStateAndVotingAccounts", event.poll]);
+            break;
+    }
+};
+
 cache.startInvalidator = (aeternity) => {
+    addPollInvalidationListeners(aeternity);
     const wsclient = new WebSocketClient();
     wsclient.connect("ws://127.0.0.1:3020");
     wsclient.on('connect', connection => {
-        connection.send(JSON.stringify({op: "subscribe", payload: "key_blocks"}));
-        connection.send(JSON.stringify({op: "subscribe", payload: "object", target: aeternity.contractAddress}));
-        connection.on('message', async message => {
+        cache.wsconnection = connection;
+        cache.wsconnection.send(JSON.stringify({op: "subscribe", payload: "key_blocks"}));
+        cache.wsconnection.send(JSON.stringify({
+            op: "subscribe",
+            payload: "object",
+            target: aeternity.contractAddress
+        }));
+        cache.wsconnection.on('message', async message => {
             if (message.type === 'utf8' && message.utf8Data.includes("payload")) {
                 const data = JSON.parse(message.utf8Data);
                 if (data.subscription === "key_blocks") {
-                    await cache.delByPrefix("height");
+                    await cache.delByPrefix(["height"]);
                 }
                 if (data.subscription === "object") {
                     const event = await aeternity.transactionEvent(data.payload.hash);
-                    if (event) cache.invalidate(event);
+                    if (event) handleContractEvent(event);
                 }
             }
         });
     });
-};
-
-cache.invalidate = async (event) => {
-    console.log("invalidate", event);
-    switch (event.topic) {
-        case "AddPoll":
-            await cache.delByPrefix("polls");
-            break;
-        case "Delegation":
-            await cache.delByPrefix("delegations");
-            break;
-        case "RevokeDelegation":
-            await cache.delByPrefix("delegations");
-            break;
-    }
 };
 
 module.exports = cache;

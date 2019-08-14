@@ -27,6 +27,7 @@ aeternity.init = async () => {
 };
 
 aeternity.polls = async () => {
+    await aeternity.init();
     return cache.getOrSet(["polls"], async () => (await aeternity.contract.methods.polls()).decodedResult, 120);
 };
 
@@ -44,7 +45,7 @@ aeternity.delegators = async (address) => {
 };
 
 aeternity.delegations = async () => {
-    return cache.getOrSet(["delegations"], async () => (await aeternity.contract.methods.delegations()).decodedResult, 60);
+    return cache.getOrSet(["delegations"], async () => (await aeternity.contract.methods.delegations()).decodedResult, 120);
 };
 
 aeternity.tokenSupply = async (height) => {
@@ -61,7 +62,7 @@ aeternity.height = async () => {
 aeternity.transactionEvent = async (hash) => {
     const tx = await aeternity.client.getTxInfo(hash);
     if (tx.log.length === 1) {
-        const topics = ["AddPoll", "Delegation", "RevokeDelegation"];
+        const topics = ["AddPoll", "Delegation", "RevokeDelegation", "Vote", "RevokeVote"];
         const topic = topics.find(topic => util.hashTopic(topic) === util.topicHashFromResult(tx.log));
         switch (topic) {
             case "AddPoll":
@@ -81,6 +82,20 @@ aeternity.transactionEvent = async (hash) => {
                     topic: topic,
                     delegator: util.encodeEventAddress(tx.log, 0, "ak_"),
                 };
+            case "Vote":
+                return {
+                    topic: topic,
+                    poll: util.encodeEventAddress(tx.log, 0, "ct_"),
+                    voter: util.encodeEventAddress(tx.log, 1, "ak_"),
+                    option: util.eventArgument(tx.log, 2)
+                };
+            case "RevokeVote":
+                return {
+                    topic: topic,
+                    poll: util.encodeEventAddress(tx.log, 0, "ct_"),
+                    voter: util.encodeEventAddress(tx.log, 1, "ak_"),
+                };
+
             default:
                 return {topic: topic};
         }

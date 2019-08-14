@@ -13,7 +13,7 @@ logic.delegatedPowerPoll = async (address, pollContract) => {
 
 logic.pollOverview = async (address) => {
     const height = await aeternity.height();
-    return cache.getOrSet(["pollOverview", address, height], () => logic.overviewPollVotesState(address, height));
+    return cache.getOrSet(["pollOverview", address, height], () => logic.overviewPollVotesState(address, height), 120);
 };
 
 logic.accountPollVoterAuthor = async (address) => {
@@ -86,10 +86,10 @@ logic.pollStateAndVotingAccounts = async (address, cached = false) => {
 
 
     if (cached) {
-        return cache.getOrSet(["pollStateAndVotingAccounts", address], result, 60);
+        return cache.getOrSet(["pollStateAndVotingAccounts", address], result, 120);
     } else {
         const data = await result();
-        cache.set(["pollStateAndVotingAccounts", address], data, 60);
+        cache.set(["pollStateAndVotingAccounts", address], data, 120);
         return data;
     }
 };
