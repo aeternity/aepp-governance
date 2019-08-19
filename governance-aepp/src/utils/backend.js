@@ -2,8 +2,8 @@ import axios from "axios";
 
 const backend = {};
 
-//const BACKEND_URL = 'http:/localhost:3000';
-const BACKEND_URL = 'http://172.16.21.29:3000'
+const BACKEND_URL = 'http://localhost:3000';
+
 const wrapTry = async (f) => {
   try {
     return await f()

@@ -58,13 +58,13 @@
  * @import "utilities/skew-transforms";
  */
 
-.ae-main {
-  background: #fff !important;
-}
-
 .max-w-desktop {
   max-width: 1000px;
   width: 100%;
+}
+
+.ae-input-box {
+  background-color: #fff !important;
 }
 
 .h1 {
