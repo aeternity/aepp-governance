@@ -2,6 +2,8 @@ import axios from "axios";
 
 const backend = {};
 
+//const BACKEND_URL = 'http:/localhost:3000';
+const BACKEND_URL = 'http://172.16.21.29:3000'
 const wrapTry = async (f) => {
   try {
     return await f()
@@ -23,7 +25,7 @@ const wrapTimeout = async (f) => {
 };
 
 backend.votesState = async (poll) => wrapTimeout(async () => wrapTry(async () => {
-  const votesState = await axios.get(`http://localhost:3000/votesState/${poll}`).then(res => res.data);
+  const votesState = await axios.get(`${BACKEND_URL}/votesState/${poll}`).then(res => res.data);
   const appendVotesState = {
     ...votesState, ...{
       stakesForOption: votesState.stakesForOption.map(option => {
@@ -36,16 +38,16 @@ backend.votesState = async (poll) => wrapTimeout(async () => wrapTry(async () =>
 }));
 
 backend.delegatedPower = (account, poll) => wrapTimeout(async () => wrapTry(async () => {
-  if (poll) return axios.get(`http://localhost:3000/delegatedPower/${account}?poll=${poll}`).then(res => res.data);
-  return axios.get(`http://localhost:3000/delegatedPower/${account}`).then(res => res.data);
+  if (poll) return axios.get(`${BACKEND_URL}/delegatedPower/${account}?poll=${poll}`).then(res => res.data);
+  return axios.get(`${BACKEND_URL}/delegatedPower/${account}`).then(res => res.data);
 }));
 
 backend.pollOverview = async (address) => wrapTimeout(async () => {
-  return axios.get(`http://localhost:3000/pollOverview/${address}`).then(res => res.data);
+  return axios.get(`${BACKEND_URL}/pollOverview/${address}`).then(res => res.data);
 });
 
 backend.accountPollVoterAuthor = async (address) => wrapTimeout(async () => {
-  return axios.get(`http://localhost:3000/accountPollVoterAuthor/${address}`).then(res => res.data);
+  return axios.get(`${BACKEND_URL}/accountPollVoterAuthor/${address}`).then(res => res.data);
 });
 
 backend.contractEvent = async (topic, poll) => wrapTimeout(async () => {

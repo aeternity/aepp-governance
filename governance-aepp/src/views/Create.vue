@@ -3,11 +3,9 @@
     <div class="overlay-loader" v-show="showLoading">
       <BiggerLoader></BiggerLoader>
     </div>
-    <div @click="$router.push('/')" class="fixed top-0 right-0 p-8">
-      <ae-icon name="close" fill="primary" face="round"
-               class="ae-icon-size shadow"></ae-icon>
-    </div>
-
+    <BlackHeader>
+      Create Poll
+    </BlackHeader>
     <h1 class="h1">Create Poll</h1>
     <br/>
     <br/>
@@ -24,54 +22,61 @@
     <br/>
     <ae-input v-model="closeHeightString" label="Close at height or empty"></ae-input>
     <br/>
-    <ae-button face="round" fill="primary" extend @click="createPoll()">Create Poll</ae-button>
+    <BottomButtons back="/" :account="address" cta-text="Create Poll" :cta-action="createPoll"></BottomButtons>
   </div>
 </template>
 
 <script>
-    import aeternity from "~/utils/aeternity";
-    import {AeIcon, AeButton, AeInput, AeCheck} from "@aeternity/aepp-components";
-    import pollContractSource from '../../../governance-contracts/contracts/Poll.aes'
-    import BiggerLoader from '../components/BiggerLoader'
+  import aeternity from "~/utils/aeternity";
+  import {AeIcon, AeButton, AeInput, AeCheck} from "@aeternity/aepp-components";
+  import pollContractSource from '../../../governance-contracts/contracts/Poll.aes'
+  import BiggerLoader from '../components/BiggerLoader'
+  import BottomButtons from "~/components/BottomButtons";
+  import BlackHeader from "~/components/BlackHeader";
 
-    export default {
-        name: 'Home',
-        components: {AeIcon, AeButton, AeInput, AeCheck, BiggerLoader},
-        data() {
-            return {
-                showLoading: false,
-                createMetadata: {
-                    title: "",
-                    description: "",
-                    link: "",
-                },
-                is_listed: true,
-                optionsString: "",
-                closeHeightString: "",
-                polls: []
-            }
+  export default {
+    name: 'Home',
+    components: {BlackHeader, BottomButtons, AeIcon, AeButton, AeInput, AeCheck, BiggerLoader},
+    data() {
+      return {
+        showLoading: false,
+        createMetadata: {
+          title: "",
+          description: "",
+          link: "",
         },
-        computed: {},
-        methods: {
-            async createPoll() {
-                if (this.createMetadata.title.length >= 3 && this.optionsString.length >= 3) {
-                    this.showLoading = true;
-                    const close_height = isNaN(parseInt(this.closeHeightString)) ? Promise.reject() : Promise.resolve(parseInt(this.closeHeightString));
-                    const options = this.optionsString.split(',').reduce(({seq, res}, cur) => {
-                        console.log("seq", seq, "res", res, "cur", cur);
-                        res = Object.assign(res, {[seq]: cur.trim()});
-                        return {seq: seq + 1, res: res}
-                    }, {seq: 0, res: {}}).res;
+        is_listed: true,
+        optionsString: "",
+        closeHeightString: "",
+        polls: [],
+        address: null
+      }
+    },
+    computed: {},
+    methods: {
+      async createPoll() {
+        if (this.createMetadata.title.length >= 3 && this.optionsString.length >= 3) {
+          this.showLoading = true;
+          const close_height = isNaN(parseInt(this.closeHeightString)) ? Promise.reject() : Promise.resolve(parseInt(this.closeHeightString));
+          const options = this.optionsString.split(',').reduce(({seq, res}, cur) => {
+            console.log("seq", seq, "res", res, "cur", cur);
+            res = Object.assign(res, {[seq]: cur.trim()});
+            return {seq: seq + 1, res: res}
+          }, {seq: 0, res: {}}).res;
 
-                    const pollContract = await aeternity.client.getContractInstance(pollContractSource);
-                    const init = await pollContract.methods.init(this.createMetadata, options, close_height);
-                    const addPoll = await aeternity.contract.methods.add_poll(init.address, this.is_listed);
+          const pollContract = await aeternity.client.getContractInstance(pollContractSource);
+          const init = await pollContract.methods.init(this.createMetadata, options, close_height);
+          const addPoll = await aeternity.contract.methods.add_poll(init.address, this.is_listed);
 
-                    this.$router.push(`/poll/${addPoll.decodedResult}`);
-                }
-            }
+          this.$router.push(`/poll/${addPoll.decodedResult}`);
         }
+      }
+    },
+    async created() {
+      await aeternity.initClient();
+      this.address = aeternity.address;
     }
+  }
 </script>
 
 <style scoped>

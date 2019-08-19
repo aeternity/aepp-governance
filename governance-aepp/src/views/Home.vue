@@ -1,56 +1,51 @@
 <template>
   <div class="pb-20">
-    <div class="overlay-loader" v-show="showLoading">
+    <div class="overlay-loader" v-show="showLoading && false">
       <BiggerLoader></BiggerLoader>
     </div>
-    <h1 class="h1">Governance Aepp</h1>
+    <BlackHeader>
+      Open Polls
+    </BlackHeader>
     <br/>
     <div v-if="polls">
       <div v-for="[id, data] in polls">
         <PollListing :id="id" :data="data"/>
       </div>
     </div>
-
-    <div @click="$router.push('/create')" class="fixed bottom-0 right-0 p-8">
-      <ae-icon name="plus" fill="primary" face="round"
-               class="ae-icon-size shadow"></ae-icon>
-    </div>
-    <div @click="$router.push(`/account/${address}`)" class="fixed bottom-0 left-0 p-8">
-      <ae-icon name="contacts" fill="primary" face="round"
-               class="ae-icon-size shadow"></ae-icon>
-    </div>
-
+    <BottomButtons :home="false" :account="address" :add-poll="true" :search-bar="true"></BottomButtons>
   </div>
 </template>
 
 <script>
-    import aeternity from "~/utils/aeternity";
-    import {AeIcon} from '@aeternity/aepp-components/'
-    import BiggerLoader from '../components/BiggerLoader'
-    import PollListing from "~/components/PollListing";
+  import aeternity from "~/utils/aeternity";
+  import {AeIcon} from '@aeternity/aepp-components/'
+  import BiggerLoader from '../components/BiggerLoader'
+  import PollListing from "~/components/PollListing";
+  import BottomButtons from "~/components/BottomButtons";
+  import BlackHeader from "~/components/BlackHeader";
 
-    export default {
-        name: 'Home',
-        components: {PollListing, AeIcon, BiggerLoader},
-        data() {
-            return {
-                showLoading: true,
-                address: null,
-                balance: null,
-                pollOverview: [],
-                polls: []
-            }
-        },
-        async mounted() {
-            await aeternity.initClient();
+  export default {
+    name: 'Home',
+    components: {BlackHeader, BottomButtons, PollListing, AeIcon, BiggerLoader},
+    data() {
+      return {
+        showLoading: true,
+        address: null,
+        balance: null,
+        pollOverview: [],
+        polls: []
+      }
+    },
+    async mounted() {
+      await aeternity.initClient();
 
-            this.address = aeternity.address;
-            this.balance = aeternity.balance;
-            this.polls = await aeternity.polls();
+      this.address = aeternity.address;
+      this.balance = aeternity.balance;
+      this.polls = await aeternity.polls();
 
-            this.showLoading = false;
-        }
+      this.showLoading = false;
     }
+  }
 </script>
 
 <style scoped>

@@ -58,10 +58,6 @@
  * @import "utilities/skew-transforms";
  */
 
-.content {
-  padding: 10px;
-}
-
 .ae-main {
   background: #fff !important;
 }

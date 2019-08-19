@@ -3,11 +3,6 @@
     <div class="overlay-loader" v-show="showLoading">
       <BiggerLoader></BiggerLoader>
     </div>
-    <div @click="$router.push('/')" class="fixed top-0 right-0 p-8">
-      <ae-icon name="close" fill="primary" face="round"
-               class="ae-icon-size shadow"></ae-icon>
-    </div>
-
     <h1 class="h1">Account</h1>
     <br/>
 
@@ -76,6 +71,7 @@
         <PollListing :id="id" :data="data" class="mx-4"/>
       </div>
     </div>
+    <BottomButtons back="/" :add-poll="true"></BottomButtons>
   </div>
 </template>
 
@@ -87,10 +83,13 @@
     import BigNumber from 'bignumber.js';
     import Backend from "~/utils/backend";
     import PollListing from "~/components/PollListing";
+    import BottomButtons from "~/components/BottomButtons";
 
     export default {
         name: 'Home',
-        components: {AeIcon, AeButton, AeButtonGroup, AeInput, BiggerLoader, AeIdentityLight, AeText, PollListing},
+        components: {
+          BottomButtons,
+          AeIcon, AeButton, AeButtonGroup, AeInput, BiggerLoader, AeIdentityLight, AeText, PollListing},
         data() {
             return {
                 showLoading: true,

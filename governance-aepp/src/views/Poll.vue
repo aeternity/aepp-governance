@@ -3,11 +3,6 @@
     <div class="overlay-loader" v-show="showLoading">
       <BiggerLoader></BiggerLoader>
     </div>
-    <div @click="$router.push('/')" class="fixed top-0 right-0 p-8">
-      <ae-icon name="close" fill="primary" face="round"
-               class="ae-icon-size shadow"></ae-icon>
-    </div>
-
     <h1 class="h1">Poll #{{pollId}}</h1>
     <br/>
     <div v-if="pollState.metadata">
@@ -97,6 +92,7 @@
       <br/>
       <ae-button face="flat" extend @click="revokeVote()">Revoke Vote</ae-button>
     </div>
+    <BottomButtons back="/" :add-poll="true" cta-text="Revoke Vote" :cta-action="revokeVote"></BottomButtons>
   </div>
 </template>
 
@@ -108,10 +104,11 @@
     import BiggerLoader from '../components/BiggerLoader';
     import AeIdentityLight from '../components/AeIdentityLight'
     import BigNumber from 'bignumber.js';
+    import BottomButtons from "~/components/BottomButtons";
 
     export default {
         name: 'Home',
-        components: {AeIcon, AeCheck, AeButton, AeToolbar, BiggerLoader, AeIdentityLight},
+        components: {BottomButtons, AeIcon, AeCheck, AeButton, AeToolbar, BiggerLoader, AeIdentityLight},
         data() {
             return {
                 accountAddress: null,
