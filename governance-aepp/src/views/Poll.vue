@@ -97,14 +97,14 @@
 </template>
 
 <script>
-    import aeternity from "~/utils/aeternity";
-    import {AeButton, AeCheck, AeIcon, AeToolbar} from '@aeternity/aepp-components/'
-    import pollContractSource from '../../../governance-contracts/contracts/Poll.aes'
-    import Backend from "~/utils/backend";
-    import BiggerLoader from '../components/BiggerLoader';
-    import AeIdentityLight from '../components/AeIdentityLight'
-    import BigNumber from 'bignumber.js';
-    import BottomButtons from "~/components/BottomButtons";
+  import aeternity from "~/utils/aeternity";
+  import {AeButton, AeCheck, AeIcon, AeToolbar} from '@aeternity/aepp-components/'
+  import pollContractSource from '../../../governance-contracts/contracts/Poll.aes'
+  import Backend from "~/utils/backend";
+  import BiggerLoader from '../components/BiggerLoader';
+  import AeIdentityLight from '../components/AeIdentityLight'
+  import BigNumber from 'bignumber.js';
+  import BottomButtons from "~/components/BottomButtons";
 
     export default {
         name: 'Home',
@@ -145,56 +145,92 @@
                     this.votersForOption = {};
                     return;
                 }
-
-                const votes = this.pollVotesState.stakesForOption.find(option => option.option === id.toString()).votes;
-                const votesAggregation = votes.map(vote => {
-                    return {
-                        account: vote.account,
-                        stake: vote.stake,
-                        delegatorsCount: vote.delegators.length
-                    };
-                });
-
-                this.votersForOption = {
-                    id: id,
-                    voters: votesAggregation.sort((a, b) => new BigNumber(b.stake).comparedTo(new BigNumber(a.stake)))
-                };
-            },
-            async loadData() {
-                this.pollId = this.$route.params.id;
-                this.accountAddress = aeternity.address;
-                this.votersForOption = {};
-
-                this.balance = await aeternity.client.balance(aeternity.address);
-
-                const poll = await aeternity.contract.methods.poll(this.pollId);
-                this.pollAddress = poll.decodedResult.poll;
-                this.pollContract = await aeternity.client.getContractInstance(pollContractSource, {contractAddress: this.pollAddress});
-                this.pollState = (await this.pollContract.methods.get_state()).decodedResult;
-
-                const accountVote = this.pollState.votes.find(([voter, _]) => voter === this.accountAddress);
-                this.voteOption = accountVote ? accountVote[1] : null;
-
-                await Backend.votesState(this.pollAddress).then((votesState) => {
-                    this.pollVotesState = votesState;
-
-                    this.delegateeVote = this.pollVotesState.stakesForOption
-                        .map(data => data.votes.find(vote => vote.delegators
-                            .some(delegation => delegation.delegator === this.accountAddress))).find(x => x) || {};
-                }).catch(console.error);
-
-                await Backend.delegatedPower(this.accountAddress, this.pollAddress).then(delegatedPower => {
-                    this.delegatedPower = delegatedPower.delegatedPower;
-                    this.totalStake = new BigNumber(this.balance).plus(this.delegatedPower);
-                }).catch(console.error);
-
-                this.showLoading = false;
-            }
-        },
-        async mounted() {
-            this.loadData();
+  export default {
+    name: 'Home',
+    components: {BottomButtons, AeIcon, AeCheck, AeButton, AeToolbar, BiggerLoader, AeIdentityLight},
+    data() {
+      return {
+        accountAddress: null,
+        balance: null,
+        totalStake: null,
+        showLoading: true,
+        pollId: null,
+        delegateeVote: {},
+        voteOption: null,
+        pollContract: null,
+        pollState: {},
+        pollVotesState: null,
+        votersForOption: {},
+        delegatedPower: null,
+      }
+    },
+    computed: {},
+    methods: {
+      async vote() {
+        this.showLoading = true;
+        await this.pollContract.methods.vote(this.voteOption);
+        await this.loadData();
+      },
+      async revokeVote() {
+        this.showLoading = true;
+        await this.pollContract.methods.revoke_vote();
+        await this.loadData();
+      },
+      showVoters(id) {
+        if (this.votersForOption.id != null && this.votersForOption.id == id) {
+          this.votersForOption = {};
+          return;
         }
+
+        const votes = this.pollVotesState.stakesForOption.find(option => option.option === id.toString()).votes;
+        const votesAggregation = votes.map(vote => {
+          return {
+            account: vote.account,
+            stake: vote.stake,
+            delegatorsCount: vote.delegators.length
+          };
+        });
+
+        this.votersForOption = {
+          id: id,
+          voters: votesAggregation.sort((a, b) => new BigNumber(b.stake).comparedTo(new BigNumber(a.stake)))
+        };
+      },
+      async loadData() {
+        this.pollId = this.$route.params.id;
+        this.accountAddress = aeternity.address;
+        this.votersForOption = {};
+
+        this.balance = await aeternity.client.balance(aeternity.address);
+
+        const poll = await aeternity.contract.methods.poll(this.pollId);
+        this. pollAddress = poll.decodedResult.poll;
+        this.pollContract = await aeternity.client.getContractInstance(pollContractSource, {contractAddress: this.pollAddress});
+        this.pollState = (await this.pollContract.methods.get_state()).decodedResult;
+
+        const accountVote = this.pollState.votes.find(([voter, _]) => voter === this.accountAddress);
+        this.voteOption = accountVote ? accountVote[1] : null;
+
+        await Backend.votesState(this.pollAddress).then((votesState) => {
+          this.pollVotesState = votesState;
+
+          this.delegateeVote = this.pollVotesState.stakesForOption
+            .map(data => data.votes.find(vote => vote.delegators
+              .some(delegation => delegation.delegator === this.accountAddress))).find(x => x) || {};
+        }).catch(console.error);
+
+        await Backend.delegatedPower(this.accountAddress, this.pollAddress).then(delegatedPower => {
+          this.delegatedPower = delegatedPower.delegatedPower;
+          this.totalStake = new BigNumber(this.balance).plus(this.delegatedPower);
+        }).catch(console.error);
+
+        this.showLoading = false;
+      }
+    },
+    async mounted() {
+      this.loadData();
     }
+  }
 </script>
 
 <style scoped>

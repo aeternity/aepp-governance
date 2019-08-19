@@ -76,92 +76,93 @@
 </template>
 
 <script>
-    import aeternity from "~/utils/aeternity";
-    import {AeIcon, AeButton, AeButtonGroup, AeInput, AeText} from '@aeternity/aepp-components/'
-    import BiggerLoader from '../components/BiggerLoader'
-    import AeIdentityLight from '../components/AeIdentityLight'
-    import BigNumber from 'bignumber.js';
-    import Backend from "~/utils/backend";
-    import PollListing from "~/components/PollListing";
-    import BottomButtons from "~/components/BottomButtons";
+  import aeternity from "~/utils/aeternity";
+  import {AeIcon, AeButton, AeButtonGroup, AeInput, AeText} from '@aeternity/aepp-components/'
+  import BiggerLoader from '../components/BiggerLoader'
+  import AeIdentityLight from '../components/AeIdentityLight'
+  import BigNumber from 'bignumber.js';
+  import Backend from "~/utils/backend";
+  import PollListing from "~/components/PollListing";
+  import BottomButtons from "~/components/BottomButtons";
 
-    export default {
-        name: 'Home',
-        components: {
-          BottomButtons,
-          AeIcon, AeButton, AeButtonGroup, AeInput, BiggerLoader, AeIdentityLight, AeText, PollListing},
-        data() {
-            return {
-                showLoading: true,
-                address: null,
-                balance: null,
-                power: null,
-                delegatee: "",
-                isOwnAccount: false,
-                delegation: null,
-                delegatedPower: null,
-                delegations: [],
-                votedInPolls: [],
-                authorOfPolls: []
-            }
-        },
-        computed: {},
-        beforeRouteUpdate(to, from, next) {
-            next();
-            this.loadData();
-        },
-        methods: {
-            async createDelegation() {
-                if (this.delegatee.includes('ak_')) {
-                    this.showLoading = true;
-                    await aeternity.contract.methods.delegate(this.delegatee);
-                    Backend.contractEvent("Delegation");
-                    await this.loadData();
-                }
-            },
-            async revokeDelegation() {
-                this.showLoading = true;
-                await aeternity.contract.methods.revoke_delegation();
-                Backend.contractEvent("RevokeDelegation");
-                await this.loadData();
-            },
-            resetData() {
-                this.showLoading = true;
-                this.delegatee = null;
-                this.delegations = [];
-                this.votedInPolls = [];
-                this.authorOfPolls = [];
-                this.delegation = null;
-                this.totalStake = null;
-            },
-            async loadData() {
-                this.resetData();
-
-                this.address = this.$route.params.account;
-                this.isOwnAccount = this.address === aeternity.address;
-
-                this.balance = await aeternity.client.balance(this.address);
-                this.delegation = await aeternity.delegation(this.address);
-                this.delegations = await aeternity.delegations(this.address);
-
-                await Backend.delegatedPower(this.address).then(delegatedPower => {
-                    this.delegatedPower = delegatedPower.delegatedPower;
-                    this.totalStake = new BigNumber(this.balance).plus(this.delegatedPower);
-                }).catch(console.error);
-
-                await Backend.accountPollVoterAuthor(this.address).then(data => {
-                    this.votedInPolls = data.votedInPolls;
-                    this.authorOfPolls = data.authorOfPolls;
-                }).catch(console.error);
-
-
-                this.showLoading = false;
-            }
-        },
-        async mounted() {
-            this.loadData();
+  export default {
+    name: 'Home',
+    components: {
+      BottomButtons,
+      AeIcon, AeButton, AeButtonGroup, AeInput, BiggerLoader, AeIdentityLight, AeText, PollListing
+    },
+    data() {
+      return {
+        showLoading: true,
+        address: null,
+        balance: null,
+        power: null,
+        delegatee: "",
+        isOwnAccount: false,
+        delegation: null,
+        delegatedPower: null,
+        delegations: [],
+        votedInPolls: [],
+        authorOfPolls: []
+      }
+    },
+    computed: {},
+    beforeRouteUpdate(to, from, next) {
+      next();
+      this.loadData();
+    },
+    methods: {
+      async createDelegation() {
+        if (this.delegatee.includes('ak_')) {
+          this.showLoading = true;
+          await aeternity.contract.methods.delegate(this.delegatee);
+          Backend.contractEvent("Delegation");
+          await this.loadData();
         }
+      },
+      async revokeDelegation() {
+        this.showLoading = true;
+        await aeternity.contract.methods.revoke_delegation();
+        Backend.contractEvent("RevokeDelegation");
+        await this.loadData();
+      },
+      resetData() {
+        this.showLoading = true;
+        this.delegatee = null;
+        this.delegations = [];
+        this.votedInPolls = [];
+        this.authorOfPolls = [];
+        this.delegation = null;
+        this.totalStake = null;
+      },
+      async loadData() {
+        this.resetData();
+
+        this.address = this.$route.params.account;
+        this.isOwnAccount = this.address === aeternity.address;
+
+        this.balance = await aeternity.client.balance(this.address);
+        this.delegation = await aeternity.delegation(this.address);
+        this.delegations = await aeternity.delegations(this.address);
+
+        await Backend.delegatedPower(this.address).then(delegatedPower => {
+          this.delegatedPower = delegatedPower.delegatedPower;
+          this.totalStake = new BigNumber(this.balance).plus(this.delegatedPower);
+        }).catch(console.error);
+
+        await Backend.accountPollVoterAuthor(this.address).then(data => {
+          this.votedInPolls = data.votedInPolls;
+          this.authorOfPolls = data.authorOfPolls;
+        }).catch(console.error);
+
+
+        this.showLoading = false;
+      }
+    },
+    async mounted() {
+      this.loadData();
     }
+  }
 </script>
 
 <style scoped>
