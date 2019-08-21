@@ -24,7 +24,7 @@
           :address="pollState.author"
         />
       </div>
-      <span v-if="totalStake">
+      <span v-if="pollVotesState">
         Stake: {{pollVotesState.totalStake | toAE}} ({{pollVotesState.percentOfTotalSupply | formatPercent}})
       </span>
 

@@ -11,7 +11,18 @@ const wrapTry = async (f) => {
   }
 };
 
-backend.votesState = async (poll) => wrapTry(async () => {
+const wrapTimeout = async (f) => {
+  let timeoutPromise = new Promise((resolve, reject) => {
+    let wait = setTimeout(() => {
+      clearTimeout(wait);
+      resolve(null);
+    }, 5000)
+  });
+
+  return Promise.race([f(), timeoutPromise]);
+};
+
+backend.votesState = async (poll) => wrapTimeout(async () => wrapTry(async () => {
   const votesState = await axios.get(`http://localhost:3000/votesState/${poll}`).then(res => res.data);
   const appendVotesState = {
     ...votesState, ...{
@@ -22,19 +33,19 @@ backend.votesState = async (poll) => wrapTry(async () => {
     }
   };
   return appendVotesState;
-});
+}));
 
-backend.delegatedPower = (account, poll) => wrapTry(async () => {
+backend.delegatedPower = (account, poll) => wrapTimeout(async () => wrapTry(async () => {
   if (poll) return axios.get(`http://localhost:3000/delegatedPower/${account}?poll=${poll}`).then(res => res.data);
   return axios.get(`http://localhost:3000/delegatedPower/${account}`).then(res => res.data);
+}));
+
+backend.pollOverview = async (address) => wrapTimeout(async () => {
+  return axios.get(`http://localhost:3000/pollOverview/${address}`).then(res => res.data);
 });
 
-backend.pollOverview = async (address) => {
-  return axios.get(`http://localhost:3000/pollOverview/${address}`).then(res => res.data);
-};
-
-backend.accountPollVoterAuthor = async (address) => {
+backend.accountPollVoterAuthor = async (address) => wrapTimeout(async () => {
   return axios.get(`http://localhost:3000/accountPollVoterAuthor/${address}`).then(res => res.data);
-};
+});
 
 export default backend;
