@@ -75,14 +75,33 @@ describe('Governance Contracts', () => {
 
     it('Add Poll', async () => {
         pollContract = await ownerClient.getContractInstance(pollSource);
+        const vote_options = {0: "Yes, test more", 1: "No, test less", 2: "Who cares?"};
+        const close_height = Promise.reject();
+
+        const metadata1 = {
+            title: "Lorem ipsum dolor sit amet, consectetur adipiscing.",
+            description: "This Poll is created for Testing purposes only",
+            link: "https://aeternity.com/"
+        };
+
+        const init1 = await pollContract.methods.init(metadata1, vote_options, close_height).catch(e => e);
+        assert.include(init1.decodedError, 'TITLE_STRING_TO_LONG');
+
+        const metadata2 = {
+            title: "Test",
+            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla pretium volutpat enim, in feugiat mi congue feugiat. Nam gravida efficitur convallis. Suspendisse congue tellus nulla, eu finibus nunc egestas sed. Cras luctus mauris iaculis fermentum posuere. Sed ut urna sit amet lorem commodo gravida..",
+            link: "https://aeternity.com/"
+        };
+
+        const init2 = await pollContract.methods.init(metadata2, vote_options, close_height).catch(e => e);
+        assert.include(init2.decodedError, 'DESCRIPTION_STRING_TO_LONG');
+
 
         const metadata = {
             title: "Testing",
             description: "This Poll is created for Testing purposes only",
             link: "https://aeternity.com/"
         };
-        const vote_options = {0: "Yes, test more", 1: "No, test less", 2: "Who cares?"};
-        const close_height = Promise.reject();
 
         const init = await pollContract.methods.init(metadata, vote_options, close_height);
         assert.equal(init.result.returnType, 'ok');
@@ -106,17 +125,10 @@ describe('Governance Contracts', () => {
         const polls = await registryContract.methods.polls();
         pollContract = await ownerClient.getContractInstance(pollSource, {contractAddress: polls.decodedResult[0][1].poll});
         let pollState = await pollContract.methods.get_state();
-        assert.deepEqual(pollState.decodedResult, {
-            close_height: undefined,
-            metadata: {
-                description: 'This Poll is created for Testing purposes only',
-                link: 'https://aeternity.com/',
-                title: 'Testing'
-            },
-            vote_options: [[0, 'Yes, test more'], [1, 'No, test less'], [2, 'Who cares?']],
-            votes: [],
-            author: ownerKeypair.publicKey
-        });
+        assert.equal(pollState.decodedResult.metadata.title, 'Testing');
+        assert.equal(pollState.decodedResult.close_height, undefined);
+        assert.equal(pollState.decodedResult.author, ownerKeypair.publicKey);
+        assert.deepEqual(pollState.decodedResult.vote_options, [[0, 'Yes, test more'], [1, 'No, test less'], [2, 'Who cares?']]);
 
         let title = await pollContract.methods.title();
         assert.equal(title.decodedResult, 'Testing');

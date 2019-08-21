@@ -11,7 +11,7 @@ const pollContractSource = fs.readFileSync(__dirname + "/../../governance-contra
 
 const aeternity = {};
 
-aeternity.contractAddress = "ct_2T5Mks5YXoWQzuvMdABPXt1aEaycCkoMANsSsv7F89fpNw44Nt";
+aeternity.contractAddress = "ct_9C8MiytoMuG3na1nNro4hJJ2gc4swf16QwJk8bStWcn6kiUbF";
 aeternity.nodeUrl = "http://localhost:3001/";
 //aeternity.nodeUrl = "https://sdk-testnet.aepps.com/";
 

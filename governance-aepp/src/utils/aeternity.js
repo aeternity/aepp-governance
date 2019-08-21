@@ -6,7 +6,8 @@ const aeternity = {
   client: null,
   address: null,
   height: null,
-  networkId: null
+  networkId: null,
+  contractAddress: 'ct_9C8MiytoMuG3na1nNro4hJJ2gc4swf16QwJk8bStWcn6kiUbF'
 };
 
 const timeout = async (promise) => {
@@ -26,8 +27,8 @@ aeternity.initProvider = async () => {
     aeternity.balance = await aeternity.client.balance(aeternity.address)
       .then(balance => `${Util.atomsToAe(balance)}`.replace(',', ''))
       .catch(() => '0');
-    aeternity.networkId = (await aeternity.client.getNodeInfo()).nodeNetworkId;
-    aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: 'ct_2T5Mks5YXoWQzuvMdABPXt1aEaycCkoMANsSsv7F89fpNw44Nt'});
+    //aeternity.networkId = (await aeternity.client.getNodeInfo()).nodeNetworkId;
+    aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: aeternity.contractAddress});
     return true;
   } catch (e) {
     console.warn(e);
@@ -164,7 +165,7 @@ aeternity.polls = async () => {
     .filter(([_, data]) => data.is_listed)
     .filter(([_, data]) => data.close_height ? data.close_height > height : true)
     .sort((a, b) => {
-      return (a[1].close_height ||  b[1].close_height) ? (!a[1].close_height ? -1 : !b[1].close_height ? -1 : a[1].close_height - b[1].close_height) : 0;
+      return (a[1].close_height || b[1].close_height) ? (!a[1].close_height ? -1 : !b[1].close_height ? -1 : a[1].close_height - b[1].close_height) : 0;
     });
 };
 
