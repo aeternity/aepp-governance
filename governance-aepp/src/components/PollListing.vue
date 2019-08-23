@@ -13,42 +13,42 @@
 </template>
 
 <script>
-    import {AeLoader} from '@aeternity/aepp-components/'
-    import Backend from "~/utils/backend";
+  import {AeLoader} from '@aeternity/aepp-components/'
+  import Backend from "~/utils/backend";
 
-    export default {
-        components: {AeLoader},
-        data() {
-            return {
-                loading: true,
-                percentOfTotalSupply: null,
-                voteCount: null,
-            }
-        },
-        props: {
-            id: {
-                type: Number
-            },
-            data: {
-                type: Object
-            }
-        },
-        methods: {
-            closeHeight(close_height) {
-                if (!close_height) return "never closes";
-                return `closes at ${close_height}`
-            }
-        },
-        mounted() {
-            Backend.pollOverview(this.data.poll).then(overview => {
-                this.percentOfTotalSupply = overview.percentOfTotalSupply;
-                this.voteCount = overview.voteCount;
-                this.loading = false
-            }).catch(() => {
-                this.loading = false
-            });
-        }
+  export default {
+    components: {AeLoader},
+    data() {
+      return {
+        loading: true,
+        percentOfTotalSupply: null,
+        voteCount: null,
+      }
+    },
+    props: {
+      id: {
+        type: Number
+      },
+      data: {
+        type: Object
+      }
+    },
+    methods: {
+      closeHeight(close_height) {
+        if (!close_height) return "never closes";
+        return `closes at ${close_height}`
+      }
+    },
+    mounted() {
+      Backend.pollOverview(this.data.poll).then(overview => {
+        this.percentOfTotalSupply = overview.percentOfTotalSupply;
+        this.voteCount = overview.voteCount;
+        this.loading = false
+      }).catch(() => {
+        this.loading = false
+      });
     }
+  }
 </script>
 
 <style scoped>
