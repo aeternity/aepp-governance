@@ -162,11 +162,7 @@ aeternity.polls = async () => {
   const height = await aeternity.client.height();
   const polls = await aeternity.contract.methods.polls();
   return polls.decodedResult
-    .filter(([_, data]) => data.is_listed)
-    .filter(([_, data]) => data.close_height ? data.close_height > height : true)
-    .sort((a, b) => {
-      return (a[1].close_height || b[1].close_height) ? (!a[1].close_height ? -1 : !b[1].close_height ? -1 : a[1].close_height - b[1].close_height) : 0;
-    });
+    .filter(([_, data]) => data.is_listed);
 };
 
 export default aeternity

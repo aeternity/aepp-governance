@@ -3,72 +3,63 @@
     <div class="overlay-loader" v-show="showLoading">
       <BiggerLoader></BiggerLoader>
     </div>
-    <h1 class="h1">Account</h1>
-    <br/>
-
-    <div class="flex flex-col mx-2 mt-2" v-if="address">
-      <div class="bg-white rounded p-2 shadow">
-        <div>
-          <div class="label mb-2">
-            Account
-          </div>
-          <ae-identity-light
-            :collapsed="true"
-            :balance="balance"
-            :address="address"
-          />
-          <div v-if="totalStake!= null && delegatedPower != null">
-            <hr class="border-t border-gray-200"/>
-            <div class="label text-xs">est. delegated stake {{delegatedPower | toAE}}</div>
-            <div class="label text-xs mb-1">(delegators votes can overwrite delegation)</div>
-            <div class="-mb-1">est. voting stake <strong>{{totalStake | toAE}}</strong></div>
-          </div>
-          <span v-else class="label text-xs">can't load complete delegation information, may include more delegated stake than listed below</span>
+    <div v-if="address">
+      <AccountHeader :address="address" />
+    </div>
+    <div v-if="delegation" >
+      <div class="mx-4 mt-4">Delegatee</div>
+      <div class="ae-card mx-4 my-2 py-4 px-3 flex justify-between">
+        <ae-identity-light
+          :collapsed="true"
+          :balance="''"
+          :address="delegation"
+        />
+        <div v-if="isOwnAccount" class="flex ml-auto">
+          <img src="../assets/edit.svg" class="pr-4" @click="() => { delegatee = delegation; delegation = null}">
+          <div class="h-full border-r border-gray-500 opacity-50"></div>
+          <img src="../assets/delete.svg" class="pl-4 pr-1" @click="revokeDelegation">
         </div>
       </div>
     </div>
-    <br/>
-    <div v-if="delegation">
-      <h2 class="h2">Delegatee</h2>
-      <ae-identity-light
-        :collapsed="true"
-        :balance="''"
-        :address="delegation"
-        class="mx-4 mb-2"
-      />
-    </div>
-    <div v-if="isOwnAccount">
-      <ae-input class=" mx-2 mt-2" label="Delegatee" v-model="delegatee" aeddress></ae-input>
-      <div class="revokation-buttons">
-        <ae-button-group v-if="delegation" class="w-full">
-          <ae-button face="flat" @click="revokeDelegation()">Revoke</ae-button>
-          <ae-button face="flat" fill="primary" @click="createDelegation()">Update</ae-button>
-        </ae-button-group>
-        <ae-button face="flat" extend fill="primary" @click="createDelegation()" v-else>Create</ae-button>
+    <div v-if="!delegation && isOwnAccount" >
+      <div class="mx-4 mt-4">Delegate your voting power</div>
+      <div class="flex bg-white mx-4 my-2">
+        <ae-input label="Delegatee" v-model="delegatee" aeddress></ae-input>
+        <div class="ml-auto border-r border-gray-500 opacity-50 my-2"></div>
+        <img src="../assets/back_gray.svg" class="px-4 rotate-180" @click="createDelegation">
       </div>
     </div>
-    <div v-if="delegations.length">
-      <h2 class="h2">Delegations</h2>
-      <div v-for="{delegator, _, delegatorAmount, includesIndirectDelegations} in delegations" class="max-w-xs">
-        <ae-identity-light
-          :collapsed="true"
-          :balance="delegatorAmount"
-          :address="delegator"
-          class="mx-4"
-        />
-        <div v-if="includesIndirectDelegations" class="mx-4 mb-1 text-xs">(includes more indirect delegations)</div>
+    <div class="flex w-full text-center text-gray-500 mt-4 text-sm">
+      <div class="flex-1 pb-2 border-b-2 border-gray-300" @click="tab = 'votes'" :class="{'active-tab': tab === 'votes'}">VOTES</div>
+      <div class="flex-1 pb-2 border-b-2 border-gray-300" @click="tab = 'delegations'" :class="{'active-tab': tab === 'delegations'}">DELEGATIONS</div>
+      <div class="flex-1 pb-2 border-b-2 border-gray-300" @click="tab = 'polls'" :class="{'active-tab': tab === 'polls'}">POLLS</div>
+    </div>
+    <div v-if="tab === 'votes'">
+      <div v-if="votedInPolls.length" class="mt-1">
+        <div class="my-2" v-for="[id, data] in votedInPolls">
+          <!-- TODO add voted option -->
+          <PollListing :id="id" :data="data" class="mx-4"/>
+        </div>
       </div>
     </div>
-    <div v-if="authorOfPolls.length" class="mt-1">
-      <h2 class="h2">Poll Author</h2>
-      <div v-for="[id, data] in authorOfPolls">
-        <PollListing :id="id" :data="data" class="mx-4"/>
+    <div v-if="tab === 'delegations'">
+      <div v-if="delegations.length">
+        <div v-for="{delegator, _, delegatorAmount, includesIndirectDelegations} in delegations" class="ae-card p-4 mx-4 my-2">
+          <ae-identity-light
+            :collapsed="true"
+            :balance="delegatorAmount"
+            :address="delegator"
+            class="mx-4"
+          />
+          <div v-if="includesIndirectDelegations" class="mx-4 mb-1 text-xs">(includes more indirect delegations)</div>
+        </div>
       </div>
     </div>
-    <div v-if="votedInPolls.length" class="mt-1">
-      <h2 class="h2">Voted in Polls</h2>
-      <div v-for="[id, data] in votedInPolls">
-        <PollListing :id="id" :data="data" class="mx-4"/>
+    <div v-if="tab === 'polls'">
+      <div v-if="authorOfPolls.length" class="mt-1">
+        <div class="my-2" v-for="[id, data] in authorOfPolls">
+          <PollListing :id="id" :data="data" class="mx-4"/>
+        </div>
       </div>
     </div>
     <BottomButtons back="/" :add-poll="true"></BottomButtons>
@@ -84,10 +75,12 @@
   import Backend from "~/utils/backend";
   import PollListing from "~/components/PollListing";
   import BottomButtons from "~/components/BottomButtons";
+  import AccountHeader from "~/components/AccountHeader";
 
   export default {
     name: 'Home',
     components: {
+      AccountHeader,
       BottomButtons,
       AeIcon, AeButton, AeButtonGroup, AeInput, BiggerLoader, AeIdentityLight, AeText, PollListing
     },
@@ -101,6 +94,7 @@
         isOwnAccount: false,
         delegation: null,
         delegatedPower: null,
+        tab: 'votes',
         delegations: [],
         votedInPolls: [],
         authorOfPolls: []
@@ -174,4 +168,15 @@
   .ae-input-container {
     width: inherit;
   }
+
+  .rotate-180 {
+    transform: rotate(180deg);
+  }
+
+  .active-tab {
+    border-color: #FF0D6A;
+    color: black;
+  }
+
+
 </style>

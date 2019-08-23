@@ -1,14 +1,23 @@
 <template>
-  <div class="mb-2">
+  <div class="ae-card p-4 flex" @click="$router.push(`/poll/${id}`)">
     <div>
-      <a @click="$router.push(`/poll/${id}`)">#{{id}} {{data.title}}</a>
-      <span v-if="voteCount != null">({{voteCount}} votes)</span>
-      <ae-loader v-if="voteCount == null && loading"/>
+      <div class="h-6 flex items-center vote-id">
+        <img class="h-full" src="../assets/hash.svg"/>
+        <span class="text-primary text-2xl leading-none mr-2">{{id}}</span>
+        <span class="text-2xl leading-none">{{data.title}}</span>
+      </div>
+      <div v-if="vote">
+
+      </div>
+
+      <div class="text-gray-500 text-sm">
+        <span v-if="percentOfTotalSupply">{{percentOfTotalSupply | formatPercent}} stake - </span>
+        <span v-else><ae-loader></ae-loader> stake - </span>
+        <span>{{closeHeight(data.close_height)}}</span>
+      </div>
     </div>
-    <div>
-      <span v-if="percentOfTotalSupply">{{percentOfTotalSupply | formatPercent}} stake - </span>
-      <span>{{closeHeight(data.close_height)}}</span>
-    </div>
+
+
   </div>
 </template>
 
@@ -31,6 +40,10 @@
       },
       data: {
         type: Object
+      },
+      vote: {
+        type: Number,
+        default: null
       }
     },
     methods: {

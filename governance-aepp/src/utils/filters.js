@@ -2,7 +2,7 @@ import BlockchainUtil from "~/utils/util";
 
 export function toAE(num) {
   if (num) {
-    return BlockchainUtil.atomsToAe(num).toFixed(0) + " AE";
+    return BlockchainUtil.atomsToAe(num).toFixed(2) + " AE";
   } else {
     return "";
   }
@@ -10,7 +10,7 @@ export function toAE(num) {
 
 export function formatPercent(num) {
   if (num) {
-    return Number(num).toFixed(2) + "%";
+    return Number(num).toFixed(0) + "%";
   } else {
     return "";
   }

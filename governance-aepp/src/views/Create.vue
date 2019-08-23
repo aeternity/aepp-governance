@@ -33,7 +33,7 @@
         <div v-else class="text-3xl text-gray-300 text-right font-bold">&plus;</div>
       </div>
       <input v-model="option.text" @input="optionInput" type="text" placeholder="Add Option"
-             class="w-full h-full px-2 py-6 outline-none"/>
+             class="ae-input-option w-full h-full px-2 py-6 outline-none"/>
       <div v-if="option.text">
         <div class="text-2xl text-gray-500 text-right" @click="removeOption(option.id)">&times;</div>
       </div>
@@ -98,19 +98,20 @@
     },
     methods: {
       async createPoll() {
-        if (this.createMetadata.title.length >= 3 && this.optionsString.length >= 3) {
+        if (this.createMetadata.title.length >= 3 && this.options.length >= 3) {
           this.showLoading = true;
           const close_height = isNaN(parseInt(this.closeHeightString)) ? Promise.reject() : Promise.resolve(parseInt(this.closeHeightString));
-          const options = this.optionsString.split(',').reduce(({seq, res}, cur) => {
-            console.log("seq", seq, "res", res, "cur", cur);
-            res = Object.assign(res, {[seq]: cur.trim()});
-            return {seq: seq + 1, res: res}
-          }, {seq: 0, res: {}}).res;
+
+          let newID = 0;
+          const options = this.options.filter(option => !!option.text)
+            .map(option => {
+              option.id = newID++;
+              return option
+            }).reduce((acc, option)=> Object.assign(acc, {[option.id]: option.text}), {});
 
           const pollContract = await aeternity.client.getContractInstance(pollContractSource);
           const init = await pollContract.methods.init(this.createMetadata, options, close_height);
           const addPoll = await aeternity.contract.methods.add_poll(init.address, this.is_listed);
-
           this.$router.push(`/poll/${addPoll.decodedResult}`);
         }
       },
@@ -138,10 +139,13 @@
   }
 </script>
 
-<style scoped>
-  input {
+<style>
+  input.ae-input-option {
     font-size: 1.0625rem;
     line-height: 1.5rem;
     font-family: Inter UI, sans-serif;
+  }
+  .ae-input-box {
+    background-color: #fff !important;
   }
 </style>

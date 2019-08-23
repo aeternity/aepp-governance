@@ -1,5 +1,5 @@
 <template>
-    <div class="grey-bg px-6 py-4 w-full text-3xl text-white">
+    <div class="bg-gray-ae px-6 py-4 w-full text-3xl text-white">
       <slot />
     </div>
 </template>
@@ -11,7 +11,7 @@
 </script>
 
 <style scoped>
-  .grey-bg {
+  .bg-gray-ae {
     background-color: #333333;
   }
 </style>

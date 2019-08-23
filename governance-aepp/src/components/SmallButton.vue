@@ -1,6 +1,6 @@
 <template>
   <div class="w-8 h-8">
-    <div class="rounded-full w-full h-full flex justify-center items-center shadow primary-bg"
+    <div class="rounded-full w-full h-full flex justify-center items-center shadow bg-primary"
          @click="action">
       <img :src="img" alt="generic_alt" class="w-8 h-8">
     </div>
@@ -15,7 +15,5 @@
 </script>
 
 <style scoped>
-  .primary-bg {
-    background-color: #FF0D6A;
-  }
+
 </style>

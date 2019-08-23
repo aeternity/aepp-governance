@@ -3,79 +3,76 @@
     <div class="overlay-loader" v-show="showLoading">
       <BiggerLoader></BiggerLoader>
     </div>
-    <h1 class="h1">Poll #{{pollId}}</h1>
-    <br/>
     <div v-if="pollState.metadata">
-      <h1 class="h1">{{pollState.metadata.title}}</h1>
-      {{pollState.metadata.description}}
-      <br/>
-      Link: <a @href="pollState.metadata.link">{{pollState.metadata.link}}</a>
-      <br/>
-      <div class="author">
-        Author:&nbsp;
-        <ae-identity-light
-          :collapsed="true"
-          :balance="''"
-          :address="pollState.author"
-        />
+      <AccountHeader :address="accountAddress" :poll-address="pollAddress" v-if="accountAddress"></AccountHeader>
+      <div class="flex justify-between m-4 mb-2">
+        <div>
+          <h1 class="text-3xl leading-tight">{{pollState.metadata.title}}</h1>
+        </div>
+        <div class="h-8 flex items-center vote-id justify-end">
+          <img class="h-full" src="../assets/hash.svg"/>
+          <span class="text-primary text-4xl leading-none">{{pollId}}</span>
+        </div>
       </div>
-      <span v-if="pollVotesState">
-        Stake: {{pollVotesState.totalStake | toAE}} ({{pollVotesState.percentOfTotalSupply | formatPercent}})
-      </span>
-
-      <div class="flex flex-col mx-2 mt-2 mb-6" v-if="accountAddress">
-        <div class="bg-white rounded p-2 shadow">
-          <div>
-            <div class="label mb-2">
-              Voter Account
-            </div>
-            <ae-identity-light
-              :collapsed="true"
-              :balance="balance"
-              :address="accountAddress"
-            />
-            <div v-if="totalStake!= null && delegatedPower != null">
-              <hr class="border-t border-gray-200"/>
-              <div class="label text-xs">est. delegated stake {{delegatedPower | toAE}}</div>
-              <div class="label text-xs mb-1">(delegators votes can overwrite delegation)</div>
-              <div class="-mb-1">est. voting stake <strong>{{totalStake | toAE}}</strong></div>
-            </div>
-            <span v-else class="label text-xs">can't load delegation information, may include delegated stake or (sub-)delegatee already voted</span>
+      <div class="text-gray-500 mx-4 font-xl">
+        {{pollState.metadata.description}}
+      </div>
+      <div class="text-gray-500 mx-4 my-2 font-xl">
+        <a :href="pollState.metadata.link" class="text-blue-500 opacity-75">{{pollState.metadata.link}}</a>
+      </div>
+      <div class=" mx-4 my-2 flex">
+        <span class="text-sm mr-1 text-gray-500">BY:</span>
+        <div class="text-primary">
+          <ae-identity-light
+            :collapsed="true"
+            :balance="''"
+            :address="pollState.author"
+          />
+        </div>
+      </div>
+      <div class="relative h-4 w-full">
+        <div class="absolute inset-0 flex h-full w-full justify-center items-center px-4">
+          <div class="border w-full"></div>
+        </div>
+        <div class="absolute inset-0 flex h-full w-full justify-center items-center">
+          <div class="bg-ae-gray px-2">
+            <span class="text-gray-500 opacity-75">POLL</span>
           </div>
         </div>
       </div>
 
-      <div v-if="delegateeVote.option != null">includes vote by (sub-)delegatee
-        <ae-identity-light
-          :collapsed="true"
-          :balance="''"
-          :address="delegateeVote.account"
-        />
-        <div class="text-xs">
-          vote to overwrite,
-          <router-link :to="`/account/${accountAddress}`">or manage delegation</router-link>
-        </div>
+      <div class="text-center w-full mt-2 text-gray-500 text-sm" v-if="totalStake">
+        Total Stake: {{pollVotesState.totalStake | toAE}} ({{pollVotesState.percentOfTotalSupply | formatPercent}})
       </div>
-      <div v-for="[id, title] in pollState.vote_options">
-        <div class="vote-container">
-          <ae-check class="vote-check" v-model="voteOption" :value="id" type="radio" @change="vote()"></ae-check>
-          <div class="vote-bar-container" v-if="pollVotesState && pollVotesState.stakesForOption">
-            <ae-toolbar :fill="delegateeVote.option===id || voteOption===id ? 'custom' : ''" class="vote-bar"
-                        :style="{'width': `${pollVotesState.stakesForOption[id].percentageOfTotal}%`}">
-              {{title}}
-            </ae-toolbar>
+
+      <!-- POLL OPTIONS -->
+
+      <div v-for="[id, title] in pollState.vote_options" v-if="pollVotesState">
+        <div class="m-4 ae-card" @click="showVoters(id)">
+          <div class="flex justify-between items-center w-full py-4 px-3">
+            <ae-check class="mr-1" v-model="voteOption" :value="id" type="radio" @change="vote(id)"></ae-check>
+            <!-- TODO find better solution than this -->
+            <div class="mr-auto" style="margin-top: 4px">
+              <span
+                class="font-bold mr-1">{{pollVotesState.stakesForOption[id].percentageOfTotal | formatPercent}}</span>
+              <span>{{title}}</span>
+            </div>
+            <span style="margin-top: 4px" class="block">
+              <img src="../assets/back_gray.svg" class="transition" :class="{'rotate-90': votersForOption.id != null && votersForOption.id == id}">
+            </span>
           </div>
-          <div class="vote-bar-container" v-else>
-            {{title}}
+          <div class="h-1 bg-primary rounded-bl"
+               :class="{'rounded-br': pollVotesState.stakesForOption[id].percentageOfTotal > 99}"
+               :style="{'width': `${pollVotesState.stakesForOption[id].percentageOfTotal}%`}">
           </div>
         </div>
-        <div class="label text-xs my-1" v-if="pollVotesState">
-          {{pollVotesState.stakesForOption[id].percentageOfTotal | formatPercent}}
-          ({{pollVotesState.stakesForOption[id].optionStake | toAE}}) -
-          <a @click="showVoters(id)">{{pollVotesState.stakesForOption[id].votes.length}} Votes</a> -
-          {{pollVotesState.stakesForOption[id].delegatorsCount}} Delegators
-        </div>
-        <div class="label text-xs" v-if="votersForOption.id != null && votersForOption.id == id">
+        <div class="text-gray-500 text-sm mx-4" v-show="votersForOption.id != null && votersForOption.id == id">
+          <div class="text-gray-500 text-sm my-1 mx-2" v-if="pollVotesState">
+            {{pollVotesState.stakesForOption[id].percentageOfTotal | formatPercent}}
+            ({{pollVotesState.stakesForOption[id].optionStake | toAE}}) -
+            {{pollVotesState.stakesForOption[id].votes.length}} Votes -
+            {{pollVotesState.stakesForOption[id].delegatorsCount}} Delegators
+          </div>
           <div v-for="voter in votersForOption.voters">
             <ae-identity-light
               :collapsed="true"
@@ -87,24 +84,118 @@
           </div>
         </div>
       </div>
-    </div>
-    <div v-if="voteOption!=null">
+      <div class="mb-24">
+        <!-- BOTTOM SPACER -->
+      </div>
+
+      <!--
       <br/>
-      <ae-button face="flat" extend @click="revokeVote()">Revoke Vote</ae-button>
+      <div v-if="pollState.metadata">
+        <h1 class="h1">{{pollState.metadata.title}}</h1>
+        {{pollState.metadata.description}}
+        <br/>
+        Link: <a @href="pollState.metadata.link">{{pollState.metadata.link}}</a>
+        <br/>
+        <div class="author">
+          Author:&nbsp;
+          <ae-identity-light
+            :collapsed="true"
+            :balance="''"
+            :address="pollState.author"
+          />
+        </div>
+        <span v-if="pollVotesState">
+        Stake: {{pollVotesState.totalStake | toAE}} ({{pollVotesState.percentOfTotalSupply | formatPercent}})
+      </span>
+
+        <div class="flex flex-col mx-2 mt-2 mb-6" v-if="accountAddress">
+          <div class="bg-white rounded p-2 shadow">
+            <div>
+              <div class="label mb-2">
+                Voter Account
+              </div>
+              <ae-identity-light
+                :collapsed="true"
+                :balance="balance"
+                :address="accountAddress"
+              />
+              <div v-if="totalStake!= null && delegatedPower != null">
+                <hr class="border-t border-gray-200"/>
+                <div class="label text-xs">est. delegated stake {{delegatedPower | toAE}}</div>
+                <div class="label text-xs mb-1">(delegators votes can overwrite delegation)</div>
+                <div class="-mb-1">est. voting stake <strong>{{totalStake | toAE}}</strong></div>
+              </div>
+              <span v-else class="label text-xs">can't load delegation information, may include delegated stake or (sub-)delegatee already voted</span>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="delegateeVote.option != null">includes vote by (sub-)delegatee
+          <ae-identity-light
+            :collapsed="true"
+            :balance="''"
+            :address="delegateeVote.account"
+          />
+          <div class="text-xs">
+            vote to overwrite,
+            <router-link :to="`/account/${accountAddress}`">or manage delegation</router-link>
+          </div>
+        </div>
+        <div v-for="[id, title] in pollState.vote_options">
+          <div class="vote-container">
+            <ae-check class="vote-check" v-model="voteOption" :value="id" type="radio" @change="vote()"></ae-check>
+            <div class="vote-bar-container" v-if="pollVotesState && pollVotesState.stakesForOption">
+              <ae-toolbar :fill="delegateeVote.option===id || voteOption===id ? 'custom' : ''" class="vote-bar"
+                          :style="{'width': `${pollVotesState.stakesForOption[id].percentageOfTotal}%`}">
+                {{title}}
+              </ae-toolbar>
+            </div>
+            <div class="vote-bar-container" v-else>
+              {{title}}
+            </div>
+          </div>
+          <div class="label text-xs my-1" v-if="pollVotesState">
+            {{pollVotesState.stakesForOption[id].percentageOfTotal | formatPercent}}
+            ({{pollVotesState.stakesForOption[id].optionStake | toAE}}) -
+            <a @click="showVoters(id)">{{pollVotesState.stakesForOption[id].votes.length}} Votes</a> -
+            {{pollVotesState.stakesForOption[id].delegatorsCount}} Delegators
+          </div>
+          <div class="label text-xs" v-if="votersForOption.id != null && votersForOption.id == id">
+            <div v-for="voter in votersForOption.voters">
+              <ae-identity-light
+                :collapsed="true"
+                :additionalText="voter.delegatorsCount ? voter.delegatorsCount + ' D - ' : ''"
+                :balance="voter.stake"
+                :address="voter.account"
+                class="mx-2"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div v-if="voteOption!=null">
+        <br/>
+        <ae-button face="flat" extend @click="revokeVote()">Revoke Vote</ae-button>
+      </div>
+      -->
+      <BottomButtons back="/" :add-poll="true" :cta-text="voteOption !== null ?  'Revoke Vote' : null " :account="accountAddress"
+                     :cta-action="revokeVote"></BottomButtons>
     </div>
-    <BottomButtons back="/" :add-poll="true" cta-text="Revoke Vote" :cta-action="revokeVote"></BottomButtons>
+
   </div>
 </template>
 
 <script>
   import aeternity from "~/utils/aeternity";
-  import {AeButton, AeCheck, AeIcon, AeToolbar} from '@aeternity/aepp-components/'
+  import {AeButton, AeCheck, AeIcon, AeToolbar, AeCard} from '@aeternity/aepp-components/'
   import pollContractSource from '../../../governance-contracts/contracts/Poll.aes'
   import Backend from "~/utils/backend";
   import BiggerLoader from '../components/BiggerLoader';
   import AeIdentityLight from '../components/AeIdentityLight'
   import BigNumber from 'bignumber.js';
   import BottomButtons from "~/components/BottomButtons";
+  import AccountHeader from "~/components/AccountHeader";
+  import GrayText from "~/components/GrayText";
 
     export default {
         name: 'Home',
@@ -147,7 +238,10 @@
                 }
   export default {
     name: 'Home',
-    components: {BottomButtons, AeIcon, AeCheck, AeButton, AeToolbar, BiggerLoader, AeIdentityLight},
+    components: {
+      GrayText,
+      AccountHeader, BottomButtons, AeIcon, AeCheck, AeButton, AeToolbar, BiggerLoader, AeIdentityLight, AeCard
+    },
     data() {
       return {
         accountAddress: null,
@@ -160,14 +254,16 @@
         pollContract: null,
         pollState: {},
         pollVotesState: null,
+        pollAddress: null,
         votersForOption: {},
         delegatedPower: null,
       }
     },
     computed: {},
     methods: {
-      async vote() {
+      async vote(id) {
         this.showLoading = true;
+        this.voteOption = id;
         await this.pollContract.methods.vote(this.voteOption);
         await this.loadData();
       },
@@ -204,7 +300,7 @@
         this.balance = await aeternity.client.balance(aeternity.address);
 
         const poll = await aeternity.contract.methods.poll(this.pollId);
-        this. pollAddress = poll.decodedResult.poll;
+        this.pollAddress = poll.decodedResult.poll;
         this.pollContract = await aeternity.client.getContractInstance(pollContractSource, {contractAddress: this.pollAddress});
         this.pollState = (await this.pollContract.methods.get_state()).decodedResult;
 
@@ -234,30 +330,26 @@
 </script>
 
 <style scoped>
-  .vote-container {
-    margin-top: 10px;
-    display: flex;
+  .vote-id {
+    min-width: 85px;
   }
 
-  .vote-bar-container {
-    display: flex;
-    flex: 1 1;
+  .bg-ae-gray {
+    background-color: #f8f8f8;
   }
 
-  .vote-bar {
-    width: 100%;
+  .ae-card {
+    border-radius: 5px;
+    box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.15);
+    background-color: #ffffff;
   }
 
-  .ae-toolbar.custom {
-    color: black;
-    background-color: #FF0D6A;
+  .transition {
+    transition: 300ms;
   }
 
-  .author {
-    display: flex;
+  .rotate-90 {
+    transform: rotate(-90deg);
   }
 
-  .ae-button.flat {
-    height: 40px;
-  }
 </style>
