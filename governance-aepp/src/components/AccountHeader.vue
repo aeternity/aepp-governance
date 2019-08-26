@@ -17,13 +17,18 @@
         </div>
       </div>
 
-      <div class="flex justify-between items-center mt-3">
+      <div class="flex justify-between items-center mt-3" v-if="delegatedPower">
         <div class="text-xs opacity-75 leading-tight">
-          Estimated delegated stake <br />
+          Estimated delegated stake <br/>
           Delegators votes can overwrite delegation
         </div>
-        <div class="text-sm font-bold font-mono" v-if="delegatedPower">
+        <div class="text-sm font-bold font-mono">
           {{delegatedPower | toAE}}
+        </div>
+      </div>
+      <div class="flex justify-between items-center mt-3" v-else>
+        <div class="text-xs opacity-75 leading-tight">
+          Could not fetch information about delegated stake.
         </div>
       </div>
     </div>
@@ -71,12 +76,15 @@
     },
     methods: {
       async loadData() {
-        this.isOwnAccount = aeternity.address === this.address
+        this.isOwnAccount = aeternity.address === this.address;
         this.balance = await aeternity.client.balance(this.address);
         await Backend.delegatedPower(this.address, this.pollAddress).then(delegatedPower => {
           this.delegatedPower = delegatedPower.delegatedPower;
           this.totalStake = new BigNumber(this.balance).plus(this.delegatedPower);
-        }).catch(console.error);
+        }).catch(e => {
+          console.error(e);
+          this.totalStake = new BigNumber(this.balance);
+        });
       }
     },
     watch: {
@@ -94,6 +102,7 @@
   .bg-primary {
     box-shadow: 0 2px 20px 0 rgba(0, 0, 0, 0.15);
   }
+
   .bg-ae-purple {
     background-color: #d12869;
   }

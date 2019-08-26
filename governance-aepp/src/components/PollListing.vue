@@ -9,15 +9,12 @@
       <div v-if="vote">
 
       </div>
-
       <div class="text-gray-500 text-sm">
         <span v-if="percentOfTotalSupply">{{percentOfTotalSupply | formatPercent}} stake - </span>
-        <span v-else><ae-loader></ae-loader> stake - </span>
+        <span v-else-if="loading"><ae-loader></ae-loader> stake - </span>
         <span>{{closeHeight(data.close_height)}}</span>
       </div>
     </div>
-
-
   </div>
 </template>
 

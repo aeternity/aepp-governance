@@ -1,12 +1,16 @@
 import axios from "axios";
-
 const backend = {};
 
 const BACKEND_URL = 'http://localhost:3000';
 
 const wrapTry = async (f) => {
   try {
-    return await f()
+    return Promise.race([
+      f(),
+      new Promise(function (resolve, reject) {
+        setTimeout(reject, 5000, 'TIMEOUT');
+      })
+    ])
   } catch (e) {
     console.error("backend error", e);
     return null;
