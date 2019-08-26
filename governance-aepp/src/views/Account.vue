@@ -85,7 +85,7 @@
 
 <script>
   import aeternity from "~/utils/aeternity";
-  import {AeIcon, AeButton, AeButtonGroup, AeInput, AeText} from '@aeternity/aepp-components/'
+  import {AeIcon, AeButton, AeButtonGroup, AeInput, AeText} from '@aeternity/aepp-components/src/components/'
   import BiggerLoader from '../components/BiggerLoader'
   import AeIdentityLight from '../components/AeIdentityLight'
   import BigNumber from 'bignumber.js';

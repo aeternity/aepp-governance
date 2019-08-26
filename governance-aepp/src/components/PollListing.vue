@@ -19,7 +19,7 @@
 </template>
 
 <script>
-  import {AeLoader} from '@aeternity/aepp-components/'
+  import {AeLoader} from '@aeternity/aepp-components/src/components/'
   import Backend from "~/utils/backend";
 
   export default {

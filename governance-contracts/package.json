@@ -4,7 +4,8 @@
   "description": "This is the default package.json generated for your project",
   "main": "index.js",
   "scripts": {
-    "test": "forgae test"
+    "test": "forgae test",
+    "node": "forgae node"
   },
   "author": "",
   "license": "ISC",

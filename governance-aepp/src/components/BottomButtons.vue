@@ -53,7 +53,7 @@
 </template>
 
 <script>
-  import {AeIcon, AeButton} from "@aeternity/aepp-components";
+  import {AeIcon, AeButton} from "@aeternity/aepp-components/src/components";
   import SmallButton from "~/components/SmallButton";
   import searchImg from '../assets/search.svg';
   import createImg from '../assets/create.svg';

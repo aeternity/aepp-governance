@@ -29,7 +29,7 @@
 
 <script>
   import aeternity from "~/utils/aeternity";
-  import {AeIcon} from '@aeternity/aepp-components/'
+  import { AeIcon } from '@aeternity/aepp-components/src/components'
   import BiggerLoader from '../components/BiggerLoader'
   import PollListing from "~/components/PollListing";
   import BottomButtons from "~/components/BottomButtons";

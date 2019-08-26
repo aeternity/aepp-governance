@@ -15,7 +15,7 @@
 </template>
 
 <script>
-  import { AeBackdrop, AeButton, AeCard } from '@aeternity/aepp-components/'
+  import { AeBackdrop, AeButton, AeCard } from '@aeternity/aepp-components/src/components/'
 
   export default {
     name: 'CriticalErrorOverlay',

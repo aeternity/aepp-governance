@@ -22,7 +22,7 @@
 
 <script>
 
-  import {AeMain} from '@aeternity/aepp-components'
+  import {AeMain} from '@aeternity/aepp-components/src/components'
   import CriticalErrorOverlay from '~/components/CriticalErrorOverlay'
   import aeternity from '~/utils/aeternity.js'
   import BiggerLoader from './components/BiggerLoader'

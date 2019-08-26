@@ -12,52 +12,15 @@ import App from './App.vue'
 import router from './router'
 import * as filters from './utils/filters'
 
-/**
- * Documentation of the new components are here.
- *
- * http://aeternity.com/aepp-components/
- */
 
-//import Components from '@aeternity/aepp-components'
-//Vue.use(Components)
+Vue.use(VueRouter);
 
-/**
- * Use this if you need a general reset.
- *
- * Includes global style changes like:
- *
- * - all needed fonts
- * - normalize.css
- *
- * html, body {} styles (like font, font-size)
- * p {}
- * h1, h2, h3, h4, h5, h6 {}
- */
-// import '@aeternity/aepp-components/dist/aepp.global.css'
+Vue.config.productionTip = false;
 
-/**
- * These are all components styles. They're scoped
- * so they won't collide with other styles.
- */
-
-Vue.use(VueRouter)
-
-Vue.config.productionTip = false
-
-console.info('about to render Vue App')
-
-/**
- * I would suggest exporting this Vue instance.
- *
- * In the future it might turn useful if you want to reference it
- * from some other packages that have no relation with VueJS
- *
- * Also looks nice.
- */
 
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])
-})
+});
 
 export default new Vue({
   router: router,
