@@ -45,13 +45,15 @@ logic.overviewPollVotesState = async (address, height) => {
 
 logic.pollVotesState = async (address) => {
     const {pollState, votingAccounts, votingAccountList} = await logic.pollStateAndVotingAccounts(address);
-    await aeternity.delegations();
+
+    const height = await aeternity.height();
+    const closingHeightOrUndefined = pollState.close_height ? pollState.close_height <= height ? pollState.close_height : undefined : undefined;
+    await aeternity.delegations(closingHeightOrUndefined);
 
     const stakesAtHeight = await logic.stakesAtHeight(votingAccounts, pollState.close_height, votingAccountList);
     const totalStake = stakesAtHeight.map(vote => vote.stake).reduce((acc, cur) => acc.plus(cur), new BigNumber('0')).toFixed();
     const stakesForOption = logic.stakesForOption(pollState.vote_options, stakesAtHeight, totalStake);
 
-    const height = await aeternity.height();
     const closingHeightOrCurrentHeight = pollState.close_height ? pollState.close_height <= height ? pollState.close_height : height : height;
     const tokenSupply = await aeternity.tokenSupply(closingHeightOrCurrentHeight);
 

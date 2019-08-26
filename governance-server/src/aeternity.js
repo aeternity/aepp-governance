@@ -5,6 +5,7 @@ const axios = require('axios');
 
 const cache = require('./cache');
 const util = require("./util");
+const delegationLogic = require("./delegation_logic");
 
 const registryContractSource = fs.readFileSync(__dirname + "/../../governance-contracts/contracts/Registry.aes", "utf-8");
 const pollContractSource = fs.readFileSync(__dirname + "/../../governance-contracts/contracts/Poll.aes", "utf-8");
@@ -48,8 +49,15 @@ aeternity.delegators = async (address) => {
     return delegations.filter(([_, delegatee]) => delegatee === address);
 };
 
-aeternity.delegations = async () => {
-    return cache.getOrSet(["delegations"], async () => (await aeternity.contract.methods.delegations()).decodedResult, 120);
+aeternity.delegations = async (height) => {
+    return cache.getOrSet(["delegations", height], async () => {
+        if (height) {
+            const delegationEvents = await delegationLogic.findDelegationEvents(aeternity, height);
+            return delegationLogic.calculateDelegations(delegationEvents);
+        } else {
+            return (await aeternity.contract.methods.delegations()).decodedResult
+        }
+    }, 120);
 };
 
 aeternity.tokenSupply = async (height) => {
@@ -73,6 +81,7 @@ aeternity.transactionEvent = async (hash) => {
                 return {
                     topic: topic,
                     height: tx.height,
+                    nonce: tx.callerNonce,
                     poll: util.encodeEventAddress(tx.log, 0, "ct_"),
                     seq_id: util.eventArgument(tx.log, 1)
                 };
@@ -80,6 +89,7 @@ aeternity.transactionEvent = async (hash) => {
                 return {
                     topic: topic,
                     height: tx.height,
+                    nonce: tx.callerNonce,
                     delegator: util.encodeEventAddress(tx.log, 0, "ak_"),
                     delegatee: util.encodeEventAddress(tx.log, 1, "ak_")
                 };
@@ -87,12 +97,14 @@ aeternity.transactionEvent = async (hash) => {
                 return {
                     topic: topic,
                     height: tx.height,
+                    nonce: tx.callerNonce,
                     delegator: util.encodeEventAddress(tx.log, 0, "ak_"),
                 };
             case "Vote":
                 return {
                     topic: topic,
                     height: tx.height,
+                    nonce: tx.callerNonce,
                     poll: util.encodeEventAddress(tx.log, 0, "ct_"),
                     voter: util.encodeEventAddress(tx.log, 1, "ak_"),
                     option: util.eventArgument(tx.log, 2)
@@ -101,6 +113,7 @@ aeternity.transactionEvent = async (hash) => {
                 return {
                     topic: topic,
                     height: tx.height,
+                    nonce: tx.callerNonce,
                     poll: util.encodeEventAddress(tx.log, 0, "ct_"),
                     voter: util.encodeEventAddress(tx.log, 1, "ak_"),
                 };
