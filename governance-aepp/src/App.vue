@@ -7,6 +7,9 @@
           <BiggerLoader></BiggerLoader>
           <h2 class="mt-2 font-bold">Looking for a wallet. Check for popups.</h2>
         </div>
+        <div class="mb-24">
+          <!-- BOTTOM SPACER -->
+        </div>
       </div>
     </div>
     <CriticalErrorOverlay
