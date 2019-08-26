@@ -1,5 +1,5 @@
 <template>
-  <div class="pb-20 min-h-screen">
+  <div>
     <div class="overlay-loader" v-show="showLoading && false">
       <BiggerLoader></BiggerLoader>
     </div>

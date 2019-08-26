@@ -1,9 +1,9 @@
 <template>
-  <ae-backdrop class="p-6" v-show="error">
-    <ae-card class="white-bg">
+  <div class="fixed inset-0 flex items-center justify-center bg-overlay p-6" v-show="error">
+    <ae-card class="bg-white">
       <div class="w-full">
-        <h1 class="font-mono text-red text-center pt-4">ERROR</h1>
-        <p class="text-base text-red pt-4 text-center">
+        <h1 class="font-mono font-bold text-center text-black text-3xl pt-4 italic">Ooops!</h1>
+        <p class="text-base pt-4 text-center">
           {{error}}
         </p>
         <div class="flex justify-center mt-6">
@@ -11,7 +11,7 @@
         </div>
       </div>
     </ae-card>
-  </ae-backdrop>
+  </div>
 </template>
 
 <script>
@@ -20,7 +20,16 @@
   export default {
     name: 'CriticalErrorOverlay',
     components: { AeBackdrop, AeButton, AeCard },
-    props: ['error', 'errorCTA', 'errorClick'],
+    props:  {
+      error: {
+        type: String,
+        default: null
+      },
+      errorCTA: {
+        type: String,
+        default: "Okay"
+      }
+    },
     methods: {
       ctaClick () {
         this.$emit('continue')
@@ -32,5 +41,8 @@
 <style scoped>
   .white-bg {
     background-color: white;
+  }
+  .bg-overlay {
+    background-color: rgba(255,255,255,0.95);
   }
 </style>

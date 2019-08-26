@@ -4,9 +4,9 @@
       <BiggerLoader></BiggerLoader>
     </div>
     <div v-if="address">
-      <AccountHeader :address="address" />
+      <AccountHeader :address="address"/>
     </div>
-    <div v-if="delegation" >
+    <div v-if="delegation">
       <div class="mx-4 mt-4">Delegatee</div>
       <div class="ae-card mx-4 my-2 py-4 px-3 flex justify-between">
         <ae-identity-light
@@ -21,7 +21,7 @@
         </div>
       </div>
     </div>
-    <div v-if="!delegation && isOwnAccount" >
+    <div v-if="!delegation && isOwnAccount">
       <div class="mx-4 mt-4">Delegate your voting power</div>
       <div class="flex bg-white mx-4 my-2">
         <ae-input label="Delegatee" v-model="delegatee" aeddress></ae-input>
@@ -30,9 +30,15 @@
       </div>
     </div>
     <div class="flex w-full text-center text-gray-500 mt-4 text-sm">
-      <div class="flex-1 pb-2 border-b-2 border-gray-300" @click="tab = 'votes'" :class="{'active-tab': tab === 'votes'}">VOTES</div>
-      <div class="flex-1 pb-2 border-b-2 border-gray-300" @click="tab = 'delegations'" :class="{'active-tab': tab === 'delegations'}">DELEGATIONS</div>
-      <div class="flex-1 pb-2 border-b-2 border-gray-300" @click="tab = 'polls'" :class="{'active-tab': tab === 'polls'}">POLLS</div>
+      <div class="flex-1 pb-2 border-b-2 border-gray-300" @click="tab = 'votes'"
+           :class="{'active-tab': tab === 'votes'}">VOTES
+      </div>
+      <div class="flex-1 pb-2 border-b-2 border-gray-300" @click="tab = 'delegations'"
+           :class="{'active-tab': tab === 'delegations'}">DELEGATIONS
+      </div>
+      <div class="flex-1 pb-2 border-b-2 border-gray-300" @click="tab = 'polls'"
+           :class="{'active-tab': tab === 'polls'}">POLLS
+      </div>
     </div>
     <div v-if="tab === 'votes'">
       <div v-if="votedInPolls.length" class="mt-1">
@@ -41,10 +47,14 @@
           <PollListing :id="id" :data="data" class="mx-4"/>
         </div>
       </div>
+      <div v-else class="text-gray-500 text-xl text-center my-8">
+        Could not find any votes.
+      </div>
     </div>
     <div v-if="tab === 'delegations'">
       <div v-if="delegations.length">
-        <div v-for="{delegator, _, delegatorAmount, includesIndirectDelegations} in delegations" class="ae-card p-4 mx-4 my-2">
+        <div v-for="{delegator, _, delegatorAmount, includesIndirectDelegations} in delegations"
+             class="ae-card py-4 mx-4 my-2">
           <ae-identity-light
             :collapsed="true"
             :balance="delegatorAmount"
@@ -54,6 +64,9 @@
           <div v-if="includesIndirectDelegations" class="mx-4 mb-1 text-xs">(includes more indirect delegations)</div>
         </div>
       </div>
+      <div v-else class="text-gray-500 text-xl text-center my-8">
+        Could not find any delegations to you.
+      </div>
     </div>
     <div v-if="tab === 'polls'">
       <div v-if="authorOfPolls.length" class="mt-1">
@@ -61,8 +74,12 @@
           <PollListing :id="id" :data="data" class="mx-4"/>
         </div>
       </div>
+      <div v-else class="text-gray-500 text-xl text-center my-8">
+        Could not find any polls you created.
+      </div>
     </div>
     <BottomButtons back="/" :add-poll="true"></BottomButtons>
+    <CriticalErrorOverlay :error="error" @continue="error = null"></CriticalErrorOverlay>
   </div>
 </template>
 
@@ -76,10 +93,12 @@
   import PollListing from "~/components/PollListing";
   import BottomButtons from "~/components/BottomButtons";
   import AccountHeader from "~/components/AccountHeader";
+  import CriticalErrorOverlay from "~/components/CriticalErrorOverlay";
 
   export default {
     name: 'Home',
     components: {
+      CriticalErrorOverlay,
       AccountHeader,
       BottomButtons,
       AeIcon, AeButton, AeButtonGroup, AeInput, BiggerLoader, AeIdentityLight, AeText, PollListing
@@ -97,7 +116,8 @@
         tab: 'votes',
         delegations: [],
         votedInPolls: [],
-        authorOfPolls: []
+        authorOfPolls: [],
+        error: null
       }
     },
     computed: {},
@@ -109,16 +129,27 @@
       async createDelegation() {
         if (this.delegatee.includes('ak_')) {
           this.showLoading = true;
-          await aeternity.contract.methods.delegate(this.delegatee);
-          Backend.contractEvent("Delegation");
-          await this.loadData();
+          try {
+            await aeternity.contract.methods.delegate(this.delegatee);
+            Backend.contractEvent("Delegation");await this.loadData();
+          } catch (e) {
+            console.error(e);
+            this.showLoading = false;
+            this.error = 'Could not revoke your delegation. Please try again.';
+
+          }
         }
       },
       async revokeDelegation() {
         this.showLoading = true;
-        await aeternity.contract.methods.revoke_delegation();
-        Backend.contractEvent("RevokeDelegation");
-        await this.loadData();
+        try {
+          await aeternity.contract.methods.revoke_delegation();
+          Backend.contractEvent("RevokeDelegation");await this.loadData();
+        } catch (e) {
+          console.error(e);
+          this.showLoading = false;
+          this.error = 'Could not revoke your delegation. Please try again.'
+        }
       },
       resetData() {
         this.showLoading = true;
@@ -148,7 +179,6 @@
           this.votedInPolls = data.votedInPolls;
           this.authorOfPolls = data.authorOfPolls;
         }).catch(console.error);
-
 
         this.showLoading = false;
       }

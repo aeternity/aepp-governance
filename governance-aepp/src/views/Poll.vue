@@ -180,6 +180,7 @@
       -->
       <BottomButtons back="/" :add-poll="true" :cta-text="voteOption !== null ?  'Revoke Vote' : null " :account="accountAddress"
                      :cta-action="revokeVote"></BottomButtons>
+      <CriticalErrorOverlay :error="error" @continue="error = null"></CriticalErrorOverlay>
     </div>
 
   </div>
@@ -196,6 +197,7 @@
   import BottomButtons from "~/components/BottomButtons";
   import AccountHeader from "~/components/AccountHeader";
   import GrayText from "~/components/GrayText";
+  import CriticalErrorOverlay from "~/components/CriticalErrorOverlay";
 
     export default {
         name: 'Home',
@@ -239,6 +241,7 @@
   export default {
     name: 'Home',
     components: {
+      CriticalErrorOverlay,
       GrayText,
       AccountHeader, BottomButtons, AeIcon, AeCheck, AeButton, AeToolbar, BiggerLoader, AeIdentityLight, AeCard
     },
@@ -246,7 +249,6 @@
       return {
         accountAddress: null,
         balance: null,
-        totalStake: null,
         showLoading: true,
         pollId: null,
         delegateeVote: {},
@@ -256,7 +258,7 @@
         pollVotesState: null,
         pollAddress: null,
         votersForOption: {},
-        delegatedPower: null,
+        error: null
       }
     },
     computed: {},
@@ -264,13 +266,31 @@
       async vote(id) {
         this.showLoading = true;
         this.voteOption = id;
-        await this.pollContract.methods.vote(this.voteOption);
-        await this.loadData();
+        try {
+          await this.pollContract.methods.vote(this.voteOption);
+        } catch (e) {
+          console.error(e);
+          this.error = 'Could not process your vote. Please try again.';
+        }
+
+        try {
+          await this.loadData();
+        } catch (e) {
+          console.error(e);
+          this.showLoading = false;
+          this.error = 'Could not process your vote. Please try again.';
+        }
       },
       async revokeVote() {
         this.showLoading = true;
-        await this.pollContract.methods.revoke_vote();
-        await this.loadData();
+        try {
+          await this.pollContract.methods.revoke_vote();
+          await this.loadData();
+        } catch (e) {
+          console.error(e);
+          this.showLoading = false;
+          this.error = 'Could not revoke your vote. Please try again.';
+        }
       },
       showVoters(id) {
         if (this.votersForOption.id != null && this.votersForOption.id == id) {
@@ -309,7 +329,6 @@
 
         await Backend.votesState(this.pollAddress).then((votesState) => {
           this.pollVotesState = votesState;
-
           this.delegateeVote = this.pollVotesState.stakesForOption
             .map(data => data.votes.find(vote => vote.delegators
               .some(delegation => delegation.delegator === this.accountAddress))).find(x => x) || {};
