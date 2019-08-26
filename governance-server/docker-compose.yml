@@ -14,8 +14,10 @@ services:
     image: aeternity/aepp-middleware
     entrypoint: ./aepp-middleware -p -s -w
     environment:
-      - RUST_LOG=aepp_middleware
+      - RUST_BACKTRACE=full
+      - RUST_LOG=mdw
       - NODE_URL=http://192.168.0.173:3001
+      - AESOPHIA_URL=http://192.168.0.173:3080
       - DATABASE_URL=postgres://middleware:middleware@middleware_db/middleware
     links:
       - middleware_db

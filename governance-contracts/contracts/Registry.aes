@@ -57,12 +57,14 @@ contract Registry =
   record state =
     { polls : polls
     , seq_id : int
-    , delegations : delegations }
+    , delegations : delegations
+    , created_height : int }
 
   entrypoint init() : state =
     { polls = {},
       seq_id = 0,
-      delegations = {} }
+      delegations = {},
+      created_height = Chain.block_height }
 
   datatype event =
       AddPoll(Poll, int)
@@ -88,6 +90,8 @@ contract Registry =
     Chain.event(RevokeDelegation(Call.caller))
 
   // STATELESS PUBLIC FUNCTIONS
+
+  entrypoint created_height() : int = state.created_height
 
   entrypoint delegations() : delegations = state.delegations
 

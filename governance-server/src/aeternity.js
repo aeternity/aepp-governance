@@ -11,7 +11,7 @@ const pollContractSource = fs.readFileSync(__dirname + "/../../governance-contra
 
 const aeternity = {};
 
-aeternity.contractAddress = "ct_9C8MiytoMuG3na1nNro4hJJ2gc4swf16QwJk8bStWcn6kiUbF";
+aeternity.contractAddress = "ct_2nbxa4N2NCrbmtN7SMdYG1xfsc1trAVRdQe21cPmHu8CfiUDWs";
 aeternity.nodeUrl = "http://localhost:3001/";
 //aeternity.nodeUrl = "https://sdk-testnet.aepps.com/";
 
@@ -24,6 +24,10 @@ aeternity.init = async () => {
 
     aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: aeternity.contractAddress});
     console.log("initialized aeternity sdk")
+};
+
+aeternity.registryCreationHeight = async () => {
+    return (await aeternity.contract.methods.created_height()).decodedResult
 };
 
 aeternity.polls = async () => {
@@ -68,23 +72,27 @@ aeternity.transactionEvent = async (hash) => {
             case "AddPoll":
                 return {
                     topic: topic,
+                    height: tx.height,
                     poll: util.encodeEventAddress(tx.log, 0, "ct_"),
                     seq_id: util.eventArgument(tx.log, 1)
                 };
             case "Delegation":
                 return {
                     topic: topic,
+                    height: tx.height,
                     delegator: util.encodeEventAddress(tx.log, 0, "ak_"),
                     delegatee: util.encodeEventAddress(tx.log, 1, "ak_")
                 };
             case "RevokeDelegation":
                 return {
                     topic: topic,
+                    height: tx.height,
                     delegator: util.encodeEventAddress(tx.log, 0, "ak_"),
                 };
             case "Vote":
                 return {
                     topic: topic,
+                    height: tx.height,
                     poll: util.encodeEventAddress(tx.log, 0, "ct_"),
                     voter: util.encodeEventAddress(tx.log, 1, "ak_"),
                     option: util.eventArgument(tx.log, 2)
@@ -92,6 +100,7 @@ aeternity.transactionEvent = async (hash) => {
             case "RevokeVote":
                 return {
                     topic: topic,
+                    height: tx.height,
                     poll: util.encodeEventAddress(tx.log, 0, "ct_"),
                     voter: util.encodeEventAddress(tx.log, 1, "ak_"),
                 };
