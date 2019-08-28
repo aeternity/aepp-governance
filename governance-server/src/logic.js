@@ -32,9 +32,14 @@ logic.accountPollVoterAuthor = async (address) => {
 
 logic.overviewPollVotesState = async (address, height) => {
     const {pollState, votingAccounts, votingAccountList} = await logic.pollStateAndVotingAccounts(address);
-    const stakesAtHeight = await logic.stakesAtHeight(votingAccounts, pollState.close_height, votingAccountList);
+
+    const closingHeightOrUndefined = pollState.close_height ? pollState.close_height <= height ? pollState.close_height : undefined : undefined;
+    await aeternity.delegations(closingHeightOrUndefined);
+
+    const stakesAtHeight = await logic.stakesAtHeight(votingAccounts, closingHeightOrUndefined, votingAccountList);
     const totalStake = stakesAtHeight.map(vote => vote.stake).reduce((acc, cur) => acc.plus(cur), new BigNumber('0')).toFixed();
-    const closingHeightOrCurrentHeight = pollState.close_height ? pollState.close_height <= height ? pollState.close_height : height : height;
+
+    const closingHeightOrCurrentHeight = closingHeightOrUndefined ? closingHeightOrUndefined : height;
     const tokenSupply = await aeternity.tokenSupply(closingHeightOrCurrentHeight);
     const percentOfTotalSupply = new BigNumber(totalStake).dividedBy(tokenSupply).multipliedBy(100).toFixed();
     return {
@@ -50,11 +55,11 @@ logic.pollVotesState = async (address) => {
     const closingHeightOrUndefined = pollState.close_height ? pollState.close_height <= height ? pollState.close_height : undefined : undefined;
     await aeternity.delegations(closingHeightOrUndefined);
 
-    const stakesAtHeight = await logic.stakesAtHeight(votingAccounts, pollState.close_height, votingAccountList);
+    const stakesAtHeight = await logic.stakesAtHeight(votingAccounts, closingHeightOrUndefined, votingAccountList);
     const totalStake = stakesAtHeight.map(vote => vote.stake).reduce((acc, cur) => acc.plus(cur), new BigNumber('0')).toFixed();
     const stakesForOption = logic.stakesForOption(pollState.vote_options, stakesAtHeight, totalStake);
 
-    const closingHeightOrCurrentHeight = pollState.close_height ? pollState.close_height <= height ? pollState.close_height : height : height;
+    const closingHeightOrCurrentHeight = closingHeightOrUndefined ? closingHeightOrUndefined : height;
     const tokenSupply = await aeternity.tokenSupply(closingHeightOrCurrentHeight);
 
     const percentOfTotalSupply = new BigNumber(totalStake).dividedBy(tokenSupply).multipliedBy(100).toFixed();
@@ -96,10 +101,10 @@ logic.pollStateAndVotingAccounts = async (address, cached = false) => {
     }
 };
 
-logic.stakesAtHeight = async (votingAccounts, closeHeight, ignoreAccounts) => {
+logic.stakesAtHeight = async (votingAccounts, height, ignoreAccounts) => {
     const votingAccountStakes = [];
     for (let vote of votingAccounts) {
-        const {votingPower, balance, delegatedPower, _, flattenedDelegationTree} = await logic.balancePlusVotingPower(vote.account, closeHeight, ignoreAccounts);
+        const {votingPower, balance, delegatedPower, _, flattenedDelegationTree} = await logic.balancePlusVotingPower(vote.account, height, ignoreAccounts);
         votingAccountStakes.push({
             ...vote, ...{
                 stake: votingPower,
@@ -179,7 +184,7 @@ logic.delegationTree = async (address, height, ignoreAccounts = []) => {
     const initialAddress = address;
 
     async function discoverDelegationChain(address) {
-        const delegators = await aeternity.delegators(address);
+        const delegators = await aeternity.delegators(address, height);
 
         return delegators.reduce(async (promiseAcc, [delegator, _]) => {
             const ignoreAccount = delegator === initialAddress || ignoreAccounts.includes(delegator);

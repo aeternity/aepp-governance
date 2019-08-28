@@ -44,8 +44,8 @@ aeternity.pollState = async (address) => {
     return pollState.decodedResult;
 };
 
-aeternity.delegators = async (address) => {
-    const delegations = await aeternity.delegations();
+aeternity.delegators = async (address, height) => {
+    const delegations = await aeternity.delegations(height);
     return delegations.filter(([_, delegatee]) => delegatee === address);
 };
 
@@ -57,7 +57,7 @@ aeternity.delegations = async (height) => {
         } else {
             return (await aeternity.contract.methods.delegations()).decodedResult
         }
-    }, 120);
+    }, 3600);
 };
 
 aeternity.tokenSupply = async (height) => {
