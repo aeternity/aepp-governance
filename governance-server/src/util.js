@@ -40,6 +40,22 @@ util.eventArgument = (log, index) => log[0].topics[index + 1];
 
 util.encodeEventAddress = (log, index, prefix) => `${prefix}${Crypto.encodeBase58Check(new BN(util.eventArgument(log, index)).toBuffer('be', 32))}`;
 
+util.range = (start, end) => (new Array(end - start + 1)).fill(undefined).map((_, i) => i + start);
+
+Array.prototype.asyncMap = async function (asyncF) {
+    return this.reduce(async (promiseAcc, cur) => {
+        const acc = await promiseAcc;
+        const res = await asyncF(cur);
+        if (Array.isArray(res)) {
+            return acc.concat(res);
+        } else {
+            acc.push(res);
+            return acc;
+        }
+
+    }, Promise.resolve([]));
+};
+
 module.exports = util;
 
 

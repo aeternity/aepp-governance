@@ -28,7 +28,29 @@ aeternity.init = async () => {
 };
 
 aeternity.registryCreationHeight = async () => {
-    return (await aeternity.contract.methods.created_height()).decodedResult
+    return cache.getOrSet(["registryCreationHeight"], async () => {
+        process.stdout.write(".");
+        return (await aeternity.contract.methods.created_height()).decodedResult
+    }, 3600);
+};
+
+aeternity.microBlocks = async (height) => {
+    return cache.getOrSet(["microBlocks", height], async () => {
+        try {
+            return (await aeternity.client.getGeneration(height)).microBlocks
+        } catch (e) {
+            console.error(e);
+            return [];
+        }
+    }, 3600);
+};
+
+aeternity.contractTransactionHashes = async (hash) => {
+    return cache.getOrSet(["contractTransactionHashes", hash], async () => {
+        process.stdout.write(";");
+        const txs = (await aeternity.client.getMicroBlockTransactions(hash));
+        return txs.filter(tx => tx.tx.contractId === aeternity.contractAddress).map(tx => tx.hash);
+    }, 3600);
 };
 
 aeternity.polls = async () => {
@@ -82,57 +104,60 @@ aeternity.height = async () => {
 };
 
 aeternity.transactionEvent = async (hash) => {
-    const tx = await aeternity.client.getTxInfo(hash);
-    if (tx.log.length === 1) {
-        const topics = ["AddPoll", "Delegation", "RevokeDelegation", "Vote", "RevokeVote"];
-        const topic = topics.find(topic => util.hashTopic(topic) === util.topicHashFromResult(tx.log));
-        switch (topic) {
-            case "AddPoll":
-                return {
-                    topic: topic,
-                    height: tx.height,
-                    nonce: tx.callerNonce,
-                    poll: util.encodeEventAddress(tx.log, 0, "ct_"),
-                    seq_id: util.eventArgument(tx.log, 1)
-                };
-            case "Delegation":
-                return {
-                    topic: topic,
-                    height: tx.height,
-                    nonce: tx.callerNonce,
-                    delegator: util.encodeEventAddress(tx.log, 0, "ak_"),
-                    delegatee: util.encodeEventAddress(tx.log, 1, "ak_")
-                };
-            case "RevokeDelegation":
-                return {
-                    topic: topic,
-                    height: tx.height,
-                    nonce: tx.callerNonce,
-                    delegator: util.encodeEventAddress(tx.log, 0, "ak_"),
-                };
-            case "Vote":
-                return {
-                    topic: topic,
-                    height: tx.height,
-                    nonce: tx.callerNonce,
-                    poll: util.encodeEventAddress(tx.log, 0, "ct_"),
-                    voter: util.encodeEventAddress(tx.log, 1, "ak_"),
-                    option: util.eventArgument(tx.log, 2)
-                };
-            case "RevokeVote":
-                return {
-                    topic: topic,
-                    height: tx.height,
-                    nonce: tx.callerNonce,
-                    poll: util.encodeEventAddress(tx.log, 0, "ct_"),
-                    voter: util.encodeEventAddress(tx.log, 1, "ak_"),
-                };
+    return cache.getOrSet(["transactionEvent", hash], async () => {
+        process.stdout.write(",");
+        const tx = await aeternity.client.getTxInfo(hash);
+        if (tx.log.length === 1) {
+            const topics = ["AddPoll", "Delegation", "RevokeDelegation", "Vote", "RevokeVote"];
+            const topic = topics.find(topic => util.hashTopic(topic) === util.topicHashFromResult(tx.log));
+            switch (topic) {
+                case "AddPoll":
+                    return {
+                        topic: topic,
+                        height: tx.height,
+                        nonce: tx.callerNonce,
+                        poll: util.encodeEventAddress(tx.log, 0, "ct_"),
+                        seq_id: util.eventArgument(tx.log, 1)
+                    };
+                case "Delegation":
+                    return {
+                        topic: topic,
+                        height: tx.height,
+                        nonce: tx.callerNonce,
+                        delegator: util.encodeEventAddress(tx.log, 0, "ak_"),
+                        delegatee: util.encodeEventAddress(tx.log, 1, "ak_")
+                    };
+                case "RevokeDelegation":
+                    return {
+                        topic: topic,
+                        height: tx.height,
+                        nonce: tx.callerNonce,
+                        delegator: util.encodeEventAddress(tx.log, 0, "ak_"),
+                    };
+                case "Vote":
+                    return {
+                        topic: topic,
+                        height: tx.height,
+                        nonce: tx.callerNonce,
+                        poll: util.encodeEventAddress(tx.log, 0, "ct_"),
+                        voter: util.encodeEventAddress(tx.log, 1, "ak_"),
+                        option: util.eventArgument(tx.log, 2)
+                    };
+                case "RevokeVote":
+                    return {
+                        topic: topic,
+                        height: tx.height,
+                        nonce: tx.callerNonce,
+                        poll: util.encodeEventAddress(tx.log, 0, "ct_"),
+                        voter: util.encodeEventAddress(tx.log, 1, "ak_"),
+                    };
 
-            default:
-                return {topic: topic};
+                default:
+                    return {topic: topic};
+            }
         }
-    }
-    return null;
+        return null;
+    }, 3600)
 };
 
 module.exports = aeternity;

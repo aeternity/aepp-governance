@@ -126,7 +126,7 @@ logic.balancePlusVotingPower = async (address, height, ignoreAccounts = []) => {
     const balance = await logic.balanceAtHeight(address, height);
     const {delegatedPower, delegationTree, flattenedDelegationTree} = await logic.delegatedPower(address, height, ignoreAccounts);
 
-    process.stdout.write(".");
+    process.stdout.write("/");
 
     return {
         votingPower: new BigNumber(balance).plus(new BigNumber(delegatedPower)).toFixed(),
@@ -140,7 +140,7 @@ logic.balancePlusVotingPower = async (address, height, ignoreAccounts = []) => {
 logic.balanceAtHeight = async (account, height) => {
     return cache.getOrSet(["balanceAtHeight", height, account], async () => {
         const heightOption = height ? {height: height} : {};
-        process.stdout.write(";");
+        process.stdout.write("+");
 
         const balance = await aeternity.client.balance(account, heightOption).catch(async (e) => {
             if (e.message.includes("Height not available")) {
