@@ -11,9 +11,9 @@ logic.delegatedPowerPoll = async (address, pollContract) => {
     return logic.delegatedPower(address, null, votingAccountList)
 };
 
-logic.pollOverview = async (address) => {
+logic.cachedPollState = async (address) => {
     const height = await aeternity.height();
-    return cache.getOrSet(["pollOverview", address, height], () => logic.overviewPollVotesState(address, height), 120);
+    return cache.getOrSet(["pollOverview", address, height], () => logic.pollVotesState(address), 120);
 };
 
 logic.accountPollVoterAuthor = async (address) => {
@@ -30,37 +30,15 @@ logic.accountPollVoterAuthor = async (address) => {
     }, Promise.resolve({votedInPolls: [], authorOfPolls: []}));
 };
 
-logic.overviewPollVotesState = async (address, height) => {
-    const {pollState, votingAccounts, votingAccountList} = await logic.pollStateAndVotingAccounts(address);
-
-    const closingHeightOrUndefined = pollState.close_height ? pollState.close_height <= height ? pollState.close_height : undefined : undefined;
-    await aeternity.delegations(closingHeightOrUndefined);
-
-    const stakesAtHeight = await logic.stakesAtHeight(votingAccounts, closingHeightOrUndefined, votingAccountList);
-    const totalStake = stakesAtHeight.map(vote => vote.stake).reduce((acc, cur) => acc.plus(cur), new BigNumber('0')).toFixed();
-
-    const closingHeightOrCurrentHeight = closingHeightOrUndefined ? closingHeightOrUndefined : height;
-    const tokenSupply = await aeternity.tokenSupply(closingHeightOrCurrentHeight);
-    const percentOfTotalSupply = new BigNumber(totalStake).dividedBy(tokenSupply).multipliedBy(100).toFixed();
-    return {
-        voteCount: votingAccounts.length,
-        percentOfTotalSupply: percentOfTotalSupply
-    }
-};
-
 logic.pollVotesState = async (address) => {
     const {pollState, votingAccounts, votingAccountList} = await logic.pollStateAndVotingAccounts(address);
+    await aeternity.delegations(pollState.close_height);
 
-    const height = await aeternity.height();
-    const closingHeightOrUndefined = pollState.close_height ? pollState.close_height <= height ? pollState.close_height : undefined : undefined;
-    await aeternity.delegations(closingHeightOrUndefined);
-
-    const stakesAtHeight = await logic.stakesAtHeight(votingAccounts, closingHeightOrUndefined, votingAccountList);
+    const stakesAtHeight = await logic.stakesAtHeight(votingAccounts, pollState.close_height, votingAccountList);
     const totalStake = stakesAtHeight.map(vote => vote.stake).reduce((acc, cur) => acc.plus(cur), new BigNumber('0')).toFixed();
     const stakesForOption = logic.stakesForOption(pollState.vote_options, stakesAtHeight, totalStake);
 
-    const closingHeightOrCurrentHeight = closingHeightOrUndefined ? closingHeightOrUndefined : height;
-    const tokenSupply = await aeternity.tokenSupply(closingHeightOrCurrentHeight);
+    const tokenSupply = await aeternity.tokenSupply(pollState.close_height);
 
     const percentOfTotalSupply = new BigNumber(totalStake).dividedBy(tokenSupply).multipliedBy(100).toFixed();
     return {
@@ -68,7 +46,8 @@ logic.pollVotesState = async (address) => {
         stakesAtHeight: stakesAtHeight,
         stakesForOption: stakesForOption,
         totalStake: totalStake,
-        percentOfTotalSupply: percentOfTotalSupply
+        percentOfTotalSupply: percentOfTotalSupply,
+        voteCount: votingAccounts.length,
     };
 };
 

@@ -49,10 +49,16 @@ aeternity.delegators = async (address, height) => {
     return delegations.filter(([_, delegatee]) => delegatee === address);
 };
 
-aeternity.delegations = async (height) => {
-    return cache.getOrSet(["delegations", height], async () => {
-        if (height) {
-            const delegationEvents = await delegationLogic.findDelegationEvents(aeternity, height);
+const getClosingHeightOrUndefined = async (pollCloseHeight) => {
+    const height = await aeternity.height();
+    return pollCloseHeight ? pollCloseHeight <= height ? pollCloseHeight : undefined : undefined;
+};
+
+aeternity.delegations = async (pollCloseHeight) => {
+    const closingHeightOrUndefined = await getClosingHeightOrUndefined(pollCloseHeight);
+    return cache.getOrSet(["delegations", closingHeightOrUndefined], async () => {
+        if (closingHeightOrUndefined) {
+            const delegationEvents = await delegationLogic.findDelegationEvents(aeternity, closingHeightOrUndefined);
             return delegationLogic.calculateDelegations(delegationEvents);
         } else {
             return (await aeternity.contract.methods.delegations()).decodedResult
@@ -60,9 +66,13 @@ aeternity.delegations = async (height) => {
     }, 3600);
 };
 
-aeternity.tokenSupply = async (height) => {
-    return cache.getOrSet(["totalSupply", height], async () => {
-        const result = await axios.get(`${aeternity.nodeUrl}v2/debug/token-supply/height/${height}`);
+aeternity.tokenSupply = async (pollCloseHeight) => {
+    const height = await aeternity.height();
+    const closingHeightOrUndefined = await getClosingHeightOrUndefined(pollCloseHeight);
+    const closingHeightOrCurrentHeight = closingHeightOrUndefined ? closingHeightOrUndefined : height;
+
+    return cache.getOrSet(["totalSupply", closingHeightOrCurrentHeight], async () => {
+        const result = await axios.get(`${aeternity.nodeUrl}v2/debug/token-supply/height/${closingHeightOrCurrentHeight}`);
         return new BigNumber(result.data.total).toFixed();
     }, 3600);
 };

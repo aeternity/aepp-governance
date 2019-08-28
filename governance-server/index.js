@@ -52,7 +52,7 @@ app.get('/pollOverview/:address', errorHandler(async (req, res) => {
     const address = req.params.address;
 
     const start = new Date().getTime();
-    const data = await logic.pollOverview(address);
+    const data = await logic.cachedPollState(address);
 
     if (new Date().getTime() - start > 10) console.log("\npollOverview", address, new Date().getTime() - start, "ms");
     res.json(data)
