@@ -1,13 +1,10 @@
-FROM node:10
-
-RUN apt update
-RUN apt install -y software-properties-common ca-certificates wget curl ssh git python build-essential
+FROM node:10-alpine
 
 WORKDIR /app
 COPY . /app
 
 RUN npm install
 
-RUN apt purge -y software-properties-common ca-certificates wget curl ssh git python build-essential && apt autoremove -y
+EXPOSE 3000
 
-CMD ["node", "index.js"]
+CMD ["npm", "start"]
