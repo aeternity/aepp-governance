@@ -21,6 +21,7 @@
 <script>
   import {AeLoader} from '@aeternity/aepp-components/src/components/'
   import Backend from "~/utils/backend";
+  import aeternity from "~/utils/aeternity";
 
   export default {
     components: {AeLoader},
@@ -46,6 +47,7 @@
     methods: {
       closeHeight(close_height) {
         if (!close_height) return "never closes";
+        if (close_height < aeternity.height) return `closed at ${close_height}`;
         return `closes at ${close_height}`
       }
     },
