@@ -1,6 +1,10 @@
 const redis = require("redis");
-const client = redis.createClient();
 const {promisify} = require('util');
+
+if (!process.env.WEBSOCKET_URL) throw "WEBSOCKET_URL is not set";
+if (!process.env.REDIS_URL) throw "REDIS_URL is not set";
+
+const client = redis.createClient(process.env.REDIS_URL);
 const get = promisify(client.get).bind(client);
 const set = promisify(client.set).bind(client);
 const del = promisify(client.del).bind(client);
@@ -8,7 +12,6 @@ const keys = promisify(client.keys).bind(client);
 const WebSocketClient = require('websocket').client;
 
 const cache = {};
-
 cache.wsconnection = null;
 
 cache.getOrSet = async (keys, asyncFetchData, expire = null) => {
@@ -79,7 +82,7 @@ const handleContractEvent = async (event) => {
 cache.startInvalidator = (aeternity) => {
     addPollInvalidationListeners(aeternity);
     const wsclient = new WebSocketClient();
-    wsclient.connect("ws://127.0.0.1:3020");
+    wsclient.connect(process.env.WEBSOCKET_URL);
     wsclient.on('connect', connection => {
         cache.wsconnection = connection;
         cache.wsconnection.send(JSON.stringify({op: "subscribe", payload: "key_blocks"}));

@@ -12,15 +12,16 @@ const pollContractSource = fs.readFileSync(__dirname + "/../../governance-contra
 
 const aeternity = {};
 
-aeternity.contractAddress = "ct_2nbxa4N2NCrbmtN7SMdYG1xfsc1trAVRdQe21cPmHu8CfiUDWs";
-aeternity.nodeUrl = "http://localhost:3001/";
-//aeternity.nodeUrl = "https://sdk-testnet.aepps.com/";
+if (!process.env.NODE_URL) throw "AETERNITY_URL is not set";
+if (!process.env.COMPILER_URL) throw "COMPILER_URL is not set";
+if (!process.env.CONTRACT_ADDRESS) throw "CONTRACT_ADDRESS is not set";
+aeternity.contractAddress = process.env.CONTRACT_ADDRESS;
 
 aeternity.init = async () => {
     aeternity.client = await Universal({
-        url: aeternity.nodeUrl,
-        internalUrl: aeternity.nodeUrl,
-        compilerUrl: "http://localhost:3080"
+        url: process.env.NODE_URL,
+        internalUrl: process.env.NODE_URL,
+        compilerUrl: process.env.COMPILER_URL
     });
 
     aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: aeternity.contractAddress});
