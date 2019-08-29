@@ -7,7 +7,7 @@ const aeternity = {
   address: null,
   height: null,
   networkId: null,
-  contractAddress: 'ct_2nbxa4N2NCrbmtN7SMdYG1xfsc1trAVRdQe21cPmHu8CfiUDWs'
+  contractAddress: 'ct_2cFxfeheJGfy4cwBWmeJ2wiiRM9BvJh6cCevdsoGv2VNascjsc'
 };
 
 const timeout = async (promise) => {
@@ -27,7 +27,7 @@ aeternity.initProvider = async () => {
     aeternity.balance = await aeternity.client.balance(aeternity.address)
       .then(balance => `${Util.atomsToAe(balance)}`.replace(',', ''))
       .catch(() => '0');
-    //aeternity.networkId = (await aeternity.client.getNodeInfo()).nodeNetworkId;
+    aeternity.networkId = (await aeternity.client.getNodeInfo()).nodeNetworkId;
     aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: aeternity.contractAddress});
     return true;
   } catch (e) {
