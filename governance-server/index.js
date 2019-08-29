@@ -6,6 +6,7 @@ const cache = require("./src/cache");
 const logic = require("./src/logic");
 
 const app = express();
+process.on('unhandledRejection', (reason, p) => console.log('Unhandled Rejection at: Promise', p, 'reason:', reason));
 
 const errorHandler = (f) => {
     return (req, res, next) => {

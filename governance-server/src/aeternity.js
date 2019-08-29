@@ -95,7 +95,7 @@ aeternity.tokenSupply = async (pollCloseHeight) => {
     const closingHeightOrCurrentHeight = closingHeightOrUndefined ? closingHeightOrUndefined : height;
 
     return cache.getOrSet(["totalSupply", closingHeightOrCurrentHeight], async () => {
-        const result = await axios.get(`${aeternity.nodeUrl}v2/debug/token-supply/height/${closingHeightOrCurrentHeight}`);
+        const result = await axios.get(`${process.env.NODE_URL}v2/debug/token-supply/height/${closingHeightOrCurrentHeight}`);
         return new BigNumber(result.data.total).toFixed();
     }, 3600);
 };
