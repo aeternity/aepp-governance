@@ -21,9 +21,10 @@
       <div class="w-full flex h-full" v-if="view === 'buttons'">
         <!-- LEFT BUTTON> -->
         <div class="flex justify-evenly items-center h-full flex-2">
-          <SmallButton :img="images.homeImg" :action="() => $router.push('/')"></SmallButton>
+          <SmallButton :img="images.homeImg" :action="() => $route.path !== '/' && $router.push('/')"></SmallButton>
           <SmallButton :img="images.accountImg"
-                       :action="() => $router.push(`/account/${account}`)"></SmallButton>
+                       :action="() => $route.path !== `/account/${account}` &&  $router.push(`/account/${account}`)">
+          </SmallButton>
         </div>
 
         <!-- CENTER SECTION -->
@@ -40,7 +41,8 @@
 
         <!-- RIGHT BUTTONS -->
         <div class="flex justify-evenly items-center h-full flex-2">
-          <SmallButton :img="images.createImg" :action="() => $router.push('/create')"></SmallButton>
+          <SmallButton :img="images.createImg"
+                       :action="() => $route.path !== '/create' && $router.push('/create')"></SmallButton>
           <SmallButton :img="images.backImg" :action="() => $router.go(-1)"></SmallButton>
         </div>
       </div>
