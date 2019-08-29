@@ -3,26 +3,31 @@
     <div class="overlay-loader" v-show="showLoading && false">
       <BiggerLoader></BiggerLoader>
     </div>
-    <BlackHeader>
-      Open Polls
-    </BlackHeader>
-    <div class="flex bg-gray-ae text-gray-200">
-      <div :class="{active: activeTab === 'new'}" @click="activeTab = 'new'" class="tab">NEW</div>
-      <div :class="{active: activeTab === 'closing'}" @click="activeTab = 'closing'" class="tab">CLOSING</div>
-      <div :class="{active: activeTab === 'stake'}" @click="activeTab = 'stake'" class="tab">STAKE</div>
-      <div :class="{active: activeTab === 'closed'}" @click="activeTab = 'closed'" class="tab">CLOSED</div>
-    </div>
-    <transition name="fade">
-      <div v-show="polls" class="mx-4 mt-6" :key="activeTab">
-        <div class="my-2" v-for="[id, data] in polls">
-          <PollListing :id="id" :data="data"/>
-        </div>
+    <div class="fixed w-full top-0">
+      <BlackHeader>
+        Open Polls
+      </BlackHeader>
+      <div class="flex bg-gray-ae text-gray-200">
+        <div :class="{active: activeTab === 'new'}" @click="activeTab = 'new'" class="tab">NEW</div>
+        <div :class="{active: activeTab === 'closing'}" @click="activeTab = 'closing'" class="tab">CLOSING</div>
+        <div :class="{active: activeTab === 'stake'}" @click="activeTab = 'stake'" class="tab">STAKE</div>
+        <div :class="{active: activeTab === 'closed'}" @click="activeTab = 'closed'" class="tab">CLOSED</div>
       </div>
-    </transition>
-
-    <div v-if="!polls.length && !showLoading" class="text-gray-500 text-xl text-center my-8">
-      Could not find any polls.
     </div>
+    <div class="mt-32">
+      <transition name="fade">
+        <div v-show="polls" class="mx-4 mt-6" :key="activeTab">
+          <div class="my-2" v-for="[id, data] in polls">
+            <PollListing :id="id" :data="data"/>
+          </div>
+        </div>
+      </transition>
+
+      <div v-if="!polls.length && !showLoading" class="text-gray-500 text-xl text-center my-8">
+        Could not find any polls.
+      </div>
+    </div>
+
     <BottomButtons :home="false" :account="address" :add-poll="true" :search-bar="true"></BottomButtons>
   </div>
 </template>
