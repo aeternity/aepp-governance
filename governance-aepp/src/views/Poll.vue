@@ -4,8 +4,11 @@
       <BiggerLoader></BiggerLoader>
     </div>
     <div v-if="pollState.metadata">
-      <AccountHeader :address="accountAddress" :poll-address="pollAddress" v-if="accountAddress"></AccountHeader>
-      <div class="flex justify-between m-4 mb-2">
+      <AccountHeader class="mb-4" :address="accountAddress" :poll-address="pollAddress" v-if="accountAddress && !isClosed"></AccountHeader>
+      <div v-if="isClosed" class="text-center">
+        <GrayText>POLL CLOSED</GrayText>
+      </div>
+      <div class="flex justify-between mx-4 mb-2">
         <div>
           <h1 class="text-3xl leading-tight">{{pollState.metadata.title}}</h1>
         </div>
@@ -51,7 +54,7 @@
         <div class="m-4 ae-card" @click="showVoters(id)">
           <div class="flex justify-between items-center w-full py-4 px-3">
             <ae-check class="mr-1" v-model="voteOption" :value="id" type="radio" @click.stop.prevent
-                      @change="vote(id)"></ae-check>
+                      @change="vote(id)" :disabled="isClosed"></ae-check>
             <!-- TODO find better solution than this -->
             <div class="mr-auto" style="margin-top: 4px">
               <span
@@ -165,7 +168,8 @@
         pollVotesState: null,
         pollAddress: null,
         votersForOption: {},
-        error: null
+        error: null,
+        isClosed: false
       }
     },
     computed: {},
@@ -232,7 +236,7 @@
         this.pollAddress = poll.decodedResult.poll;
         this.pollContract = await aeternity.client.getContractInstance(pollContractSource, {contractAddress: this.pollAddress});
         this.pollState = (await this.pollContract.methods.get_state()).decodedResult;
-
+        this.isClosed = this.pollState.close_height <= parseInt(await aeternity.client.height());
         const accountVote = this.pollState.votes.find(([voter, _]) => voter === this.accountAddress);
         this.voteOption = accountVote ? accountVote[1] : null;
 
