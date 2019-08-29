@@ -70,7 +70,7 @@
         </span>
       </div>
     </div>
-    <BottomButtons back="/" :account="address" cta-text="Create Poll" :cta-action="createPoll"></BottomButtons>
+    <BottomButtons cta-text="Create Poll" :cta-action="createPoll"></BottomButtons>
   </div>
 </template>
 
@@ -99,7 +99,6 @@
         optionsString: "",
         closeHeightString: "",
         polls: [],
-        address: null,
         options: [{
           id: 0,
           text: ''
@@ -190,7 +189,6 @@
     },
     async created() {
       await aeternity.initClient();
-      this.address = aeternity.address;
       this.height = aeternity.height;
     }
   }

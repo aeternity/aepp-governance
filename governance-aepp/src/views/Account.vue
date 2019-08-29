@@ -78,7 +78,7 @@
         Could not find any polls you created.
       </div>
     </div>
-    <BottomButtons back="/" :add-poll="true"></BottomButtons>
+    <BottomButtons></BottomButtons>
     <CriticalErrorOverlay :error="error" @continue="error = null"></CriticalErrorOverlay>
   </div>
 </template>

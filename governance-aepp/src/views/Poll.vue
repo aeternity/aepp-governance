@@ -50,7 +50,8 @@
       <div v-for="[id, title] in pollState.vote_options" v-if="pollState.vote_options">
         <div class="m-4 ae-card" @click="showVoters(id)">
           <div class="flex justify-between items-center w-full py-4 px-3">
-            <ae-check class="mr-1" v-model="voteOption" :value="id" type="radio" @click.stop.prevent @change="vote(id)"></ae-check>
+            <ae-check class="mr-1" v-model="voteOption" :value="id" type="radio" @click.stop.prevent
+                      @change="vote(id)"></ae-check>
             <!-- TODO find better solution than this -->
             <div class="mr-auto" style="margin-top: 4px">
               <span
@@ -85,9 +86,7 @@
           </div>
         </div>
       </div>
-      <BottomButtons back="/" :add-poll="true" :cta-text="voteOption !== null ?  'Revoke Vote' : null "
-                     :account="accountAddress"
-                     :cta-action="revokeVote"></BottomButtons>
+      <BottomButtons :cta-text="voteOption !== null ?  'Revoke Vote' : null " :cta-action="revokeVote"></BottomButtons>
       <CriticalErrorOverlay :error="error" @continue="error = null"></CriticalErrorOverlay>
     </div>
 
@@ -206,7 +205,7 @@
           return;
         }
 
-        if(!this.pollVotesState) return;
+        if (!this.pollVotesState) return;
 
         const votes = this.pollVotesState.stakesForOption.find(option => option.option === id.toString()).votes;
         const votesAggregation = votes.map(vote => {

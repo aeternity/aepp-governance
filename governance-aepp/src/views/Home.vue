@@ -27,8 +27,7 @@
         Could not find any polls.
       </div>
     </div>
-
-    <BottomButtons :home="false" :account="address" :add-poll="true" :search-bar="true"></BottomButtons>
+    <BottomButtons :search-bar="true"></BottomButtons>
   </div>
 </template>
 
