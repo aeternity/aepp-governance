@@ -7,8 +7,8 @@ const cache = require('./cache');
 const util = require("./util");
 const delegationLogic = require("./delegation_logic");
 
-const registryContractSource = fs.readFileSync(__dirname + "/../../governance-contracts/contracts/Registry.aes", "utf-8");
-const pollContractSource = fs.readFileSync(__dirname + "/../../governance-contracts/contracts/Poll.aes", "utf-8");
+const registryContractSource = fs.readFileSync(__dirname + "/../etc/Registry.aes", "utf-8");
+const pollContractSource = fs.readFileSync(__dirname + "/../etc/Poll.aes", "utf-8");
 
 const aeternity = {};
 
