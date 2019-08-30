@@ -72,13 +72,13 @@ aeternity.delegators = async (address, height) => {
     return delegations.filter(([_, delegatee]) => delegatee === address);
 };
 
-const getClosingHeightOrUndefined = async (pollCloseHeight) => {
+aeternity.getClosingHeightOrUndefined = async (pollCloseHeight) => {
     const height = await aeternity.height();
     return pollCloseHeight ? pollCloseHeight <= height ? pollCloseHeight : undefined : undefined;
 };
 
 aeternity.delegations = async (pollCloseHeight) => {
-    const closingHeightOrUndefined = await getClosingHeightOrUndefined(pollCloseHeight);
+    const closingHeightOrUndefined = await aeternity.getClosingHeightOrUndefined(pollCloseHeight);
     return cache.getOrSet(["delegations", closingHeightOrUndefined], async () => {
         if (closingHeightOrUndefined) {
             const delegationEvents = await delegationLogic.findDelegationEvents(aeternity, closingHeightOrUndefined);
@@ -91,7 +91,7 @@ aeternity.delegations = async (pollCloseHeight) => {
 
 aeternity.tokenSupply = async (pollCloseHeight) => {
     const height = await aeternity.height();
-    const closingHeightOrUndefined = await getClosingHeightOrUndefined(pollCloseHeight);
+    const closingHeightOrUndefined = await aeternity.getClosingHeightOrUndefined(pollCloseHeight);
     const closingHeightOrCurrentHeight = closingHeightOrUndefined ? closingHeightOrUndefined : height;
 
     return cache.getOrSet(["totalSupply", (closingHeightOrCurrentHeight / 100).toFixed()], async () => {
