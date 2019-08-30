@@ -19,15 +19,16 @@ cache.getOrSet = async (keys, asyncFetchData, expire = null) => {
     const value = await get(key);
     if (value) return JSON.parse(value);
 
+    const start = new Date().getTime();
     const data = await asyncFetchData();
     cache.set(keys, data, expire);
+    console.log("\n   cache", key, new Date().getTime() - start, "ms");
     return data;
 };
 
 cache.set = async (keys, data, expire = null) => {
     const key = keys.join(":");
 
-    console.log("\n   cache set", key);
     if (expire) {
         await set(key, JSON.stringify(data), "EX", expire);
     } else {
@@ -38,7 +39,7 @@ cache.set = async (keys, data, expire = null) => {
 cache.delByPrefix = async (prefixes) => {
     const prefix = prefixes.join(":");
     const rows = await keys(prefix + "*");
-    if (rows.length) console.log("delByPrefix", rows);
+    if (rows.length) console.log("      cache delByPrefix", rows);
     await Promise.all(rows.map(key => del(key)));
 };
 
@@ -56,7 +57,7 @@ const addPollInvalidationListener = async (poll) => {
 };
 
 const handleContractEvent = async (event) => {
-    console.log("handleContractEvent", event);
+    console.log("      cache handleContractEvent", event.topic);
     switch (event.topic) {
         case "AddPoll":
             await cache.delByPrefix(["polls"]);
@@ -83,6 +84,7 @@ cache.startInvalidator = (aeternity) => {
     addPollInvalidationListeners(aeternity);
     const wsclient = new WebSocketClient();
     wsclient.connect(process.env.WEBSOCKET_URL);
+    wsclient.on('connectFailed', console.error);
     wsclient.on('connect', connection => {
         cache.wsconnection = connection;
         cache.wsconnection.send(JSON.stringify({op: "subscribe", payload: "key_blocks"}));

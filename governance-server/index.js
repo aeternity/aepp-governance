@@ -31,7 +31,7 @@ app.get('/votesState/:address', errorHandler(async (req, res) => {
     const start = new Date().getTime();
     const data = await logic.pollVotesState(address);
 
-    if (new Date().getTime() - start > 10) console.log("\npollVotesState", address, new Date().getTime() - start, "ms");
+    if (new Date().getTime() - start > 10) console.log("\nrequest pollVotesState", address, new Date().getTime() - start, "ms");
     res.json(data)
 }));
 
@@ -44,7 +44,7 @@ app.get('/delegatedPower/:address', errorHandler(async (req, res) => {
         ? await logic.delegatedPowerPoll(address, req.query.poll)
         : await logic.delegatedPower(address);
 
-    if (new Date().getTime() - start > 10) console.log("\ndelegatedPower", address, req.query.poll, new Date().getTime() - start, "ms");
+    if (new Date().getTime() - start > 10) console.log("\nrequest delegatedPower", address, req.query.poll, new Date().getTime() - start, "ms");
     res.json(data)
 }));
 
@@ -55,7 +55,7 @@ app.get('/pollOverview/:address', errorHandler(async (req, res) => {
     const start = new Date().getTime();
     const data = await logic.cachedPollState(address);
 
-    if (new Date().getTime() - start > 10) console.log("\npollOverview", address, new Date().getTime() - start, "ms");
+    if (new Date().getTime() - start > 10) console.log("\nrequest pollOverview", address, new Date().getTime() - start, "ms");
     res.json(data)
 }));
 
@@ -66,7 +66,7 @@ app.get('/accountPollVoterAuthor/:address', errorHandler(async (req, res) => {
     const start = new Date().getTime();
     const data = await logic.accountPollVoterAuthor(address);
 
-    if (new Date().getTime() - start > 10) console.log("\naccountPollVoterAuthor", address, new Date().getTime() - start, "ms");
+    if (new Date().getTime() - start > 10) console.log("\nrequest accountPollVoterAuthor", address, new Date().getTime() - start, "ms");
     res.json(data)
 }));
 
