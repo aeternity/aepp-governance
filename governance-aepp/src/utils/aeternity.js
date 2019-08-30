@@ -25,17 +25,21 @@ const timeout = async (promise) => {
 
 aeternity.initProvider = async () => {
   try {
-    aeternity.address = await aeternity.client.address();
+    try {
+      aeternity.address = await aeternity.client.address();
+      aeternity.balance = await aeternity.client.balance(aeternity.address)
+        .then(balance => `${Util.atomsToAe(balance)}`.replace(',', ''))
+        .catch(() => '0');
+    } catch (e) {
+      aeternity.passive = true;
+    }
+
     aeternity.height = await aeternity.client.height();
-    aeternity.balance = await aeternity.client.balance(aeternity.address)
-      .then(balance => `${Util.atomsToAe(balance)}`.replace(',', ''))
-      .catch(() => '0');
     aeternity.networkId = (await aeternity.client.getNodeInfo()).nodeNetworkId;
     aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: aeternity.contractAddress});
-    aeternity.passive = aeternity.address === 'ak_11111111111111111111111111111111273Yts';
     return true;
   } catch (e) {
-    console.warn(e);
+    console.error(e);
     return false
   }
 };
@@ -82,10 +86,6 @@ aeternity.initStaticClient = async () => {
     url: aeternity.nodeURL,
     internalUrl: aeternity.nodeURL,
     compilerUrl: "http://localhost:3080",
-    keypair: {
-      publicKey: 'ak_11111111111111111111111111111111273Yts',
-      secretKey: ''
-    }
   });
 };
 
@@ -135,9 +135,15 @@ aeternity.initClient = async () => {
   if (!aeternity.client) {
     try {
       const preferredWallet = sessionStorage.getItem('aeWallet');
-      if(preferredWallet) {
-        let client = await aeternity['init' + preferredWallet]();
-        result = await aeternity.setClient(preferredWallet, client);
+      if (preferredWallet) {
+        try {
+          let client = await aeternity['init' + preferredWallet]();
+          result = await aeternity.setClient(preferredWallet, client);
+          if (!result) sessionStorage.removeItem('aeWallet');
+        } catch (e) {
+          console.error(e);
+          sessionStorage.removeItem('aeWallet');
+        }
       } else {
         const wallets = await aeternity.checkAvailableWallets();
         if (Object.keys(wallets).length === 1) {
@@ -166,6 +172,7 @@ aeternity.verifyAddress = async () => {
 
 aeternity.disableWallet = async () => {
   const staticClient = await aeternity.initStaticClient();
+  console.log(staticClient)
   await aeternity.setClient('StaticClient', staticClient)
 };
 
