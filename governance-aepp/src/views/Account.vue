@@ -85,7 +85,7 @@
 
 <script>
   import aeternity from "~/utils/aeternity";
-  import {AeIcon, AeButton, AeButtonGroup, AeInput, AeText} from '@aeternity/aepp-components/src/components/'
+  import {AeIcon, AeButton, AeButtonGroup, AeText} from '@aeternity/aepp-components/src/components/'
   import BiggerLoader from '../components/BiggerLoader'
   import AeIdentityLight from '../components/AeIdentityLight'
   import BigNumber from 'bignumber.js';
@@ -94,6 +94,7 @@
   import BottomButtons from "~/components/BottomButtons";
   import AccountHeader from "~/components/AccountHeader";
   import CriticalErrorOverlay from "~/components/CriticalErrorOverlay";
+  import AeInput from '~/components/ae-input'
 
   export default {
     name: 'Home',
@@ -190,14 +191,6 @@
 </script>
 
 <style scoped>
-  .revokation-buttons {
-    display: flex;
-    margin-top: -8px;
-  }
-
-  .ae-input-container {
-    width: inherit;
-  }
 
   .rotate-180 {
     transform: rotate(180deg);
@@ -207,6 +200,5 @@
     border-color: #FF0D6A;
     color: black;
   }
-
 
 </style>
