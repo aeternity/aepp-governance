@@ -22,7 +22,7 @@ cache.getOrSet = async (keys, asyncFetchData, expire = null) => {
     const start = new Date().getTime();
     const data = await asyncFetchData();
     cache.set(keys, data, expire);
-    console.log("\n   cache", key, new Date().getTime() - start, "ms");
+    (new Date().getTime() - start > 20) ? console.log("\n   cache", key, new Date().getTime() - start, "ms") : process.stdout.write("'");
     return data;
 };
 
