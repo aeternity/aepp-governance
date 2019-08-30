@@ -4,11 +4,12 @@
       <BiggerLoader></BiggerLoader>
     </div>
     <div v-if="pollState.metadata">
-      <AccountHeader class="mb-4" :address="accountAddress" :poll-address="pollAddress" v-if="accountAddress && !isClosed"></AccountHeader>
+      <AccountHeader class="mb-4" :address="accountAddress" :poll-address="pollAddress"
+                     v-if="accountAddress && !isClosed"></AccountHeader>
       <div v-if="isClosed" class="text-center">
-        <GrayText>POLL CLOSED</GrayText>
+        <div class="text-gray-500 mt-4">POLL CLOSED</div>
       </div>
-      <div class="flex justify-between mx-4 mb-2">
+      <div class="flex justify-between mx-4 mt-4 mb-2">
         <div>
           <h1 class="text-3xl leading-tight">{{pollState.metadata.title}}</h1>
         </div>
@@ -45,7 +46,8 @@
       </div>
 
       <div class="text-center w-full mt-2 text-gray-500 text-sm" v-if="pollVotesState && pollVotesState.totalStake">
-        Total Stake: {{pollVotesState.totalStake | toAE}} ({{pollVotesState.percentOfTotalSupply | formatPercent}})
+        Stake: {{pollVotesState.totalStake | toAE}} ({{pollVotesState.percentOfTotalSupply | formatPercent}}) -
+        {{isClosed ? 'Closed' : 'Closes'}} {{pollState.close_height ? `at ${pollState.close_height}` : 'never'}}
       </div>
 
       <!-- POLL OPTIONS -->
@@ -54,7 +56,7 @@
         <div class="m-4 ae-card" @click="showVoters(id)">
           <div class="flex justify-between items-center w-full py-4 px-3">
             <ae-check class="mr-1" v-model="voteOption" :value="id" type="radio" @click.stop.prevent
-                      @change="vote(id)" :disabled="isClosed"></ae-check>
+                      @change="vote(id)" :disabled="isClosed || !accountAddress"></ae-check>
             <!-- TODO find better solution than this -->
             <div class="mr-auto" style="margin-top: 4px">
               <span
@@ -227,10 +229,12 @@
       },
       async loadData() {
         this.pollId = this.$route.params.id;
-        this.accountAddress = aeternity.address;
-        this.votersForOption = {};
 
-        this.balance = await aeternity.client.balance(aeternity.address);
+        this.votersForOption = {};
+        if (!aeternity.passive) {
+          this.accountAddress = aeternity.address;
+          this.balance = await aeternity.client.balance(aeternity.address);
+        }
 
         const poll = await aeternity.contract.methods.poll(this.pollId);
         this.pollAddress = poll.decodedResult.poll;

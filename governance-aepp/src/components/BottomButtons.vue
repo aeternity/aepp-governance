@@ -22,7 +22,7 @@
         <!-- LEFT BUTTON> -->
         <div class="flex justify-evenly items-center h-full flex-2">
           <SmallButton :img="images.homeImg" :action="() => $route.path !== '/' && $router.push('/')"></SmallButton>
-          <SmallButton :img="images.accountImg"
+          <SmallButton :img="images.accountImg" v-if="account"
                        :action="() => $route.path !== `/account/${account}` &&  $router.push(`/account/${account}`)">
           </SmallButton>
         </div>
@@ -41,7 +41,7 @@
 
         <!-- RIGHT BUTTONS -->
         <div class="flex justify-evenly items-center h-full flex-2">
-          <SmallButton :img="images.createImg"
+          <SmallButton :img="images.createImg" v-if="account"
                        :action="() => $route.path !== '/create' && $router.push('/create')"></SmallButton>
           <SmallButton :img="images.backImg" :action="() => $router.go(-1)"></SmallButton>
         </div>
@@ -110,7 +110,9 @@
       }
     },
     created() {
-      this.account = aeternity.address
+      if(!aeternity.passive) {
+        this.account = aeternity.address
+      }
     }
   }
 </script>

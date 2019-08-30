@@ -6,6 +6,7 @@
         <div class="inset-0 flex justify-center flex-col items-center" v-else>
           <BiggerLoader></BiggerLoader>
           <h2 class="mt-2 font-bold">Looking for a wallet. Check for popups.</h2>
+          <ae-button v-show="showSkip" class="mt-4" face="round" fill="neutral" @click="abortWalletCheck">Continue without wallet</ae-button>
         </div>
         <div class="mb-24">
           <!-- BOTTOM SPACER -->
@@ -22,14 +23,14 @@
 
 <script>
 
-  import {AeMain} from '@aeternity/aepp-components/src/components'
+  import {AeMain, AeButton} from '@aeternity/aepp-components/src/components'
   import CriticalErrorOverlay from '~/components/CriticalErrorOverlay'
   import aeternity from '~/utils/aeternity.js'
   import BiggerLoader from './components/BiggerLoader'
 
   export default {
     name: 'app',
-    components: {BiggerLoader, CriticalErrorOverlay, AeMain},
+    components: {BiggerLoader, CriticalErrorOverlay, AeMain, AeButton},
     data() {
       return {
         error: null,
@@ -37,7 +38,8 @@
         clientAvailable: false,
         ignoreErrors: (window.location.host.includes('localhost') || window.location.host.includes('0.0.0.0')),
         errorClick: () => {
-        }
+        },
+        showSkip: false
       }
     },
     methods: {
@@ -46,9 +48,15 @@
 
         const changesDetected = await aeternity.verifyAddress();
         if (changesDetected) this.$router.go();
+      },
+      async abortWalletCheck() {
+        await aeternity.disableWallet();
+        this.clientAvailable = true;
       }
     },
     async created() {
+
+      setTimeout(() => {this.showSkip = true}, 4000);
 
       // Bypass check if there is already an active wallet
       try {
@@ -58,11 +66,6 @@
           await aeternity.initProvider();
           return this.clientAvailable = true
         }
-
-        // check if wallet is available
-        const wallets = await aeternity.checkAvailableWallets();
-        if (wallets.length === 0) throw new Error('Neither mobile nor desktop aepp found.');
-        if (wallets.length > 1) alert('TWO WALLETS');
 
         if (!(await aeternity.initClient())) throw new Error('Wallet init failed');
         if (aeternity.balance == 0) throw new Error('0 Amount Wallet');

@@ -1,12 +1,15 @@
 import Aepp from '@aeternity/aepp-sdk/es/ae/aepp'
 import Util from './util'
 import registryContractSource from '../../../governance-contracts/contracts/Registry.aes'
+import {Universal} from "@aeternity/aepp-sdk/es/ae/universal";
 
 const aeternity = {
   client: null,
   address: null,
   height: null,
   networkId: null,
+  passive: false,
+  nodeURL: 'http://localhost:3001' // THIS IS FOR THE STATIC CLIENT WITHOUT WALLET
   contractAddress: 'ct_2cFxfeheJGfy4cwBWmeJ2wiiRM9BvJh6cCevdsoGv2VNascjsc'
 };
 
@@ -29,6 +32,7 @@ aeternity.initProvider = async () => {
       .catch(() => '0');
     aeternity.networkId = (await aeternity.client.getNodeInfo()).nodeNetworkId;
     aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: aeternity.contractAddress});
+    aeternity.passive = aeternity.address === 'ak_11111111111111111111111111111111273Yts';
     return true;
   } catch (e) {
     console.warn(e);
@@ -36,7 +40,7 @@ aeternity.initProvider = async () => {
   }
 };
 
-aeternity.initBase = async () => {
+aeternity.initMobileBaseAepp = async () => {
   try {
     if (window.parent === window) return false;
     return await timeout(Aepp());
@@ -62,7 +66,7 @@ aeternity.getWalletWindow = async () => {
   return iframe.contentWindow;
 };
 
-aeternity.initLedger = async () => {
+aeternity.initReverseIframe = async () => {
   try {
     return await timeout(Aepp({
       parent: await aeternity.getWalletWindow()
@@ -73,20 +77,36 @@ aeternity.initLedger = async () => {
   }
 };
 
+aeternity.initStaticClient = async () => {
+  return Universal({
+    url: aeternity.nodeURL,
+    internalUrl: aeternity.nodeURL,
+    compilerUrl: "http://localhost:3080",
+    keypair: {
+      publicKey: 'ak_11111111111111111111111111111111273Yts',
+      secretKey: ''
+    }
+  });
+};
+
 aeternity.checkAvailableWallets = async () => {
 
   // Check for base aepp
   const wallets = {};
 
-  const baseAeppClient = await aeternity.initBase();
-  if (baseAeppClient && baseAeppClient !== 'TIMEOUT') wallets['mobileBaseAepp'] = baseAeppClient;
+  const baseAeppClient = await aeternity.initMobileBaseAepp();
+  if (baseAeppClient && baseAeppClient !== 'TIMEOUT') wallets['MobileBaseAepp'] = baseAeppClient;
 
   // Dont even check for iframe / extension if aepp is run inside a base-aepp
   if (baseAeppClient && window.parent !== window) return wallets;
 
   // Check for iframe
-  const iframeClient = await aeternity.initLedger();
-  if (iframeClient && iframeClient !== 'TIMEOUT') wallets['desktopBaseAepp'] = iframeClient;
+  const iframeClient = await aeternity.initReverseIframe();
+  if (iframeClient && iframeClient !== 'TIMEOUT') wallets['ReverseIframe'] = iframeClient;
+
+  // Make static wallet available
+  const staticClient = await aeternity.initStaticClient();
+  if (staticClient) wallets['StaticClient'] = staticClient;
 
   // Check for window.Aepp
   if (window.hasOwnProperty('Aepp')) {
@@ -98,7 +118,7 @@ aeternity.checkAvailableWallets = async () => {
 
 aeternity.setClient = async (clientName, client) => {
   aeternity.client = client;
-  localStorage.setItem('aeWallet', clientName);
+  sessionStorage.setItem('aeWallet', clientName);
   return await aeternity.initProvider();
 };
 
@@ -114,17 +134,20 @@ aeternity.initClient = async () => {
   let result = true;
   if (!aeternity.client) {
     try {
-      const preferredWallet = localStorage.getItem('aeWallet');
-      const wallets = await aeternity.checkAvailableWallets();
-      if (preferredWallet && wallets[preferredWallet]) {
-        result = await aeternity.setClient(preferredWallet, wallets[preferredWallet]);
-      } else if (Object.keys(wallets).length === 1) {
-        result = await aeternity.setClient(Object.keys(wallets)[0], wallets[Object.keys(wallets)[0]]);
-      } else if (Object.keys(wallets).length > 1) {
-        const otherWallets = Object.filter(wallets).map(walletName => walletName !== preferredWallet);
-        result = await aeternity.setClient(otherWallets[0], wallets[otherWallets[0]]);
+      const preferredWallet = sessionStorage.getItem('aeWallet');
+      if(preferredWallet) {
+        let client = await aeternity['init' + preferredWallet]();
+        result = await aeternity.setClient(preferredWallet, client);
       } else {
-        result = false;
+        const wallets = await aeternity.checkAvailableWallets();
+        if (Object.keys(wallets).length === 1) {
+          result = await aeternity.setClient(Object.keys(wallets)[0], wallets[Object.keys(wallets)[0]]);
+        } else if (Object.keys(wallets).length > 1) {
+          const otherWallets = Object.filter(wallets).map(walletName => walletName !== preferredWallet);
+          result = await aeternity.setClient(otherWallets[0], wallets[otherWallets[0]]);
+        } else {
+          result = false;
+        }
       }
     } catch (e) {
       console.error(e);
@@ -139,6 +162,11 @@ aeternity.initClient = async () => {
 aeternity.verifyAddress = async () => {
   const currAddress = await aeternity.client.address();
   return currAddress !== aeternity.address
+};
+
+aeternity.disableWallet = async () => {
+  const staticClient = await aeternity.initStaticClient();
+  await aeternity.setClient('StaticClient', staticClient)
 };
 
 aeternity.delegation = async (address) => {
