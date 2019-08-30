@@ -1,24 +1,14 @@
 <template>
   <div class="flex justify-center w-full">
-    <div class="fixed bottom-0 h-12 mb-4 w-full max-w-desktop">
+
+    <div class="fixed bottom-0 h-12 mb-4 w-full max-w-desktop" :class="{'h-32': view === 'search'}">
       <!-- SEARCH BAR -->
-      <div class="w-full flex h-full" v-if="view === 'search'">
-        <div class="h-full w-12 ml-4 icon flex items-center">
-          <div class="rounded-full w-full flex justify-center items-center shadow bg-primary"
-               @click="clickSearch">
-            <img src="../assets/back.svg" class="w-8">
-          </div>
-        </div>
-        <input type="search"
-               class="rounded-full bg-white h-full flex justify-center items-center px-4 font-semibold w-full mx-4 search-bar"/>
-        <div class="h-full w-12 mr-4 icon flex items-center">
-          <div class="rounded-full w-full flex justify-center items-center shadow bg-primary">
-            <img src="../assets/search.svg" class="w-8">
-          </div>
-        </div>
+      <div class="w-full flex h-12 mb-6 mt-2" v-if="view === 'search'">
+        <input v-model="searchString" type="search" placeholder="Search..."
+               class="rounded-full bg-white h-full flex justify-center items-center px-4 w-full mx-8 search-bar"/>
       </div>
       <!-- BUTTONS -->
-      <div class="w-full flex h-full" v-if="view === 'buttons'">
+      <div class="w-full flex h-12">
         <!-- LEFT BUTTON> -->
         <div class="flex justify-evenly items-center h-full flex-2">
           <SmallButton :img="images.homeImg" :action="() => $route.path !== '/' && $router.push('/')"></SmallButton>
@@ -26,15 +16,14 @@
                        :action="() => $route.path !== `/account/${account}` &&  $router.push(`/account/${account}`)">
           </SmallButton>
         </div>
-
         <!-- CENTER SECTION -->
         <div class="flex-3">
           <div class="rounded-full bg-primary px-8 h-full flex justify-center items-center text-white font-semibold"
                @click="ctaAction" v-if="ctaText">
             {{ctaText}}
           </div>
-          <div class="rounded-full bg-primary px-8 h-full flex justify-center items-center text-white font-semibold"
-               @click="clickSearch" v-if="searchBar">
+          <div class="rounded-full bg-primary px-8 h-full flex justify-center items-center text-white font-semibold relative"
+               @click="clickSearch" v-if="searchBar" :class="{'search-button': view === 'search'}">
             Search
           </div>
         </div>
@@ -73,7 +62,8 @@
       return {
         view: 'buttons',
         images: {searchImg, createImg, accountImg, homeImg, backImg},
-        account: null
+        account: null,
+        searchString: ''
       }
     },
     props: {
@@ -103,6 +93,11 @@
         }
       }
     },
+    watch: {
+      searchString() {
+        this.$emit('search', this.searchString)
+      }
+    },
     methods: {
       clickSearch() {
         if (this.view === 'buttons') this.view = 'search';
@@ -110,7 +105,7 @@
       }
     },
     created() {
-      if(!aeternity.passive) {
+      if (!aeternity.passive) {
         this.account = aeternity.address
       }
     }
@@ -119,7 +114,7 @@
 
 <style scoped>
   .search-bar {
-    border: 1px solid #FF0D6A;
+    box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.15);
   }
 
   textarea:focus, input:focus {
@@ -136,5 +131,16 @@
 
   .flex-3 {
     flex: 3 1 0;
+  }
+
+  .search-button::after {
+    content: "";
+    border: 10px solid #FF0D6A;
+    transform: rotate(45deg);
+    position: absolute;
+    top: -10px;
+    left: calc(50% - 10px);
+    width: 20px;
+    height: 20px;
   }
 </style>

@@ -27,7 +27,7 @@
         Could not find any polls.
       </div>
     </div>
-    <BottomButtons :search-bar="true"></BottomButtons>
+    <BottomButtons @search="filterPolls" :search-bar="true"></BottomButtons>
   </div>
 </template>
 
@@ -81,6 +81,10 @@
             this.polls = this.closedPolls;
             break;
         }
+      },
+      filterPolls(searchString) {
+        this.updateTabView();
+        this.polls = this.polls.filter(poll => poll[1].title.indexOf(searchString) > -1)
       }
     },
     async mounted() {
