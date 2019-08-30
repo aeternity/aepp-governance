@@ -57,7 +57,6 @@ const addPollInvalidationListener = async (poll) => {
 };
 
 cache.handleContractEvent = async (event) => {
-    console.log("      cache handleContractEvent", event.topic, event.poll);
     switch (event.topic) {
         case "AddPoll":
             await cache.delByPrefix(["polls"]);
