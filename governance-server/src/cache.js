@@ -52,7 +52,7 @@ const addPollInvalidationListener = async (poll) => {
     if (cache.wsconnection) {
         cache.wsconnection.send(JSON.stringify({op: "subscribe", payload: "object", target: poll}));
     } else {
-        setTimeout(addPollInvalidationListener(poll), 30000);
+        setTimeout(() => addPollInvalidationListener(poll), 30000);
     }
 };
 

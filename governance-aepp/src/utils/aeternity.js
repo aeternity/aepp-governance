@@ -10,6 +10,7 @@ const aeternity = {
   networkId: null,
   passive: false,
   nodeURL: 'http://localhost:3001', // THIS IS FOR THE STATIC CLIENT WITHOUT WALLET
+  compilerURL: 'http://localhost:3080', // THIS IS FOR THE STATIC CLIENT WITHOUT WALLET
   contractAddress: 'ct_24TXc38pPRT4zFqVpuG2L3uj1vrtenbQ7dgeVatc4kWfWvEUaF'
 };
 
@@ -85,7 +86,7 @@ aeternity.initStaticClient = async () => {
   return Universal({
     url: aeternity.nodeURL,
     internalUrl: aeternity.nodeURL,
-    compilerUrl: "http://localhost:3080",
+    compilerUrl: aeternity.compilerURL
   });
 };
 
