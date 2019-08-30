@@ -196,13 +196,15 @@ logic.delegatedPower = async (address, closeHeight, ignoreAccounts = []) => {
             const recursionResult = Object.keys(delegation.delegations).length === 0
                 ? {
                     delegatedPower: new BigNumber('0'),
-                    flattenedDelegationTree: [{delegator: delegator, balance: delegation.balance}]
+                    flattenedDelegationTree: []
                 }
                 : sumDelegatedPower(delegation.delegations);
 
             return {
                 delegatedPower: delegatedPower.plus(new BigNumber(delegation.balance)).plus(recursionResult.delegatedPower),
-                flattenedDelegationTree: flattenedDelegationTree.concat(recursionResult.flattenedDelegationTree)
+                flattenedDelegationTree: flattenedDelegationTree
+                    .concat([{delegator: delegator, balance: delegation.balance}])
+                    .concat(recursionResult.flattenedDelegationTree)
             }
         }, {delegatedPower: new BigNumber('0'), flattenedDelegationTree: []})
     }
