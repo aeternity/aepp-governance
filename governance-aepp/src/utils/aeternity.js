@@ -9,8 +9,8 @@ const aeternity = {
   height: null,
   networkId: null,
   passive: false,
-  nodeURL: 'http://localhost:3001' // THIS IS FOR THE STATIC CLIENT WITHOUT WALLET
-  contractAddress: 'ct_2cFxfeheJGfy4cwBWmeJ2wiiRM9BvJh6cCevdsoGv2VNascjsc'
+  nodeURL: 'http://localhost:3001', // THIS IS FOR THE STATIC CLIENT WITHOUT WALLET
+  contractAddress: 'ct_24TXc38pPRT4zFqVpuG2L3uj1vrtenbQ7dgeVatc4kWfWvEUaF'
 };
 
 const timeout = async (promise) => {

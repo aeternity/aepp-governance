@@ -111,45 +111,6 @@
   import GrayText from "~/components/GrayText";
   import CriticalErrorOverlay from "~/components/CriticalErrorOverlay";
 
-    export default {
-        name: 'Home',
-        components: {BottomButtons, AeIcon, AeCheck, AeButton, AeToolbar, BiggerLoader, AeIdentityLight},
-        data() {
-            return {
-                accountAddress: null,
-                pollAddress: null,
-                balance: null,
-                totalStake: null,
-                showLoading: true,
-                pollId: null,
-                delegateeVote: {},
-                voteOption: null,
-                pollContract: null,
-                pollState: {},
-                pollVotesState: null,
-                votersForOption: {},
-                delegatedPower: null,
-            }
-        },
-        computed: {},
-        methods: {
-            async vote() {
-                this.showLoading = true;
-                await this.pollContract.methods.vote(this.voteOption);
-                Backend.contractEvent("Vote", this.pollAddress);
-                await this.loadData();
-            },
-            async revokeVote() {
-                this.showLoading = true;
-                await this.pollContract.methods.revoke_vote();
-                Backend.contractEvent("RevokeVote", this.pollAddress);
-                await this.loadData();
-            },
-            showVoters(id) {
-                if (this.votersForOption.id != null && this.votersForOption.id == id) {
-                    this.votersForOption = {};
-                    return;
-                }
   export default {
     name: 'Home',
     components: {

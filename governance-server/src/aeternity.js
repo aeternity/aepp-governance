@@ -12,7 +12,7 @@ const pollContractSource = fs.readFileSync(__dirname + "/../etc/Poll.aes", "utf-
 
 const aeternity = {};
 
-if (!process.env.NODE_URL) throw "AETERNITY_URL is not set";
+if (!process.env.NODE_URL) throw "NODE_URL is not set";
 if (!process.env.COMPILER_URL) throw "COMPILER_URL is not set";
 if (!process.env.CONTRACT_ADDRESS) throw "CONTRACT_ADDRESS is not set";
 aeternity.contractAddress = process.env.CONTRACT_ADDRESS;
