@@ -116,12 +116,14 @@
                 if (this.delegatee.includes('ak_')) {
                     this.showLoading = true;
                     await aeternity.contract.methods.delegate(this.delegatee);
+                    Backend.contractEvent("Delegation");
                     await this.loadData();
                 }
             },
             async revokeDelegation() {
                 this.showLoading = true;
                 await aeternity.contract.methods.revoke_delegation();
+                Backend.contractEvent("RevokeDelegation");
                 await this.loadData();
             },
             resetData() {

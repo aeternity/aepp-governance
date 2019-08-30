@@ -1,4 +1,5 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const cors = require('cors');
 
 const aeternity = require("./src/aeternity");
@@ -6,6 +7,7 @@ const cache = require("./src/cache");
 const logic = require("./src/logic");
 
 const app = express();
+app.use(bodyParser.json());
 process.on('unhandledRejection', (reason, p) => console.log('Unhandled Rejection at: Promise', p, 'reason:', reason));
 
 const errorHandler = (f) => {
@@ -67,6 +69,12 @@ app.get('/accountPollVoterAuthor/:address', errorHandler(async (req, res) => {
     const data = await logic.accountPollVoterAuthor(address);
 
     if (new Date().getTime() - start > 10) console.log("\nrequest accountPollVoterAuthor", address, new Date().getTime() - start, "ms");
+    res.json(data)
+}));
+
+app.post('/contractEvent', errorHandler(async (req, res) => {
+    if (!req.body || !req.body.topic) return res.sendStatus(400);
+    const data = await cache.handleContractEvent(req.body);
     res.json(data)
 }));
 

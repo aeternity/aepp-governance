@@ -56,8 +56,8 @@ const addPollInvalidationListener = async (poll) => {
     }
 };
 
-const handleContractEvent = async (event) => {
-    console.log("      cache handleContractEvent", event.topic);
+cache.handleContractEvent = async (event) => {
+    console.log("      cache handleContractEvent", event.topic, event.poll);
     switch (event.topic) {
         case "AddPoll":
             await cache.delByPrefix(["polls"]);
@@ -111,7 +111,7 @@ cache.startInvalidator = (aeternity) => {
                 }
                 if (data.subscription === "object") {
                     const event = await aeternity.transactionEvent(data.payload.hash);
-                    if (event) handleContractEvent(event);
+                    if (event) cache.handleContractEvent(event);
                 }
             }
         });

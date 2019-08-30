@@ -115,6 +115,7 @@
         data() {
             return {
                 accountAddress: null,
+                pollAddress: null,
                 balance: null,
                 totalStake: null,
                 showLoading: true,
@@ -133,11 +134,13 @@
             async vote() {
                 this.showLoading = true;
                 await this.pollContract.methods.vote(this.voteOption);
+                Backend.contractEvent("Vote", this.pollAddress);
                 await this.loadData();
             },
             async revokeVote() {
                 this.showLoading = true;
                 await this.pollContract.methods.revoke_vote();
+                Backend.contractEvent("RevokeVote", this.pollAddress);
                 await this.loadData();
             },
             showVoters(id) {
@@ -168,14 +171,14 @@
                 this.balance = await aeternity.client.balance(aeternity.address);
 
                 const poll = await aeternity.contract.methods.poll(this.pollId);
-                const pollAddress = poll.decodedResult.poll;
-                this.pollContract = await aeternity.client.getContractInstance(pollContractSource, {contractAddress: pollAddress});
+                this.pollAddress = poll.decodedResult.poll;
+                this.pollContract = await aeternity.client.getContractInstance(pollContractSource, {contractAddress: this.pollAddress});
                 this.pollState = (await this.pollContract.methods.get_state()).decodedResult;
 
                 const accountVote = this.pollState.votes.find(([voter, _]) => voter === this.accountAddress);
                 this.voteOption = accountVote ? accountVote[1] : null;
 
-                await Backend.votesState(pollAddress).then((votesState) => {
+                await Backend.votesState(this.pollAddress).then((votesState) => {
                     this.pollVotesState = votesState;
 
                     this.delegateeVote = this.pollVotesState.stakesForOption
@@ -183,7 +186,7 @@
                             .some(delegation => delegation.delegator === this.accountAddress))).find(x => x) || {};
                 }).catch(console.error);
 
-                await Backend.delegatedPower(this.accountAddress, pollAddress).then(delegatedPower => {
+                await Backend.delegatedPower(this.accountAddress, this.pollAddress).then(delegatedPower => {
                     this.delegatedPower = delegatedPower.delegatedPower;
                     this.totalStake = new BigNumber(this.balance).plus(this.delegatedPower);
                 }).catch(console.error);

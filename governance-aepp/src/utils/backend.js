@@ -48,4 +48,8 @@ backend.accountPollVoterAuthor = async (address) => wrapTimeout(async () => {
   return axios.get(`http://localhost:3000/accountPollVoterAuthor/${address}`).then(res => res.data);
 });
 
+backend.contractEvent = async (topic, poll) => wrapTimeout(async () => {
+  return axios.post(`http://localhost:3000/contractEvent`, {topic: topic, poll: poll});
+});
+
 export default backend;

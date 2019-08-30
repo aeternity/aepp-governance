@@ -55,7 +55,7 @@ aeternity.contractTransactionHashes = async (hash) => {
 };
 
 aeternity.polls = async () => {
-    await aeternity.init();
+    if (!aeternity.client) await aeternity.init();
     return cache.getOrSet(["polls"], async () => (await aeternity.contract.methods.polls()).decodedResult, 120);
 };
 
