@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div class="fixed bottom-0 left-0 h-12 mb-4 w-full">
+  <div class="flex justify-center w-full">
+    <div class="fixed bottom-0 h-12 mb-4 w-full max-w-desktop">
       <!-- SEARCH BAR -->
       <div class="w-full flex h-full" v-if="view === 'search'">
         <div class="h-full w-12 ml-4 icon flex items-center">

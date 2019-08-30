@@ -1,6 +1,6 @@
 <template>
   <div id="app" class="min-h-screen">
-    <div class="content min-h-screen">
+    <div class="content min-h-screen max-w-desktop">
       <div class="min-h-screen wrapper">
         <router-view v-if="clientAvailable"></router-view>
         <div class="inset-0 flex justify-center flex-col items-center" v-else>
@@ -93,5 +93,16 @@
     padding-bottom: 0;
     overflow-y: auto;
     background-color: #f8f8f8;
+  }
+
+  @media (min-width: 700px) {
+    #app {
+      position: relative;
+      display: flex;
+      justify-content: center;
+    }
+    .content {
+      box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.15);
+    }
   }
 </style>

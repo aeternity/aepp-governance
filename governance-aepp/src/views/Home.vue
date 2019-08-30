@@ -3,7 +3,7 @@
     <div class="overlay-loader" v-show="showLoading && false">
       <BiggerLoader></BiggerLoader>
     </div>
-    <div class="fixed w-full top-0">
+    <div class="fixed w-full top-0 max-w-desktop">
       <BlackHeader>
         Open Polls
       </BlackHeader>
