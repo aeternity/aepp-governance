@@ -28,6 +28,7 @@
       </div>
     </div>
     <BottomButtons @search="filterPolls" :search-bar="true"></BottomButtons>
+    <CriticalErrorOverlay :error="error" @continue="error = null"></CriticalErrorOverlay>
   </div>
 </template>
 
@@ -38,10 +39,11 @@
   import PollListing from "~/components/PollListing";
   import BottomButtons from "~/components/BottomButtons";
   import BlackHeader from "~/components/BlackHeader";
+  import CriticalErrorOverlay from "~/components/CriticalErrorOverlay";
 
   export default {
     name: 'Home',
-    components: {BlackHeader, BottomButtons, PollListing, AeIcon, BiggerLoader},
+    components: {BlackHeader, BottomButtons, PollListing, AeIcon, BiggerLoader, CriticalErrorOverlay},
     data() {
       return {
         showLoading: true,
