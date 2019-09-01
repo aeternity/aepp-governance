@@ -32,7 +32,7 @@ aeternity.registryCreationHeight = async () => {
     return cache.getOrSet(["registryCreationHeight"], async () => {
         process.stdout.write(".");
         return (await aeternity.contract.methods.created_height()).decodedResult
-    }, 3600);
+    }, cache.longCacheTime);
 };
 
 aeternity.microBlocks = async (height) => {
@@ -43,7 +43,7 @@ aeternity.microBlocks = async (height) => {
             console.error(e);
             return [];
         }
-    }, 3600);
+    }, cache.longCacheTime);
 };
 
 aeternity.contractTransactionHashes = async (hash) => {
@@ -51,12 +51,12 @@ aeternity.contractTransactionHashes = async (hash) => {
         process.stdout.write(";");
         const txs = (await aeternity.client.getMicroBlockTransactions(hash));
         return txs.filter(tx => tx.tx.contractId === aeternity.contractAddress).map(tx => tx.hash);
-    }, 3600);
+    }, cache.longCacheTime);
 };
 
 aeternity.polls = async () => {
     if (!aeternity.client) await aeternity.init();
-    return cache.getOrSet(["polls"], async () => (await aeternity.contract.methods.polls()).decodedResult, 120);
+    return cache.getOrSet(["polls"], async () => (await aeternity.contract.methods.polls()).decodedResult, cache.shortCacheTime);
 };
 
 aeternity.pollState = async (address) => {
@@ -86,7 +86,7 @@ aeternity.delegations = async (pollCloseHeight) => {
         } else {
             return (await aeternity.contract.methods.delegations()).decodedResult
         }
-    }, 3600);
+    }, cache.longCacheTime);
 };
 
 aeternity.tokenSupply = async (pollCloseHeight) => {
@@ -94,14 +94,14 @@ aeternity.tokenSupply = async (pollCloseHeight) => {
     const closingHeightOrUndefined = await aeternity.getClosingHeightOrUndefined(pollCloseHeight);
     const closingHeightOrCurrentHeight = closingHeightOrUndefined ? closingHeightOrUndefined : height;
 
-    return cache.getOrSet(["totalSupply", (closingHeightOrCurrentHeight / 100).toFixed()], async () => {
+    return cache.getOrSet(["totalSupply", (closingHeightOrCurrentHeight / 1000).toFixed()], async () => {
         const result = await axios.get(`${process.env.NODE_URL}v2/debug/token-supply/height/${closingHeightOrCurrentHeight}`);
         return new BigNumber(result.data.total).toFixed();
-    }, 3600);
+    }, cache.longCacheTime);
 };
 
 aeternity.height = async () => {
-    return cache.getOrSet(["height"], () => aeternity.client.height(), 120);
+    return cache.getOrSet(["height"], () => aeternity.client.height(), cache.shortCacheTime);
 };
 
 aeternity.transactionEvent = async (hash) => {
@@ -158,7 +158,7 @@ aeternity.transactionEvent = async (hash) => {
             }
         }
         return null;
-    }, 3600)
+    }, cache.longCacheTime)
 };
 
 module.exports = aeternity;

@@ -14,6 +14,9 @@ const WebSocketClient = require('websocket').client;
 const cache = {};
 cache.wsconnection = null;
 
+cache.shortCacheTime = process.env.SHORT_CACHE_TIME || 3 * 60;
+cache.longCacheTime = process.env.LONG_CACHE_TIME || 8 * 60 * 60;
+
 cache.getOrSet = async (keys, asyncFetchData, expire = null) => {
     const key = keys.join(":");
     const value = await get(key);
@@ -22,7 +25,7 @@ cache.getOrSet = async (keys, asyncFetchData, expire = null) => {
     const start = new Date().getTime();
     const data = await asyncFetchData();
     cache.set(keys, data, expire);
-    (new Date().getTime() - start > 20) ? console.log("\n   cache", key, new Date().getTime() - start, "ms") : process.stdout.write("'");
+    (new Date().getTime() - start > 50) ? console.log("\n   cache", key, new Date().getTime() - start, "ms") : process.stdout.write("'");
     return data;
 };
 
