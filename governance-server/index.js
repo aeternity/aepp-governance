@@ -79,5 +79,5 @@ app.post('/contractEvent', errorHandler(async (req, res) => {
 }));
 
 aeternity.init();
-cache.startInvalidator(aeternity);
+cache.init(aeternity);
 app.listen(3000);

@@ -1,5 +1,6 @@
 const redis = require("redis");
 const {promisify} = require('util');
+const delegationLogic = require('./delegation_logic');
 
 if (!process.env.WEBSOCKET_URL) throw "WEBSOCKET_URL is not set";
 if (!process.env.REDIS_URL) throw "REDIS_URL is not set";
@@ -16,6 +17,12 @@ cache.wsconnection = null;
 
 cache.shortCacheTime = process.env.SHORT_CACHE_TIME || 3 * 60;
 cache.longCacheTime = process.env.LONG_CACHE_TIME || 8 * 60 * 60;
+cache.keepHotInterval = process.env.KEEP_HOT_INTERVAL || 60 * 1000;
+
+cache.init = (aeternity) => {
+    cache.startInvalidator(aeternity);
+    cache.keepHot(aeternity);
+};
 
 cache.getOrSet = async (keys, asyncFetchData, expire = null) => {
     const key = keys.join(":");
@@ -118,6 +125,21 @@ cache.startInvalidator = (aeternity) => {
             }
         });
     });
+};
+
+cache.keepHot = (aeternity) => {
+    const discoverDelegationEvents = async () => {
+        const height = await aeternity.height();
+        delegationLogic.findDelegationEvents(aeternity, height);
+    };
+
+
+    setInterval(async () => {
+        const start = new Date().getTime();
+        await discoverDelegationEvents();
+        await aeternity.tokenSupply();
+        console.log("\n  cache keepHot", new Date().getTime() - start, "ms");
+    }, cache.keepHotInterval);
 };
 
 module.exports = cache;
