@@ -16,7 +16,7 @@ logic.cachedPollState = async (address) => {
     return cache.getOrSet(["pollOverview", address, height], () => logic.pollVotesState(address), cache.shortCacheTime);
 };
 
-logic.pollOrdering = async () => {
+logic.pollOrdering = async (closed = false) => {
     const result = async () => {
         const considerCloseBlocks = 5000;
 
@@ -25,8 +25,14 @@ logic.pollOrdering = async () => {
         const votesScoreWeight = 0.5;
         const delegationsScoreWeight = 0.5;
 
-        const polls = await aeternity.polls();
         const height = await aeternity.height();
+        const polls = (await aeternity.polls()).filter(poll => {
+            if (closed) {
+                return !poll[1].close_height || poll[1].close_height > height;
+            } else {
+                return poll[1].close_height && poll[1].close_height <= height;
+            }
+        });
         const pollsData = await polls.asyncMap(async ([id, data]) => {
             const state = await logic.cachedPollState(data.poll);
 
@@ -68,7 +74,7 @@ logic.pollOrdering = async () => {
         };
     };
 
-    return cache.getOrSet(["pollOrdering"], result, cache.shortCacheTime);
+    return cache.getOrSet(["pollOrdering", closed], result, cache.shortCacheTime);
 };
 
 logic.accountPollVoterAuthor = async (address) => {

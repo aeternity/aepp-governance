@@ -73,17 +73,21 @@ cache.handleContractEvent = async (event) => {
             addPollInvalidationListener(event.poll);
             break;
         case "Delegation":
+            await cache.delByPrefix(["pollOrdering"]);
             await cache.delByPrefix(["delegations", undefined]);
             break;
         case "RevokeDelegation":
+            await cache.delByPrefix(["pollOrdering"]);
             await cache.delByPrefix(["delegations", undefined]);
             break;
         case "Vote":
             await cache.delByPrefix(["pollOverview", event.poll]);
+            await cache.delByPrefix(["pollOrdering"]);
             await cache.delByPrefix(["pollStateAndVotingAccounts", event.poll]);
             break;
         case "RevokeVote":
             await cache.delByPrefix(["pollOverview", event.poll]);
+            await cache.delByPrefix(["pollOrdering"]);
             await cache.delByPrefix(["pollStateAndVotingAccounts", event.poll]);
             break;
     }
