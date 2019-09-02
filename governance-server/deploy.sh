@@ -1,6 +1,5 @@
 #!/bin/bash
 
-cd ../server
 docker build -t aeternity/governance-server .
 docker push aeternity/governance-server:latest
 
