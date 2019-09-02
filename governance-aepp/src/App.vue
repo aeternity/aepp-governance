@@ -68,7 +68,6 @@
         }
 
         if (!(await aeternity.initClient())) throw new Error('Wallet init failed');
-        if (aeternity.balance == 0) throw new Error('0 Amount Wallet');
 
         this.clientAvailable = true;
 

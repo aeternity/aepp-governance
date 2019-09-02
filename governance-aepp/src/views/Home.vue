@@ -40,6 +40,7 @@
   import BottomButtons from "~/components/BottomButtons";
   import BlackHeader from "~/components/BlackHeader";
   import CriticalErrorOverlay from "~/components/CriticalErrorOverlay";
+  import axios from "axios";
 
   export default {
     name: 'Home',
