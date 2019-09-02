@@ -18,7 +18,7 @@
       </div>
 
       <div class="flex justify-between items-center mt-3" v-if="delegatedPower">
-        <div class="text-xs opacity-75 leading-tight">
+        <div class="text-xs opacity-90 leading-tight">
           Estimated delegated stake <br/>
           Delegators votes can overwrite delegation
         </div>
@@ -27,14 +27,14 @@
         </div>
       </div>
       <div class="flex justify-between items-center mt-3" v-else>
-        <div class="text-xs opacity-75 leading-tight">
+        <div class="text-xs opacity-90 leading-tight">
           Could not fetch information about delegated stake.
         </div>
       </div>
     </div>
     <div class="bg-ae-purple text-white  px-6 py-2">
       <div class="flex justify-between items-center">
-        <div class="text-xs opacity-75 leading-tight font-bold">
+        <div class="text-xs opacity-90 leading-tight font-bold">
           Estimated voting power
         </div>
         <div class="text-sm font-bold font-mono" v-if="totalStake">
@@ -105,5 +105,9 @@
 
   .bg-ae-purple {
     background-color: #d12869;
+  }
+
+  .opacity-90 {
+    opacity: .9;
   }
 </style>

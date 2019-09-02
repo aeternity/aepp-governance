@@ -207,7 +207,6 @@
   .truncated-address {
     font-family: 'Roboto Mono', monospace;
     font-size: 11px;
-    opacity: 0.67;
     display: block;
   }
 
