@@ -30,11 +30,11 @@
       </div>
     </div>
     <div class="flex w-full text-center text-gray-500 mt-4 text-sm">
-      <div class="flex-1 pb-2 border-b-2 border-gray-300" @click="tab = 'votes'"
-           :class="{'active-tab': tab === 'votes'}">VOTES
-      </div>
       <div class="flex-1 pb-2 border-b-2 border-gray-300" @click="tab = 'delegations'"
            :class="{'active-tab': tab === 'delegations'}">DELEGATIONS
+      </div>
+      <div class="flex-1 pb-2 border-b-2 border-gray-300" @click="tab = 'votes'"
+           :class="{'active-tab': tab === 'votes'}">VOTES
       </div>
       <div class="flex-1 pb-2 border-b-2 border-gray-300" @click="tab = 'polls'"
            :class="{'active-tab': tab === 'polls'}">POLLS
@@ -114,7 +114,7 @@
         isOwnAccount: false,
         delegation: null,
         delegatedPower: null,
-        tab: 'votes',
+        tab: 'delegations',
         delegations: [],
         votedInPolls: [],
         authorOfPolls: [],
