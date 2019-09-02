@@ -78,6 +78,13 @@ app.post('/contractEvent', errorHandler(async (req, res) => {
     res.json(data)
 }));
 
+app.get('/pollOrdering', errorHandler(async (req, res) => {
+    const start = new Date().getTime();
+    const data = await logic.pollOrdering();
+    if (new Date().getTime() - start > 10) console.log("\nrequest pollOrdering", new Date().getTime() - start, "ms");
+    res.json(data)
+}));
+
 aeternity.init();
 cache.init(aeternity);
 app.listen(3000);

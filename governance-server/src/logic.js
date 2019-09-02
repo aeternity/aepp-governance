@@ -16,6 +16,61 @@ logic.cachedPollState = async (address) => {
     return cache.getOrSet(["pollOverview", address, height], () => logic.pollVotesState(address), cache.shortCacheTime);
 };
 
+logic.pollOrdering = async () => {
+    const result = async () => {
+        const considerCloseBlocks = 5000;
+
+        const closeScoreWeight = 2;
+        const stakeScoreWeight = 1;
+        const votesScoreWeight = 0.5;
+        const delegationsScoreWeight = 0.5;
+
+        const polls = await aeternity.polls();
+        const height = await aeternity.height();
+        const pollsData = await polls.asyncMap(async ([id, data]) => {
+            const state = await logic.cachedPollState(data.poll);
+
+            return {
+                id: id,
+                poll: data.poll,
+                totalStake: state.totalStake,
+                voteCount: state.voteCount,
+                closeHeight: state.pollState.close_height ? state.pollState.close_height : null,
+                delegationCount: state.stakesAtHeight.reduce((acc, cur) => acc + cur.delegators.length, 0)
+            }
+        });
+
+        const maxVotes = Math.max(...pollsData.map(poll => poll.voteCount), 1);
+        const maxDelegations = Math.max(...pollsData.map(poll => poll.delegationCount), 1);
+        const maxStake = BigNumber.max(...pollsData.map(poll => poll.totalStake), '1');
+
+        const pollsScores = pollsData.map(poll => {
+            const closesInBlocks = poll.closeHeight - height;
+            const considerCloseHeight = poll.closeHeight ? closesInBlocks > 0 ? closesInBlocks : null : null;
+            poll.considerCloseHeight = considerCloseHeight;
+
+            poll.closeScore = considerCloseHeight ? Math.abs(considerCloseBlocks - considerCloseHeight) / considerCloseBlocks : 0;
+            poll.stakeScore = new BigNumber(poll.totalStake).dividedBy(maxStake).toNumber();
+            poll.votesScore = poll.voteCount / maxVotes;
+            poll.delegationsScore = poll.delegationCount / maxDelegations;
+
+            poll.score = poll.closeScore * closeScoreWeight
+                + poll.stakeScore * stakeScoreWeight
+                + poll.votesScore * votesScoreWeight
+                + poll.delegationsScore * delegationsScoreWeight;
+
+            return poll;
+        });
+
+        return {
+            ordering: pollsScores.sort((a, b) => b.score - a.score).map(score => score.id),
+            data: pollsScores
+        };
+    };
+
+    return cache.getOrSet(["pollOrdering"], result, cache.shortCacheTime);
+};
+
 logic.accountPollVoterAuthor = async (address) => {
     const polls = await aeternity.polls();
 
