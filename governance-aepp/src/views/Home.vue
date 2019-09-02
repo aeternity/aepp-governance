@@ -46,6 +46,7 @@
     components: {BlackHeader, BottomButtons, PollListing, AeIcon, BiggerLoader, CriticalErrorOverlay},
     data() {
       return {
+        error: null,
         showLoading: true,
         address: null,
         balance: null,
