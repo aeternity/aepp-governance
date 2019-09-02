@@ -143,7 +143,12 @@
   }
 
   .tab {
-    @apply flex-1 text-center pb-2 relative text-sm
+    @apply flex-1 text-center pb-2 relative;
+    font-size: .825rem;
+  }
+
+  .tab.active {
+    font-weight: bold;
   }
 
   .tab.active::after {
@@ -160,6 +165,7 @@
   .fade-enter-active, .fade-leave-active {
     transition: opacity .3s;
   }
+
   .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
     opacity: 0;
   }

@@ -1,7 +1,7 @@
 <template>
   <div class="flex justify-center w-full">
 
-    <div class="fixed bottom-0 h-12 mb-4 w-full max-w-desktop" :class="{'h-32': view === 'search'}">
+    <div class="fixed bottom-0 h-12 pb-8 w-full max-w-desktop bottom-bar" :class="{'h-32': view === 'search'}">
       <!-- SEARCH BAR -->
       <div class="w-full flex h-12 mb-6 mt-2" v-if="view === 'search'">
         <input v-model="searchString" type="search" placeholder="Search..."
@@ -142,5 +142,10 @@
     left: calc(50% - 10px);
     width: 20px;
     height: 20px;
+  }
+
+  .bottom-bar {
+    background-image: linear-gradient(to bottom, rgba(255, 0, 0, 0), #f8f8f8);
+    border-bottom: solid 1.5rem #f8f8f8;
   }
 </style>
