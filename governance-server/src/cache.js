@@ -15,7 +15,7 @@ const WebSocketClient = require('websocket').client;
 const cache = {};
 cache.wsconnection = null;
 
-cache.shortCacheTime = process.env.SHORT_CACHE_TIME || 3 * 60;
+cache.shortCacheTime = process.env.SHORT_CACHE_TIME || 2 * 60;
 cache.longCacheTime = process.env.LONG_CACHE_TIME || 8 * 60 * 60;
 cache.keepHotInterval = process.env.KEEP_HOT_INTERVAL || 60 * 1000;
 
