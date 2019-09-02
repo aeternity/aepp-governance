@@ -15,7 +15,7 @@ const aeternity = {
 };
 
 const timeout = async (promise) => {
-  return await Promise.race([
+  return Promise.race([
     promise,
     new Promise(resolve =>
       setTimeout(() => {

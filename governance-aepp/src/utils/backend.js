@@ -1,4 +1,5 @@
 import axios from "axios";
+
 const backend = {};
 
 const BACKEND_URL = 'http://localhost:3000';
@@ -57,5 +58,9 @@ backend.accountPollVoterAuthor = async (address) => wrapTimeout(async () => {
 backend.contractEvent = async (topic, poll) => wrapTimeout(async () => {
   return axios.post(`${BACKEND_URL}/contractEvent`, {topic: topic, poll: poll});
 });
+
+backend.pollOrdering = async (closed = false) => wrapTimeout(async () => wrapTry(async () => {
+  return axios.get(`${BACKEND_URL}/pollOrdering?closed=${closed}`).then(res => res.data);
+}));
 
 export default backend;
