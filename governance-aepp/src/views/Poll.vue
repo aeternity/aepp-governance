@@ -72,15 +72,15 @@
             <ae-check class="mr-1" v-model="voteOption" :value="id" type="radio" @click.stop.prevent
                       @change="vote(id)" :disabled="isClosed || !accountAddress"></ae-check>
             <!-- TODO find better solution than this -->
-            <div class="mr-auto" style="margin-top: 4px">
-              <span
-                class="font-bold mr-1" v-if="pollVotesState">{{pollVotesState.stakesForOption[id].percentageOfTotal | formatPercent}}</span>
-              <span>{{title}}</span>
+            <div class="mr-auto flex items-center" style="margin-top: 4px">
+              <div
+                class="font-bold mr-1" v-if="pollVotesState">{{pollVotesState.stakesForOption[id].percentageOfTotal | formatPercent}}</div>
+              <div class="leading-tight">{{title}}</div>
             </div>
-            <span style="margin-top: 4px" class="block" v-if="pollVotesState">
+            <div class="min-w-3" style="margin-top: 4px" v-if="pollVotesState">
               <img src="../assets/back_gray.svg" class="transition"
                    :class="{'rotate-90': votersForOption.id != null && votersForOption.id == id}">
-            </span>
+            </div>
           </div>
           <div class="h-1 bg-primary rounded-bl" v-if="pollVotesState"
                :class="{'rounded-br': pollVotesState.stakesForOption[id].percentageOfTotal > 99}"
@@ -255,6 +255,10 @@
 
   .max-w-75 {
     max-width: 75%;
+  }
+
+  .min-w-3 {
+    min-width: 1.5rem;
   }
 
 </style>
