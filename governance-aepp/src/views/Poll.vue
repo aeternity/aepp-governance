@@ -29,11 +29,25 @@
         <div class="text-primary">
           <ae-identity-light
             :collapsed="true"
-            :balance="''"
+            balance=""
             :address="pollState.author"
           />
         </div>
       </div>
+
+      <div v-if="delegateeVote && delegateeVote.account" class="mb-4">
+        <div class="mx-4 mt-4">Includes votes by <span
+          v-if="!Object.keys(delegateeVote.delegators).includes(accountAddress)">sub</span>delegatee
+        </div>
+        <div class="ae-card mx-4 my-2 py-4 px-3 flex justify-between">
+          <ae-identity-light
+            :collapsed="true"
+            balance=""
+            :address="delegateeVote.account"
+          />
+        </div>
+      </div>
+
       <div class="relative h-4 w-full">
         <div class="absolute inset-0 flex h-full w-full justify-center items-center px-4">
           <div class="border w-full"></div>
@@ -80,15 +94,8 @@
             {{pollVotesState.stakesForOption[id].votes.length}} Votes -
             {{pollVotesState.stakesForOption[id].delegatorsCount}} Delegators
           </div>
-          <div v-for="voter in votersForOption.voters">
-            <ae-identity-light
-              :collapsed="true"
-              :additionalText="voter.delegatorsCount ? voter.delegatorsCount + ' D - ' : ''"
-              :balance="voter.stake"
-              :address="voter.account"
-              class="mx-2"
-            />
-          </div>
+          <AccountTreeLine :balance="voter.stake" :account="voter.account" :delegators="voter.delegators" v-for="voter in votersForOption.voters"
+                           :key="voter.account"/>
         </div>
       </div>
       <BottomButtons :cta-text="voteOption !== null ?  'Revoke Vote' : null " :cta-action="revokeVote"></BottomButtons>
@@ -110,10 +117,12 @@
   import AccountHeader from "~/components/AccountHeader";
   import GrayText from "~/components/GrayText";
   import CriticalErrorOverlay from "~/components/CriticalErrorOverlay";
+  import AccountTreeLine from "~/components/AccountTreeLine";
 
   export default {
     name: 'Home',
     components: {
+      AccountTreeLine,
       CriticalErrorOverlay,
       GrayText,
       AccountHeader, BottomButtons, AeIcon, AeCheck, AeButton, AeToolbar, BiggerLoader, AeIdentityLight, AeCard
@@ -179,7 +188,7 @@
           return {
             account: vote.account,
             stake: vote.stake,
-            delegatorsCount: vote.delegators.length
+            delegators: vote.delegationTree
           };
         });
 

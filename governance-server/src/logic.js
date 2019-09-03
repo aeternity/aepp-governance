@@ -145,13 +145,14 @@ logic.stakesAtHeight = async (votingAccounts, pollCloseHeight, ignoreAccounts) =
     const closingHeightOrUndefined = await aeternity.getClosingHeightOrUndefined(pollCloseHeight);
     const votingAccountStakes = [];
     for (let vote of votingAccounts) {
-        const {votingPower, balance, delegatedPower, _, flattenedDelegationTree} = await logic.balancePlusVotingPower(vote.account, closingHeightOrUndefined, ignoreAccounts);
+        const {votingPower, balance, delegatedPower, delegationTree, flattenedDelegationTree} = await logic.balancePlusVotingPower(vote.account, closingHeightOrUndefined, ignoreAccounts);
         votingAccountStakes.push({
             ...vote, ...{
                 stake: votingPower,
                 balance: balance,
                 delegated: delegatedPower,
-                delegators: flattenedDelegationTree
+                delegators: flattenedDelegationTree,
+                delegationTree: delegationTree
             }
         }) // append stake to vote object
     }
