@@ -70,7 +70,7 @@
         </span>
       </div>
     </div>
-    <BottomButtons cta-text="Create Poll" :cta-action="createPoll"></BottomButtons>
+    <BottomButtons cta-text="Create Poll" @cta="createPoll"></BottomButtons>
   </div>
 </template>
 
@@ -136,6 +136,7 @@
         // VERIFY INPUT
         this.createMetadata.title = this.createMetadata.title.trim();
         if(this.createMetadata.title.length === 0) this.errors.titleError = 'Please provide a title.';
+        if(this.createMetadata.title.length > 50) this.errors.titleError = 'Your title is too long (50 chars max).';
 
         this.createMetadata.description = this.createMetadata.description.trim();
         if(this.createMetadata.description.length === 0) this.errors.descriptionError = 'Please provide a description.';

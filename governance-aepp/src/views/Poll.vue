@@ -98,7 +98,7 @@
                            :key="voter.account"/>
         </div>
       </div>
-      <BottomButtons :cta-text="voteOption !== null ?  'Revoke Vote' : null " :cta-action="revokeVote"></BottomButtons>
+      <BottomButtons :cta-text="voteOption !== null ?  'Revoke Vote' : null " @cta="revokeVote"></BottomButtons>
       <CriticalErrorOverlay :error="error" @continue="error = null"></CriticalErrorOverlay>
     </div>
 
@@ -251,6 +251,10 @@
 
   .rotate-90 {
     transform: rotate(-90deg);
+  }
+
+  .max-w-75 {
+    max-width: 75%;
   }
 
 </style>

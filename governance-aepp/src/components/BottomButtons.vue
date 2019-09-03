@@ -19,7 +19,7 @@
         <!-- CENTER SECTION -->
         <div class="flex-3">
           <div class="rounded-full bg-primary px-8 h-full flex justify-center items-center text-white font-semibold"
-               @click="ctaAction" v-if="ctaText">
+               @click="$emit('cta')" v-if="ctaText">
             {{ctaText}}
           </div>
           <div class="rounded-full bg-primary px-8 h-full flex justify-center items-center text-white font-semibold relative"
