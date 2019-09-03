@@ -61,7 +61,7 @@
             :address="delegator"
             class="mx-4"
           />
-          <div v-if="includesIndirectDelegations" class="mx-4 mb-1 text-xs">(includes more indirect delegations)</div>
+          <div v-if="includesIndirectDelegations" class="mx-4 mt-1 text-xs">(includes more indirect delegations)</div>
         </div>
       </div>
       <div v-else class="text-gray-500 text-xl text-center my-8">

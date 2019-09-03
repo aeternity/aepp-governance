@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="bg-primary px-6 py-4 w-full text-2xl text-white" :key="address">
-      <span v-if="isOwnAccount">Your</span> Account
+      <span v-if="isOwnAccount">Your Account</span>
       <div class="flex justify-between items-center mt-3">
         <div>
           <AeIdentityLight
