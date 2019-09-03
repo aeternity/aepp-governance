@@ -10,8 +10,8 @@
         <div class="text-gray-500 mt-4">POLL CLOSED</div>
       </div>
       <div class="flex justify-between mx-4 mt-4 mb-2">
-        <div>
-          <h1 class="text-3xl leading-tight">{{pollState.metadata.title}}</h1>
+        <div class="max-w-75">
+          <h1 class="text-3xl leading-tight w-full break-words">{{pollState.metadata.title}}</h1>
         </div>
         <div class="h-8 flex items-center vote-id justify-end">
           <img class="h-full" src="../assets/hash.svg"/>
