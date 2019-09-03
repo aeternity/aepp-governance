@@ -7,6 +7,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const { VueLoaderPlugin } = require('vue-loader')
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const PurgecssPlugin = require('purgecss-webpack-plugin')
+const WebpackPwaManifest = require('webpack-pwa-manifest');
 let glob = require('glob-all')
 
 const distFolder = path.resolve(__dirname, 'dist')
@@ -75,7 +76,19 @@ module.exports = env => {
       }),
       new HtmlWebpackHarddiskPlugin(),
       new CleanWebpackPlugin(),
-      new VueLoaderPlugin()
+      new VueLoaderPlugin(),
+      new WebpackPwaManifest({
+        name: 'Governance Aepp',
+        short_name: 'Governance',
+        description: 'Create and vote on governance polls for aeternity.',
+        background_color: '#ff0d6a',
+        /* icons: [
+          {
+            src: path.resolve(__dirname, 'src/assets/0_DGP_Logo_rainbow_1.svg'),
+            sizes: [96, 128, 192, 256, 384, 512] // multiple sizes
+          }
+        ] */
+      })
     ],
     module: {
       rules: [
