@@ -98,7 +98,7 @@
                            :key="voter.account"/>
         </div>
       </div>
-      <BottomButtons :cta-text="voteOption !== null ?  'Revoke Vote' : null " @cta="revokeVote"></BottomButtons>
+      <BottomButtons :cta-text="voteOption !== null && !isClosed ?  'Revoke Vote' : null " @cta="revokeVote"></BottomButtons>
       <CriticalErrorOverlay :error="error" @continue="error = null"></CriticalErrorOverlay>
     </div>
 

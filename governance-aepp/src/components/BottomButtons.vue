@@ -18,10 +18,10 @@
         </div>
         <!-- CENTER SECTION -->
         <div class="flex-3">
-          <div class="rounded-full bg-primary px-8 h-full flex justify-center items-center text-white font-semibold"
-               @click="$emit('cta')" v-if="ctaText">
+          <button class="rounded-full bg-primary px-8 h-full flex justify-center items-center text-white font-semibold"
+               @click="$emit('cta')" :disabled="ctaDisabled" v-if="ctaText">
             {{ctaText}}
-          </div>
+          </button>
           <div class="rounded-full bg-primary px-8 h-full flex justify-center items-center text-white font-semibold relative"
                @click="clickSearch" v-if="searchBar" :class="{'search-button': view === 'search'}">
             Search
@@ -36,12 +36,6 @@
         </div>
       </div>
     </div>
-    <!--
-    <div @click="$router.push(`/account/${address}`)" class="fixed bottom-0 left-0 p-8">
-      <ae-icon name="contacts" fill="primary" face="round"
-               class="ae-icon-size shadow"></ae-icon>
-    </div>
-    -->
   </div>
 </template>
 
@@ -91,6 +85,10 @@
         type: Function,
         default: () => {
         }
+      },
+      ctaDisabled: {
+        type: Boolean,
+        default: false
       }
     },
     watch: {
@@ -147,5 +145,9 @@
   .bottom-bar {
     background-image: linear-gradient(to bottom, rgba(255, 0, 0, 0), #f8f8f8);
     border-bottom: solid 1.5rem #f8f8f8;
+  }
+
+  button[disabled] {
+    @apply text-gray-500 cursor-not-allowed
   }
 </style>
