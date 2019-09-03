@@ -3,7 +3,7 @@
 
     <div class="fixed bottom-0 h-12 pb-8 w-full max-w-desktop bottom-bar" :class="{'h-32': view === 'search'}">
       <!-- SEARCH BAR -->
-      <div class="w-full flex h-12 mb-6 mt-2" v-if="view === 'search'">
+      <div class="w-full flex h-12 mb-6" v-if="view === 'search'">
         <input v-model="searchString" type="search" placeholder="Search..."
                class="rounded-full bg-white h-full flex justify-center items-center px-4 w-full mx-8 search-bar"/>
       </div>
