@@ -78,8 +78,6 @@
     props: ["resetView"],
     methods: {
       switchTab(newTab) {
-        console.log(this.$route.query.tab);
-        console.log(newTab)
         if(this.activeTab !== newTab) this.$router.push(`/?tab=${newTab}`)
       },
       updateTabView() {
@@ -113,8 +111,12 @@
         }
       },
       filterPolls(searchString) {
+        // Reset filter
         this.updateTabView();
-        this.polls = this.polls.filter(poll => poll[1].title.indexOf(searchString) > -1)
+
+        // ONLY NUMBERS?
+        if(/^\d+$/.test(searchString)) this.polls = this.polls.filter(poll => poll[0] === parseInt(searchString));
+        else this.polls = this.polls.filter(poll => poll[1].title.indexOf(searchString) > -1)
       }
     },
     async mounted() {
@@ -146,7 +148,6 @@
     },
     created() {
       this.activeTab = this.$route.query.tab ? this.$route.query.tab : null;
-      console.log(this.$route.query.tab)
     }
   }
 </script>
