@@ -78,7 +78,7 @@
     props: ["resetView"],
     methods: {
       switchTab(newTab) {
-        if(this.activeTab !== newTab) this.$router.push(`/?tab=${newTab}`)
+        if(this.activeTab !== newTab) this.$router.push({query: {tab: newTab}})
       },
       updateTabView() {
         this.resetView();

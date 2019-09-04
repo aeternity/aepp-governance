@@ -30,13 +30,13 @@
       </div>
     </div>
     <div class="flex w-full text-center text-gray-500 mt-4 text-sm">
-      <div class="flex-1 pb-2 border-b-2 border-gray-300" @click="tab = 'delegations'"
+      <div class="flex-1 pb-2 border-b-2 border-gray-300" @click="switchTab('delegations')"
            :class="{'active-tab': tab === 'delegations'}">DELEGATIONS
       </div>
-      <div class="flex-1 pb-2 border-b-2 border-gray-300" @click="tab = 'votes'"
+      <div class="flex-1 pb-2 border-b-2 border-gray-300" @click="switchTab('votes')"
            :class="{'active-tab': tab === 'votes'}">VOTES
       </div>
-      <div class="flex-1 pb-2 border-b-2 border-gray-300" @click="tab = 'polls'"
+      <div class="flex-1 pb-2 border-b-2 border-gray-300" @click="switchTab('polls')"
            :class="{'active-tab': tab === 'polls'}">POLLS
       </div>
     </div>
@@ -114,7 +114,7 @@
         isOwnAccount: false,
         delegation: null,
         delegatedPower: null,
-        tab: 'delegations',
+        tab: null,
         delegations: [],
         votedInPolls: [],
         authorOfPolls: [],
@@ -124,9 +124,13 @@
     computed: {},
     beforeRouteUpdate(to, from, next) {
       next();
-      this.loadData();
+      if(this.address !== this.$route.params.account) this.loadData();
+      else this.tab = this.$route.query.tab ? this.$route.query.tab : 'delegations'
     },
     methods: {
+      switchTab(newTab) {
+        if(this.tab !== newTab) this.$router.push({query: {tab: newTab}})
+      },
       async createDelegation() {
         if (this.delegatee.includes('ak_')) {
           this.showLoading = true;
@@ -186,6 +190,7 @@
     },
     async mounted() {
       this.loadData();
+      this.tab = this.$route.query.tab ? this.$route.query.tab : "delegations";
     }
   }
 </script>
