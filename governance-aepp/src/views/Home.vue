@@ -74,8 +74,11 @@
         this.showLoading = false;
       }
     },
+    props: ["resetView"],
     methods: {
       updateTabView() {
+        this.resetView();
+
         switch (this.activeTab) {
           case "hot":
             this.polls = this.activePolls.sort((a, b) => {

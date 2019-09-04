@@ -1,8 +1,8 @@
 <template>
   <div id="app" class="min-h-screen">
     <div class="content min-h-screen max-w-desktop">
-      <div class="min-h-screen wrapper">
-        <router-view v-if="clientAvailable"></router-view>
+      <div class="min-h-screen wrapper" ref="wrapper">
+        <router-view v-if="clientAvailable" :resetView="resetView"></router-view>
         <div class="inset-0 flex justify-center flex-col items-center" v-else>
           <BiggerLoader></BiggerLoader>
           <h2 class="mt-2 font-bold">Looking for a wallet. Check for popups.</h2>
@@ -52,6 +52,9 @@
       async abortWalletCheck() {
         await aeternity.disableWallet();
         this.clientAvailable = true;
+      },
+      resetView() {
+        this.$refs.wrapper.scrollTo(0,0);
       }
     },
     async created() {
