@@ -60,7 +60,7 @@ backend.contractEvent = async (topic, poll) => wrapTimeout(async () => {
 });
 
 backend.pollOrdering = async (closed = false) => wrapTimeout(async () => wrapTry(async () => {
-  return axios.get(`${BACKEND_URL}/pollOrdering?closed=${closed}`).then(res => res.data);
+  return axios.get(`${BACKEND_URL}/pollOrdering?closed=${closed ? "true" : "false"}`).then(res => res.data);
 }));
 
 export default backend;

@@ -28,9 +28,9 @@ logic.pollOrdering = async (closed = false) => {
         const height = await aeternity.height();
         const polls = (await aeternity.polls()).filter(poll => {
             if (closed) {
-                return !poll[1].close_height || poll[1].close_height > height;
-            } else {
                 return poll[1].close_height && poll[1].close_height <= height;
+            } else {
+                return !poll[1].close_height || poll[1].close_height > height;
             }
         });
         const pollsData = await polls.asyncMap(async ([id, data]) => {
