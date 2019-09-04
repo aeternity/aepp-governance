@@ -80,7 +80,7 @@ app.post('/contractEvent', errorHandler(async (req, res) => {
 
 app.get('/pollOrdering', errorHandler(async (req, res) => {
     const start = new Date().getTime();
-    const data = await logic.pollOrdering(req.query.closed);
+    const data = await logic.pollOrdering(req.query.closed === "true");
     if (new Date().getTime() - start > 10) console.log("\nrequest pollOrdering", new Date().getTime() - start, "ms");
     res.json(data)
 }));
