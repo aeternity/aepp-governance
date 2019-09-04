@@ -44,7 +44,7 @@
     },
     methods: {
       closeHeight(close_height) {
-        if (!close_height) return "never closes";
+        if (typeof close_height !== "number") return "never closes";
         if (close_height < aeternity.height) return `closed at ${close_height}`;
         return `closes at ${close_height}`
       }

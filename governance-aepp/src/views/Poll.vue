@@ -61,7 +61,7 @@
 
       <div class="text-center w-full mt-2 text-gray-500 text-sm" v-if="pollVotesState && pollVotesState.totalStake">
         Stake: {{pollVotesState.totalStake | toAE}} ({{pollVotesState.percentOfTotalSupply | formatPercent}}) -
-        {{isClosed ? 'Closed' : 'Closes'}} {{pollState.close_height ? `at ${pollState.close_height}` : 'never'}}
+        {{isClosed ? 'Closed' : 'Closes'}} {{typeof pollState.close_height === 'number'  ? `at ${pollState.close_height}` : 'never'}}
       </div>
 
       <!-- POLL OPTIONS -->

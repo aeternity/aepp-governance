@@ -134,8 +134,8 @@
       this.balance = aeternity.balance;
       this.allPolls = await aeternity.polls();
 
-      this.closedPolls = this.allPolls.filter(poll => poll[1].close_height && poll[1].close_height <= aeternity.height);
-      this.activePolls = this.allPolls.filter(poll => !poll[1].close_height || poll[1].close_height > aeternity.height);
+      this.closedPolls = this.allPolls.filter(poll => typeof poll[1].close_height === 'number' && poll[1].close_height <= aeternity.height);
+      this.activePolls = this.allPolls.filter(poll => typeof poll[1].close_height !== 'number' || poll[1].close_height > aeternity.height);
 
       this.pollOrdering = await Backend.pollOrdering(false).catch(console.error);
       // Only overwrite if active tab is not set yet
