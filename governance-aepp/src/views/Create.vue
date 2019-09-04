@@ -62,14 +62,19 @@
 
     <div class="py-2 px-4 mb-16">
       <ae-input :error="!!errors.closeHeightError" type="number" v-model="closeHeightString"
-                label="Close at height (optional)"></ae-input>
+                label="Close at height"></ae-input>
       <div class="text-gray-500 text-sm p-2">
-        Current height is {{height}}
-        <span v-if="closeDate">
-          and height {{closeHeightString}} is expected at {{closeDate}}
+        <span v-if="!closeHeightString">
+          Current height is {{height}}. To create a never closing poll, set close height to "0".
         </span>
-        <span v-if="closeHeightString && closeHeightString < height">
-          and closing height {{closeHeightString}} lies in the past.
+        <span v-if="closeDate">
+          Current height is {{height}} and height {{closeHeightString}} is expected at {{closeDate}}
+        </span>
+        <span v-if="closeHeightString && closeHeightString < height && closeHeightString !== '0'">
+          Current height is {{height}} and closing height {{closeHeightString}} lies in the past.
+        </span>
+        <span v-if="closeHeightString === '0'">
+          This poll will never close.
         </span>
       </div>
     </div>
@@ -151,8 +156,9 @@
         let options = this.options.filter(option => !!(option.text.trim()));
         if (options.length < 2) this.errors.optionError = 'Please provide at least two options.';
 
-        if (this.closeHeightString.length > 0 && isNaN(parseInt(this.closeHeightString))) this.errors.closeHeightError = 'The closing height is not a whole number.';
-        else if (this.closeHeightString.length > 0 && parseInt(this.closeHeightString) <= this.height) this.errors.closeHeightError = 'The closing height lies in the past.';
+        if (this.closeHeightString.length === 0) this.errors.closeHeightError = 'Please provide a closing height.';
+        else if (isNaN(parseInt(this.closeHeightString))) this.errors.closeHeightError = 'The closing height is not a whole number.';
+        else if (parseInt(this.closeHeightString) <= this.height && this.closeHeightString !== "0") this.errors.closeHeightError = 'The closing height lies in the past.';
 
         if (Object.values(this.errors).some(val => !!val)) return document.querySelector('.wrapper').scrollTo(0, 0);
 
@@ -160,7 +166,7 @@
 
         if (this.createMetadata.title.length >= 3 && this.options.length >= 3) {
           this.showLoading = true;
-          const close_height = isNaN(parseInt(this.closeHeightString)) ? Promise.reject() : Promise.resolve(parseInt(this.closeHeightString));
+          const close_height = parseInt(this.closeHeightString) === 0 ? Promise.reject() : Promise.resolve(parseInt(this.closeHeightString));
 
           let newID = 0;
           options = this.options.filter(option => !!option.text)
