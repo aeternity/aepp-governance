@@ -101,9 +101,12 @@ aeternity.checkAvailableWallets = async () => {
   // Dont even check for iframe / extension if aepp is run inside a base-aepp
   if (baseAeppClient && window.parent !== window) return wallets;
 
+  /*
   // Check for iframe
   const iframeClient = await aeternity.initReverseIframe();
   if (iframeClient && iframeClient !== 'TIMEOUT') wallets['ReverseIframe'] = iframeClient;
+  */
+
 
   // Make static wallet available
   const staticClient = await aeternity.initStaticClient();
