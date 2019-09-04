@@ -136,11 +136,12 @@
           this.showLoading = true;
           try {
             await aeternity.contract.methods.delegate(this.delegatee);
-            Backend.contractEvent("Delegation");await this.loadData();
+            await Backend.contractEvent("Delegation").catch(console.error);
+            await this.loadData();
           } catch (e) {
             console.error(e);
             this.showLoading = false;
-            this.error = 'Could not revoke your delegation. Please try again.';
+            this.error = 'Could not create your delegation. Please try again.';
 
           }
         }
@@ -149,12 +150,14 @@
         this.showLoading = true;
         try {
           await aeternity.contract.methods.revoke_delegation();
-          Backend.contractEvent("RevokeDelegation");await this.loadData();
+          await Backend.contractEvent("RevokeDelegation").catch(console.error);
+          await this.loadData();
         } catch (e) {
           console.error(e);
           this.showLoading = false;
           this.error = 'Could not revoke your delegation. Please try again.'
         }
+
       },
       resetData() {
         this.showLoading = true;
