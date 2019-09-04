@@ -8,15 +8,15 @@
         Open Polls
       </BlackHeader>
       <div class="flex bg-gray-ae text-gray-200">
-        <div v-if="pollOrdering" :class="{active: activeTab === 'hot'}" @click="activeTab = 'hot'" class="tab">
+        <div v-if="pollOrdering" :class="{active: activeTab === 'hot'}" @click="switchTab('hot')" class="tab">
           HOT
         </div>
-        <div :class="{active: activeTab === 'closing'}" @click="activeTab = 'closing'" class="tab">CLOSING</div>
-        <div v-if="pollOrdering" :class="{active: activeTab === 'stake'}" @click="activeTab = 'stake'" class="tab">
+        <div :class="{active: activeTab === 'closing'}" @click="switchTab('closing')" class="tab">CLOSING</div>
+        <div v-if="pollOrdering" :class="{active: activeTab === 'stake'}" @click="switchTab('stake')" class="tab">
           STAKE
         </div>
-        <div :class="{active: activeTab === 'new'}" @click="activeTab = 'new'" class="tab">NEW</div>
-        <div :class="{active: activeTab === 'closed'}" @click="activeTab = 'closed'" class="tab">CLOSED</div>
+        <div :class="{active: activeTab === 'new'}" @click="switchTab('new')" class="tab">NEW</div>
+        <div :class="{active: activeTab === 'closed'}" @click="switchTab('closed')" class="tab">CLOSED</div>
       </div>
     </div>
     <div class="mt-32">
@@ -58,7 +58,7 @@
         showLoading: true,
         address: null,
         balance: null,
-        activeTab: 'new',
+        activeTab: null,
         pollOverview: [],
         polls: [],
         allPolls: [],
@@ -68,7 +68,8 @@
       }
     },
     watch: {
-      activeTab() {
+      '$route.query.tab'() {
+        this.activeTab = this.$route.query.tab;
         this.showLoading = true;
         this.updateTabView();
         this.showLoading = false;
@@ -76,6 +77,11 @@
     },
     props: ["resetView"],
     methods: {
+      switchTab(newTab) {
+        console.log(this.$route.query.tab);
+        console.log(newTab)
+        if(this.activeTab !== newTab) this.$router.push(`/?tab=${newTab}`)
+      },
       updateTabView() {
         this.resetView();
 
@@ -129,13 +135,18 @@
       this.closedPolls = this.allPolls.filter(poll => poll[1].close_height && poll[1].close_height <= aeternity.height);
       this.activePolls = this.allPolls.filter(poll => !poll[1].close_height || poll[1].close_height > aeternity.height);
 
-      await Backend.pollOrdering(false).then(pollOrdering => {
-        this.pollOrdering = pollOrdering;
-        this.activeTab = 'hot';
-      }).catch(console.error);
+      this.pollOrdering = await Backend.pollOrdering(false).catch(console.error);
+      // Only overwrite if active tab is not set yet
+      if(!this.activeTab) this.activeTab = this.pollOrdering ? 'hot' : 'new';
+      // Fallback if poll order fetching fails
+      if((this.activeTab === 'stake' || this.activeTab === 'hot') && !this.pollOrdering) this.activeTab = 'new';
 
       this.updateTabView();
       this.showLoading = false;
+    },
+    created() {
+      this.activeTab = this.$route.query.tab ? this.$route.query.tab : null;
+      console.log(this.$route.query.tab)
     }
   }
 </script>
@@ -169,7 +180,8 @@
     transition: opacity .3s;
   }
 
-  .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */
+  {
     opacity: 0;
   }
 
