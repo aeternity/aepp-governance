@@ -144,21 +144,23 @@ aeternity.initClient = async () => {
           let client = await aeternity['init' + preferredWallet]();
           result = await aeternity.setClient(preferredWallet, client);
           if (!result) sessionStorage.removeItem('aeWallet');
+          else return result
         } catch (e) {
           console.error(e);
           sessionStorage.removeItem('aeWallet');
         }
-      } else {
-        const wallets = await aeternity.checkAvailableWallets();
-        if (Object.keys(wallets).length === 1) {
-          result = await aeternity.setClient(Object.keys(wallets)[0], wallets[Object.keys(wallets)[0]]);
-        } else if (Object.keys(wallets).length > 1) {
-          const otherWallets = Object.filter(wallets).map(walletName => walletName !== preferredWallet);
-          result = await aeternity.setClient(otherWallets[0], wallets[otherWallets[0]]);
-        } else {
-          result = false;
-        }
       }
+      // If preferred wallet check fails, try the other wallets
+      const wallets = await aeternity.checkAvailableWallets();
+      if (Object.keys(wallets).length === 1) {
+        result = await aeternity.setClient(Object.keys(wallets)[0], wallets[Object.keys(wallets)[0]]);
+      } else if (Object.keys(wallets).length > 1) {
+        const otherWallets = Object.filter(wallets).map(walletName => walletName !== preferredWallet);
+        result = await aeternity.setClient(otherWallets[0], wallets[otherWallets[0]]);
+      } else {
+        result = false;
+      }
+
     } catch (e) {
       console.error(e);
       result = false;
