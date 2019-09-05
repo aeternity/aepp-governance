@@ -134,16 +134,18 @@ cache.startInvalidator = (aeternity) => {
 cache.keepHot = (aeternity) => {
     const discoverDelegationEvents = async () => {
         const height = await aeternity.height();
-        delegationLogic.findDelegationEvents(aeternity, height);
+        await delegationLogic.findDelegationEvents(aeternity, height);
     };
 
-
-    setInterval(async () => {
+    const keepHotLogic = async () => {
         const start = new Date().getTime();
         await discoverDelegationEvents();
         await aeternity.tokenSupply();
         console.log("\n  cache keepHot", new Date().getTime() - start, "ms");
-    }, cache.keepHotInterval);
+    };
+
+    keepHotLogic();
+    setInterval(keepHotLogic, cache.keepHotInterval);
 };
 
 module.exports = cache;
