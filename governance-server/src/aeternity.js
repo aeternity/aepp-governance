@@ -18,14 +18,16 @@ if (!process.env.CONTRACT_ADDRESS) throw "CONTRACT_ADDRESS is not set";
 aeternity.contractAddress = process.env.CONTRACT_ADDRESS;
 
 aeternity.init = async () => {
-    aeternity.client = await Universal({
-        url: process.env.NODE_URL,
-        internalUrl: process.env.NODE_URL,
-        compilerUrl: process.env.COMPILER_URL
-    });
+    if (!aeternity.client) {
+        aeternity.client = await Universal({
+            url: process.env.NODE_URL,
+            internalUrl: process.env.NODE_URL,
+            compilerUrl: process.env.COMPILER_URL
+        });
 
-    aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: aeternity.contractAddress});
-    console.log("initialized aeternity sdk")
+        aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: aeternity.contractAddress});
+        console.log("initialized aeternity sdk");
+    }
 };
 
 aeternity.registryCreationHeight = async () => {

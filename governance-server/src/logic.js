@@ -84,8 +84,14 @@ logic.accountPollVoterAuthor = async (address) => {
         const acc = await promiseAcc;
         const {pollState, votingAccountList} = await logic.pollStateAndVotingAccounts(data.poll, true);
 
+        const getVoteForAccount = (account) => {
+            const voteId = pollState.votes.find(([voter, _]) => voter === account)[1];
+            const voteOption = pollState.vote_options.find(([id]) => id === voteId)[1];
+            return {vote: voteOption};
+        };
+
         if (pollState.author === address) acc.authorOfPolls.push([id, data]);
-        if (votingAccountList.includes(address)) acc.votedInPolls.push([id, data]);
+        if (votingAccountList.includes(address)) acc.votedInPolls.push([id, {...data, ...getVoteForAccount(address)}]);
 
         return acc;
     }, Promise.resolve({votedInPolls: [], authorOfPolls: []}));

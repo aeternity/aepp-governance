@@ -139,6 +139,7 @@ cache.keepHot = (aeternity) => {
 
     const keepHotLogic = async () => {
         const start = new Date().getTime();
+        await aeternity.init();
         await discoverDelegationEvents();
         await aeternity.tokenSupply();
         console.log("\n  cache keepHot", new Date().getTime() - start, "ms");
