@@ -1,12 +1,9 @@
 <template>
-  <div class="ae-card p-4" @click="$router.push(`/poll/${id}`)">
+  <div class="ae-card p-4 pb-2" @click="$router.push(`/poll/${id}`)">
     <div class="flex items-center vote-id w-full">
       <img class="h-6" src="../assets/hash.svg"/>
       <span class="text-primary text-2xl leading-none mr-2">{{id}}</span>
       <span class="text-2xl leading-none break-words max-w-85">{{data.title}}</span>
-    </div>
-    <div v-if="vote">
-
     </div>
     <div class="text-gray-500 text-sm">
       <span v-if="percentOfTotalSupply">{{percentOfTotalSupply | formatPercent}} stake - </span>

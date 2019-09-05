@@ -37,9 +37,9 @@
 
       <div v-if="delegateeVote && delegateeVote.account" class="mb-4">
         <div class="mx-4 mt-4">Includes votes by <span
-          v-if="!Object.keys(delegateeVote.delegators).includes(accountAddress)">sub</span>delegatee
+          v-if="!Object.keys(delegateeVote.delegationTree).includes(accountAddress)">sub</span>delegatee
         </div>
-        <div class="ae-card mx-4 my-2 py-4 px-3 flex justify-between">
+        <div class="ae-card mx-4 my-2 py-4 px-3">
           <ae-identity-light
             :collapsed="true"
             balance=""

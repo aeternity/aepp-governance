@@ -184,8 +184,8 @@
         }).catch(console.error);
 
         await Backend.accountPollVoterAuthor(this.address).then(data => {
-          this.votedInPolls = data.votedInPolls.sort((a, b) => b[0] - a[0]);;
-          this.authorOfPolls = data.authorOfPolls.sort((a, b) => b[0] - a[0]);;
+          this.votedInPolls = data.votedInPolls.sort((a, b) => b[0] - a[0]);
+          this.authorOfPolls = data.authorOfPolls.sort((a, b) => b[0] - a[0]);
         }).catch(console.error);
 
         this.showLoading = false;
