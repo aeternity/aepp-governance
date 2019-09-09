@@ -83,7 +83,7 @@ aeternity.delegations = async (pollCloseHeight) => {
     const closingHeightOrUndefined = await aeternity.getClosingHeightOrUndefined(pollCloseHeight);
     if (closingHeightOrUndefined) {
         return cache.getOrSet(["delegations", closingHeightOrUndefined], async () => {
-            const delegationEvents = await delegationLogic.findDelegationEvents(aeternity, closingHeightOrUndefined);
+            const delegationEvents = await delegationLogic.findDelegationEvents(cache, aeternity, closingHeightOrUndefined);
             return delegationLogic.calculateDelegations(delegationEvents);
         }, cache.longCacheTime);
     } else {

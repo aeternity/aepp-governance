@@ -2,16 +2,30 @@ const util = require('./util');
 
 const delegationLogic = {};
 
-delegationLogic.findDelegationEvents = async (aeternity, height) => {
+const findDelegationEvents = async (cache, aeternity, height) => {
+    return cache.getOrSet(["findDelegationEvents", height], async () => {
+        const registryCreationHeight = await aeternity.registryCreationHeight();
+
+        const microBlockHashes = await util.range(registryCreationHeight, height).asyncMap(aeternity.microBlocks);
+        const registryContractTransactions = await microBlockHashes.asyncMap(aeternity.contractTransactionHashes);
+        const registryContractEvents = await registryContractTransactions.asyncMap(aeternity.transactionEvent);
+
+        const delegationEvents = registryContractEvents.filter(event => ["Delegation", "RevokeDelegation"].includes(event.topic));
+        const sortedDelegationEvents = delegationEvents.sort((a, b) => a.height - b.height || a.nonce - b.nonce);
+        return sortedDelegationEvents
+    });
+};
+
+delegationLogic.findDelegationEvents = async (cache, aeternity, height) => {
     const registryCreationHeight = await aeternity.registryCreationHeight();
 
-    const microBlockHashes = await util.range(registryCreationHeight, height).asyncMap(aeternity.microBlocks);
-    const registryContractTransactions = await microBlockHashes.asyncMap(aeternity.contractTransactionHashes);
-    const registryContractEvents = await registryContractTransactions.asyncMap(aeternity.transactionEvent);
+    const batchSize = 1000;
+    const creationHeightDifference = height - registryCreationHeight;
+    const amountBatches = Math.floor(creationHeightDifference / batchSize);
+    const batchHeights = util.range(0, amountBatches).map(x => registryCreationHeight + (x * batchSize));
+    console.log(batchHeights);
 
-    const delegationEvents = registryContractEvents.filter(event => ["Delegation", "RevokeDelegation"].includes(event.topic));
-    const sortedDelegationEvents = delegationEvents.sort((a, b) => a.height - b.height || a.nonce - b.nonce);
-    return sortedDelegationEvents
+    return batchHeights.asyncMap((height) => findDelegationEvents(cache, aeternity, height));
 };
 
 delegationLogic.calculateDelegations = (delegationEvents) => {
