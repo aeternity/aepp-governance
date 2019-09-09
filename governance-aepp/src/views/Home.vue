@@ -40,14 +40,14 @@
 <script>
   import aeternity from "~/utils/aeternity";
   import Backend from "~/utils/backend";
-  import {AeIcon} from '@aeternity/aepp-components/src/components'
-  import BiggerLoader from '../components/BiggerLoader'
+  import {AeIcon} from '@aeternity/aepp-components/src/components';
+  import BiggerLoader from '../components/BiggerLoader';
   import PollListing from "~/components/PollListing";
   import BottomButtons from "~/components/BottomButtons";
   import BlackHeader from "~/components/BlackHeader";
   import CriticalErrorOverlay from "~/components/CriticalErrorOverlay";
   import axios from "axios";
-  import BigNumber from 'bignumber.js'
+  import BigNumber from 'bignumber.js';
 
   export default {
     name: 'Home',
@@ -59,13 +59,18 @@
         address: null,
         balance: null,
         activeTab: null,
+        availableTabs: ["hot", "closing", "stake", "new", "closed"],
         pollOverview: [],
         polls: [],
         allPolls: [],
         closedPolls: [],
         activePolls: [],
-        pollOrdering: null
-      }
+        pollOrdering: null,
+        startPosition: {
+          x: null,
+          y: null
+        }
+      };
     },
     watch: {
       '$route.query.tab'() {
@@ -78,7 +83,7 @@
     props: ["resetView"],
     methods: {
       switchTab(newTab) {
-        if(this.activeTab !== newTab) this.$router.push({query: {tab: newTab}})
+        if (this.activeTab !== newTab) this.$router.push({query: {tab: newTab}});
       },
       updateTabView() {
         this.resetView();
@@ -86,15 +91,15 @@
         switch (this.activeTab) {
           case "hot":
             this.polls = this.activePolls.sort((a, b) => {
-              return this.pollOrdering.ordering.indexOf(a[0]) - this.pollOrdering.ordering.indexOf(b[0])
+              return this.pollOrdering.ordering.indexOf(a[0]) - this.pollOrdering.ordering.indexOf(b[0]);
             });
             break;
           case "stake":
             const stakeOrdering = this.pollOrdering.data.sort((a, b) => {
-              return new BigNumber(b.totalStake).comparedTo(a.totalStake)
+              return new BigNumber(b.totalStake).comparedTo(a.totalStake);
             }).map(poll => poll.id);
             this.polls = this.activePolls.sort((a, b) => {
-              return stakeOrdering.indexOf(a[0]) - stakeOrdering.indexOf(b[0])
+              return stakeOrdering.indexOf(a[0]) - stakeOrdering.indexOf(b[0]);
             });
             break;
           case "closing":
@@ -115,19 +120,39 @@
         this.updateTabView();
 
         // ONLY NUMBERS?
-        if(/^\d+$/.test(searchString)) this.polls = this.polls.filter(poll => poll[0] === parseInt(searchString));
-        else this.polls = this.polls.filter(poll => poll[1].title.indexOf(searchString) > -1)
-      }
+        if (/^\d+$/.test(searchString)) this.polls = this.polls.filter(poll => poll[0] === parseInt(searchString));
+        else this.polls = this.polls.filter(poll => poll[1].title.indexOf(searchString) > -1);
+      },
+      touchStartEvent(event) {
+        this.startPosition = {x: event.touches[0].clientX, y: event.touches[0].clientY};
+      },
+      touchEndEvent(event) {
+        const diff = {
+          x: event.changedTouches[event.changedTouches.length - 1].clientX - this.startPosition.x,
+          y: event.changedTouches[event.changedTouches.length - 1].clientY - this.startPosition.y
+        };
+        if (Math.abs(diff.x) > Math.abs(diff.y) && Math.abs(diff.x) > 100) {
+          this.swipeTab(diff.x);
+        }
+        this.startPosition = {x: null, y: null};
+      },
+      swipeTab(diffX) {
+        const currentIndex = this.availableTabs.indexOf(this.activeTab);
+        let direction = diffX > 0 ? -1 : 1;
+        if (currentIndex + direction < 0) direction = 4;
+        this.switchTab(this.availableTabs[(currentIndex + direction) % this.availableTabs.length]);
+      },
     },
+
     async mounted() {
       await aeternity.initClient();
 
       if (aeternity.isTestnet() && aeternity.balance <= 5) {
-        await axios.post(`https://testnet.faucet.aepps.com/account/${aeternity.address}`, {}, {headers: {'content-type': 'application/x-www-form-urlencoded'}}).catch(console.error)
+        await axios.post(`https://testnet.faucet.aepps.com/account/${aeternity.address}`, {}, {headers: {'content-type': 'application/x-www-form-urlencoded'}}).catch(console.error);
       }
       if (!aeternity.isTestnet()) {
         // remove this for mainnet usage
-        this.error = 'This Aepp is in testing mode, choose Testnet to use it, you will automatically be funded Testnet-tokens. In Base-Aepp you can find this in Settings -> Network.'
+        this.error = 'This Aepp is in testing mode, choose Testnet to use it, you will automatically be funded Testnet-tokens. In Base-Aepp you can find this in Settings -> Network.';
       }
 
       this.address = aeternity.address;
@@ -139,17 +164,27 @@
 
       this.pollOrdering = await Backend.pollOrdering(false).catch(console.error);
       // Only overwrite if active tab is not set yet
-      if(!this.activeTab) this.activeTab = this.pollOrdering ? 'hot' : 'new';
+      if (!this.activeTab) this.activeTab = this.pollOrdering ? 'hot' : 'new';
       // Fallback if poll order fetching fails
-      if((this.activeTab === 'stake' || this.activeTab === 'hot') && !this.pollOrdering) this.activeTab = 'new';
+      if ((this.activeTab === 'stake' || this.activeTab === 'hot') && !this.pollOrdering) this.activeTab = 'new';
+      // Update available tabs if there is no backend
+      if (!this.pollOrdering) this.availableTabs = ["closing", "new", "closed"];
 
       this.updateTabView();
+
+      document.addEventListener('touchstart', this.touchStartEvent, false);
+      document.addEventListener('touchend', this.touchEndEvent, false);
+
       this.showLoading = false;
     },
     created() {
       this.activeTab = this.$route.query.tab ? this.$route.query.tab : null;
+    },
+    beforeDestroy() {
+      document.removeEventListener('touchstart', this.touchStartEvent, false);
+      document.removeEventListener('touchend', this.touchEndEvent, false);
     }
-  }
+  };
 </script>
 
 <style scoped>

@@ -31,16 +31,16 @@
     </div>
     <div class="flex w-full text-center text-gray-500 mt-4 text-sm">
       <div class="flex-1 pb-2 border-b-2 border-gray-300" @click="switchTab('delegations')"
-           :class="{'active-tab': tab === 'delegations'}">DELEGATIONS
+           :class="{'active-tab': activeTab === 'delegations'}">DELEGATIONS
       </div>
       <div class="flex-1 pb-2 border-b-2 border-gray-300" @click="switchTab('votes')"
-           :class="{'active-tab': tab === 'votes'}">VOTES
+           :class="{'active-tab': activeTab === 'votes'}">VOTES
       </div>
       <div class="flex-1 pb-2 border-b-2 border-gray-300" @click="switchTab('polls')"
-           :class="{'active-tab': tab === 'polls'}">POLLS
+           :class="{'active-tab': activeTab === 'polls'}">POLLS
       </div>
     </div>
-    <div v-if="tab === 'votes'">
+    <div v-if="activeTab === 'votes'">
       <div v-if="votedInPolls.length" class="mt-1">
         <div class="my-2" v-for="[id, data] in votedInPolls">
           <!-- TODO add voted option -->
@@ -51,7 +51,7 @@
         Could not find any votes.
       </div>
     </div>
-    <div v-if="tab === 'delegations'">
+    <div v-if="activeTab === 'delegations'">
       <div v-if="delegations.length">
         <div v-for="{delegator, _, delegatorAmount, includesIndirectDelegations} in delegations"
              class="ae-card py-4 mx-4 my-2">
@@ -68,7 +68,7 @@
         Could not find any delegations to you.
       </div>
     </div>
-    <div v-if="tab === 'polls'">
+    <div v-if="activeTab === 'polls'">
       <div v-if="authorOfPolls.length" class="mt-1">
         <div class="my-2" v-for="[id, data] in authorOfPolls">
           <PollListing :id="id" :data="data" class="mx-4"/>
@@ -114,22 +114,42 @@
         isOwnAccount: false,
         delegation: null,
         delegatedPower: null,
-        tab: null,
+        activeTab: null,
         delegations: [],
         votedInPolls: [],
         authorOfPolls: [],
-        error: null
+        error: null,
+        availableTabs: ["delegations", "votes", "polls"]
       }
     },
     computed: {},
     beforeRouteUpdate(to, from, next) {
       next();
       if(this.address !== this.$route.params.account) this.loadData();
-      else this.tab = this.$route.query.tab ? this.$route.query.tab : 'delegations'
+      else this.activeTab = this.$route.query.tab ? this.$route.query.tab : 'delegations'
     },
     methods: {
       switchTab(newTab) {
-        if(this.tab !== newTab) this.$router.push({query: {tab: newTab}})
+        if(this.activeTab !== newTab) this.$router.push({query: {tab: newTab}})
+      },
+      touchStartEvent(event) {
+        this.startPosition = {x: event.touches[0].clientX, y: event.touches[0].clientY};
+      },
+      touchEndEvent(event) {
+        const diff = {
+          x: event.changedTouches[event.changedTouches.length - 1].clientX - this.startPosition.x,
+          y: event.changedTouches[event.changedTouches.length - 1].clientY - this.startPosition.y
+        };
+        if (Math.abs(diff.x) > Math.abs(diff.y) && Math.abs(diff.x) > 100) {
+          this.swipeTab(diff.x);
+        }
+        this.startPosition = {x: null, y: null};
+      },
+      swipeTab(diffX) {
+        const currentIndex = this.availableTabs.indexOf(this.activeTab);
+        let direction = diffX > 0 ? -1 : 1;
+        if (currentIndex + direction < 0) direction = 4;
+        this.switchTab(this.availableTabs[(currentIndex + direction) % this.availableTabs.length]);
       },
       async createDelegation() {
         if (this.delegatee.includes('ak_')) {
@@ -193,7 +213,13 @@
     },
     async mounted() {
       this.loadData();
-      this.tab = this.$route.query.tab ? this.$route.query.tab : "delegations";
+      this.activeTab = this.$route.query.tab ? this.$route.query.tab : "delegations";
+      document.addEventListener('touchstart', this.touchStartEvent, false);
+      document.addEventListener('touchend', this.touchEndEvent, false);
+    },
+    beforeDestroy() {
+      document.removeEventListener('touchstart', this.touchStartEvent, false);
+      document.removeEventListener('touchend', this.touchEndEvent, false);
     }
   }
 </script>
