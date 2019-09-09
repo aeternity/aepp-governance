@@ -35,19 +35,6 @@
         </div>
       </div>
 
-      <div v-if="delegateeVote && delegateeVote.account" class="mb-4">
-        <div class="mx-4 mt-4">Includes votes by <span
-          v-if="!Object.keys(delegateeVote.delegationTree).includes(accountAddress)">sub</span>delegatee
-        </div>
-        <div class="ae-card mx-4 my-2 py-4 px-3">
-          <ae-identity-light
-            :collapsed="true"
-            balance=""
-            :address="delegateeVote.account"
-          />
-        </div>
-      </div>
-
       <div class="relative h-4 w-full">
         <div class="absolute inset-0 flex h-full w-full justify-center items-center px-4">
           <div class="border w-full"></div>
@@ -61,12 +48,19 @@
 
       <div class="text-center w-full mt-2 text-gray-500 text-sm" v-if="pollVotesState && pollVotesState.totalStake">
         Stake: {{pollVotesState.totalStake | toAE}} ({{pollVotesState.percentOfTotalSupply | formatPercent}}) -
-        {{isClosed ? 'Closed' : 'Closes'}} {{typeof pollState.close_height === 'number'  ? `at ${pollState.close_height}` : 'never'}}
+        {{isClosed ? 'Closed' : 'Closes'}} {{typeof pollState.close_height === 'number' ? `at ${pollState.close_height}`
+        : 'never'}}
       </div>
 
       <!-- POLL OPTIONS -->
 
       <div v-for="[id, title] in pollState.vote_options" v-if="pollState.vote_options">
+        <div v-if="delegateeVote && delegateeVote.option === id"
+             class="mx-4 mb-4 mt-2 p-4 bg-gray-200 text-gray-600 text-sm ae-triangle-after">
+          Your <span v-if="!Object.keys(delegateeVote.delegationTree).includes(accountAddress)">sub-</span>delegatee
+          <span class="font-mono">{{delegateeVote.account.substr(0,10)}}...</span> has voted with your
+          stake for "{{title}}". Unhappy? You can overwrite their choice by placing your own vote.
+        </div>
         <div class="m-4 ae-card" @click="showVoters(id)">
           <div class="flex justify-between items-center w-full py-4 px-3">
             <ae-check class="mr-1" v-model="voteOption" :value="id" type="radio" @click.stop.prevent
@@ -94,24 +88,25 @@
             {{pollVotesState.stakesForOption[id].votes.length}} Votes -
             {{pollVotesState.stakesForOption[id].delegatorsCount}} Delegators
           </div>
-          <AccountTreeLine :balance="voter.stake" :account="voter.account" :delegators="voter.delegators" v-for="voter in votersForOption.voters"
+          <AccountTreeLine :balance="voter.stake" :account="voter.account" :delegators="voter.delegators"
+                           v-for="voter in votersForOption.voters"
                            :key="voter.account"/>
         </div>
       </div>
-      <BottomButtons :cta-text="voteOption !== null && !isClosed ?  'Revoke Vote' : null " @cta="revokeVote"></BottomButtons>
+      <BottomButtons :cta-text="voteOption !== null && !isClosed ?  'Revoke Vote' : null "
+                     @cta="revokeVote"></BottomButtons>
       <CriticalErrorOverlay :error="error" @continue="error = null"></CriticalErrorOverlay>
     </div>
-
   </div>
 </template>
 
 <script>
   import aeternity from "~/utils/aeternity";
-  import {AeButton, AeCheck, AeIcon, AeToolbar, AeCard} from '@aeternity/aepp-components/src/components/'
-  import pollContractSource from '../../../governance-contracts/contracts/Poll.aes'
+  import {AeButton, AeCheck, AeIcon, AeToolbar, AeCard} from '@aeternity/aepp-components/src/components/';
+  import pollContractSource from '../../../governance-contracts/contracts/Poll.aes';
   import Backend from "~/utils/backend";
   import BiggerLoader from '../components/BiggerLoader';
-  import AeIdentityLight from '../components/AeIdentityLight'
+  import AeIdentityLight from '../components/AeIdentityLight';
   import BigNumber from 'bignumber.js';
   import BottomButtons from "~/components/BottomButtons";
   import AccountHeader from "~/components/AccountHeader";
@@ -142,7 +137,7 @@
         votersForOption: {},
         error: null,
         isClosed: false
-      }
+      };
     },
     computed: {},
     methods: {
@@ -221,13 +216,14 @@
               .some(delegation => delegation.delegator === this.accountAddress))).find(x => x) || {};
         }).catch(console.error);
 
+
         this.showLoading = false;
       }
     },
     async mounted() {
       this.loadData();
     }
-  }
+  };
 </script>
 
 <style scoped>
@@ -259,6 +255,21 @@
 
   .min-w-3 {
     min-width: 1.5rem;
+  }
+
+  .ae-triangle-after {
+    position: relative;
+  }
+
+  .ae-triangle-after::after {
+    content: "";
+    width: 20px;
+    height: 20px;
+    border: 10px solid #edf2f7;
+    transform: rotate(45deg);
+    position: absolute;
+    bottom: -10px;
+    left: 20px;
   }
 
 </style>
