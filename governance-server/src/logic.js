@@ -52,7 +52,7 @@ logic.pollOrdering = async (closed = false) => {
 
         const pollsScores = pollsData.map(poll => {
             const closesInBlocks = poll.closeHeight - height;
-            const considerCloseHeight = poll.closeHeight ? closesInBlocks > 0 ? closesInBlocks : null : null;
+            const considerCloseHeight = poll.closeHeight ? closesInBlocks > 0 && closesInBlocks <= considerCloseBlocks ? closesInBlocks : null : null;
             poll.considerCloseHeight = considerCloseHeight;
 
             poll.closeScore = considerCloseHeight ? Math.abs(considerCloseBlocks - considerCloseHeight) / considerCloseBlocks : 0;
