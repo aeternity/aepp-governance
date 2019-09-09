@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="overlay-loader" v-show="showLoading">
+    <div class="overlay-loader" v-show="showLoading && !error">
       <BiggerLoader></BiggerLoader>
     </div>
     <div v-if="address">
