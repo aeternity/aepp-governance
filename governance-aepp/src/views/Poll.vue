@@ -58,8 +58,11 @@
         <div v-if="delegateeVote && delegateeVote.option === id"
              class="mx-4 mb-4 mt-2 p-4 bg-gray-200 text-gray-600 text-sm ae-triangle-after">
           Your <span v-if="!Object.keys(delegateeVote.delegationTree).includes(accountAddress)">sub-</span>delegatee
-          <span class="font-mono">{{delegateeVote.account.substr(0,10)}}...</span> has voted with your
-          stake for "{{title}}". Unhappy? You can overwrite their choice by placing your own vote.
+          <a class="font-mono text-primary text-xs" href="#"
+             @click.stop.prevent="$router.push(`/account/${delegateeVote.account}`)">
+            {{delegateeVote.account.substr(0,12)}} •••
+          </a>
+          has voted with your stake for "{{title}}". Unhappy? You can overwrite their choice by placing your own vote.
         </div>
         <div class="m-4 ae-card" @click="showVoters(id)">
           <div class="flex justify-between items-center w-full py-4 px-3">
