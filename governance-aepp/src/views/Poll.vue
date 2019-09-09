@@ -89,7 +89,7 @@
             {{pollVotesState.stakesForOption[id].delegatorsCount}} Delegators
           </div>
           <AccountTreeLine :balance="voter.stake" :account="voter.account" :delegators="voter.delegators"
-                           v-for="voter in votersForOption.voters"
+                           v-for="voter in votersForOption.voters" :no-sum="true"
                            :key="voter.account"/>
         </div>
       </div>

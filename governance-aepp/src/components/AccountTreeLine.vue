@@ -12,7 +12,7 @@
         (<span class="text-primary">{{totalTreeDepth}}D</span>)
       </span>
         <span>
-        {{balance | toAE}}
+        {{totalBalance | toAE}}
       </span>
       </div>
     </div>
@@ -27,16 +27,18 @@
 
 <script>
   import AeIdentityLight from '../components/AeIdentityLight'
+  import BigNumber from 'bignumber.js'
 
   export default {
     name: "AccountTreeLine",
     components: {AeIdentityLight},
-    props: ['balance', 'account', 'delegators'],
+    props: ['balance', 'account', 'delegators', 'noSum'],
     data() {
       return {
         directDelegators: [],
         showSubTree: false,
-        totalTreeDepth: null
+        totalTreeDepth: null,
+        totalBalance: null
       }
     },
     methods: {
@@ -46,6 +48,13 @@
         return treeArray.reduce(
           (acc, accountAddress) => this.obtainTotalNumberOfDelegations(tree[accountAddress].delegations) + acc
           , treeArray.length);
+      },
+      obtainTotalBalanceFromDelegations(account) {
+        let treeArray = Object.keys(account.delegations);
+        if (!treeArray.length) return account.balance;
+        return treeArray.reduce(
+          (acc, accountAddress) => BigNumber(this.obtainTotalBalanceFromDelegations(account.delegations[accountAddress])).plus(acc)
+          , account.balance);
       }
     },
     created() {
@@ -54,7 +63,8 @@
           ...{account}, ...this.delegators[account]
         }
       });
-      this.totalTreeDepth = this.obtainTotalNumberOfDelegations(this.delegators)
+      this.totalTreeDepth = this.obtainTotalNumberOfDelegations(this.delegators);
+      this.totalBalance = this.noSum ? this.balance : this.obtainTotalBalanceFromDelegations({delegations: this.delegators, balance: this.balance});
     }
   }
 </script>
