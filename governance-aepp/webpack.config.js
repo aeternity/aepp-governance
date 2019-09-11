@@ -78,16 +78,16 @@ module.exports = env => {
       new CleanWebpackPlugin(),
       new VueLoaderPlugin(),
       new WebpackPwaManifest({
-        name: 'Governance Aepp',
+        name: 'Governance',
         short_name: 'Governance',
         description: 'Create and vote on governance polls for aeternity.',
         background_color: '#ff0d6a',
-        /* icons: [
+        icons: [
           {
-            src: path.resolve(__dirname, 'src/assets/0_DGP_Logo_rainbow_1.svg'),
+            src: path.resolve(__dirname, 'src/assets/favicon.svg'),
             sizes: [96, 128, 192, 256, 384, 512] // multiple sizes
           }
-        ] */
+        ]
       })
     ],
     module: {
