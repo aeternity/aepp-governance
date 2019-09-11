@@ -199,7 +199,8 @@
     },
     async created() {
       await aeternity.initClient();
-      this.height = aeternity.height;
+      this.height = await aeternity.client.height();
+      this.closeHeightString = String(20 * 24 * 30 + this.height)
     }
   }
 </script>
