@@ -12,6 +12,7 @@
         <ae-identity-light
           :collapsed="true"
           :balance="''"
+          @click="$router.push(`/account/${delegation}`)"
           :address="delegation"
         />
         <div v-if="isOwnAccount" class="flex ml-auto">
@@ -59,6 +60,7 @@
             :collapsed="true"
             :balance="delegatorAmount"
             :address="delegator"
+            @click="$router.push(`/account/${delegator}`)"
             class="mx-4"
           />
           <div v-if="includesIndirectDelegations" class="mx-4 mt-1 text-xs">(includes more indirect delegations)</div>

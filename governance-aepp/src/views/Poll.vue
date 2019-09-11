@@ -31,6 +31,7 @@
             :collapsed="true"
             balance=""
             :address="pollState.author"
+            @click="$router.push(`/account/${pollState.author}`)"
           />
         </div>
       </div>

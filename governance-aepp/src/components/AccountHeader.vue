@@ -1,7 +1,15 @@
 <template>
   <div>
-    <div class="bg-primary px-6 py-4 w-full text-2xl text-white" :key="address">
-      <span v-if="isOwnAccount">Your Account</span>
+    <div class="bg-primary px-6 py-4 w-full text-2xl text-white relative" :key="address">
+      <transition name="fade">
+        <div class="absolute flex inset-0 justify-center items-center bg-primary z-10" v-if="showCopyNotice">
+          <span>Copied address to clipboard</span>
+        </div>
+      </transition>
+      <div class="flex justify-between items-center">
+        <span><span v-if="isOwnAccount">Your </span> Account</span>
+        <img src="../assets/copy.svg" class="w-4 h-4" @click="copyToClipboard" />
+      </div>
       <div class="flex justify-between items-center mt-3">
         <div>
           <AeIdentityLight
@@ -10,6 +18,7 @@
             :address="address"
             class="text-white"
             :invert="true"
+            @click="copyToClipboard"
           />
         </div>
         <div class="text-sm font-bold font-mono" v-if="balance">
@@ -51,6 +60,7 @@
   import aeternity from "~/utils/aeternity";
   import Backend from "~/utils/backend";
   import BigNumber from "bignumber.js";
+  import copy from 'copy-to-clipboard';
 
   export default {
     name: "AccountHeader",
@@ -71,7 +81,8 @@
         balance: null,
         delegatedPower: null,
         totalStake: null,
-        isOwnAccount: false
+        isOwnAccount: false,
+        showCopyNotice: false
       }
     },
     methods: {
@@ -85,6 +96,13 @@
           console.error(e);
           this.totalStake = new BigNumber(this.balance);
         });
+      },
+      copyToClipboard() {
+        copy(this.address);
+        this.showCopyNotice = true;
+        setTimeout(() => {
+          this.showCopyNotice = false;
+        }, 1500)
       }
     },
     watch: {
@@ -109,5 +127,14 @@
 
   .opacity-90 {
     opacity: .9;
+  }
+
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity .3s;
+  }
+
+  .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */
+  {
+    opacity: 0;
   }
 </style>

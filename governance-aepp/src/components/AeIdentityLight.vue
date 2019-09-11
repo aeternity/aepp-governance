@@ -4,8 +4,8 @@
       <ae-identicon class="avatar" :address='address'/>
       <span :class="['identity-name-position', collapsedModifier]">
         <span role="heading" :class="['identity-name', collapsedModifier]">{{name}}</span>
-        <small class="truncated-address" v-if="collapsed">
-           <router-link :to="`/account/${address}`">{{address | shorten}} •••</router-link>
+        <small class="truncated-address" v-if="collapsed" @click="$emit('click')">
+           {{address | shorten}} •••
         </small>
       </span>
       <div class="balances">
