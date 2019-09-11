@@ -80,7 +80,12 @@
         Could not find any polls you created.
       </div>
     </div>
-    <BottomButtons></BottomButtons>
+    <BottomButtons :search-bar="true" :search-button="true" @searchSubmit="handleSearch" :key="`bottomButtons${address}`"></BottomButtons>
+    <div class="fixed flex bottom-36 px-8 w-full" v-if="searchError">
+      <div class="flex-1 rounded-full bg-gray-500 text-white px-4 py-2 ae-error-field">
+        {{searchError}}
+      </div>
+    </div>
     <CriticalErrorOverlay :error="error" @continue="error = null"></CriticalErrorOverlay>
   </div>
 </template>
@@ -88,6 +93,7 @@
 <script>
   import aeternity from "~/utils/aeternity";
   import {AeIcon, AeButton, AeButtonGroup, AeText} from '@aeternity/aepp-components/src/components/'
+  import {Crypto} from '@aeternity/aepp-sdk'
   import BiggerLoader from '../components/BiggerLoader'
   import AeIdentityLight from '../components/AeIdentityLight'
   import BigNumber from 'bignumber.js';
@@ -121,18 +127,28 @@
         votedInPolls: [],
         authorOfPolls: [],
         error: null,
+        searchError: null,
         availableTabs: ["delegations", "votes", "polls"]
       }
     },
     computed: {},
     beforeRouteUpdate(to, from, next) {
       next();
-      if(this.address !== this.$route.params.account) this.loadData();
+      if (this.address !== this.$route.params.account) this.loadData();
       else this.activeTab = this.$route.query.tab ? this.$route.query.tab : 'delegations'
     },
     methods: {
+      handleSearch(searchText) {
+        this.searchError = '';
+        if (!searchText) return this.searchError = 'Please enter an address';
+        if (Crypto.isAddressValid(searchText)) {
+          this.$router.push(`/account/${searchText}`)
+        } else {
+          this.searchError = 'The address is not valid'
+        }
+      },
       switchTab(newTab) {
-        if(this.activeTab !== newTab) this.$router.push({query: {tab: newTab}})
+        if (this.activeTab !== newTab) this.$router.push({query: {tab: newTab}})
       },
       touchStartEvent(event) {
         this.startPosition = {x: event.touches[0].clientX, y: event.touches[0].clientY};
@@ -235,6 +251,15 @@
   .active-tab {
     border-color: #FF0D6A;
     color: black;
+  }
+
+  .bottom-36 {
+    bottom: 9rem;
+  }
+
+  .ae-error-field {
+    border-color: #ff0d0d;
+    background-color: #ff0d0d;
   }
 
 </style>

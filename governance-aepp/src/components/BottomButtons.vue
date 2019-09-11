@@ -3,17 +3,19 @@
 
     <div class="fixed bottom-0 h-12 pb-8 w-full max-w-desktop bottom-bar" :class="{'h-32': view === 'search'}">
       <!-- SEARCH BAR -->
-      <div class="w-full flex h-12 mb-6" v-if="view === 'search'">
+      <div class="w-full flex h-12 mb-6 px-8 items-center" v-if="view === 'search'">
         <input v-model="searchString" type="search" placeholder="Search..."
-               class="rounded-full bg-white h-full flex justify-center items-center px-4 w-full mx-8 search-bar"/>
+               class="rounded-full flex-1 bg-white h-full flex justify-center items-center px-4 mr-2 search-bar"/>
+          <SmallButton :img="images.searchImg" v-if="searchButton"
+                       @click="$emit('searchSubmit', searchString)"></SmallButton>
       </div>
       <!-- BUTTONS -->
       <div class="w-full flex h-12">
         <!-- LEFT BUTTON> -->
         <div class="flex justify-evenly items-center h-full flex-2">
-          <SmallButton :img="images.homeImg" :action="() => $route.path !== '/' && $router.push('/')"></SmallButton>
+          <SmallButton :img="images.homeImg" @click="() => $route.path !== '/' && $router.push('/')"></SmallButton>
           <SmallButton :img="images.accountImg" v-if="account"
-                       :action="() => $route.path !== `/account/${account}` &&  $router.push(`/account/${account}`)">
+                       @click="() => $route.path !== `/account/${account}` &&  $router.push(`/account/${account}`)">
           </SmallButton>
         </div>
         <!-- CENTER SECTION -->
@@ -31,8 +33,8 @@
         <!-- RIGHT BUTTONS -->
         <div class="flex justify-evenly items-center h-full flex-2">
           <SmallButton :img="images.createImg" v-if="account"
-                       :action="() => $route.path !== '/create' && $router.push('/create')"></SmallButton>
-          <SmallButton :img="images.backImg" :action="() => $router.go(-1)"></SmallButton>
+                       @click="() => $route.path !== '/create' && $router.push('/create')"></SmallButton>
+          <SmallButton :img="images.backImg" @click="() => $router.go(-1)"></SmallButton>
         </div>
       </div>
     </div>
@@ -87,6 +89,10 @@
         }
       },
       ctaDisabled: {
+        type: Boolean,
+        default: false
+      },
+      searchButton: {
         type: Boolean,
         default: false
       }

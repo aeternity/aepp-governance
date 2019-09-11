@@ -1,7 +1,7 @@
 <template>
   <div class="w-8 h-8">
     <div class="rounded-full w-full h-full flex justify-center items-center shadow bg-gray-ae"
-         @click="action">
+         @click="$emit('click')">
       <img :src="img" alt="generic_alt" class="w-8 h-8">
     </div>
   </div>
@@ -10,7 +10,7 @@
 <script>
   export default {
     name: "SmallButton",
-    props: ['img', 'action']
+    props: ['img']
   }
 </script>
 
