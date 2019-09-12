@@ -134,7 +134,7 @@ cache.startInvalidator = (aeternity) => {
 cache.keepHot = (aeternity) => {
     const discoverDelegationEvents = async () => {
         const height = await aeternity.height();
-        await delegationLogic.findDelegationEvents(cache, aeternity, height);
+        await delegationLogic.findDelegationEvents(cache, aeternity, height, false);
     };
 
     const keepHotLogic = async () => {
