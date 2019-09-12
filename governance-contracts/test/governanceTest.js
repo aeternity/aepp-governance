@@ -81,7 +81,8 @@ describe('Governance Contracts', () => {
         const metadata1 = {
             title: "Lorem ipsum dolor sit amet, consectetur adipiscing.",
             description: "This Poll is created for Testing purposes only",
-            link: "https://aeternity.com/"
+            link: "https://aeternity.com/",
+            spec_ref: Promise.resolve("d4f02eaafd1a9e9de7d10972ca8e47fa7a985825c3c9c1e249c72683cb3e4f19")
         };
 
         const init1 = await pollContract.methods.init(metadata1, vote_options, close_height).catch(e => e);
@@ -90,7 +91,8 @@ describe('Governance Contracts', () => {
         const metadata2 = {
             title: "Test",
             description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla pretium volutpat enim, in feugiat mi congue feugiat. Nam gravida efficitur convallis. Suspendisse congue tellus nulla, eu finibus nunc egestas sed. Cras luctus mauris iaculis fermentum posuere. Sed ut urna sit amet lorem commodo gravida..",
-            link: "https://aeternity.com/"
+            link: "https://aeternity.com/",
+            spec_ref: Promise.resolve("d4f02eaafd1a9e9de7d10972ca8e47fa7a985825c3c9c1e249c72683cb3e4f19")
         };
 
         const init2 = await pollContract.methods.init(metadata2, vote_options, close_height).catch(e => e);
@@ -100,7 +102,8 @@ describe('Governance Contracts', () => {
         const metadata = {
             title: "Testing",
             description: "This Poll is created for Testing purposes only",
-            link: "https://aeternity.com/"
+            link: "https://aeternity.com/",
+            spec_ref: Promise.resolve("d4f02eaafd1a9e9de7d10972ca8e47fa7a985825c3c9c1e249c72683cb3e4f19")
         };
 
         const init = await pollContract.methods.init(metadata, vote_options, close_height);
@@ -137,7 +140,8 @@ describe('Governance Contracts', () => {
         assert.deepEqual(metadata.decodedResult, {
             description: 'This Poll is created for Testing purposes only',
             link: 'https://aeternity.com/',
-            title: 'Testing'
+            title: 'Testing',
+            spec_ref: "d4f02eaafd1a9e9de7d10972ca8e47fa7a985825c3c9c1e249c72683cb3e4f19"
         });
 
         let votes = await pollContract.methods.votes();
@@ -163,7 +167,8 @@ describe('Governance Contracts', () => {
         const metadata = {
             title: "Testing",
             description: "This Poll is created for Testing purposes only",
-            link: "https://aeternity.com/"
+            link: "https://aeternity.com/",
+            spec_ref: Promise.resolve("d4f02eaafd1a9e9de7d10972ca8e47fa7a985825c3c9c1e249c72683cb3e4f19")
         };
         const vote_options = {0: "Only Option"};
         const close_height = Promise.resolve(await ownerClient.height());

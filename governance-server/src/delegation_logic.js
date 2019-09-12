@@ -23,7 +23,6 @@ delegationLogic.findDelegationEvents = async (cache, aeternity, height) => {
     const creationHeightDifference = height - registryCreationHeight;
     const amountBatches = Math.floor(creationHeightDifference / batchSize);
     const batchHeights = util.range(0, amountBatches).map(x => registryCreationHeight + (x * batchSize));
-    console.log(batchHeights);
 
     return batchHeights.asyncMap((height) => findDelegationEvents(cache, aeternity, height));
 };

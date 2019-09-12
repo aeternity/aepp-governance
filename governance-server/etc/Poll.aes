@@ -23,7 +23,8 @@ contract Poll =
   record metadata =
     { title : string
     , description : string
-    , link : string }
+    , link : string
+    , spec_ref : option(string)}
 
   type vote_option = map(int, string)
 

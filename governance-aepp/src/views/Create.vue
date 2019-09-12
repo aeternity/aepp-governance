@@ -102,6 +102,7 @@
           title: "",
           description: "",
           link: "",
+          spec_ref: Promise.reject()
         },
         is_listed: true,
         optionsString: "",
