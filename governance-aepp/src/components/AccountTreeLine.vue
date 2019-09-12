@@ -6,6 +6,7 @@
         :address="account"
         balance=""
         class="mx-2"
+        @click="$router.push(`/account/${account}`)"
       />
       <div @click="showSubTree = !showSubTree">
       <span v-if="totalTreeDepth">
