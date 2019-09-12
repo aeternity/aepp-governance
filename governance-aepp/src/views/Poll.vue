@@ -5,7 +5,7 @@
     </div>
     <div v-if="pollState.metadata">
       <AccountHeader class="mb-4" :address="accountAddress" :poll-address="pollAddress"
-                     v-if="accountAddress && !isClosed"></AccountHeader>
+                     v-if="accountAddress && !isClosed" :startOpen="false" :canOpen="true"></AccountHeader>
       <div v-if="isClosed" class="text-center">
         <div class="text-gray-500 mt-4">POLL CLOSED</div>
       </div>

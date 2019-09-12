@@ -4,7 +4,7 @@
       <BiggerLoader></BiggerLoader>
     </div>
     <div v-if="address">
-      <AccountHeader :address="address"/>
+      <AccountHeader :address="address" :canOpen="false"/>
     </div>
     <div v-if="delegation">
       <div class="mx-4 mt-4">Delegatee</div>

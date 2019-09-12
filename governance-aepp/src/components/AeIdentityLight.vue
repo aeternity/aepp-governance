@@ -4,7 +4,7 @@
       <ae-identicon class="avatar" :address='address'/>
       <span :class="['identity-name-position', collapsedModifier]">
         <span role="heading" :class="['identity-name', collapsedModifier]">{{name}}</span>
-        <small class="truncated-address" v-if="collapsed" @click="$emit('click')">
+        <small class="truncated-address cursor-pointer" v-if="collapsed" @click="$emit('click')">
            {{address | shorten}} •••
         </small>
       </span>

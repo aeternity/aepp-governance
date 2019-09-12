@@ -10,7 +10,7 @@
       />
       <div @click="showSubTree = !showSubTree">
       <span v-if="totalTreeDepth">
-        (<span class="text-primary">{{totalTreeDepth}}D</span>)
+        (<span class="text-primary cursor-pointer">{{totalTreeDepth}}D</span>)
       </span>
         <span>
         {{totalBalance | toAE}}
