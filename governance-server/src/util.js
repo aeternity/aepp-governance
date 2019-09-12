@@ -5,6 +5,8 @@ const BigNumber = require('bignumber.js');
 
 const util = {};
 
+util.atomsToAe = (atoms) => (new BigNumber(atoms)).dividedBy(new BigNumber(1000000000000000000));
+
 util.groupBy = (xs, key) => xs.reduce((acc, x) => Object.assign({}, acc, {
     [x[key]]: (acc[x[key]] || []).concat(x)
 }), {});
