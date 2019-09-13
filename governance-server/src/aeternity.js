@@ -37,6 +37,18 @@ aeternity.registryCreationHeight = async () => {
     });
 };
 
+aeternity.middlewareContractTransactions = async (height) => {
+    const result = await axios.get(`${process.env.MIDDLEWARE_URL}/middleware/contracts/transactions/address/${aeternity.contractAddress}`)
+        .then(res => {
+            console.log(res.data.transactions);
+            return res.data.transactions
+                .filter(tx => tx.tx.type === "ContractCallTx")
+                .filter(tx => tx.block_height <= height)
+                .map(tx => tx.hash)
+        });
+    return result;
+};
+
 aeternity.microBlocks = async (height) => {
     return cache.getOrSet(["microBlocks", height], async () => {
         try {
