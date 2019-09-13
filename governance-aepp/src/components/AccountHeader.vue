@@ -143,9 +143,6 @@
     background-color: #d12869;
   }
 
-  .ae-transition-300 {
-    transition: 300ms;
-  }
 
   .opacity-90 {
     opacity: .9;
@@ -161,14 +158,5 @@
 
   .ae-max-height-40 {
     max-height: 10rem;
-  }
-
-  .fade-enter-active, .fade-leave-active {
-    transition: opacity .3s;
-  }
-
-  .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */
-  {
-    opacity: 0;
   }
 </style>

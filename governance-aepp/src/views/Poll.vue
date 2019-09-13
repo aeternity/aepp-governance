@@ -21,8 +21,13 @@
       <div class="text-gray-500 mx-4 font-xl">
         {{pollState.metadata.description}}
       </div>
-      <div class="text-gray-500 mx-4 my-2 font-xl">
-        <a :href="pollState.metadata.link" class="text-blue-500 opacity-75">{{pollState.metadata.link}}</a>
+      <div class="text-gray-500 mx-4 py-2 font-xl relative">
+        <a :href="pollState.metadata.link" @click.stop.prevent="openLink" class="text-blue-500 opacity-75">{{pollState.metadata.link}}</a>
+        <transition name="fade">
+          <div class="absolute inset-0 bg-gray-500 text-white p-2 rounded" v-if="showCopyNotice">
+            Copied link to clipboard
+          </div>
+        </transition>
       </div>
       <div class=" mx-4 my-2 flex">
         <span class="text-sm mr-1 text-gray-500">BY:</span>
@@ -117,6 +122,7 @@
   import GrayText from "~/components/GrayText";
   import CriticalErrorOverlay from "~/components/CriticalErrorOverlay";
   import AccountTreeLine from "~/components/AccountTreeLine";
+  import copy from 'copy-to-clipboard';
 
   export default {
     name: 'Home',
@@ -140,11 +146,24 @@
         pollAddress: null,
         votersForOption: {},
         error: null,
-        isClosed: false
+        isClosed: false,
+        showCopyNotice: false
       };
     },
     computed: {},
     methods: {
+      openLink() {
+        if (window.parent === window) {
+          // No Iframe
+          window.open(this.pollState.metadata.link);
+        } else {
+          copy(this.pollState.metadata.link);
+          this.showCopyNotice = true;
+          setTimeout(() => {
+            this.showCopyNotice = false
+          }, 1500)
+        }
+      },
       async vote(id) {
         this.showLoading = true;
         this.voteOption = id;
