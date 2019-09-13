@@ -4,7 +4,8 @@ module.exports = {
     '@babel/preset-env',
     {
       debug: false,
-      useBuiltIns: 'usage'
+      useBuiltIns: 'usage',
+      corejs: '2.0.0'
     }
   ]],
   plugins: [
@@ -13,4 +14,4 @@ module.exports = {
     '@babel/plugin-transform-runtime',
     '@babel/plugin-transform-block-scoping'
   ]
-}
+};
