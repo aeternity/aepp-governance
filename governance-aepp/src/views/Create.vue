@@ -68,7 +68,7 @@
           Current height is {{height}}. To create a never closing poll, set close height to "0".
         </span>
         <span v-if="closeDate">
-          Current height is {{height}} and height {{closeHeightString}} is expected at {{closeDate}}
+          Current height is {{height}} and height {{closeHeightString}} is expected at {{closeDate | dateToString}}
         </span>
         <span v-if="closeHeightString && closeHeightString < height && closeHeightString !== '0'">
           Current height is {{height}} and closing height {{closeHeightString}} lies in the past.
