@@ -68,7 +68,9 @@
              @click.stop.prevent="$router.push(`/account/${delegateeVote.account}`)">
             {{delegateeVote.account.substr(0,12)}} •••
           </a>
-          has voted with your stake for "{{title}}". Unhappy? You can overwrite their choice by placing your own vote.
+          <span v-if="!isClosed">has</span>
+          <span v-if="isClosed">had</span>
+          voted with your stake for "{{title}}"<span v-if="isClosed"> at the time the poll closed</span>. <span v-if="!isClosed">Unhappy? You can overwrite their choice by placing your own vote.</span>
         </div>
         <div class="m-4 ae-card" @click="showVoters(id)">
           <div class="flex justify-between items-center w-full py-4 px-3">
