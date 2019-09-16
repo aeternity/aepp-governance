@@ -3,7 +3,7 @@
     <slot/>
     <div ref="inputContainer" class="relative rounded-full hide-input flex items-center pr-3 pb-1" v-if="showNumberInput">
       <img src="../assets/hash_white.svg" class="h-6 pl-4 pt-1" @click="showInput">
-      <form @submit="submit">
+      <form @submit.prevent="submit">
         <input v-model="id" ref="input" type="number" class="text-gray-800 w-full text-2xl outline-none bg-transparent leading-none" @blur="onBlur">
       </form>
     </div>
@@ -146,6 +146,16 @@
     to {
       filter: brightness(0.2)
     }
+  }
+
+  input[type=number]::-webkit-outer-spin-button,
+  input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type=number] {
+    -moz-appearance:textfield;
   }
 
 </style>
