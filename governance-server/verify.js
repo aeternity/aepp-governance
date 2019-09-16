@@ -2,7 +2,20 @@ const util = require("./src/util");
 const Aeternity = require("./src/aeternity");
 const Logic = require("./src/logic");
 
-const pollAddress = process.argv[process.argv.length - 1];
+const findPollAddress = (arg, polls) => {
+    var poll = null;
+    if (!isNaN(parseInt(arg))) {
+        poll = polls.find(([id, _]) => id === parseInt(arg))
+    } else {
+        if (arg.startsWith("ct_")) {
+            poll = polls.find(([_, data]) => data.poll === arg)
+        } else {
+            throw new Error("not a valid contract address passed");
+        }
+    }
+    if (!poll) throw new Error("poll not found by id or address");
+    return poll;
+};
 
 const verify = async () => {
 
@@ -14,11 +27,16 @@ const verify = async () => {
 
     const aeternity = new Aeternity(verifyConstants);
     await aeternity.init();
+    const height = await aeternity.height();
+    const polls = await aeternity.polls();
     const logic = new Logic(aeternity, verifyConstants);
 
+    const poll = findPollAddress(process.argv[process.argv.length - 1], polls);
+    const pollAddress = poll[1].poll;
     const pollState = await logic.pollVotesState(pollAddress);
-    console.log(JSON.stringify(pollState, null, 2), "\n", "\n");
 
+    console.log(`\nPoll #${poll[0]} ${pollAddress}`);
+    height > pollState.pollState.close_height ? console.log(`Poll closed`) : console.log(`Poll NOT closed`);
     console.log("Total Stake:", util.atomsToAe(pollState.totalStake).toFixed(2), "AE");
     console.log("Percentage of total supply:", parseFloat(pollState.percentOfTotalSupply).toFixed(2), "%");
     console.log("Number of votes:", pollState.voteCount);
@@ -28,4 +46,4 @@ const verify = async () => {
     });
 };
 
-verify();
+verify().catch(e => console.error(e.message));

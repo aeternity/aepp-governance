@@ -4,8 +4,8 @@
 
  - make sure up-to-date node is installed
  - install dependencies `npm install`
- - fast verification using middleware `MIDDLEWARE_URL=PUT_TO_MIDDLEWARE_SERVER npm run verify POLL_CONTRACT_ADDRESS`
- - slow verification (multiple hours) `npm run verify POLL_CONTRACT_ADDRESS`
+ - fast verification using middleware `MIDDLEWARE_URL=PUT_TO_MIDDLEWARE_SERVER npm run verify POLL_ID_OR_CONTRACT_ADDRESS`
+ - slow verification (multiple hours) `npm run verify POLL_ID_OR_CONTRACT_ADDRESS`
  
 ## Running Server
  - make sure up-to-date node, docker and docker-compose is installed
