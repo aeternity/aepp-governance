@@ -13,5 +13,6 @@
 <style scoped>
   .bg-gray-ae {
     background-color: #333333;
+    text-transform: capitalize;
   }
 </style>
