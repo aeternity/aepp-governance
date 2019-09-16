@@ -2,13 +2,23 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
-const aeternity = require("./src/aeternity");
+const Aeternity = require("./src/aeternity");
+const Logic = require("./src/logic");
 const cache = require("./src/cache");
-const logic = require("./src/logic");
+logic = null;
 
 const app = express();
 app.use(bodyParser.json());
 process.on('unhandledRejection', (reason, p) => console.log('Unhandled Rejection at: Promise', p, 'reason:', reason));
+
+const init = async () => {
+    const aeternity = new Aeternity();
+    await aeternity.init();
+    cache.init(aeternity);
+    logic = new Logic(aeternity);
+
+    app.listen(3000);
+};
 
 const errorHandler = (f) => {
     return (req, res, next) => {
@@ -85,6 +95,4 @@ app.get('/pollOrdering', errorHandler(async (req, res) => {
     res.json(data)
 }));
 
-aeternity.init();
-cache.init(aeternity);
-app.listen(3000);
+init();
