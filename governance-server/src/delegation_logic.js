@@ -18,7 +18,7 @@ delegationLogic.findDelegationEvents = async (cache, aeternity, height, setCache
         const registryContractEvents = await registryContractTransactions.asyncMap(aeternity.transactionEvent);
 
         const sortedDelegationEvents = registryContractEvents
-            .filter(event => event.height <= height)
+            .filter(event => event && event.height <= height)
             .filter(event => ["Delegation", "RevokeDelegation"].includes(event.topic))
             .sort((a, b) => a.height - b.height || a.nonce - b.nonce);
 

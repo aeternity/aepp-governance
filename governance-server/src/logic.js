@@ -32,7 +32,9 @@ module.exports = class Logic {
             const delegationsScoreWeight = 0.5;
 
             const height = await this.aeternity.height();
-            const polls = (await this.aeternity.polls()).filter(poll => {
+            const polls = (await this.aeternity.polls())
+                .filter(poll => poll[1].is_listed)
+                .filter(poll => {
                 if (closed) {
                     return poll[1].close_height && poll[1].close_height <= height;
                 } else {
