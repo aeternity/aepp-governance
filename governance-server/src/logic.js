@@ -35,12 +35,12 @@ module.exports = class Logic {
             const polls = (await this.aeternity.polls())
                 .filter(poll => poll[1].is_listed)
                 .filter(poll => {
-                if (closed) {
-                    return poll[1].close_height && poll[1].close_height <= height;
-                } else {
-                    return !poll[1].close_height || poll[1].close_height > height;
-                }
-            });
+                    if (closed) {
+                        return poll[1].close_height && poll[1].close_height <= height;
+                    } else {
+                        return !poll[1].close_height || poll[1].close_height > height;
+                    }
+                });
             const pollsData = await polls.asyncMap(async ([id, data]) => {
                 const state = await this.cachedPollState(data.poll);
 
