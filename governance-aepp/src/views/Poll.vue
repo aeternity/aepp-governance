@@ -53,7 +53,7 @@
       </div>
 
       <div class="text-center w-full mt-2 text-gray-500 text-sm" v-if="pollVotesState && pollVotesState.totalStake">
-        Stake: {{pollVotesState.totalStake | toAE}} ({{pollVotesState.percentOfTotalSupply | formatPercent}}) -
+        Stake: {{pollVotesState.totalStake | toAE(0)}} ({{pollVotesState.percentOfTotalSupply | formatPercent(2)}}) -
         {{isClosed ? 'Closed' : 'Closes'}} {{typeof pollState.close_height === 'number' ? `at ${pollState.close_height}`
         : 'never'}}
       </div>
@@ -94,7 +94,7 @@
         </div>
         <div class="text-gray-500 text-sm mx-4" v-show="votersForOption.id != null && votersForOption.id == id">
           <div class="text-gray-500 text-sm my-1 mx-2" v-if="pollVotesState">
-            {{pollVotesState.stakesForOption[id].percentageOfTotal | formatPercent}}
+            {{pollVotesState.stakesForOption[id].percentageOfTotal | formatPercent(2)}}
             ({{pollVotesState.stakesForOption[id].optionStake | toAE}}) -
             {{pollVotesState.stakesForOption[id].votes.length}} Votes -
             {{pollVotesState.stakesForOption[id].delegatorsCount}} Delegators

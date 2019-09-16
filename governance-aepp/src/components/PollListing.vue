@@ -6,7 +6,7 @@
       <span class="text-2xl leading-none break-words max-w-85">{{data.title}}</span>
     </div>
     <div class="text-gray-500 text-sm">
-      <span v-if="percentOfTotalSupply">{{percentOfTotalSupply | formatPercent}} stake - </span>
+      <span v-if="percentOfTotalSupply">{{percentOfTotalSupply | formatPercent(2)}} stake - </span>
       <span v-else-if="loading"><ae-loader></ae-loader> stake - </span>
       <span>{{closeHeight(data.close_height)}}</span>
     </div>

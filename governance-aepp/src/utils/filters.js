@@ -1,16 +1,18 @@
 import BlockchainUtil from "~/utils/util";
 
-export function toAE(num) {
+export function toAE(num, decimalPlaces) {
   if (num) {
-    return BlockchainUtil.atomsToAe(num).toFixed(2) + " AE";
+    if(typeof decimalPlaces === 'undefined') decimalPlaces = 2;
+    return BlockchainUtil.atomsToAe(num).toFixed(decimalPlaces) + " AE";
   } else {
     return "";
   }
 }
 
-export function formatPercent(num) {
+export function formatPercent(num, decimalPlaces) {
   if (num) {
-    return Number(num).toFixed(0) + "%";
+    if(typeof decimalPlaces === 'undefined') decimalPlaces = 0;
+    return Number(num).toFixed(decimalPlaces) + "%";
   } else {
     return "";
   }
