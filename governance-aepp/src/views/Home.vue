@@ -4,7 +4,7 @@
       <BiggerLoader></BiggerLoader>
     </div>
     <div class="fixed w-full top-0 max-w-desktop">
-      <BlackHeader>
+      <BlackHeader :show-number-input="true" @submit="showPoll">
         {{activeTab}} Polls
       </BlackHeader>
       <div class="flex bg-gray-ae text-gray-200">
@@ -82,6 +82,12 @@
     },
     props: ["resetView"],
     methods: {
+      showPoll(id) {
+        if(this.allPolls.find(poll => poll[0] === parseInt(id)))
+          this.$router.push(`/poll/${id}`);
+        else
+          this.error = `Could not find poll with id "${id}".`
+      },
       switchTab(newTab) {
         if (this.activeTab !== newTab) this.$router.push({query: {tab: newTab}});
       },
@@ -157,8 +163,8 @@
       this.balance = aeternity.balance;
       this.allPolls = await aeternity.polls();
 
-      this.closedPolls = this.allPolls.filter(poll => typeof poll[1].close_height === 'number' && poll[1].close_height <= aeternity.height);
-      this.activePolls = this.allPolls.filter(poll => typeof poll[1].close_height !== 'number' || poll[1].close_height > aeternity.height);
+      this.closedPolls = this.allPolls.filter(([_, data]) => data.is_listed).filter(poll => typeof poll[1].close_height === 'number' && poll[1].close_height <= aeternity.height);
+      this.activePolls = this.allPolls.filter(([_, data]) => data.is_listed).filter(poll => typeof poll[1].close_height !== 'number' || poll[1].close_height > aeternity.height);
 
       this.pollOrdering = await Backend.pollOrdering(false).catch(console.error);
       // Only overwrite if active tab is not set yet
