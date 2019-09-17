@@ -17,8 +17,7 @@
     "copy-to-clipboard": "^3.2.0",
     "vue": "^2.6.10",
     "vue-meta": "^2.0.4",
-    "vue-router": "^3.0.7",
-    "webpack-pwa-manifest": "^4.0.0"
+    "vue-router": "^3.0.7"
   },
   "devDependencies": {
     "@babel/cli": "^7.5.0",
@@ -44,6 +43,7 @@
     "es-check": "^5.0.0",
     "eslint": "^6.0.1",
     "eslint-plugin-vue": "^5.2.3",
+    "favicons-webpack-plugin": "^1.0.2",
     "file-loader": "^4.0.0",
     "glob-all": "^3.1.0",
     "html-webpack-harddisk-plugin": "^1.0.1",
