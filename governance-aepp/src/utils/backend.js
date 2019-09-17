@@ -2,7 +2,8 @@ import axios from "axios";
 
 const backend = {};
 
-const BACKEND_URL = 'http://localhost:3000';
+//const BACKEND_URL = 'http://localhost:3000';
+const BACKEND_URL = 'https://server.governance.aeternity.com';
 
 const wrapTry = async (f) => {
   try {
