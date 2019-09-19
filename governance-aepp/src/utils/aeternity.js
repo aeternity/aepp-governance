@@ -1,6 +1,6 @@
-import Aepp from '@aeternity/aepp-sdk/es/ae/aepp'
-import Util from './util'
-import registryContractSource from '../../../governance-contracts/contracts/Registry.aes'
+import Aepp from '@aeternity/aepp-sdk/es/ae/aepp';
+import Util from './util';
+import registryContractSource from '../../../governance-contracts/contracts/Registry.aes';
 import {Universal} from "@aeternity/aepp-sdk/es/ae/universal";
 
 const aeternity = {
@@ -41,7 +41,7 @@ aeternity.initProvider = async () => {
     return true;
   } catch (e) {
     console.error(e);
-    return false
+    return false;
   }
 };
 
@@ -64,9 +64,9 @@ aeternity.getWalletWindow = async () => {
     const handler = ({data}) => {
       if (data.method !== 'ready') return;
       window.removeEventListener('message', handler);
-      resolve()
+      resolve();
     };
-    window.addEventListener('message', handler)
+    window.addEventListener('message', handler);
   });
   return iframe.contentWindow;
 };
@@ -75,7 +75,7 @@ aeternity.initReverseIframe = async () => {
   try {
     return await timeout(Aepp({
       parent: await aeternity.getWalletWindow()
-    }))
+    }));
   } catch (e) {
     console.warn('Reverse iFrame init failed');
     return false;
@@ -144,7 +144,7 @@ aeternity.initClient = async () => {
           let client = await aeternity['init' + preferredWallet]();
           result = await aeternity.setClient(preferredWallet, client);
           if (!result) sessionStorage.removeItem('aeWallet');
-          else return result
+          else return result;
         } catch (e) {
           console.error(e);
           sessionStorage.removeItem('aeWallet');
@@ -173,17 +173,16 @@ aeternity.initClient = async () => {
 
 aeternity.verifyAddress = async () => {
   const currAddress = await aeternity.client.address();
-  return currAddress !== aeternity.address
+  return currAddress !== aeternity.address;
 };
 
 aeternity.disableWallet = async () => {
   const staticClient = await aeternity.initStaticClient();
-  console.log(staticClient)
-  await aeternity.setClient('StaticClient', staticClient)
+  await aeternity.setClient('StaticClient', staticClient);
 };
 
 aeternity.delegation = async (address) => {
-  return (await aeternity.contract.methods.delegatee(address)).decodedResult
+  return (await aeternity.contract.methods.delegatee(address)).decodedResult;
 };
 
 aeternity.delegations = async (address) => {
@@ -205,4 +204,4 @@ aeternity.polls = async () => {
   return polls.decodedResult;
 };
 
-export default aeternity
+export default aeternity;
