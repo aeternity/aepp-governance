@@ -14,7 +14,7 @@
 </template>
 
 <script>
-  import {AeLoader} from '@aeternity/aepp-components/src/components/'
+  import {AeLoader} from '@aeternity/aepp-components/src/components/';
   import Backend from "~/utils/backend";
   import aeternity from "~/utils/aeternity";
 
@@ -25,7 +25,7 @@
         loading: true,
         percentOfTotalSupply: null,
         voteCount: null,
-      }
+      };
     },
     props: {
       id: {
@@ -43,10 +43,10 @@
       closeHeight(close_height) {
         if (typeof close_height !== "number") return "never closes";
         if (close_height < aeternity.height) return `closed at block ${close_height}`;
-        return `closes in `
+        return `closes in `;
       },
       timeDifference(close_height) {
-        if(typeof close_height !== "number" || close_height < aeternity.height) return "";
+        if (typeof close_height !== "number" || close_height < aeternity.height) return "";
         return (close_height - aeternity.height) * 3 * 60 * 1000;
       }
     },
@@ -54,12 +54,12 @@
       Backend.pollOverview(this.data.poll).then(overview => {
         this.percentOfTotalSupply = overview.percentOfTotalSupply;
         this.voteCount = overview.voteCount;
-        this.loading = false
+        this.loading = false;
       }).catch(() => {
-        this.loading = false
+        this.loading = false;
       });
     }
-  }
+  };
 </script>
 
 <style scoped>
