@@ -1,9 +1,0 @@
-{
-  "name": "Governance Aepp",
-  "short_name": "Governance",
-  "orientation": "portrait",
-  "display": "standalone",
-  "start_url": ".",
-  "description": "Create and vote on governance polls for aeternity.",
-  "background_color": "#ff0d6a"
-}
