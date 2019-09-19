@@ -18,11 +18,23 @@ export function formatPercent(num, decimalPlaces) {
   }
 }
 
-export function dateToString(timestamp) {
-  if (timestamp) {
-    if(typeof timestamp === 'object' && isNaN(timestamp.getTime())) return `> 273741 years in the future`;
-    const date = new Date(timestamp);
-    return `~${date.getHours()}:${String("0" + date.getMinutes()).slice(-2)} on ${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
+export function timeDifferenceToString(timeDifference) {
+  if (timeDifference) {
+    if(timeDifference < 60 * 1000) return `less than one minute`;
+    const minutes = timeDifference / 60 / 1000;
+    if(minutes < 60) return `${Math.round(minutes)} minute${minutes > 1 ? 's' : ''}`;
+
+    const hours = minutes / 60;
+    if(hours < 24) return `${Math.round(hours)} hour${hours > 1 ? 's' : ''}`;
+
+    const days = hours / 24;
+    if(days < 7) return `${Math.round(days)} day${days > 1 ? 's' : ''}`;
+
+    const months = days / 30;
+    if(months < 12) return `${Math.round(months)} month${months > 1 ? 's' : ''}`;
+
+    const years = months / 12;
+    return `${Math.round(years)} years`;
   } else
     return '';
 }
