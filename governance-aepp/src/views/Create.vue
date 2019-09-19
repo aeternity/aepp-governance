@@ -61,19 +61,21 @@
     </div>
 
     <div class="py-2 px-4 mb-16">
-      <ae-input :error="!!errors.closeHeightError" type="number" v-model="closeHeightString"
-                label="Close at height"></ae-input>
+      <ae-input :error="!!errors.closeHeightError" type="number" v-model="closeHeight" @input="updateDateInputs"
+                label="Close at height">
+      </ae-input>
+      <div class="mt-4 flex">
+        <ae-input type="date" class="mr-2" label="Est. close date" v-model="dateString" @input="updateCloseHeight"></ae-input>
+        <ae-input type="time" label="Est. close time" v-model="timeString" @input="updateCloseHeight"></ae-input>
+      </div>
       <div class="text-gray-500 text-sm p-2">
-        <span v-if="!closeHeightString">
-          Current height is {{height}}. To create a never closing poll, set close height to "0".
+        <span v-if="closeHeight && closeHeight > height">
+          To create a never closing poll, set close height to 0.
         </span>
-        <span v-if="closeDate">
-          Current height is {{height}} and height {{closeHeightString}} is expected at {{closeDate | dateToString}}
+        <span v-if="closeHeight && closeHeight < height && closeHeight !== '0'">
+          Current height is {{height}} and closing height {{closeHeight}} lies in the past.
         </span>
-        <span v-if="closeHeightString && closeHeightString < height && closeHeightString !== '0'">
-          Current height is {{height}} and closing height {{closeHeightString}} lies in the past.
-        </span>
-        <span v-if="closeHeightString === '0'">
+        <span v-if="closeHeight === '0'">
           This poll will never close.
         </span>
       </div>
@@ -85,8 +87,8 @@
 <script>
   import aeternity from "~/utils/aeternity";
   import {AeIcon, AeButton, AeCheck, AeButtonGroup} from "@aeternity/aepp-components/src/components";
-  import pollContractSource from '../../../governance-contracts/contracts/Poll.aes'
-  import BiggerLoader from '~/components/BiggerLoader'
+  import pollContractSource from '../../../governance-contracts/contracts/Poll.aes';
+  import BiggerLoader from '~/components/BiggerLoader';
   import BottomButtons from "~/components/BottomButtons";
   import BlackHeader from "~/components/BlackHeader";
   import GrayText from "~/components/GrayText";
@@ -106,7 +108,7 @@
         },
         is_listed: true,
         optionsString: "",
-        closeHeightString: "",
+        closeHeight: 0,
         polls: [],
         options: [{
           id: 0,
@@ -114,6 +116,9 @@
         }],
         nextId: 1,
         height: 0,
+        heightTimestamp: 0,
+        dateString: '',
+        timeString: '',
         errors: {
           titleError: null,
           descriptionError: null,
@@ -121,19 +126,34 @@
           optionError: null,
           closeHeightError: null
         }
-      }
+      };
     },
     computed: {
       closeDate() {
-        if (this.closeHeightString - this.height > 0) {
-          return new Date(Date.now() + (this.closeHeightString - this.height) * 3 * 60 * 1000)
+        if (this.closeHeight - this.height > 0) {
+          return new Date(Date.now() + (this.closeHeight - this.height) * 3 * 60 * 1000);
         }
-        return null
-      }
+        return null;
+      },
     },
     methods: {
+      leftPad(num) {
+        return String("0" + num).slice(-2);
+      },
+      updateCloseHeight() {
+        const closeHeight = Math.round((new Date(`${this.dateString} ${this.timeString}`).getTime() - this.heightTimestamp) / 1000 / 60 / 3) + this.height;
+        this.closeHeight = closeHeight < 0 ? 0 : closeHeight;
+      },
+      updateDateInputs() {
+        if (this.closeDate) {
+          this.dateString = `${this.closeDate.getFullYear()}-${this.leftPad(this.closeDate.getMonth() + 1)}-${this.leftPad(this.closeDate.getDate())}`;
+          this.timeString = `${this.leftPad(this.closeDate.getHours())}:${this.leftPad(this.closeDate.getMinutes())}`;
+        } else {
+          this.dateString = '';
+          this.timeString = '';
+        }
+      },
       async createPoll() {
-
         this.errors = {
           titleError: null,
           descriptionError: null,
@@ -157,9 +177,9 @@
         let options = this.options.filter(option => !!(option.text.trim()));
         if (options.length < 2) this.errors.optionError = 'Please provide at least two options.';
 
-        if (this.closeHeightString.length === 0) this.errors.closeHeightError = 'Please provide a closing height.';
-        else if (isNaN(parseInt(this.closeHeightString))) this.errors.closeHeightError = 'The closing height is not a whole number.';
-        else if (parseInt(this.closeHeightString) <= this.height && this.closeHeightString !== "0") this.errors.closeHeightError = 'The closing height lies in the past.';
+        if (this.closeHeight.length === 0) this.errors.closeHeightError = 'Please provide a closing height.';
+        else if (isNaN(parseInt(this.closeHeight))) this.errors.closeHeightError = 'The closing height is not a whole number.';
+        else if (parseInt(this.closeHeight) <= this.height && this.closeHeight !== "0") this.errors.closeHeightError = 'The closing height lies in the past.';
 
         if (Object.values(this.errors).some(val => !!val)) return document.querySelector('.wrapper').scrollTo(0, 0);
 
@@ -167,13 +187,13 @@
 
         if (this.createMetadata.title.length >= 3 && this.options.length >= 3) {
           this.showLoading = true;
-          const close_height = parseInt(this.closeHeightString) === 0 ? Promise.reject() : Promise.resolve(parseInt(this.closeHeightString));
+          const close_height = parseInt(this.closeHeight) === 0 ? Promise.reject() : Promise.resolve(parseInt(this.closeHeight));
 
           let newID = 0;
           options = this.options.filter(option => !!option.text)
             .map(option => {
               option.id = newID++;
-              return option
+              return option;
             }).reduce((acc, option) => Object.assign(acc, {[option.id]: option.text}), {});
 
           const pollContract = await aeternity.client.getContractInstance(pollContractSource);
@@ -191,7 +211,7 @@
           });
         }
         if (this.options.length > 1 && !this.options[this.options.length - 2].text) {
-          this.options.pop()
+          this.options.pop();
         }
       },
       removeOption(id) {
@@ -201,9 +221,11 @@
     async created() {
       await aeternity.initClient();
       this.height = await aeternity.client.height();
-      this.closeHeightString = String(20 * 24 * 30 + this.height)
+      this.heightTimestamp = Date.now();
+      this.closeHeight = 20 * 24 * 30 + this.height;
+      this.updateDateInputs();
     }
-  }
+  };
 </script>
 
 <style scoped type="text/scss">
