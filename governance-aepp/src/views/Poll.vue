@@ -60,8 +60,11 @@
         <div v-else-if="!isClosed">
           Closes in ~{{timeDifference | timeDifferenceToString}} (Block {{pollState.close_height}})
         </div>
-        <div v-else-if="isClosed">
+        <div v-else-if="isClosed && closeBlock">
           Closed on {{closeBlock.keyBlock.time | timeStampToString}} (Block {{pollState.close_height}})
+        </div>
+        <div v-else-if="isClosed && !closeBlock">
+          Closed at block {{pollState.close_height}}
         </div>
       </div>
 
@@ -244,7 +247,11 @@
         this.pollContract = await aeternity.client.getContractInstance(pollContractSource, {contractAddress: this.pollAddress});
         this.pollState = (await this.pollContract.methods.get_state()).decodedResult;
         this.isClosed = this.pollState.close_height <= parseInt(await aeternity.client.height());
-        this.closeBlock = this.isClosed ? await aeternity.client.getGeneration(this.pollState.close_height) : null;
+        try {
+          this.closeBlock = this.isClosed ? await aeternity.client.getGeneration(this.pollState.close_height) : null;
+        } catch (e) {
+          // The base-aepp SDK does not support this function yet
+        }
         const accountVote = this.pollState.votes.find(([voter, _]) => voter === this.accountAddress);
         this.voteOption = accountVote ? accountVote[1] : null;
 
