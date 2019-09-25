@@ -1,7 +1,6 @@
 {
   "name": "governance-aepp",
   "version": "0.1.0",
-  "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack -p --env.NODE_ENV=prod --progress",
@@ -11,7 +10,7 @@
   },
   "dependencies": {
     "@aeternity/aepp-components": "git+https://github.com/aeternity/aepp-components.git#develop",
-    "@aeternity/aepp-sdk": "~4.5.1",
+    "@aeternity/aepp-sdk": "~4.7.0",
     "axios": "^0.19.0",
     "bignumber.js": "^9.0.0",
     "copy-to-clipboard": "^3.2.0",
@@ -27,7 +26,7 @@
     "@babel/plugin-transform-block-scoping": "^7.4.4",
     "@babel/plugin-transform-modules-commonjs": "^7.5.0",
     "@babel/plugin-transform-runtime": "^7.5.0",
-    "@babel/polyfill": "^7.4.4",
+    "@babel/runtime-corejs3": "^7.6.2",
     "@babel/preset-env": "^7.5.0",
     "@babel/register": "^7.4.4",
     "@babel/runtime": "^7.5.1",
@@ -37,7 +36,7 @@
     "babel-plugin-add-module-exports": "^1.0.2",
     "browserslist": "^4.6.3",
     "clean-webpack-plugin": "^3.0.0",
-    "core-js": "^2.6.9",
+    "core-js": "^3.2.1",
     "css-loader": "^3.0.0",
     "cssnano": "^4.1.10",
     "es-check": "^5.0.0",
