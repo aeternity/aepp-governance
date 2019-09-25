@@ -53,9 +53,16 @@
       </div>
 
       <div class="text-center w-full mt-2 text-gray-500 text-sm" v-if="pollVotesState && pollVotesState.totalStake">
-        Stake: {{pollVotesState.totalStake | toAE(0)}} ({{pollVotesState.percentOfTotalSupply | formatPercent(2)}}) -
-        {{isClosed ? 'Closed' : 'Closes'}} {{typeof pollState.close_height === 'number' ? `at ${pollState.close_height}`
-        : 'never'}}
+        Stake: {{pollVotesState.totalStake | toAE(0)}} ({{pollVotesState.percentOfTotalSupply | formatPercent(2)}})
+        <div v-if="typeof pollState.close_height !== 'number'" class="inline-block">
+          - Closes never
+        </div>
+        <div v-else-if="!isClosed">
+          Closes in ~{{timeDifference | timeDifferenceToString}} (Block {{pollState.close_height}})
+        </div>
+        <div v-else-if="isClosed">
+          Closed on {{closeBlock.keyBlock.time | timeStampToString}} (Block {{pollState.close_height}})
+        </div>
       </div>
 
       <!-- POLL OPTIONS -->
@@ -70,7 +77,8 @@
           </a>
           <span v-if="!isClosed">has</span>
           <span v-if="isClosed">had</span>
-          voted with your stake for "{{title}}"<span v-if="isClosed"> at the time the poll closed</span>. <span v-if="!isClosed">Unhappy? You can overwrite their choice by placing your own vote.</span>
+          voted with your stake for "{{title}}"<span v-if="isClosed"> at the time the poll closed</span>. <span
+          v-if="!isClosed">Unhappy? You can overwrite their choice by placing your own vote.</span>
         </div>
         <div class="m-4 ae-card" @click="showVoters(id)">
           <div class="flex justify-between items-center w-full py-4 px-3">
@@ -149,10 +157,15 @@
         votersForOption: {},
         error: null,
         isClosed: false,
+        closeBlock: null,
         showCopyNotice: false
       };
     },
-    computed: {},
+    computed: {
+      timeDifference() {
+        return (this.pollState.close_height - aeternity.height) * 3 * 60 * 1000;
+      }
+    },
     methods: {
       openLink() {
         if (window.parent === window) {
@@ -231,6 +244,7 @@
         this.pollContract = await aeternity.client.getContractInstance(pollContractSource, {contractAddress: this.pollAddress});
         this.pollState = (await this.pollContract.methods.get_state()).decodedResult;
         this.isClosed = this.pollState.close_height <= parseInt(await aeternity.client.height());
+        this.closeBlock = this.isClosed ? await aeternity.client.getGeneration(this.pollState.close_height) : null;
         const accountVote = this.pollState.votes.find(([voter, _]) => voter === this.accountAddress);
         this.voteOption = accountVote ? accountVote[1] : null;
 
@@ -240,7 +254,6 @@
             .map(data => data.votes.find(vote => vote.delegators
               .some(delegation => delegation.delegator === this.accountAddress))).find(x => x) || {};
         }).catch(console.error);
-
 
         this.showLoading = false;
       }

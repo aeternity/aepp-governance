@@ -8,7 +8,9 @@
     <div class="text-gray-500 text-sm">
       <span v-if="percentOfTotalSupply">{{percentOfTotalSupply | formatPercent(2)}} stake - </span>
       <span v-else-if="loading"><ae-loader></ae-loader> stake - </span>
-      <span>{{closeHeight(data.close_height)}}{{timeDifference(data.close_height) | timeDifferenceToString}}</span>
+      <span v-if="isClosed">closed at {{data.close_height}} (~{{Math.abs(timeDifference) | timeDifferenceToString}} ago)</span>
+      <span v-else-if="typeof data.close_height !== 'number'">never closes</span>
+      <span v-else>closes in {{timeDifference | timeDifferenceToString}}</span>
     </div>
   </div>
 </template>
@@ -39,15 +41,12 @@
         default: null
       }
     },
-    methods: {
-      closeHeight(close_height) {
-        if (typeof close_height !== "number") return "never closes";
-        if (close_height < aeternity.height) return `closed at block ${close_height}`;
-        return `closes in `;
+    computed: {
+      isClosed() {
+        return this.data.close_height < aeternity.height
       },
-      timeDifference(close_height) {
-        if (typeof close_height !== "number" || close_height < aeternity.height) return "";
-        return (close_height - aeternity.height) * 3 * 60 * 1000;
+      timeDifference() {
+        return (this.data.close_height - aeternity.height) * 3 * 60 * 1000;
       }
     },
     mounted() {

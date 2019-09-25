@@ -28,7 +28,7 @@ export function timeDifferenceToString(timeDifference) {
     if(hours < 24) return `${Math.round(hours)} hour${hours > 1 ? 's' : ''}`;
 
     const days = hours / 24;
-    if(days < 7) return `${Math.round(days)} day${days > 1 ? 's' : ''}`;
+    if(days < 31) return `${Math.round(days)} day${days > 1 ? 's' : ''}`;
 
     const months = days / 30;
     if(months < 12) return `${Math.round(months)} month${months > 1 ? 's' : ''}`;
@@ -37,4 +37,14 @@ export function timeDifferenceToString(timeDifference) {
     return `${Math.round(years)} years`;
   } else
     return '';
+}
+
+export function timeStampToString(timestamp) {
+  if(timestamp) {
+    const date = new Date(timestamp);
+
+    return `${date.toLocaleDateString()} at ${date.toLocaleTimeString()}`;
+  } else {
+    return ''
+  }
 }
