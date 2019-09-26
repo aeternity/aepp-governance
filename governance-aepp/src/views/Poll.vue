@@ -52,8 +52,10 @@
         </div>
       </div>
 
-      <div class="text-center w-full mt-2 text-gray-500 text-sm" v-if="pollVotesState && pollVotesState.totalStake">
-        Stake: {{pollVotesState.totalStake | toAE(0)}} ({{pollVotesState.percentOfTotalSupply | formatPercent(2)}})
+      <div class="text-center w-full mt-2 text-gray-500 text-sm">
+        <div class="inline-block" v-if="pollVotesState && pollVotesState.totalStake">
+          Stake: {{pollVotesState.totalStake | toAE(0)}} ({{pollVotesState.percentOfTotalSupply | formatPercent(2)}})
+        </div>
         <div v-if="typeof pollState.close_height !== 'number'" class="inline-block">
           - Closes never
         </div>
