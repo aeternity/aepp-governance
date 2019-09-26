@@ -3,8 +3,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 const HtmlWebpackHarddiskPlugin = require('html-webpack-harddisk-plugin')
 // Cleans dist folder before building for fresh build
-const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-const { VueLoaderPlugin } = require('vue-loader')
+const {CleanWebpackPlugin} = require('clean-webpack-plugin')
+const {VueLoaderPlugin} = require('vue-loader')
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const PurgecssPlugin = require('purgecss-webpack-plugin');
 const FaviconsWebpackPlugin = require('favicons-webpack-plugin');
@@ -17,7 +17,7 @@ const distFolder = path.resolve(__dirname, 'dist')
 //
 // https://github.com/FullHuman/purgecss#extractor
 class TailwindExtractor {
-  static extract (content) {
+  static extract(content) {
     return content.match(/[A-z0-9-:\/]+/g) || []
   }
 }
