@@ -19,4 +19,5 @@ git add * && \
 git commit -m "governance aepp ${GIT_REV} deployment to gh-pages" && \
 git fetch && git rebase -s recursive -Xtheirs origin/gh-pages && \
 git push origin gh-pages && \
+cd .. && \
 rm -rf deployment
