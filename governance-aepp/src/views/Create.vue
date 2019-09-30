@@ -65,7 +65,8 @@
                 label="Close at height">
       </ae-input>
       <div class="mt-4 flex">
-        <ae-input type="date" class="mr-2" label="Est. close date" v-model="dateString" @input="updateCloseHeight"></ae-input>
+        <ae-input type="date" class="mr-2" label="Est. close date" v-model="dateString"
+                  @input="updateCloseHeight"></ae-input>
         <ae-input type="time" label="Est. close time" v-model="timeString" @input="updateCloseHeight"></ae-input>
       </div>
       <div class="text-gray-500 text-sm p-2">
@@ -81,6 +82,7 @@
       </div>
     </div>
     <BottomButtons cta-text="Create Poll" @cta="createPoll"></BottomButtons>
+    <CriticalErrorOverlay :error="criticalError" @continue="criticalError = null"></CriticalErrorOverlay>
   </div>
 </template>
 
@@ -104,7 +106,8 @@
           title: "",
           description: "",
           link: "",
-          spec_ref: Promise.reject()
+          // Sophia Type some(<T>) expects a promise. Since spec_ref is not set yet we deliver a rejected promise
+          spec_ref: new Promise((_, reject) => reject()).catch(() => {})
         },
         is_listed: true,
         optionsString: "",
@@ -119,6 +122,7 @@
         heightTimestamp: 0,
         dateString: '',
         timeString: '',
+        criticalError: null,
         errors: {
           titleError: null,
           descriptionError: null,
@@ -187,7 +191,9 @@
 
         if (this.createMetadata.title.length >= 3 && this.options.length >= 3) {
           this.showLoading = true;
-          const close_height = parseInt(this.closeHeight) === 0 ? Promise.reject() : Promise.resolve(parseInt(this.closeHeight));
+          const close_height = parseInt(this.closeHeight) === 0
+            ? new Promise((_, reject) => reject()).catch(() => {})
+            : Promise.resolve(parseInt(this.closeHeight));
 
           let newID = 0;
           options = this.options.filter(option => !!option.text)
@@ -196,10 +202,19 @@
               return option;
             }).reduce((acc, option) => Object.assign(acc, {[option.id]: option.text}), {});
 
-          const pollContract = await aeternity.client.getContractInstance(pollContractSource);
-          const init = await pollContract.methods.init(this.createMetadata, options, close_height);
-          const addPoll = await aeternity.contract.methods.add_poll(init.address, this.is_listed);
-          this.$router.push(`/poll/${addPoll.decodedResult}`);
+          try {
+            const pollContract = await aeternity.client.getContractInstance(pollContractSource);
+            const init = await pollContract.methods.init(this.createMetadata, options, close_height);
+            const addPoll = await aeternity.contract.methods.add_poll(init.address, this.is_listed);
+            this.$router.push(`/poll/${addPoll.decodedResult}`);
+          } catch (e) {
+            this.showLoading = false;
+            this.criticalError = 'Could not create your poll. Please try again.';
+            if(typeof e === 'string')
+              this.criticalError += ` Error: ${e}`;
+            console.error(e);
+          }
+
         }
       },
       optionInput(event) {
