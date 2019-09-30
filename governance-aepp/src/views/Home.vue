@@ -4,7 +4,7 @@
       <BiggerLoader></BiggerLoader>
     </div>
     <div class="fixed w-full top-0 max-w-desktop">
-      <BlackHeader :show-number-input="true" @submit="showPoll">
+      <BlackHeader :show-number-input="true" @submit="showPoll" @input="handleIdInput">
         {{activeTab}} Polls
       </BlackHeader>
       <div class="flex bg-gray-ae text-gray-200">
@@ -32,7 +32,8 @@
         Could not find any polls.
       </div>
     </div>
-    <BottomButtons @search="filterPolls" :search-bar="true"></BottomButtons>
+    <BottomButtons v-if="showSearch" @search="filterPolls" :search-bar="true"></BottomButtons>
+    <BottomButtons v-else @cta="showPoll(pollId)" cta-text="Show Poll"></BottomButtons>
     <CriticalErrorOverlay :error="error" @continue="error = null"></CriticalErrorOverlay>
   </div>
 </template>
@@ -66,6 +67,8 @@
         closedPolls: [],
         activePolls: [],
         pollOrdering: null,
+        showSearch: true,
+        pollId: null,
         startPosition: {
           x: null,
           y: null
@@ -82,6 +85,12 @@
     },
     props: ["resetView"],
     methods: {
+      handleIdInput(id) {
+        if(id) {
+          this.showSearch = false;
+          this.pollId = id;
+        }
+      },
       showPoll(id) {
         if(this.allPolls.find(poll => poll[0] === parseInt(id)))
           this.$router.push(`/poll/${id}`);

@@ -247,7 +247,6 @@
           this.accountAddress = aeternity.address;
           this.balance = await aeternity.client.balance(aeternity.address);
         }
-
         const poll = await aeternity.contract.methods.poll(this.pollId);
         this.pollAddress = poll.decodedResult.poll;
         this.pollContract = await aeternity.client.getContractInstance(pollContractSource, {contractAddress: this.pollAddress});
