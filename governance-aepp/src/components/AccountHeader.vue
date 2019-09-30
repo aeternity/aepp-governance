@@ -10,7 +10,7 @@
       </transition>
       <div class="flex justify-between items-center mt-2">
         <span><span v-if="isOwnAccount">Your </span> Account</span>
-        <img src="../assets/copy.svg" class="w-4 h-4 text-white" @click="copyToClipboard"/>
+        <img src="../assets/copy.svg" class="w-4 h-4 text-white cursor-pointer" @click="copyToClipboard"/>
       </div>
       <div class="flex justify-between items-center mt-3">
         <div>

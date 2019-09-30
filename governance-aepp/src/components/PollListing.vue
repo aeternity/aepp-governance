@@ -1,5 +1,5 @@
 <template>
-  <div class="ae-card p-4 pb-2" @click="$router.push(`/poll/${id}`)">
+  <div class="ae-card p-4 pb-2 cursor-pointer" @click="$router.push(`/poll/${id}`)">
     <div class="flex items-center vote-id w-full">
       <img class="h-6" src="../assets/hash.svg"/>
       <span class="text-primary text-2xl leading-none mr-2">{{id}}</span>

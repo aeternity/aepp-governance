@@ -9,14 +9,14 @@
       </BlackHeader>
       <div class="flex bg-gray-ae text-gray-200">
         <div v-if="pollOrdering" :class="{active: activeTab === 'hot'}" @click="switchTab('hot')" class="tab">
-          HOT
+          <span>HOT</span>
         </div>
-        <div :class="{active: activeTab === 'closing'}" @click="switchTab('closing')" class="tab">CLOSING</div>
+        <div :class="{active: activeTab === 'closing'}" @click="switchTab('closing')" class="tab"><span>CLOSING</span></div>
         <div v-if="pollOrdering" :class="{active: activeTab === 'stake'}" @click="switchTab('stake')" class="tab">
-          STAKE
+          <span>STAKE</span>
         </div>
-        <div :class="{active: activeTab === 'new'}" @click="switchTab('new')" class="tab">NEW</div>
-        <div :class="{active: activeTab === 'closed'}" @click="switchTab('closed')" class="tab">CLOSED</div>
+        <div :class="{active: activeTab === 'new'}" @click="switchTab('new')" class="tab"><span>NEW</span></div>
+        <div :class="{active: activeTab === 'closed'}" @click="switchTab('closed')" class="tab"><span>CLOSED</span></div>
       </div>
     </div>
     <div class="mt-32">
@@ -203,6 +203,10 @@
 
   .tab.active {
     font-weight: bold;
+  }
+
+  .tab span {
+    @apply cursor-pointer inline-block;
   }
 
   .tab.active::after {

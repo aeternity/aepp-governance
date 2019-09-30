@@ -85,7 +85,7 @@
           voted with your stake for "{{title}}"<span v-if="isClosed"> at the time the poll closed</span>. <span
           v-if="!isClosed">Unhappy? You can overwrite their choice by placing your own vote.</span>
         </div>
-        <div class="m-4 ae-card" @click="showVoters(id)">
+        <div class="m-4 ae-card cursor-pointer" @click="showVoters(id)">
           <div class="flex justify-between items-center w-full py-4 px-3">
             <ae-check class="mr-1" v-model="voteOption" :value="id" type="radio" @click.stop.prevent
                       @change="vote(id)" :disabled="isClosed || !accountAddress"></ae-check>

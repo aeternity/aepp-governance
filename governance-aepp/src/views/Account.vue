@@ -31,13 +31,13 @@
       </div>
     </div>
     <div class="flex w-full text-center text-gray-500 mt-4 text-sm">
-      <div class="flex-1 pb-2 border-b-2 border-gray-300" @click="switchTab('delegations')"
+      <div class="flex-1 pb-2 border-b-2 border-gray-300 cursor-pointer" @click="switchTab('delegations')"
            :class="{'active-tab': activeTab === 'delegations'}">DELEGATIONS
       </div>
-      <div class="flex-1 pb-2 border-b-2 border-gray-300" @click="switchTab('votes')"
+      <div class="flex-1 pb-2 border-b-2 border-gray-300 cursor-pointer" @click="switchTab('votes')"
            :class="{'active-tab': activeTab === 'votes'}">VOTES
       </div>
-      <div class="flex-1 pb-2 border-b-2 border-gray-300" @click="switchTab('polls')"
+      <div class="flex-1 pb-2 border-b-2 border-gray-300 cursor-pointer" @click="switchTab('polls')"
            :class="{'active-tab': activeTab === 'polls'}">POLLS
       </div>
     </div>

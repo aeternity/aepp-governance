@@ -6,8 +6,8 @@
       <div class="w-full flex h-12 mb-6 px-8 items-center" v-if="view === 'search'">
         <input v-model="searchString" type="search" placeholder="Search..."
                class="rounded-full flex-1 bg-white h-full flex justify-center items-center px-4 mr-2 search-bar"/>
-          <SmallButton :img="images.searchImg" v-if="searchButton"
-                       @click="$emit('searchSubmit', searchString)"></SmallButton>
+        <SmallButton :img="images.searchImg" v-if="searchButton"
+                     @click="$emit('searchSubmit', searchString)"></SmallButton>
       </div>
       <!-- BUTTONS -->
       <div class="w-full flex h-12">
@@ -20,12 +20,14 @@
         </div>
         <!-- CENTER SECTION -->
         <div class="flex-3 flex justify-center">
-          <button class="rounded-full bg-primary px-8 h-full flex justify-center items-center text-white font-semibold"
-               @click="$emit('cta')" :disabled="ctaDisabled" v-if="ctaText">
+          <button
+            class="rounded-full bg-primary px-8 h-full flex justify-center items-center text-white font-semibold cursor-pointer"
+            @click="$emit('cta')" :disabled="ctaDisabled" v-if="ctaText">
             {{ctaText}}
           </button>
-          <div class="rounded-full bg-primary px-8 h-full flex justify-center items-center text-white font-semibold relative"
-               @click="clickSearch" v-if="searchBar" :class="{'search-button': view === 'search'}">
+          <div
+            class="rounded-full bg-primary px-8 h-full flex justify-center items-center text-white font-semibold relative cursor-pointer"
+            @click="clickSearch" v-if="searchBar" :class="{'search-button': view === 'search'}">
             Search
           </div>
         </div>
