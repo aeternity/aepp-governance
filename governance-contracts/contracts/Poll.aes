@@ -24,7 +24,7 @@ contract Poll =
     { title : string
     , description : string
     , link : string
-    , spec_ref : option(string)}
+    , spec_ref : option(hash)}
 
   type vote_option = map(int, string)
 

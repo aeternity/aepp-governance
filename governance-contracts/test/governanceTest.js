@@ -129,6 +129,7 @@ describe('Governance Contracts', () => {
         pollContract = await ownerClient.getContractInstance(pollSource, {contractAddress: polls.decodedResult[0][1].poll});
         let pollState = await pollContract.methods.get_state();
         assert.equal(pollState.decodedResult.metadata.title, 'Testing');
+        assert.equal(pollState.decodedResult.metadata.spec_ref, 'd4f02eaafd1a9e9de7d10972ca8e47fa7a985825c3c9c1e249c72683cb3e4f19');
         assert.equal(pollState.decodedResult.close_height, undefined);
         assert.equal(pollState.decodedResult.author, ownerKeypair.publicKey);
         assert.deepEqual(pollState.decodedResult.vote_options, [[0, 'Yes, test more'], [1, 'No, test less'], [2, 'Who cares?']]);
