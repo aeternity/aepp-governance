@@ -139,7 +139,10 @@ aeternity.initClient = async () => {
   if (!aeternity.client) {
     try {
       const preferredWallet = sessionStorage.getItem('aeWallet');
-      if (preferredWallet) {
+      if(preferredWallet === 'StaticClient' && window.parent !== window) {
+        // Retry base-aepp
+        sessionStorage.removeItem('aeWallet');
+      } else if (preferredWallet) {
         try {
           let client = await aeternity['init' + preferredWallet]();
           result = await aeternity.setClient(preferredWallet, client);
