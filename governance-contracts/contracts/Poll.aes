@@ -86,3 +86,5 @@ contract Poll =
       None => false
 
   entrypoint voted_option(voter : address) : option(int) = Map.lookup(voter, state.votes)
+
+  entrypoint version() : int = 1

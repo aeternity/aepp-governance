@@ -248,4 +248,12 @@ describe('Governance Contracts', () => {
         let revokeDelegation2 = await secondClientRegistryContract.methods.revoke_delegation();
         assert.equal(revokeDelegation2.result.returnType, 'ok');
     });
+
+    it('Get Version', async () => {
+        let pollVersion = await pollContract.methods.version();
+        assert.equal(pollVersion.decodedResult, 1);
+
+        let registryVersion = await registryContract.methods.version();
+        assert.equal(registryVersion.decodedResult, 1);
+    })
 });

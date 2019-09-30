@@ -106,6 +106,8 @@ contract Registry =
     let filter_delegations_account = (delegation_tuple) => Tuple.pair_second(delegation_tuple) == account
     Map.from_list(List.filter(filter_delegations_account, Map.to_list(state.delegations)))
 
+  entrypoint version() : int = 1
+
   // INTERNAL HELPER FUNCTIONS
 
   function require_poll_by_id(poll_id : int) : poll_data =
