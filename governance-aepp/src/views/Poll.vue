@@ -73,8 +73,7 @@
       <!-- POLL OPTIONS -->
 
       <div v-for="[id, title] in pollState.vote_options" v-if="pollState.vote_options">
-        <div v-if="delegateeVote && delegateeVote.option === id"
-             class="mx-4 mb-4 mt-2 p-4 bg-gray-200 text-gray-600 text-sm ae-triangle-after">
+        <HintBubble v-if="delegateeVote && delegateeVote.option === id">
           Your <span v-if="!Object.keys(delegateeVote.delegationTree).includes(accountAddress)">sub-</span>delegatee
           <a class="font-mono text-primary text-xs" href="#"
              @click.stop.prevent="$router.push(`/account/${delegateeVote.account}`)">
@@ -84,7 +83,7 @@
           <span v-if="isClosed">had</span>
           voted with your stake for "{{title}}"<span v-if="isClosed"> at the time the poll closed</span>. <span
           v-if="!isClosed">Unhappy? You can overwrite their choice by placing your own vote.</span>
-        </div>
+        </HintBubble>
         <div class="m-4 ae-card cursor-pointer" @click="showVoters(id)">
           <div class="flex justify-between items-center w-full py-4 px-3">
             <ae-check class="mr-1" v-model="voteOption" :value="id" type="radio" @click.stop.prevent
@@ -138,10 +137,12 @@
   import CriticalErrorOverlay from "~/components/CriticalErrorOverlay";
   import AccountTreeLine from "~/components/AccountTreeLine";
   import copy from 'copy-to-clipboard';
+  import HintBubble from "~/components/HintBubble";
 
   export default {
     name: 'Home',
     components: {
+      HintBubble,
       AccountTreeLine,
       CriticalErrorOverlay,
       GrayText,
@@ -304,19 +305,5 @@
     min-width: 1.5rem;
   }
 
-  .ae-triangle-after {
-    position: relative;
-  }
-
-  .ae-triangle-after::after {
-    content: "";
-    width: 20px;
-    height: 20px;
-    border: 10px solid #edf2f7;
-    transform: rotate(45deg);
-    position: absolute;
-    bottom: -10px;
-    left: 20px;
-  }
 
 </style>

@@ -33,8 +33,14 @@
       <ae-input :error="!!errors.descriptionError" v-model="createMetadata.description" label="Description">
       </ae-input>
     </div>
-    <div class="py-2 px-4">
-      <ae-input :error="!!errors.linkError" v-model="createMetadata.link" label="Link">
+    <div class="mt-2">
+      <HintBubble v-if="showForumHint">
+        For easier discussions on your proposal we suggest you create a thread in the æternity forum and link it here.
+        (<a href="https://forum.aeternity.com" target="_blank">https://forum.aeternity.com</a>)
+      </HintBubble>
+    </div>
+    <div class="pb-2 px-4">
+      <ae-input :error="!!errors.linkError" v-model="createMetadata.link" label="Link" @blur="linkBlurHandler">
       </ae-input>
     </div>
     <div class="py-2 px-4">
@@ -96,19 +102,26 @@
   import GrayText from "~/components/GrayText";
   import CriticalErrorOverlay from "~/components/CriticalErrorOverlay";
   import AeInput from "~/components/ae-input";
+  import HintBubble from "~/components/HintBubble";
 
   export default {
     name: 'Home',
-    components: {GrayText, BlackHeader, BottomButtons, AeIcon, AeButton, AeInput, AeCheck, BiggerLoader, AeButtonGroup},
+    components: {
+      CriticalErrorOverlay,
+      HintBubble,
+      GrayText, BlackHeader, BottomButtons, AeIcon, AeButton, AeInput, AeCheck, BiggerLoader, AeButtonGroup
+    },
     data() {
       return {
         showLoading: false,
+        showForumHint: false,
         createMetadata: {
           title: "",
           description: "",
           link: "",
           // Sophia Type some(<T>) expects a promise. Since spec_ref is not set yet we deliver a rejected promise
-          spec_ref: new Promise((_, reject) => reject()).catch(() => {})
+          spec_ref: new Promise((_, reject) => reject()).catch(() => {
+          })
         },
         is_listed: true,
         optionsString: "",
@@ -142,6 +155,9 @@
       },
     },
     methods: {
+      linkBlurHandler() {
+        this.showForumHint = this.createMetadata.link ? this.createMetadata.link.indexOf('forum.aeternity.com') === -1 : false;
+      },
       leftPad(num) {
         return String("0" + num).slice(-2);
       },
@@ -193,7 +209,8 @@
         if (this.createMetadata.title.length >= 3 && this.options.length >= 3) {
           this.showLoading = true;
           const close_height = parseInt(this.closeHeight) === 0
-            ? new Promise((_, reject) => reject()).catch(() => {})
+            ? new Promise((_, reject) => reject()).catch(() => {
+            })
             : Promise.resolve(parseInt(this.closeHeight));
 
           let newID = 0;
@@ -211,7 +228,7 @@
           } catch (e) {
             this.showLoading = false;
             this.criticalError = 'Could not create your poll. Please try again.';
-            if(typeof e === 'string')
+            if (typeof e === 'string')
               this.criticalError += ` Error: ${e}`;
             console.error(e);
           }

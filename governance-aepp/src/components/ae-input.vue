@@ -15,7 +15,10 @@
         :id="id"
         :value="value"
         @focus="focus = true"
-        @blur="focus = false"
+        @blur="(event) => {
+        propagateEvent(event);
+        focus = false
+        }"
         @input="propagateEventValue"
         v-if="!$slots.default && !$scopedSlots.default"
         v-bind="$attrs"
