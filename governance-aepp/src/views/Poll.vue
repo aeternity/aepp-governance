@@ -118,8 +118,8 @@
       </div>
       <BottomButtons :cta-text="voteOption !== null && !isClosed ?  'Revoke Vote' : null "
                      @cta="revokeVote"></BottomButtons>
-      <CriticalErrorOverlay :error="error" @continue="error = null"></CriticalErrorOverlay>
     </div>
+    <CriticalErrorOverlay :error="error" @continue="continueFunction"></CriticalErrorOverlay>
   </div>
 </template>
 
@@ -164,7 +164,10 @@
         error: null,
         isClosed: false,
         closeBlock: null,
-        showCopyNotice: false
+        showCopyNotice: false,
+        continueFunction: () => {
+          this.error = null
+        }
       };
     },
     computed: {
@@ -269,7 +272,16 @@
       }
     },
     async mounted() {
-      this.loadData();
+      try {
+        await this.loadData();
+      } catch (e) {
+        console.error(e);
+        this.error = 'Could not load poll.';
+        this.continueFunction = () => {
+          this.$router.push('/')
+        };
+        this.showLoading = false;
+      }
     }
   };
 </script>
