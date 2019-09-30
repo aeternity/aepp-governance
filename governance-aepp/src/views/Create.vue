@@ -94,6 +94,7 @@
   import BottomButtons from "~/components/BottomButtons";
   import BlackHeader from "~/components/BlackHeader";
   import GrayText from "~/components/GrayText";
+  import CriticalErrorOverlay from "~/components/CriticalErrorOverlay";
   import AeInput from "~/components/ae-input";
 
   export default {
