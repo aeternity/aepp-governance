@@ -26,6 +26,8 @@ services:
     volumes:
       - ./aeternity.yaml:/home/aeternity/.aeternity/aeternity/aeternity.yaml
       - aeternity_data:/home/aeternity/node/data/mnesia
+    ports:
+      - 3013:3013
       
   compiler:
     image: aeternity/aesophia_http:v3.2.0
