@@ -17,6 +17,7 @@ services:
       - NODE_URL=http://aeternity_proxy:3013/
       - COMPILER_URL=http://compiler:3080
       - WEBSOCKET_URL=ws://middleware:3020
+      - MIDDLEWARE_URL=http://middleware:8000
       - REDIS_URL=redis://redis:6379
 
   aeternity:
