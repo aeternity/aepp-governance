@@ -14,11 +14,11 @@
  *  OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
  *  PERFORMANCE OF THIS SOFTWARE.
  */
-const Deployer = require('forgae-lib').Deployer;
+const Deployer = require('aeproject-lib').Deployer;
 const Universal = require('@aeternity/aepp-sdk').Universal;
 
 const deploy = async (network, privateKey, compiler) => {
-    let deployer = new Deployer(network, privateKey, compiler)
+    let deployer = new Deployer(network, privateKey, compiler);
 
     const client = await Universal({
         url: deployer.network.url,

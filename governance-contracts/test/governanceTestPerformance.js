@@ -50,8 +50,8 @@ describe.skip('Governance Contracts Performance', () => {
             compilerUrl: config.compilerUrl
         });
 
-        registryContract = await client.getContractInstance(registrySource, {contractAddress: 'ct_2dPo948JddJ75w3NmB9CaSDBe8te9x5oA1xb6t3x1c12TesBiT'});
-        //await registryContract.methods.init().then(init => console.log(init.address));
+        registryContract = await client.getContractInstance(registrySource);
+        await registryContract.methods.init().then(init => console.log(init.address));
 
         await [...Array(account_count).keys()].reduce(async (promiseAcc, id) => {
             await promiseAcc;
@@ -73,10 +73,10 @@ describe.skip('Governance Contracts Performance', () => {
                 title: "Testing " + Math.random().toString(36).substring(7),
                 description: "This Poll is created for Testing purposes only",
                 link: "https://aeternity.com/",
-                spec_ref: Promise.resolve("d4f02eaafd1a9e9de7d10972ca8e47fa7a985825c3c9c1e249c72683cb3e4f19")
+                spec_ref: "d4f02eaafd1a9e9de7d10972ca8e47fa7a985825c3c9c1e249c72683cb3e4f19"
             };
             const vote_options = {0: "Yes, test more", 1: "No, test less", 2: "Who cares?"};
-            const close_height = Math.round(Math.random()) ? Promise.reject() : Promise.resolve(height + Math.floor(Math.random() * 1000));
+            const close_height = Math.round(Math.random()) ? undefined : height + Math.floor(Math.random() * 1000);
 
             const init = await pollContract.methods.init(metadata, vote_options, close_height);
             assert.equal(init.result.returnType, 'ok');
@@ -125,7 +125,7 @@ describe.skip('Governance Contracts Performance', () => {
             link: "https://aeternity.com/"
         };
         const vote_options = {0: "Yes, test more", 1: "No, test less", 2: "Who cares?", 3: "WHAT", 4: "Maybe?!"};
-        const close_height = Promise.reject();
+        const close_height = undefined;
 
         const init = await pollContract.methods.init(metadata, vote_options, close_height);
         await registryContract.methods.add_poll(init.address, true);

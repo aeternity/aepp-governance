@@ -1,22 +1,19 @@
 {
-  "name": "forgae-project",
+  "name": "governance-contracts",
   "version": "1.0.0",
-  "description": "This is the default package.json generated for your project",
-  "main": "index.js",
   "scripts": {
-    "test": "forgae test",
-    "node": "forgae node"
+    "test": "aeproject test",
+    "node": "aeproject node"
   },
-  "author": "",
   "license": "ISC",
   "dependencies": {
-    "@aeternity/aepp-sdk": "4.7.0",
+    "@aeternity/aepp-sdk": "6.0.0",
+    "aeproject-lib": "1.0.2",
     "blake2b": "^2.1.3",
     "bn.js": "^5.0.0",
-    "forgae-lib": "2.0.0",
     "yarn": "1.17.3"
   },
   "devDependencies": {
-    "forgae": "3.0.0"
+    "aeproject": "1.0.3"
   }
 }

@@ -6,7 +6,6 @@ peers:
 http:
   external:
     port: 3013
-    acceptors: 200
   internal:
     debug_endpoints: true
     port: 3113
@@ -24,6 +23,11 @@ keys:
 
 chain:
   persist: true
+  hard_forks:
+    "1": 0
+    "2": 1
+    "3": 2
+    "4": 3
 
 mining:
   autostart: true
@@ -39,5 +43,3 @@ mining:
 
 fork_management:
   network_id: "ae_devnet"
-
-
