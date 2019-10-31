@@ -18,21 +18,8 @@
 // THIS IS NOT SECURITY AUDITED
 // DO NEVER USE THIS WITHOUT SECURITY AUDIT FIRST
 
-namespace List =
-  function filter(f : ('a) => bool, l : list('a)) = filter'(f, l, [])
-  private function filter'(f : ('a) => bool, l : list('a), acc : list('a)) =
-    switch(l)
-      [] => acc
-      e :: l' =>
-        if(f(e))
-          filter'(f, l', e :: acc)
-        else
-          filter'(f, l', acc)
-
-namespace Tuple =
-  function pair_second(tuple) =
-    switch(tuple)
-      (_, e) => e
+include "List.aes"
+include "Pair.aes"
 
 contract Poll =
   entrypoint title : () => string
@@ -103,7 +90,7 @@ contract Registry =
     Map.lookup(account, state.delegations)
 
   entrypoint delegators(account : address) : delegations =
-    let filter_delegations_account = (delegation_tuple) => Tuple.pair_second(delegation_tuple) == account
+    let filter_delegations_account = (delegation_tuple) => Pair.snd(delegation_tuple) == account
     Map.from_list(List.filter(filter_delegations_account, Map.to_list(state.delegations)))
 
   entrypoint version() : int = 1
