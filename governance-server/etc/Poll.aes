@@ -24,7 +24,7 @@ contract Poll =
     { title : string
     , description : string
     , link : string
-    , spec_ref : option(string)}
+    , spec_ref : option(hash)}
 
   type vote_option = map(int, string)
 
@@ -55,7 +55,7 @@ contract Poll =
   // STATEFULL FUNCTIONS
 
   stateful entrypoint vote(option : int) =
-    require(vote_not_closed(), "POLL_ALREADY_CLOSED")
+    require(!is_closed(), "POLL_ALREADY_CLOSED")
     require(Map.member(option, state.vote_options), "VOTE_OPTION_NOT_KNOWN")
     put(state{ votes[Call.caller] = option})
     Chain.event(Vote(Contract.address, Call.caller, option))
@@ -80,13 +80,11 @@ contract Poll =
 
   entrypoint has_voted(voter : address) : bool = Map.member(voter, state.votes)
 
-  entrypoint is_closed(closed : bool) : bool = vote_not_closed() != closed
+  entrypoint is_closed() : bool =
+    switch(state.close_height)
+      Some(close_height) => Chain.block_height >= close_height
+      None => false
 
   entrypoint voted_option(voter : address) : option(int) = Map.lookup(voter, state.votes)
 
-  // INTERNAL HELPER FUNCTIONS
-
-  function vote_not_closed() : bool =
-    switch(state.close_height)
-      Some(close_height) => close_height > Chain.block_height
-      None => true
+  entrypoint version() : int = 1
