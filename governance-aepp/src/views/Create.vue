@@ -119,9 +119,7 @@
           title: "",
           description: "",
           link: "",
-          // Sophia Type some(<T>) expects a promise. Since spec_ref is not set yet we deliver a rejected promise
-          spec_ref: new Promise((_, reject) => reject()).catch(() => {
-          })
+          spec_ref: undefined
         },
         is_listed: true,
         optionsString: "",
@@ -208,11 +206,7 @@
 
         if (this.createMetadata.title.length >= 3 && this.options.length >= 3) {
           this.showLoading = true;
-          const close_height = parseInt(this.closeHeight) === 0
-            ? new Promise((_, reject) => reject()).catch(() => {
-            })
-            : Promise.resolve(parseInt(this.closeHeight));
-
+          const close_height = parseInt(this.closeHeight) === 0 ? undefined : parseInt(this.closeHeight);
           let newID = 0;
           options = this.options.filter(option => !!option.text)
             .map(option => {

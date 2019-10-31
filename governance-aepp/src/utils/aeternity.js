@@ -11,7 +11,7 @@ const aeternity = {
   passive: false,
   nodeURL: 'https://sdk-testnet.aepps.com', // THIS IS FOR THE STATIC CLIENT WITHOUT WALLET
   compilerURL: 'https://compiler.aepps.com', // THIS IS FOR THE STATIC CLIENT WITHOUT WALLET
-  contractAddress: 'ct_2uwZSiKc9vz1Rcg4Pr6FGnMY4R2rEpadWJNG64iAykJpGC9qGe'
+  contractAddress: 'ct_2m4TpeSLBRrWumHnqA3sUSkhz71r3mMZY4w2ad4MbXwzFP3Jbw'
 };
 
 const timeout = async (promise) => {
