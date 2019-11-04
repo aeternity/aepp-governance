@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack -p --env.NODE_ENV=prod --progress",
-    "dev": "webpack-dev-server --env.NODE_ENV=dev --config ./webpack.config.js --verbose --progress",
+    "build": "webpack --config ./webpack.prod.js --progress",
+    "dev": "webpack-dev-server --config ./webpack.dev.js --verbose --progress",
     "build:stats": "webpack --env.NODE_ENV=prod --profile --json > stats.json",
     "check:es5": "es-check es5 './dist/*.js'"
   },
@@ -64,6 +64,7 @@
     "webpack-bundle-analyzer": "^3.3.2",
     "webpack-cli": "^3.3.5",
     "webpack-dev-server": "^3.7.2",
+    "webpack-merge": "^4.2.2",
     "webpack-serve": "^3.1.0"
   },
   "eslintConfig": {
