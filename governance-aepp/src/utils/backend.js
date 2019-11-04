@@ -19,18 +19,7 @@ const wrapTry = async (f) => {
   }
 };
 
-const wrapTimeout = async (f) => {
-  let timeoutPromise = new Promise((resolve, reject) => {
-    let wait = setTimeout(() => {
-      clearTimeout(wait);
-      resolve(null);
-    }, 5000)
-  });
-
-  return Promise.race([f(), timeoutPromise]);
-};
-
-backend.votesState = async (poll) => wrapTimeout(async () => wrapTry(async () => {
+backend.votesState = async (poll) => wrapTry(async () => {
   const votesState = await axios.get(`${BACKEND_URL}/votesState/${poll}`).then(res => res.data);
   const appendVotesState = {
     ...votesState, ...{
@@ -41,27 +30,27 @@ backend.votesState = async (poll) => wrapTimeout(async () => wrapTry(async () =>
     }
   };
   return appendVotesState;
-}));
+});
 
-backend.delegatedPower = (account, poll) => wrapTimeout(async () => wrapTry(async () => {
+backend.delegatedPower = (account, poll) => wrapTry(async () => {
   if (poll) return axios.get(`${BACKEND_URL}/delegatedPower/${account}?poll=${poll}`).then(res => res.data);
   return axios.get(`${BACKEND_URL}/delegatedPower/${account}`).then(res => res.data);
-}));
+});
 
-backend.pollOverview = async (address) => wrapTimeout(async () => {
+backend.pollOverview = async (address) => wrapTry(async () => {
   return axios.get(`${BACKEND_URL}/pollOverview/${address}`).then(res => res.data);
 });
 
-backend.accountPollVoterAuthor = async (address) => wrapTimeout(async () => {
+backend.accountPollVoterAuthor = async (address) => wrapTry(async () => {
   return axios.get(`${BACKEND_URL}/accountPollVoterAuthor/${address}`).then(res => res.data);
 });
 
-backend.contractEvent = async (topic, poll) => wrapTimeout(async () => {
+backend.contractEvent = async (topic, poll) => wrapTry(async () => {
   return axios.post(`${BACKEND_URL}/contractEvent`, {topic: topic, poll: poll});
 });
 
-backend.pollOrdering = async (closed = false) => wrapTimeout(async () => wrapTry(async () => {
+backend.pollOrdering = async (closed = false) => wrapTry(async () => {
   return axios.get(`${BACKEND_URL}/pollOrdering?closed=${closed ? "true" : "false"}`).then(res => res.data);
-}));
+});
 
 export default backend;
