@@ -217,11 +217,13 @@
         this.delegations = await aeternity.delegations(this.address);
 
         await Backend.delegatedPower(this.address).then(delegatedPower => {
+          if(delegatedPower === null) return;
           this.delegatedPower = delegatedPower.delegatedPower;
           this.totalStake = new BigNumber(this.balance).plus(this.delegatedPower);
         }).catch(console.error);
 
         await Backend.accountPollVoterAuthor(this.address).then(data => {
+          if(data === null) return;
           this.votedInPolls = data.votedInPolls.filter(poll => poll[1].is_listed).sort((a, b) => b[0] - a[0]);
           this.authorOfPolls = data.authorOfPolls.filter(poll => poll[1].is_listed).sort((a, b) => b[0] - a[0]);
         }).catch(console.error);
