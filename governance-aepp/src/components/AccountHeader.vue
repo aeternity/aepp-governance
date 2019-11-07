@@ -10,7 +10,7 @@
       </transition>
       <div class="flex justify-between items-center mt-2">
         <span><span v-if="isOwnAccount">Your </span> Account</span>
-        <img src="../assets/copy.svg" class="w-4 h-4 text-white cursor-pointer" @click="copyToClipboard"/>
+        <img src="../assets/copy.svg" class="w-4 h-4 text-white cursor-pointer" @click="copyToClipboard" alt="copy"/>
       </div>
       <div class="flex justify-between items-center mt-3">
         <div>
@@ -55,7 +55,7 @@
         </div>
         <div class="w-5 flex justify-center items-center ml-2 ae-transition-300" v-if="canOpen" @click="open = !open"
              :class="{'rotate-90': open}">
-          <img src="../assets/open_arrow.svg" class="w-full"/>
+          <img src="../assets/open_arrow.svg" class="w-full" alt="show voting power"/>
         </div>
       </div>
     </div>

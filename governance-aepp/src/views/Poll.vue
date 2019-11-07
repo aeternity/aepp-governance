@@ -14,7 +14,7 @@
           <h1 class="text-3xl leading-tight w-full break-words">{{pollState.metadata.title}}</h1>
         </div>
         <div class="h-8 flex items-center vote-id justify-end">
-          <img class="h-full" src="../assets/hash.svg"/>
+          <img class="h-full" src="../assets/hash.svg" alt="hash"/>
           <span class="text-primary text-4xl leading-none">{{pollId}}</span>
         </div>
       </div>
@@ -95,7 +95,7 @@
               <span>{{title}}</span>
             </div>
             <div class="min-w-3" style="margin-top: 4px" v-if="pollVotesState">
-              <img src="../assets/back_gray.svg" class="transition"
+              <img src="../assets/back_gray.svg" class="transition" alt="show poll state"
                    :class="{'rotate-90': votersForOption.id != null && votersForOption.id == id}">
             </div>
           </div>

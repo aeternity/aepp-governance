@@ -54,7 +54,7 @@
     </div>
     <div v-if="activeTab === 'delegations'">
       <div v-if="delegations.length">
-        <div v-for="{delegator, _, delegatorAmount, includesIndirectDelegations} in delegations"
+        <div v-for="{delegator, delegatorAmount, includesIndirectDelegations} in delegations"
              class="ae-card py-4 mx-4 my-2">
           <ae-identity-light
             :collapsed="true"
