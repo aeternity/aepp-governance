@@ -84,6 +84,11 @@ module.exports = class Aeternity {
         return delegations.filter(([_, delegatee]) => delegatee === address);
     };
 
+    delegatee = async (address, height) => {
+        const delegations = await this.delegations(height);
+        return delegations.filter(([delegator, _]) => delegator === address);
+    };
+
     getClosingHeightOrUndefined = async (pollCloseHeight) => {
         const height = await this.height();
         return pollCloseHeight ? pollCloseHeight <= height ? pollCloseHeight : undefined : undefined;

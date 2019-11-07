@@ -28,12 +28,12 @@ const deploy = async (network, privateKey, compiler) => {
         compilerUrl: deployer.compilerUrl
     });
 
-    /*
+    
     await client.spend(100000000000000000000, "ak_y87WkN4C4QevzjTuEYHg6XLqiWx3rjfYDFLBmZiqiro5mkRag");
     await client.spend(50000000000000000000, "ak_9jFvDQKvq6Viap476momQDjbPxf17pDgKuMv6dseryxdpaZUF");
     await client.spend(20000000000000000000, "ak_2wV4puWGcrV8rLxrRaPrFuMrgkUG413UvmgNeVdyqxKmUMSkEk");
     await client.spend(10000000000000000000, "ak_xFowwp6E9t2mbHpjb2a8dGCMHSr7f3LxHAtW65qxrti3nDKKk");
-    await client.spend(1000000000000000000, "ak_11111111111111111111111111111111273Yts");*/
+    await client.spend(1000000000000000000, "ak_11111111111111111111111111111111273Yts");
 
     await deployer.deploy("./contracts/Registry.aes")
 };
