@@ -54,10 +54,13 @@
     },
     mounted() {
       Backend.pollOverview(this.data.poll).then(overview => {
-        this.percentOfTotalSupply = overview.percentOfTotalSupply;
-        this.voteCount = overview.voteCount;
+        if(overview !== null) {
+          this.percentOfTotalSupply = overview.percentOfTotalSupply;
+          this.voteCount = overview.voteCount;
+        }
         this.loading = false;
-      }).catch(() => {
+      }).catch(e => {
+        console.error(e);
         this.loading = false;
       });
     }

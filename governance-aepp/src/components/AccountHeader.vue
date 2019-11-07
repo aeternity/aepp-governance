@@ -107,8 +107,12 @@
         this.isOwnAccount = aeternity.address === this.address;
         this.balance = await aeternity.client.balance(this.address);
         await Backend.delegatedPower(this.address, this.pollAddress).then(delegatedPower => {
-          this.delegatedPower = delegatedPower.delegatedPower;
-          this.totalStake = new BigNumber(this.balance).plus(this.delegatedPower);
+          if(delegatedPower === null) {
+            this.totalStake = new BigNumber(this.balance);
+          } else {
+            this.delegatedPower = delegatedPower.delegatedPower;
+            this.totalStake = new BigNumber(this.balance).plus(this.delegatedPower);
+          }
         }).catch(e => {
           console.error(e);
           this.totalStake = new BigNumber(this.balance);

@@ -260,7 +260,8 @@
         const accountVote = this.pollState.votes.find(([voter, _]) => voter === this.accountAddress);
         this.voteOption = accountVote ? accountVote[1] : null;
 
-        await Backend.votesState(this.pollAddress).then((votesState) => {
+        await Backend.votesState(this.pollAddress).then(votesState => {
+          if(votesState === null) return;
           this.pollVotesState = votesState;
           this.delegateeVote = this.pollVotesState.stakesForOption
             .map(data => data.votes.find(vote =>
