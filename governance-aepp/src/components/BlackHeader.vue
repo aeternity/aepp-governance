@@ -10,7 +10,7 @@
                  class="text-gray-800 w-full text-2xl outline-none bg-transparent leading-none" @blur="onBlur">
         </form>
       </div>
-      <div class="w-8 text-2xl h-8 bg-primary rounded-full justify-center flex items-center ml-2" @click.stop.prevent="$router.push('testing')">
+      <div class="w-8 text-2xl h-8 bg-primary rounded-full justify-center flex items-center ml-2 cursor-pointer" @click.stop.prevent="$router.push('testing')">
         ?
       </div>
     </div>
