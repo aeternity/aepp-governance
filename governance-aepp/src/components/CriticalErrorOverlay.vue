@@ -15,11 +15,11 @@
 </template>
 
 <script>
-  import { AeBackdrop, AeButton, AeCard } from '@aeternity/aepp-components/src/components/'
+  import { AeButton, AeCard } from '@aeternity/aepp-components/src/components/'
 
   export default {
     name: 'CriticalErrorOverlay',
-    components: { AeBackdrop, AeButton, AeCard },
+    components: { AeButton, AeCard },
     props:  {
       error: {
         type: String,

@@ -202,7 +202,6 @@ aeternity.delegations = async (address) => {
 };
 
 aeternity.polls = async () => {
-  const height = await aeternity.client.height();
   const polls = await aeternity.contract.methods.polls();
   return polls.decodedResult;
 };
