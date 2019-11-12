@@ -60,7 +60,7 @@ const addPollInvalidationListeners = async (aeternity) => {
 
 const addPollInvalidationListener = async (poll) => {
     if (cache.wsconnection) {
-        cache.wsconnection.send(JSON.stringify({op: "subscribe", payload: "object", target: poll}));
+        cache.wsconnection.send(JSON.stringify({op: "Subscribe", payload: "Object", target: poll}));
     } else {
         setTimeout(() => addPollInvalidationListener(poll), 30000);
     }
@@ -100,20 +100,20 @@ cache.startInvalidator = (aeternity) => {
     wsclient.on('connectFailed', console.error);
     wsclient.on('connect', connection => {
         cache.wsconnection = connection;
-        cache.wsconnection.send(JSON.stringify({op: "subscribe", payload: "key_blocks"}));
-        cache.wsconnection.send(JSON.stringify({op: "subscribe", payload: "transactions"}));
+        cache.wsconnection.send(JSON.stringify({op: "Subscribe", payload: "KeyBlocks"}));
+        cache.wsconnection.send(JSON.stringify({op: "Subscribe", payload: "Transactions"}));
         cache.wsconnection.send(JSON.stringify({
-            op: "subscribe",
-            payload: "object",
+            op: "Subscribe",
+            payload: "Object",
             target: aeternity.contractAddress
         }));
         cache.wsconnection.on('message', async message => {
             if (message.type === 'utf8' && message.utf8Data.includes("payload")) {
                 const data = JSON.parse(message.utf8Data);
-                if (data.subscription === "key_blocks") {
+                if (data.subscription === "KeyBlocks") {
                     await cache.delByPrefix(["height"]);
                 }
-                if (data.subscription === "transactions") {
+                if (data.subscription === "Transactions") {
                     switch (data.payload.tx.type) {
                         // TODO consider invalidating cache for other transaction types that may change balance significantly
                         case "SpendTx":
@@ -122,7 +122,7 @@ cache.startInvalidator = (aeternity) => {
                             break;
                     }
                 }
-                if (data.subscription === "object") {
+                if (data.subscription === "Object") {
                     const event = await aeternity.transactionEvent(data.payload.hash);
                     if (event) cache.handleContractEvent(event);
                 }
