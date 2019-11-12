@@ -10,7 +10,7 @@ const wrapTry = async (f) => {
     return Promise.race([
       f(),
       new Promise(function (resolve, reject) {
-        setTimeout(reject, 5000, 'TIMEOUT');
+        setTimeout(reject, 8000, 'TIMEOUT');
       })
     ])
   } catch (e) {
