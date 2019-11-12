@@ -9,9 +9,9 @@ const aeternity = {
   height: null,
   networkId: null,
   passive: false,
-  nodeURL: 'https://sdk-testnet.aepps.com', // THIS IS FOR THE STATIC CLIENT WITHOUT WALLET
+  nodeURL: 'https://sdk-mainnet.aepps.com', // THIS IS FOR THE STATIC CLIENT WITHOUT WALLET
   compilerURL: 'https://compiler.aepps.com', // THIS IS FOR THE STATIC CLIENT WITHOUT WALLET
-  contractAddress: 'ct_2m4TpeSLBRrWumHnqA3sUSkhz71r3mMZY4w2ad4MbXwzFP3Jbw'
+  contractAddress: 'ct_ouZib4wT9cNwgRA1pxgA63XEUd8eQRrG8PcePDEYogBc1VYTq'
 };
 
 const timeout = async (promise) => {
