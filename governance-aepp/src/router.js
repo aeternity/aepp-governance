@@ -3,6 +3,7 @@ import Home from './views/Home.vue'
 import Create from './views/Create.vue'
 import Poll from "./views/Poll.vue";
 import Account from "./views/Account.vue";
+import Testing from "./views/Testing.vue";
 
 const routes = [
   {
@@ -25,6 +26,11 @@ const routes = [
     name: 'poll',
     component: Poll,
     meta: {title: 'Poll'}
+  }, {
+    path: '/testing',
+    name: 'testing',
+    component: Testing,
+    meta: {title: 'Testing Mode'}
   }
 ]
 
