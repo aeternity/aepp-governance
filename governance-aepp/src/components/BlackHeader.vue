@@ -1,14 +1,20 @@
 <template>
   <div class="bg-gray-ae px-6 py-4 w-full text-3xl text-white flex justify-between items-center">
     <slot/>
-    <div ref="inputContainer" class="relative rounded-full hide-input flex items-center pr-3 pb-1"
-         v-if="showNumberInput">
-      <img src="../assets/hash_white.svg" class="h-6 pl-4 pt-1 cursor-pointer" @click="showInput">
-      <form @submit.prevent="submit">
-        <input v-model="id" ref="input" type="number" @input="$emit('input', id)"
-               class="text-gray-800 w-full text-2xl outline-none bg-transparent leading-none" @blur="onBlur">
-      </form>
+    <div class="flex items-center justify-end">
+      <div ref="inputContainer" class="relative rounded-full hide-input flex items-center pr-3 pb-1"
+           v-if="showNumberInput">
+        <img src="../assets/hash_white.svg" class="h-6 pl-4 pt-1 cursor-pointer" @click="showInput">
+        <form @submit.prevent="submit">
+          <input v-model="id" ref="input" type="number" @input="$emit('input', id)"
+                 class="text-gray-800 w-full text-2xl outline-none bg-transparent leading-none" @blur="onBlur">
+        </form>
+      </div>
+      <div class="w-8 text-2xl h-8 bg-primary rounded-full justify-center flex items-center ml-2" @click.stop.prevent="$router.push('testing')">
+        ?
+      </div>
     </div>
+
   </div>
 </template>
 
