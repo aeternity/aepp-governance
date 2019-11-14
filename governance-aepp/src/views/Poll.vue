@@ -264,8 +264,9 @@
           if(votesState === null) return;
           this.pollVotesState = votesState;
           this.delegateeVote = this.pollVotesState.stakesForOption
-            .map(data => data.votes.find(vote => vote.delegators
-              .some(delegation => delegation.delegator === this.accountAddress))).find(x => x) || {};
+            .map(data => data.votes.find(vote =>
+              vote.delegators.some(delegation =>
+                delegation.delegator === this.accountAddress))).find(x => x) || {};
         }).catch(console.error);
 
         this.showLoading = false;

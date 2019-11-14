@@ -1,20 +1,29 @@
 <template>
-  <div class="ae-card p-4 pb-2 cursor-pointer" @click="$router.push(`/poll/${id}`)">
-    <div class="flex items-center vote-id w-full">
-      <img class="h-6" src="../assets/hash.svg" alt="hash"/>
-      <span class="text-primary text-2xl leading-none mr-2">{{id}}</span>
-      <span class="text-2xl leading-none break-words max-w-85">{{data.title}}</span>
+  <div class="ae-card cursor-pointer">
+    <div class="flex bg-gray-200 text-gray-600 text-sm px-4 py-2 rounded-t" v-if="data.delegatee" @click="$router.push(`/account/${data.delegatee}`)">
+      <AeIdentityLight :address="data.delegatee"
+                       :collapsed="true"
+                       balance="">
+      </AeIdentityLight> voted with your stake in
     </div>
-    <div v-if="showVote" class="mt-1 -ml-1">
-      <ae-check :checked="true" class="pointer-events-none"><span class="pl-1">{{data.vote}}</span></ae-check>
+    <div class="p-4 pb-2" @click="$router.push(`/poll/${id}`)">
+      <div class="flex items-center vote-id w-full">
+        <img class="h-6" src="../assets/hash.svg" alt="hash"/>
+        <span class="text-primary text-2xl leading-none mr-2">{{id}}</span>
+        <span class="text-2xl leading-none break-words max-w-85">{{data.title}}</span>
+      </div>
+      <div v-if="showVote" class="mt-1 -ml-1">
+        <ae-check :checked="true" class="pointer-events-none"><span class="pl-1">{{data.vote}}</span></ae-check>
+      </div>
+      <div class="text-gray-500 text-sm mt-1">
+        <span v-if="percentOfTotalSupply">{{percentOfTotalSupply | formatPercent(2)}} stake - </span>
+        <span v-else-if="loading"><ae-loader></ae-loader> stake - </span>
+        <span v-if="isClosed">closed at {{data.close_height}} (~{{Math.abs(timeDifference) | timeDifferenceToString}} ago)</span>
+        <span v-else-if="typeof data.close_height !== 'number'">never closes</span>
+        <span v-else>closes in {{timeDifference | timeDifferenceToString}}</span>
+      </div>
     </div>
-    <div class="text-gray-500 text-sm mt-1">
-      <span v-if="percentOfTotalSupply">{{percentOfTotalSupply | formatPercent(2)}} stake - </span>
-      <span v-else-if="loading"><ae-loader></ae-loader> stake - </span>
-      <span v-if="isClosed">closed at {{data.close_height}} (~{{Math.abs(timeDifference) | timeDifferenceToString}} ago)</span>
-      <span v-else-if="typeof data.close_height !== 'number'">never closes</span>
-      <span v-else>closes in {{timeDifference | timeDifferenceToString}}</span>
-    </div>
+
   </div>
 </template>
 
@@ -22,9 +31,10 @@
   import {AeLoader, AeCheck} from '@aeternity/aepp-components/src/components/';
   import Backend from "~/utils/backend";
   import aeternity from "~/utils/aeternity";
+  import AeIdentityLight from '~/components/AeIdentityLight'
 
   export default {
-    components: {AeLoader, AeCheck},
+    components: {AeLoader, AeCheck, AeIdentityLight},
     data() {
       return {
         loading: true,
