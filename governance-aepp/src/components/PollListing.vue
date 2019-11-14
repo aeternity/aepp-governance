@@ -12,8 +12,8 @@
         <span class="text-primary text-2xl leading-none mr-2">{{id}}</span>
         <span class="text-2xl leading-none break-words max-w-85">{{data.title}}</span>
       </div>
-      <div v-if="showVote" class="mt-1 -ml-1">
-        <ae-check :checked="true" class="pointer-events-none"><span class="pl-1">{{data.vote}}</span></ae-check>
+      <div v-if="showVote" class="mt-2 flex items-center">
+        <img src="../assets/check_circle-24px.svg" class="mb-1"> <span class="pl-1 leading-none text-gray-600">{{data.vote}}</span>
       </div>
       <div class="text-gray-500 text-sm mt-1">
         <span v-if="percentOfTotalSupply">{{percentOfTotalSupply | formatPercent(2)}} stake - </span>
