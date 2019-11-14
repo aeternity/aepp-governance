@@ -1,12 +1,12 @@
 <template>
-  <div class="ae-card cursor-pointer" @click="$router.push(`/poll/${id}`)">
-    <div class="flex bg-gray-200 text-gray-600 text-sm px-4 py-2 rounded-t" v-if="data.delegatee">
+  <div class="ae-card cursor-pointer">
+    <div class="flex bg-gray-200 text-gray-600 text-sm px-4 py-2 rounded-t" v-if="data.delegatee" @click="$router.push(`/account/${data.delegatee}`)">
       <AeIdentityLight :address="data.delegatee"
                        :collapsed="true"
                        balance="">
       </AeIdentityLight> voted with your stake in
     </div>
-    <div class="p-4 pb-2">
+    <div class="p-4 pb-2" @click="$router.push(`/poll/${id}`)">
       <div class="flex items-center vote-id w-full">
         <img class="h-6" src="../assets/hash.svg" alt="hash"/>
         <span class="text-primary text-2xl leading-none mr-2">{{id}}</span>
