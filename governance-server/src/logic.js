@@ -100,12 +100,11 @@ module.exports = class Logic {
 
             if (pollState.author === address) acc.authorOfPolls.push([id, data]);
             if (votingAccountList.includes(address)) acc.votedInPolls.push([id, {...data, ...getVoteForAccount(address)}]);
-            //TODO fix this section
             const closingHeightOrUndefined = await this.aeternity.getClosingHeightOrUndefined(pollState.close_height);
             const delegatees = await this.flatDelegateeTree(address, closingHeightOrUndefined);
-            if (delegatees.some(delegatee => votingAccountList.includes(delegatee)))
-                acc.delegateeVotes.push([id, {...data, ...getVoteForAccount(delegatee)}]);
-
+            delegatees.forEach(delegatee => {
+                if(votingAccountList.includes(delegatee)) acc.delegateeVotes.push([id, {delegatee, ...data, ...getVoteForAccount(delegatee)}]);
+            });
             return acc;
         }, Promise.resolve({votedInPolls: [], authorOfPolls: [], delegateeVotes: []}));
     };

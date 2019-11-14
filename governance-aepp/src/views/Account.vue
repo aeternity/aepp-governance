@@ -224,7 +224,11 @@
 
         await Backend.accountPollVoterAuthor(this.address).then(data => {
           if(data === null) return;
-          this.votedInPolls = data.votedInPolls.filter(poll => poll[1].is_listed).sort((a, b) => b[0] - a[0]);
+          this.votedInPolls = data.votedInPolls.filter(poll => poll[1].is_listed);
+          this.votedInPolls = this.votedInPolls.concat(data.delegateeVotes.filter(poll => {
+            return poll[1].is_listed && !data.votedInPolls.some(vote => vote[0] === poll[0])
+          })); //
+          this.votedInPolls = this.votedInPolls.sort((a, b) => b[0] - a[0]);
           this.authorOfPolls = data.authorOfPolls.filter(poll => poll[1].is_listed).sort((a, b) => b[0] - a[0]);
         }).catch(console.error);
 
