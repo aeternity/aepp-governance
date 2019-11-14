@@ -101,10 +101,10 @@ module.exports = class Logic {
             if (pollState.author === address) acc.authorOfPolls.push([id, data]);
             if (votingAccountList.includes(address)) acc.votedInPolls.push([id, {...data, ...getVoteForAccount(address)}]);
             const closingHeightOrUndefined = await this.aeternity.getClosingHeightOrUndefined(pollState.close_height);
-            const delegatees = await this.flatDelegateeTree(address, closingHeightOrUndefined);
-            delegatees.forEach(delegatee => {
-                if(votingAccountList.includes(delegatee)) acc.delegateeVotes.push([id, {delegatee, ...data, ...getVoteForAccount(delegatee)}]);
-            });
+            const delegateePower = await this.delegatedPower(address, closingHeightOrUndefined, [], true);
+            acc.delegateeVotes = [...acc.delegateeVotes, ...delegateePower.flattenedDelegationTree
+                .filter(delegation => votingAccountList.includes(delegation.delegatee))
+                .map(delegation => [id, {delegatee:delegation.delegatee, ...data, ...getVoteForAccount(delegation.delegatee)}])];
             return acc;
         }, Promise.resolve({votedInPolls: [], authorOfPolls: [], delegateeVotes: []}));
     };
@@ -245,31 +245,33 @@ module.exports = class Logic {
         }, this.cache.shortCacheTime);
     };
 
-  /**
-   * Creates delegation tree upwards by looking who delegated to a certain account at a certain height.
-   * @param address
-   * @param height
-   * @param ignoreAccounts
-   * @returns {Promise<*>}
-   */
-    delegationTree = async (address, height, ignoreAccounts = []) => {
+    /**
+     * Creates delegation tree upwards by looking who delegated to a certain account at a certain height.
+     * @param address
+     * @param height
+     * @param ignoreAccounts
+     * @param searchDelegatee
+     * @returns {Promise<*>}
+     */
+    delegationTree = async (address, height, ignoreAccounts = [], searchDelegatee ) => {
         const initialAddress = address;
         const aeternity = this.aeternity;
         const balanceAtHeight = this.balanceAtHeight;
 
         async function discoverDelegationChain(address) {
-            const delegators = await aeternity.delegators(address, height);
-            return delegators.reduce(async (promiseAcc, [delegator, _]) => {
-                const ignoreAccount = delegator === initialAddress || ignoreAccounts.includes(delegator);
-                const recursiveDelegations = ignoreAccount ? [] : await discoverDelegationChain(delegator);
+            const nextLayerAccounts = searchDelegatee ? await aeternity.delegatee(address, height) : await aeternity.delegators(address, height);
+            return nextLayerAccounts.reduce(async (promiseAcc, [delegator, delegatee]) => {
+                const nextAccount = searchDelegatee ? delegatee : delegator;
+                const ignoreAccount = nextAccount === initialAddress || ignoreAccounts.includes(nextAccount);
+                const recursiveDelegations = ignoreAccount ? [] : await discoverDelegationChain(nextAccount);
 
                 if (ignoreAccount) {
                     return promiseAcc;
                 } else {
-                    const delegatorBalance = await balanceAtHeight(delegator, height);
+                    const delegatorBalance = await balanceAtHeight(nextAccount, height);
                     return {
                         ...(await promiseAcc), ...{
-                            [delegator]: {
+                            [nextAccount]: {
                                 delegations: recursiveDelegations,
                                 balance: delegatorBalance
                             }
@@ -282,38 +284,7 @@ module.exports = class Logic {
         return discoverDelegationChain(address);
     };
 
-  /**
-   * Creates a delegation tree downwards to see who this account had delegations to
-   * @param address
-   * @param height
-   * @param ignoreAccounts
-   * @returns {Promise<*>}
-   */
-  flatDelegateeTree = async (address, height, ignoreAccounts = []) => {
-      const initialAddress = address
-      const aeternity = this.aeternity
-      const balanceAtHeight = this.balanceAtHeight
-
-      async function discoverDelegationChain(address) {
-          const delegateeArr = await aeternity.delegatee(address, height);
-          return delegateeArr.reduce(async (promiseAcc, [_, delegatee]) => {
-
-              // Ignore Account
-              if (delegatee === initialAddress || ignoreAccounts.includes(delegatee)) {
-                  return promiseAcc;
-              } else {
-                  const delegatorBalance = await balanceAtHeight(delegatee, height);
-                  return [
-                      ...(await promiseAcc), delegatee, ...(await discoverDelegationChain(delegatee))
-                  ];
-              }
-          }, Promise.resolve([]));
-      }
-
-      return discoverDelegationChain(address)
-  };
-
-    delegatedPower = async (address, closeHeight, ignoreAccounts = []) => {
+    delegatedPower = async (address, closeHeight, ignoreAccounts = [], searchDelegatee = false) => {
         function sumDelegatedPower(delegationTree) {
             return Object.keys(delegationTree).reduce(({delegatedPower, flattenedDelegationTree}, delegator) => {
                 const delegation = delegationTree[delegator];
@@ -328,13 +299,13 @@ module.exports = class Logic {
                 return {
                     delegatedPower: delegatedPower.plus(new BigNumber(delegation.balance)).plus(recursionResult.delegatedPower),
                     flattenedDelegationTree: flattenedDelegationTree
-                        .concat([{delegator: delegator, balance: delegation.balance}])
+                        .concat([{[searchDelegatee ? "delegatee" : "delegator"]: delegator, balance: delegation.balance}])
                         .concat(recursionResult.flattenedDelegationTree)
                 }
             }, {delegatedPower: new BigNumber('0'), flattenedDelegationTree: []})
         }
 
-        const initialDelegationTree = await this.delegationTree(address, closeHeight, ignoreAccounts);
+        const initialDelegationTree = await this.delegationTree(address, closeHeight, ignoreAccounts, searchDelegatee);
         const {delegatedPower, flattenedDelegationTree} = sumDelegatedPower(initialDelegationTree);
 
         return {
