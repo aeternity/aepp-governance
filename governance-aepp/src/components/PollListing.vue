@@ -28,13 +28,13 @@
 </template>
 
 <script>
-  import {AeLoader, AeCheck} from '@aeternity/aepp-components/src/components/';
+  import {AeLoader} from '@aeternity/aepp-components/src/components/';
   import Backend from "~/utils/backend";
   import aeternity from "~/utils/aeternity";
   import AeIdentityLight from '~/components/AeIdentityLight'
 
   export default {
-    components: {AeLoader, AeCheck, AeIdentityLight},
+    components: {AeLoader, AeIdentityLight},
     data() {
       return {
         loading: true,

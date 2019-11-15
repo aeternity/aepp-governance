@@ -92,7 +92,6 @@
 
 <script>
   import aeternity from "~/utils/aeternity";
-  import {AeIcon, AeButton, AeButtonGroup, AeText} from '@aeternity/aepp-components/src/components/'
   import * as Crypto from '@aeternity/aepp-sdk/es/utils/crypto';
   import BiggerLoader from '../components/BiggerLoader'
   import AeIdentityLight from '../components/AeIdentityLight'
@@ -110,7 +109,7 @@
       CriticalErrorOverlay,
       AccountHeader,
       BottomButtons,
-      AeIcon, AeButton, AeButtonGroup, AeInput, BiggerLoader, AeIdentityLight, AeText, PollListing
+      AeInput, BiggerLoader, AeIdentityLight, PollListing
     },
     data() {
       return {
