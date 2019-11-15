@@ -63,7 +63,7 @@
       }
     },
     mounted() {
-      Backend.pollOverview(this.data.poll).then(overview => {
+      new Backend(aeternity.networkId).pollOverview(this.data.poll).then(overview => {
         if(overview !== null) {
           this.percentOfTotalSupply = overview.percentOfTotalSupply;
           this.voteCount = overview.voteCount;

@@ -106,7 +106,7 @@
       async loadData() {
         this.isOwnAccount = aeternity.address === this.address;
         this.balance = await aeternity.client.balance(this.address);
-        await Backend.delegatedPower(this.address, this.pollAddress).then(delegatedPower => {
+        await new Backend(aeternity.networkId).delegatedPower(this.address, this.pollAddress).then(delegatedPower => {
           if(delegatedPower === null) {
             this.totalStake = new BigNumber(this.balance);
           } else {

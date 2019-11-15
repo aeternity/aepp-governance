@@ -160,12 +160,8 @@
     },
 
     async mounted() {
-      /*if (aeternity.isTestnet() && aeternity.balance <= 5) {
+      if (aeternity.isTestnet() && aeternity.balance <= 5) {
         await axios.post(`https://testnet.faucet.aepps.com/account/${aeternity.address}`, {}, {headers: {'content-type': 'application/x-www-form-urlencoded'}}).catch(console.error);
-      }*/
-      if (aeternity.isTestnet()) {
-        // remove this for mainnet usage
-        this.error = 'This aepp is deployed for aeternity mainnet. In Base-Aepp choose Mainnet in Settings -> Network.';
       }
 
       this.address = aeternity.address;
@@ -175,7 +171,7 @@
       this.closedPolls = this.allPolls.filter(([_, data]) => data.is_listed).filter(poll => typeof poll[1].close_height === 'number' && poll[1].close_height <= aeternity.height);
       this.activePolls = this.allPolls.filter(([_, data]) => data.is_listed).filter(poll => typeof poll[1].close_height !== 'number' || poll[1].close_height > aeternity.height);
 
-      this.pollOrdering = await Backend.pollOrdering(false).catch(console.error);
+      this.pollOrdering = await new Backend(aeternity.networkId).pollOrdering(false).catch(console.error);
       // Only overwrite if active tab is not set yet
       if (!this.activeTab) this.activeTab = this.pollOrdering ? 'hot' : 'new';
       // Fallback if poll order fetching fails

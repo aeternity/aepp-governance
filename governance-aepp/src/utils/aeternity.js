@@ -2,16 +2,14 @@ import Aepp from '@aeternity/aepp-sdk/es/ae/aepp';
 import Util from './util';
 import registryContractSource from '../../../governance-contracts/contracts/Registry.aes';
 import {Universal} from "@aeternity/aepp-sdk/es/ae/universal";
+import settings from './settings';
 
 const aeternity = {
   client: null,
   address: null,
   height: null,
   networkId: null,
-  passive: false,
-  nodeURL: 'https://sdk-mainnet.aepps.com', // THIS IS FOR THE STATIC CLIENT WITHOUT WALLET
-  compilerURL: 'https://compiler.aepps.com', // THIS IS FOR THE STATIC CLIENT WITHOUT WALLET
-  contractAddress: 'ct_ouZib4wT9cNwgRA1pxgA63XEUd8eQRrG8PcePDEYogBc1VYTq'
+  passive: false
 };
 
 const timeout = async (promise) => {
@@ -37,7 +35,7 @@ aeternity.initProvider = async () => {
 
     aeternity.height = await aeternity.client.height();
     aeternity.networkId = (await aeternity.client.getNodeInfo()).nodeNetworkId;
-    aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: aeternity.contractAddress});
+    aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: settings[aeternity.networkId].contractAddress});
     return true;
   } catch (e) {
     console.error(e);
@@ -84,9 +82,9 @@ aeternity.initReverseIframe = async () => {
 
 aeternity.initStaticClient = async () => {
   return Universal({
-    url: aeternity.nodeURL,
-    internalUrl: aeternity.nodeURL,
-    compilerUrl: aeternity.compilerURL
+    url: settings.ae_mainnet.nodeUrl,
+    internalUrl: settings.ae_mainnet.nodeUrl,
+    compilerUrl: settings.ae_mainnet.compilerUrl
   });
 };
 

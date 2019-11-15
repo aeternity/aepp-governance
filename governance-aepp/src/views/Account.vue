@@ -174,7 +174,7 @@
           this.showLoading = true;
           try {
             await aeternity.contract.methods.delegate(this.delegatee);
-            await Backend.contractEvent("Delegation").catch(console.error);
+            await new Backend(aeternity.networkId).contractEvent("Delegation").catch(console.error);
             await this.loadData();
           } catch (e) {
             console.error(e);
@@ -188,7 +188,7 @@
         this.showLoading = true;
         try {
           await aeternity.contract.methods.revoke_delegation();
-          await Backend.contractEvent("RevokeDelegation").catch(console.error);
+          await new Backend(aeternity.networkId).contractEvent("RevokeDelegation").catch(console.error);
           await this.loadData();
         } catch (e) {
           console.error(e);
@@ -216,13 +216,13 @@
         this.delegation = await aeternity.delegation(this.address);
         this.delegations = await aeternity.delegations(this.address);
 
-        await Backend.delegatedPower(this.address).then(delegatedPower => {
+        await new Backend(aeternity.networkId).delegatedPower(this.address).then(delegatedPower => {
           if(delegatedPower === null) return;
           this.delegatedPower = delegatedPower.delegatedPower;
           this.totalStake = new BigNumber(this.balance).plus(this.delegatedPower);
         }).catch(console.error);
 
-        await Backend.accountPollVoterAuthor(this.address).then(data => {
+        await new Backend(aeternity.networkId).accountPollVoterAuthor(this.address).then(data => {
           if(data === null) return;
           this.votedInPolls = data.votedInPolls.filter(poll => poll[1].is_listed);
           this.votedInPolls = this.votedInPolls.concat(data.delegateeVotes.filter(poll => {
