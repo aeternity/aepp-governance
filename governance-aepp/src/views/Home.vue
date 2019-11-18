@@ -7,7 +7,7 @@
       <BlackHeader :show-number-input="true" @submit="showPoll" @input="handleIdInput">
         {{activeTab}} Polls
       </BlackHeader>
-      <div class="flex bg-gray-ae text-gray-200">
+      <div class="flex bg-gray-ae text-gray-200" id="home-tab-switcher">
         <div v-if="pollOrdering" :class="{active: activeTab === 'hot'}" @click="switchTab('hot')" class="tab">
           <span>HOT</span>
         </div>

@@ -1,5 +1,6 @@
 <template>
   <div id="app" class="min-h-screen">
+    <Explainer></Explainer>
     <div class="content min-h-screen max-w-desktop">
       <div class="min-h-screen wrapper" ref="wrapper">
         <router-view v-if="clientAvailable" :resetView="resetView"></router-view>
@@ -25,12 +26,14 @@
 
   import {AeButton} from '@aeternity/aepp-components/src/components'
   import CriticalErrorOverlay from '~/components/CriticalErrorOverlay'
+  import Explainer from '~/components/Explainer'
+  import ExplainerItem from '~/components/ExplainerItem'
   import aeternity from '~/utils/aeternity.js'
   import BiggerLoader from './components/BiggerLoader'
 
   export default {
     name: 'app',
-    components: {BiggerLoader, CriticalErrorOverlay, AeButton},
+    components: {BiggerLoader, CriticalErrorOverlay, AeButton, Explainer, ExplainerItem},
     data() {
       return {
         error: null,
