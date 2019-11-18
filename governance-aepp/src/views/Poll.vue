@@ -260,7 +260,7 @@
         const accountVote = this.pollState.votes.find(([voter, _]) => voter === this.accountAddress);
         this.voteOption = accountVote ? accountVote[1] : null;
 
-        await Backend.votesState(this.pollAddress).then(votesState => {
+        await new Backend(aeternity.networkId).votesState(this.pollAddress).then(votesState => {
           if(votesState === null) return;
           this.pollVotesState = votesState;
           this.delegateeVote = this.pollVotesState.stakesForOption

@@ -17,7 +17,9 @@ const init = async () => {
     cache.init(aeternity);
     logic = new Logic(aeternity);
 
-    app.listen(3000);
+    const port = process.env.PORT ? process.env.PORT : 3000;
+    console.log("governance-server listening on port", port);
+    app.listen(port);
 };
 
 const errorHandler = (f) => {
@@ -33,7 +35,7 @@ const errorHandler = (f) => {
 app.use(cors({
     origin: '*',
     optionsSuccessStatus: 200,
-    methods: ['GET', 'OPTIONS']
+    methods: ['GET', 'POST', 'OPTIONS']
 }));
 
 app.get('/votesState/:address', errorHandler(async (req, res) => {

@@ -1,9 +1,5 @@
 import axios from "axios";
-
-const backend = {};
-
-//const BACKEND_URL = 'http://localhost:3000';
-const BACKEND_URL = 'https://server.governance.aeternity.art';
+import settings from "./settings";
 
 const wrapTry = async (f) => {
   try {
@@ -19,38 +15,45 @@ const wrapTry = async (f) => {
   }
 };
 
-backend.votesState = async (poll) => wrapTry(async () => {
-  const votesState = await axios.get(`${BACKEND_URL}/votesState/${poll}`).then(res => res.data);
-  const appendVotesState = {
-    ...votesState, ...{
-      stakesForOption: votesState.stakesForOption.map(option => {
-        option.delegatorsCount = option.votes.reduce((acc, vote) => acc + vote.delegators.length, 0);
-        return option
-      })
-    }
-  };
-  return appendVotesState;
-});
+export default class Backend {
 
-backend.delegatedPower = (account, poll) => wrapTry(async () => {
-  if (poll) return axios.get(`${BACKEND_URL}/delegatedPower/${account}?poll=${poll}`).then(res => res.data);
-  return axios.get(`${BACKEND_URL}/delegatedPower/${account}`).then(res => res.data);
-});
+  BACKEND_URL;
 
-backend.pollOverview = async (address) => wrapTry(async () => {
-  return axios.get(`${BACKEND_URL}/pollOverview/${address}`).then(res => res.data);
-});
+  constructor(networkId) {
+    this.BACKEND_URL = settings[networkId].backendUrl;
+  }
 
-backend.accountPollVoterAuthor = async (address) => wrapTry(async () => {
-  return axios.get(`${BACKEND_URL}/accountPollVoterAuthor/${address}`).then(res => res.data);
-});
+  votesState = async (poll) => wrapTry(async () => {
+    const votesState = await axios.get(`${this.BACKEND_URL}/votesState/${poll}`).then(res => res.data);
+    const appendVotesState = {
+      ...votesState, ...{
+        stakesForOption: votesState.stakesForOption.map(option => {
+          option.delegatorsCount = option.votes.reduce((acc, vote) => acc + vote.delegators.length, 0);
+          return option
+        })
+      }
+    };
+    return appendVotesState;
+  });
 
-backend.contractEvent = async (topic, poll) => wrapTry(async () => {
-  return axios.post(`${BACKEND_URL}/contractEvent`, {topic: topic, poll: poll});
-});
+  delegatedPower = (account, poll) => wrapTry(async () => {
+    if (poll) return axios.get(`${this.BACKEND_URL}/delegatedPower/${account}?poll=${poll}`).then(res => res.data);
+    return axios.get(`${this.BACKEND_URL}/delegatedPower/${account}`).then(res => res.data);
+  });
 
-backend.pollOrdering = async (closed = false) => wrapTry(async () => {
-  return axios.get(`${BACKEND_URL}/pollOrdering?closed=${closed ? "true" : "false"}`).then(res => res.data);
-});
+  pollOverview = async (address) => wrapTry(async () => {
+    return axios.get(`${this.BACKEND_URL}/pollOverview/${address}`).then(res => res.data);
+  });
 
-export default backend;
+  accountPollVoterAuthor = async (address) => wrapTry(async () => {
+    return axios.get(`${this.BACKEND_URL}/accountPollVoterAuthor/${address}`).then(res => res.data);
+  });
+
+  contractEvent = async (topic, poll) => wrapTry(async () => {
+    return axios.post(`${this.BACKEND_URL}/contractEvent`, {topic: topic, poll: poll});
+  });
+
+  pollOrdering = async (closed = false) => wrapTry(async () => {
+    return axios.get(`${this.BACKEND_URL}/pollOrdering?closed=${closed ? "true" : "false"}`).then(res => res.data);
+  });
+}
