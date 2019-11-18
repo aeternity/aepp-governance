@@ -23,7 +23,7 @@
             @click="copyToClipboard"
           />
         </div>
-        <div class="text-sm font-bold font-mono ml-auto" v-if="balance">
+        <div class="text-sm font-bold font-mono ml-auto" v-if="balance !== null">
           {{balance | toAE}}
         </div>
         <div class="w-5" v-if="canOpen"></div>
@@ -105,7 +105,7 @@
     methods: {
       async loadData() {
         this.isOwnAccount = aeternity.address === this.address;
-        this.balance = await aeternity.client.balance(this.address);
+        this.balance = await aeternity.client.balance(this.address).catch(() => '0');
         await new Backend(aeternity.networkId).delegatedPower(this.address, this.pollAddress).then(delegatedPower => {
           if(delegatedPower === null) {
             this.totalStake = new BigNumber(this.balance);

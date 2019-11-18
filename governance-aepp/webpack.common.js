@@ -40,16 +40,19 @@ module.exports = {
       logo: path.resolve(__dirname, 'src/assets/favicon.svg'),
       mode: 'webapp', // optional can be 'webapp' or 'light' - 'webapp' by default
       devMode: 'webapp', // optional can be 'webapp' or 'light' - 'light' by default
+      publicPath: '/',
       favicons: {
+        start_url: '/',
         appName: 'Governance',
-        description: 'Create and vote on governance polls for aeternity.',
+        appDescription: 'Create and vote on governance polls for aeternity.',
         developerName: 'Aeternity Developers',
         developerURL: 'https://github.com/aeternity/aepp-governance',
         background: '#ff0d6a',
         theme_color: '#ff0d6a',
         icons: {
           coast: false,
-          yandex: false
+          yandex: false,
+          windows: false
         }
       }
     })
