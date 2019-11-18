@@ -40,6 +40,8 @@ module.exports = {
       logo: path.resolve(__dirname, 'src/assets/favicon.svg'),
       mode: 'webapp', // optional can be 'webapp' or 'light' - 'webapp' by default
       devMode: 'webapp', // optional can be 'webapp' or 'light' - 'light' by default
+      start_url: '/',
+      path: '/assets',
       favicons: {
         appName: 'Governance',
         description: 'Create and vote on governance polls for aeternity.',
@@ -49,7 +51,8 @@ module.exports = {
         theme_color: '#ff0d6a',
         icons: {
           coast: false,
-          yandex: false
+          yandex: false,
+          windows: false
         }
       }
     })
