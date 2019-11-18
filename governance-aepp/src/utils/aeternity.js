@@ -195,7 +195,7 @@ aeternity.delegations = async (address) => {
     return {
       delegator: delegator,
       delegatee: delegatee,
-      delegatorAmount: await aeternity.client.balance(delegator),
+      delegatorAmount: await aeternity.client.balance(delegator).catch(() => '0'),
       includesIndirectDelegations: delegateeDelegations.length !== 0
     };
   }));

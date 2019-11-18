@@ -211,11 +211,9 @@
 
         this.address = this.$route.params.account;
         this.isOwnAccount = this.address === aeternity.address;
-
-        this.balance = await aeternity.client.balance(this.address);
+        this.balance = await aeternity.client.balance(this.address).catch(() => '0');
         this.delegation = await aeternity.delegation(this.address);
         this.delegations = await aeternity.delegations(this.address);
-
         await Backend.delegatedPower(this.address).then(delegatedPower => {
           if(delegatedPower === null) return;
           this.delegatedPower = delegatedPower.delegatedPower;
@@ -236,7 +234,7 @@
       }
     },
     async mounted() {
-      this.loadData();
+      await this.loadData();
       this.activeTab = this.$route.query.tab ? this.$route.query.tab : "delegations";
       document.addEventListener('touchstart', this.touchStartEvent, false);
       document.addEventListener('touchend', this.touchEndEvent, false);

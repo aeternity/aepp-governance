@@ -23,7 +23,6 @@
         <span v-else>closes in {{timeDifference | timeDifferenceToString}}</span>
       </div>
     </div>
-
   </div>
 </template>
 

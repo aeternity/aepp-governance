@@ -245,7 +245,7 @@
         this.votersForOption = {};
         if (!aeternity.passive) {
           this.accountAddress = aeternity.address;
-          this.balance = await aeternity.client.balance(aeternity.address);
+          this.balance = await aeternity.client.balance(aeternity.address).catch(() => '0');
         }
         const poll = await aeternity.contract.methods.poll(this.pollId);
         this.pollAddress = poll.decodedResult.poll;
