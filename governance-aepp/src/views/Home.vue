@@ -19,7 +19,7 @@
         <div :class="{active: activeTab === 'closed'}" @click="switchTab('closed')" class="tab"><span>CLOSED</span></div>
       </div>
     </div>
-    <div class="mt-32">
+    <div class="mt-32" id="home-poll-list">
       <transition name="fade">
         <div v-show="polls" class="mx-4 mt-6" :key="activeTab">
           <div class="my-2" v-for="[id, data] in polls">
@@ -32,8 +32,8 @@
         Could not find any polls.
       </div>
     </div>
-    <BottomButtons v-if="showSearch" @search="filterPolls" :search-bar="true"></BottomButtons>
-    <BottomButtons v-else @cta="showPoll(pollId)" cta-text="Show Poll"></BottomButtons>
+    <BottomButtons htmlId="home-nav-buttons" v-if="showSearch" @search="filterPolls" :search-bar="true"></BottomButtons>
+    <BottomButtons htmlId="home-nav-buttons" v-else @cta="showPoll(pollId)" cta-text="Show Poll"></BottomButtons>
     <CriticalErrorOverlay :error="error" @continue="error = null"></CriticalErrorOverlay>
   </div>
 </template>
