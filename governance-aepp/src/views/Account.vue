@@ -3,12 +3,12 @@
     <div class="overlay-loader" v-show="showLoading && !error">
       <BiggerLoader></BiggerLoader>
     </div>
-    <div v-if="address">
+    <div v-if="address" id="account-summary">
       <AccountHeader :address="address" :canOpen="false"/>
     </div>
     <div v-if="delegation">
       <div class="mx-4 mt-4">Delegatee</div>
-      <div class="ae-card mx-4 my-2 py-4 px-3 flex justify-between">
+      <div class="ae-card mx-4 my-2 py-4 px-3 flex justify-between" id="account-delegatee">
         <ae-identity-light
           :collapsed="true"
           :balance="''"
@@ -41,18 +41,8 @@
            :class="{'active-tab': activeTab === 'polls'}">POLLS
       </div>
     </div>
-    <div v-if="activeTab === 'votes'">
-      <div v-if="votedInPolls.length" class="mt-1">
-        <div class="my-2" v-for="[id, data] in votedInPolls">
-          <!-- TODO add voted option -->
-          <PollListing :id="id" :data="data" :showVote="true" class="mx-4"/>
-        </div>
-      </div>
-      <div v-else class="text-gray-500 text-xl text-center my-8">
-        Could not find any votes.
-      </div>
-    </div>
-    <div v-if="activeTab === 'delegations'">
+
+    <div v-if="activeTab === 'delegations'" id="account-tab-delegations">
       <div v-if="delegations.length">
         <div v-for="{delegator, delegatorAmount, includesIndirectDelegations} in delegations"
              class="ae-card py-4 mx-4 my-2">
@@ -70,17 +60,28 @@
         Could not find any delegations to you.
       </div>
     </div>
-    <div v-if="activeTab === 'polls'">
+    <div v-if="activeTab === 'votes'" id="account-tab-votes">
+      <div v-if="votedInPolls.length" class="mt-1">
+        <div class="my-2" v-for="[id, data] in votedInPolls">
+          <!-- TODO add voted option -->
+          <PollListing :id="id" :data="data" :showVote="true" class="mx-4"/>
+        </div>
+      </div>
+      <div v-else class="text-gray-500 text-xl text-center my-8">
+        Could not find any votes.
+      </div>
+    </div>
+    <div v-if="activeTab === 'polls'" id="account-tab-polls">
       <div v-if="authorOfPolls.length" class="mt-1">
         <div class="my-2" v-for="[id, data] in authorOfPolls">
           <PollListing :id="id" :data="data" class="mx-4"/>
         </div>
       </div>
-      <div v-else class="text-gray-500 text-xl text-center my-8">
+      <div v-else class="text-gray-500 text-xl text-center py-4 my-4">
         Could not find any polls you created.
       </div>
     </div>
-    <BottomButtons :search-bar="true" :search-button="true" @searchSubmit="handleSearch" :key="`bottomButtons${address}`"></BottomButtons>
+    <BottomButtons htmlId="account-nav-buttons"  :search-bar="true" :search-button="true" @searchSubmit="handleSearch" :key="`bottomButtons${address}`"></BottomButtons>
     <div class="fixed flex bottom-36 px-8 w-full" v-if="searchError">
       <div class="flex-1 rounded-full bg-gray-500 text-white px-4 py-2 ae-error-field">
         {{searchError}}

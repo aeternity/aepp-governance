@@ -10,7 +10,7 @@
                      @click="$emit('searchSubmit', searchString)"></SmallButton>
       </div>
       <!-- BUTTONS -->
-      <div class="w-full flex h-12">
+      <div class="w-full flex h-12" :id="htmlId">
         <!-- LEFT BUTTON> -->
         <div class="flex justify-evenly items-center h-full flex-2">
           <SmallButton :img="images.homeImg" @click="() => $route.path !== '/' && $router.push('/')"></SmallButton>
@@ -97,6 +97,9 @@
       searchButton: {
         type: Boolean,
         default: false
+      },
+      htmlId: {
+        type: String
       }
     },
     watch: {
