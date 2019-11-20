@@ -18,4 +18,26 @@ module.exports = merge(common, {
     filename: 'bundle.js?[hash]',
     publicPath: '/'
   },
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: [
+          'vue-style-loader',
+          'css-loader',
+          {
+            loader: 'postcss-loader',
+            options: {
+              ident: 'postcss',
+              plugins: [
+                require('postcss-import'),
+                require('tailwindcss'),
+                require('autoprefixer'),
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
 });

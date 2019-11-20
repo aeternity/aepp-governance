@@ -80,23 +80,6 @@ module.exports = {
         ],
         loader: 'babel-loader'
       },
-      // this will apply to both plain `.css` files
-      // AND `<style>` blocks in `.vue` files
-      {
-        test: /\.css$/,
-        use: [
-          'vue-style-loader',
-          'css-loader',
-          {
-            loader: 'postcss-loader',
-            options: {
-              config: {
-                path: 'postcss.config.js'
-              }
-            }
-          }
-        ]
-      },
       // allows vue compoents in '<template><html><script><style>' syntax
       {
         test: /\.vue$/,
