@@ -2,11 +2,11 @@
 
 ## Prerequisites
  - up to date nodejs and npm installed
- - access to an aeternity full-node with debug endpoints exposed
+ - access to an aeternity full-node with debug endpoints exposed, per default it connects to an aeternity hosted node
  
 ## Setup
  - `git clone https://github.com/aeternity/aepp-governance`
- - `cd governance-server`
+ - `cd aepp-governance/governance-server`
  - `npm install`
 
 The verification script is located in `verify.js`. You can choose a different governance registry contract or your your own node in `verifyConstants`.
@@ -15,7 +15,7 @@ Otherwise the script is configured to run against the current mainnet governance
 
 ## Verify
 
-To verify a poll execute `npm run verify POLL_ID`, where you replace POLL_ID with the poll id you want to check.
+To verify a poll execute `npm run verify POLL_ID`, where you replace `POLL_ID` with the poll id you want to check.
 It may take a few minutes to fetch all the necessary data from the node and compute the result, afterwards it will be shown in the console.
 
 Example Result:
@@ -29,7 +29,7 @@ Votes for Option: Awesome 99.83 %
 Votes for Option: Ok 0.17 %
 ```
 
-To speed up the verification process you can provide a middleware url, that is used to fetch some data more efficiently, e.g. `MIDDLEWARE_URL=https://mainnet.aeternal.io/ npm verify 1`.
+To speed up the verification process you can provide a middleware url, that is used to fetch some data more efficiently, e.g. `MIDDLEWARE_URL=https://mainnet.aeternal.io/ npm run verify 1`.
 
 ## Explanation
 
