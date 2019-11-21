@@ -5,6 +5,10 @@ It consists of the used smart contracts, including their tests.
 A trustless backend service used for aggregation and caching of results for better presentation.
 Additionally there will be an frontend-aepp that allows for user-friendly registration, discovery and participation in polls.
 
+## Resources
+
+[GUIDE: How to verify results](./docs/how-to-verify-results.md)
+
 ## Introduction
 
 Earlier this year there was a proposal to include a polling system directly in the aeternity protocol, in [Polling System Protocol](https://github.com/aeternity/protocol/blob/gov/POLLING_SYSTEM.md), but this was not finalized yet.
