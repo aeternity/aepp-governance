@@ -2,7 +2,6 @@
   "name": "governance-aepp",
   "version": "0.1.0",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --config ./webpack.prod.js --progress",
     "dev": "webpack-dev-server --config ./webpack.dev.js --verbose --progress",
     "build:stats": "webpack --config ./webpack.prod.js  --profile --json > stats.json"
