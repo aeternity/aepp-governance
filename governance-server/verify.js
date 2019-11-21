@@ -20,9 +20,9 @@ const findPollAddress = (arg, polls) => {
 const verify = async () => {
 
     const verifyConstants = {
-        nodeUrl: "http://localhost:3013/",
-        compilerUrl: "http://localhost:3080",
-        registryContract: "ct_2uwZSiKc9vz1Rcg4Pr6FGnMY4R2rEpadWJNG64iAykJpGC9qGe"
+        nodeUrl: "https://mainnet.aeternal.io/",
+        compilerUrl: "https://compiler.aepps.com",
+        registryContract: "ct_ouZib4wT9cNwgRA1pxgA63XEUd8eQRrG8PcePDEYogBc1VYTq"
     };
 
     const aeternity = new Aeternity(verifyConstants);
@@ -36,7 +36,7 @@ const verify = async () => {
     const pollState = await logic.pollVotesState(pollAddress);
 
     console.log(`\nPoll #${poll[0]} ${pollAddress}`);
-    height > pollState.pollState.close_height ? console.log(`Poll closed`) : console.log(`Poll NOT closed`);
+    height > pollState.pollState.close_height ? console.log(`Poll closed (Results final)`) : console.log(`Poll NOT closed (Results NOT final)`);
     console.log("Total Stake:", util.atomsToAe(pollState.totalStake).toFixed(2), "AE");
     console.log("Percentage of total supply:", parseFloat(pollState.percentOfTotalSupply).toFixed(2), "%");
     console.log("Number of votes:", pollState.voteCount);
