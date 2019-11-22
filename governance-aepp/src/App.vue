@@ -1,13 +1,15 @@
 <template>
   <div id="app" class="min-h-screen">
     <Explainer></Explainer>
-    <div class="content min-h-screen max-w-desktop">
+    <div class="content min-h-screen max-w-desktop z-10">
       <div class="min-h-screen wrapper" ref="wrapper">
         <router-view v-if="clientAvailable" :resetView="resetView"></router-view>
         <div class="inset-0 flex justify-center flex-col items-center" v-else>
           <BiggerLoader></BiggerLoader>
           <h2 class="mt-2 font-bold">Looking for a wallet. Check for popups.</h2>
-          <ae-button v-show="showSkip" class="mt-4" face="round" fill="neutral" @click="abortWalletCheck">Continue without wallet</ae-button>
+          <ae-button v-show="showSkip" class="mt-4" face="round" fill="neutral" @click="abortWalletCheck">Continue
+            without wallet
+          </ae-button>
         </div>
         <div class="mb-24">
           <!-- BOTTOM SPACER -->
@@ -57,12 +59,14 @@
         this.clientAvailable = true;
       },
       resetView() {
-        this.$refs.wrapper.scrollTo(0,0);
+        this.$refs.wrapper.scrollTo(0, 0);
       }
     },
     async created() {
 
-      setTimeout(() => {this.showSkip = true}, 4000);
+      setTimeout(() => {
+        this.showSkip = true
+      }, 4000);
 
       // Bypass check if there is already an active wallet
       try {
@@ -106,6 +110,7 @@
       display: flex;
       justify-content: center;
     }
+
     .content {
       box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.15);
     }

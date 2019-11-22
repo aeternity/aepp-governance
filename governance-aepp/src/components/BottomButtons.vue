@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-center w-full">
+  <div class="flex justify-center w-full z-20">
 
     <div class="fixed bottom-0 h-12 pb-8 w-full max-w-desktop bottom-bar" :class="{'h-32': view === 'search'}">
       <!-- SEARCH BAR -->
