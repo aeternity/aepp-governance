@@ -95,7 +95,7 @@
                 <span>{{title}}</span>
               </div>
               <div class="min-w-3" style="margin-top: 4px" v-if="pollVotesState">
-                <img src="../assets/back_gray.svg" class="transition" alt="show poll state"
+                <img src="../assets/back_gray.svg" class="ae-transition-300" alt="show poll state"
                      :class="{'rotate-90': votersForOption.id != null && votersForOption.id == id}">
               </div>
             </div>
@@ -336,19 +336,6 @@
     background-color: #f8f8f8;
   }
 
-  .ae-card {
-    border-radius: 5px;
-    box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.15);
-    background-color: #ffffff;
-  }
-
-  .transition {
-    transition: 300ms;
-  }
-
-  .rotate-90 {
-    transform: rotate(-90deg);
-  }
 
   .max-w-75 {
     max-width: 75%;

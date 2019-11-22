@@ -1,10 +1,11 @@
 <template>
   <div id="app" class="min-h-screen">
     <Explainer></Explainer>
+    <HintOverlay></HintOverlay>
     <div class="content min-h-screen max-w-desktop z-10">
       <div class="min-h-screen wrapper" ref="wrapper">
         <router-view v-if="clientAvailable" :resetView="resetView"></router-view>
-        <div class="inset-0 flex justify-center flex-col items-center" v-else>
+        <div class="inset-0 flex justify-center flex-col items-center z-50" v-else>
           <BiggerLoader></BiggerLoader>
           <h2 class="mt-2 font-bold">Looking for a wallet. Check for popups.</h2>
           <ae-button v-show="showSkip" class="mt-4" face="round" fill="neutral" @click="abortWalletCheck">Continue
@@ -29,13 +30,13 @@
   import {AeButton} from '@aeternity/aepp-components/src/components'
   import CriticalErrorOverlay from '~/components/CriticalErrorOverlay'
   import Explainer from '~/components/Explainer'
-  import ExplainerItem from '~/components/ExplainerItem'
   import aeternity from '~/utils/aeternity.js'
   import BiggerLoader from './components/BiggerLoader'
+  import HintOverlay from './components/HintOverlay'
 
   export default {
     name: 'app',
-    components: {BiggerLoader, CriticalErrorOverlay, AeButton, Explainer, ExplainerItem},
+    components: {BiggerLoader, CriticalErrorOverlay, AeButton, Explainer, HintOverlay},
     data() {
       return {
         error: null,

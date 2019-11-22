@@ -29,11 +29,6 @@
         top: null
       }
     },
-    computed: {
-      coordinates() {
-        return document.querySelector(this.target) ? document.querySelector(this.target).getBoundingClientRect() : null
-      }
-    },
     methods: {
       getCoordinates() {
         const element = document.querySelector(this.target);
