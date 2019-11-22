@@ -4,7 +4,7 @@
          :key="address"
          :class="{'ae-max-height-40': open}">
       <transition name="fade">
-        <div class="absolute flex inset-0 justify-center items-center bg-primary z-10" v-if="showCopyNotice">
+        <div class="absolute flex inset-0 justify-center items-center bg-primary z-20" v-if="showCopyNotice">
           <span>Copied address to clipboard</span>
         </div>
       </transition>
