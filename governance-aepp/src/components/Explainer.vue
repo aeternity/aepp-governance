@@ -1,5 +1,5 @@
 <template>
-  <div class="flex" v-if="activeView.items.length > 0 || activeView.headline">
+  <div class="hidden md:flex" v-if="activeView.items.length > 0 || activeView.headline">
     <div class="h-full border border-b-0 border-t-0 flex justify-center items-center px-2 bg-gray-200 text-gray-600 cursor-pointer" @click="toggleView">
       {{showHints ? ">" : "<"}}
     </div>
