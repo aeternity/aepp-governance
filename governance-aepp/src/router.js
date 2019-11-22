@@ -3,7 +3,7 @@ import Home from './views/Home.vue'
 import Create from './views/Create.vue'
 import Poll from "./views/Poll.vue";
 import Account from "./views/Account.vue";
-import Testing from "./views/Testing.vue";
+import Help from "./views/Help.vue";
 
 const routes = [
   {
@@ -27,18 +27,18 @@ const routes = [
     component: Poll,
     meta: {title: 'Poll'}
   }, {
-    path: '/testing',
-    name: 'testing',
-    component: Testing,
-    meta: {title: 'Testing Mode'}
+    path: '/help',
+    name: 'help',
+    component: Help,
+    meta: {title: 'Help & Hints'}
   }
-]
+];
 
-const router = new Router({mode: 'hash', routes: routes})
+const router = new Router({mode: 'hash', routes: routes});
 
 router.beforeEach((to, from, next) => {
-  document.title = `${to.meta.title} - Governance Aepp`
+  document.title = `${to.meta.title} - Governance Aepp`;
   next()
-})
+});
 
 export default router;

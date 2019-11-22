@@ -115,6 +115,11 @@
   background-color: #ffffff;
 }
 
+
+.rotate-90 {
+  transform: rotate(-90deg);
+}
+
 .border-primary {
   border-color: #FF0D6A;
 }
