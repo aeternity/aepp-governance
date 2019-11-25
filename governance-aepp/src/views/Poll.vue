@@ -117,10 +117,24 @@
         </div>
       </div>
 
-      <div class="text-center w-full mt-8 text-xs">
+      <div class="relative h-4 mt-6 w-full">
+        <div class="absolute inset-0 flex h-full w-full justify-center items-center px-4">
+          <div class="border w-full"></div>
+        </div>
+        <div class="absolute inset-0 flex h-full w-full justify-center items-center">
+          <div class="bg-ae-gray px-2">
+            <span class="text-gray-500 opacity-75"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center w-full mt-1 text-xs">
+        <div class="opacity-40">
+          open source at <span class="text-primary">aeternity/aepp-governance</span>
+        </div>
         <a href="https://github.com/aeternity/aepp-governance/blob/master/docs/how-to-verify-results.md"
            @click.stop.prevent="openLink('verify')"
-           v-if="!showCopyNoticeVerify" class="text-primary opacity-25">verify the poll result</a>
+           v-if="!showCopyNoticeVerify" class="text-primary opacity-40">verify the poll result</a>
         <transition name="fade">
           <div class="inset-0 bg-gray-500 text-white p-2" v-if="showCopyNoticeVerify">
             copied link to clipboard
@@ -286,7 +300,7 @@
         this.voteOption = accountVote ? accountVote[1] : null;
 
         await new Backend(aeternity.networkId).votesState(this.pollAddress).then(votesState => {
-          if(votesState === null) return;
+          if (votesState === null) return;
           this.pollVotesState = votesState;
           this.delegateeVote = this.pollVotesState.stakesForOption
             .map(data => data.votes.find(vote =>
