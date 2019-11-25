@@ -5,9 +5,7 @@
     </BlackHeader>
     <div class="m-4 ae-card cursor-pointer" @click="toggleCard()">
       <div class="flex justify-between items-center w-full py-4 px-3">
-        <div class="w-8 text-2xl h-8 bg-yellow-400 rounded-full justify-center flex items-center text-white">
-          !
-        </div>
+        <img src="../assets/warning-24px.svg">
         <div class="mr-auto ml-2" style="margin-top: 4px">
           <span class="font-bold">The Governance Aepp is still in testing mode.</span>
         </div>

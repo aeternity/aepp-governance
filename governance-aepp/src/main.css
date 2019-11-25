@@ -119,6 +119,10 @@
 .rotate-90 {
   transform: rotate(-90deg);
 }
+.rotate-180 {
+  transform: rotate(-180deg);
+}
+
 
 .border-primary {
   border-color: #FF0D6A;
