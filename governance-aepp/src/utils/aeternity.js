@@ -1,6 +1,6 @@
 import Aepp from '@aeternity/aepp-sdk/es/ae/aepp';
 import Util from './util';
-import registryContractSource from '../../../governance-contracts/contracts/Registry.aes';
+import registryContractSource from '../assets/contracts/RegistryInterface.aes';
 import {Universal} from "@aeternity/aepp-sdk/es/ae/universal";
 import settings from './settings';
 
