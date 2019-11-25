@@ -157,7 +157,7 @@
 <script>
   import aeternity from "~/utils/aeternity";
   import {AeCheck} from '@aeternity/aepp-components/src/components/';
-  import pollContractSource from '../../../governance-contracts/contracts/Poll.aes';
+  import pollContractSource from '../assets/contracts/PollInterface.aes';
   import Backend from "~/utils/backend";
   import BiggerLoader from '../components/BiggerLoader';
   import AeIdentityLight from '../components/AeIdentityLight';

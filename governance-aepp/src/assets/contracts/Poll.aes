@@ -1,0 +1,90 @@
+// ISC License
+//
+// Copyright (c) 2019, aeternity developers
+//
+// Permission to use, copy, modify, and/or distribute this software for any
+// purpose with or without fee is hereby granted, provided that the above
+// copyright notice and this permission notice appear in all copies.
+//
+// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+// REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+// INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+// LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE
+// OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+// PERFORMANCE OF THIS SOFTWARE.
+
+
+// THIS IS NOT SECURITY AUDITED
+// DO NEVER USE THIS WITHOUT SECURITY AUDIT FIRST
+
+contract Poll =
+
+  record metadata =
+    { title : string
+    , description : string
+    , link : string
+    , spec_ref : option(hash)}
+
+  type vote_option = map(int, string)
+
+  type votes = map(address, int)
+
+  record state =
+    { metadata : metadata
+    , vote_options : vote_option
+    , close_height : option(int)
+    , create_height : int
+    , votes : votes
+    , author : address }
+
+  datatype event =
+      Vote(address, address, int)
+    | RevokeVote(address, address)
+
+  entrypoint init(metadata : metadata, vote_options : vote_option, close_height : option(int)) : state =
+    require(String.length(metadata.title) =< 50, "TITLE_STRING_TO_LONG")
+    require(String.length(metadata.description) =< 300, "DESCRIPTION_STRING_TO_LONG")
+    { metadata = metadata,
+      vote_options = vote_options,
+      close_height = close_height,
+      create_height = Chain.block_height,
+      votes = {},
+      author = Call.caller }
+
+  // STATEFULL FUNCTIONS
+
+  stateful entrypoint vote(option : int) =
+    require(!is_closed(), "POLL_ALREADY_CLOSED")
+    require(Map.member(option, state.vote_options), "VOTE_OPTION_NOT_KNOWN")
+    put(state{ votes[Call.caller] = option})
+    Chain.event(Vote(Contract.address, Call.caller, option))
+
+  stateful entrypoint revoke_vote() =
+    put(state{ votes = Map.delete(Call.caller, state.votes) })
+    Chain.event(RevokeVote(Contract.address, Call.caller))
+
+  // STATELESS PUBLIC FUNCTIONS
+
+  entrypoint get_state() : state = state
+
+  entrypoint title() : string = state.metadata.title
+
+  entrypoint close_height() : option(int) = state.close_height
+
+  entrypoint metadata() : metadata = state.metadata
+
+  entrypoint votes() : votes = state.votes
+
+  entrypoint is_author(author : address) : bool = state.author == author
+
+  entrypoint has_voted(voter : address) : bool = Map.member(voter, state.votes)
+
+  entrypoint is_closed() : bool =
+    switch(state.close_height)
+      Some(close_height) => Chain.block_height >= close_height
+      None => false
+
+  entrypoint voted_option(voter : address) : option(int) = Map.lookup(voter, state.votes)
+
+  entrypoint version() : int = 1

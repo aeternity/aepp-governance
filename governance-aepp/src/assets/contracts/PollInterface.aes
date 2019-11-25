@@ -1,0 +1,11 @@
+contract Poll =
+  type vote_option = map(int, string)
+  type votes = map(address, int)
+
+  record metadata = { title : string, description : string, link : string, spec_ref : option(hash)}
+  record state = { metadata : metadata, vote_options : vote_option, close_height : option(int), create_height : int, votes : votes, author : address }
+
+  stateful entrypoint vote : (int) => unit
+  stateful entrypoint revoke_vote : () => unit
+
+  entrypoint get_state() : state = state

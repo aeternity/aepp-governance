@@ -95,7 +95,7 @@
 <script>
   import aeternity from "~/utils/aeternity";
   import {AeIcon, AeButton, AeCheck, AeButtonGroup} from "@aeternity/aepp-components/src/components";
-  import pollContractSource from '../../../governance-contracts/contracts/Poll.aes';
+  import pollContractSource from '../assets/contracts/Poll.aes';
   import BiggerLoader from '~/components/BiggerLoader';
   import BottomButtons from "~/components/BottomButtons";
   import BlackHeader from "~/components/BlackHeader";
