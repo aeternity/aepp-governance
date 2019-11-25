@@ -11,18 +11,24 @@
         <div v-if="pollOrdering" :class="{active: activeTab === 'hot'}" @click="switchTab('hot')" class="tab">
           <span>HOT</span>
         </div>
-        <div :class="{active: activeTab === 'closing'}" @click="switchTab('closing')" class="tab"><span>CLOSING</span></div>
+        <div :class="{active: activeTab === 'closing'}" @click="switchTab('closing')" class="tab">
+          <span>CLOSING</span>
+        </div>
         <div v-if="pollOrdering" :class="{active: activeTab === 'stake'}" @click="switchTab('stake')" class="tab">
           <span>STAKE</span>
         </div>
-        <div :class="{active: activeTab === 'new'}" @click="switchTab('new')" class="tab"><span>NEW</span></div>
-        <div :class="{active: activeTab === 'closed'}" @click="switchTab('closed')" class="tab"><span>CLOSED</span></div>
+        <div :class="{active: activeTab === 'new'}" @click="switchTab('new')" class="tab">
+          <span>NEW</span>
+        </div>
+        <div :class="{active: activeTab === 'closed'}" @click="switchTab('closed')" class="tab">
+          <span>CLOSED</span>
+        </div>
       </div>
     </div>
     <div class="mt-32" id="home-poll-list">
       <transition name="fade">
         <div v-show="polls" class="mx-4 mt-6" :key="activeTab">
-          <div class="my-2" v-for="[id, data] in polls">
+          <div class="my-2" :key="id" v-for="[id, data] in polls">
             <PollListing :id="id" :data="data"/>
           </div>
         </div>
@@ -41,7 +47,6 @@
 <script>
   import aeternity from "~/utils/aeternity";
   import Backend from "~/utils/backend";
-  import {AeIcon} from '@aeternity/aepp-components/src/components';
   import BiggerLoader from '../components/BiggerLoader';
   import PollListing from "~/components/PollListing";
   import BottomButtons from "~/components/BottomButtons";
@@ -52,7 +57,7 @@
 
   export default {
     name: 'Home',
-    components: {BlackHeader, BottomButtons, PollListing, AeIcon, BiggerLoader, CriticalErrorOverlay},
+    components: {BlackHeader, BottomButtons, PollListing, BiggerLoader, CriticalErrorOverlay},
     data() {
       return {
         error: null,
@@ -86,13 +91,13 @@
     props: ["resetView"],
     methods: {
       handleIdInput(id) {
-        if(id) {
+        if (id) {
           this.showSearch = false;
           this.pollId = id;
         }
       },
       showPoll(id) {
-        if(this.allPolls.find(poll => poll[0] === parseInt(id)))
+        if (this.allPolls.find(poll => poll[0] === parseInt(id)))
           this.$router.push(`/poll/${id}`);
         else
           this.error = `Could not find poll with id "${id}".`
@@ -110,6 +115,7 @@
             });
             break;
           case "stake":
+            // eslint-disable-next-line no-case-declarations
             const stakeOrdering = this.pollOrdering.data.sort((a, b) => {
               return new BigNumber(b.totalStake).comparedTo(a.totalStake);
             }).map(poll => poll.id);
@@ -166,25 +172,32 @@
 
       this.address = aeternity.address;
       this.balance = aeternity.balance;
-      this.allPolls = await aeternity.polls();
+      const fetchPolls = aeternity.polls().then(allPolls => {
+        this.allPolls = allPolls;
 
-      this.closedPolls = this.allPolls.filter(([_, data]) => data.is_listed).filter(poll => typeof poll[1].close_height === 'number' && poll[1].close_height <= aeternity.height);
-      this.activePolls = this.allPolls.filter(([_, data]) => data.is_listed).filter(poll => typeof poll[1].close_height !== 'number' || poll[1].close_height > aeternity.height);
+        this.closedPolls = this.allPolls.filter(([_, data]) => data.is_listed).filter(poll => typeof poll[1].close_height === 'number' && poll[1].close_height <= aeternity.height);
+        this.activePolls = this.allPolls.filter(([_, data]) => data.is_listed).filter(poll => typeof poll[1].close_height !== 'number' || poll[1].close_height > aeternity.height);
+      });
 
-      this.pollOrdering = await new Backend(aeternity.networkId).pollOrdering(false).catch(console.error);
-      // Only overwrite if active tab is not set yet
-      if (!this.activeTab) this.activeTab = this.pollOrdering ? 'hot' : 'new';
-      // Fallback if poll order fetching fails
-      if ((this.activeTab === 'stake' || this.activeTab === 'hot') && !this.pollOrdering) this.activeTab = 'new';
-      // Update available tabs if there is no backend
-      if (!this.pollOrdering) this.availableTabs = ["closing", "new", "closed"];
+      const fetchOrdering = new Backend(aeternity.networkId).pollOrdering(false).then(pollOrdering => {
+        this.pollOrdering = pollOrdering;
+      }).catch(console.error);
 
-      this.updateTabView();
+      Promise.all([fetchPolls, fetchOrdering]).finally(() => {
+        // Only overwrite if active tab is not set yet
+        if (!this.activeTab) this.activeTab = this.pollOrdering ? 'hot' : 'new';
+        // Fallback if poll order fetching fails
+        if ((this.activeTab === 'stake' || this.activeTab === 'hot') && !this.pollOrdering) this.activeTab = 'new';
+        // Update available tabs if there is no backend
+        if (!this.pollOrdering) this.availableTabs = ["closing", "new", "closed"];
 
-      document.addEventListener('touchstart', this.touchStartEvent, false);
-      document.addEventListener('touchend', this.touchEndEvent, false);
+        this.updateTabView();
 
-      this.showLoading = false;
+        document.addEventListener('touchstart', this.touchStartEvent, false);
+        document.addEventListener('touchend', this.touchEndEvent, false);
+
+        this.showLoading = false;
+      });
     },
     created() {
       this.activeTab = this.$route.query.tab ? this.$route.query.tab : null;
