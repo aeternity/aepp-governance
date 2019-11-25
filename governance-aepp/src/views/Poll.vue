@@ -116,16 +116,46 @@
                            :key="voter.account"/>
         </div>
       </div>
-      <BottomButtons :cta-text="voteOption !== null && !isClosed ?  'Revoke Vote' : null "
-                     @cta="revokeVote"></BottomButtons>
+
+      <div class="relative h-4 mt-6 w-full">
+        <div class="absolute inset-0 flex h-full w-full justify-center items-center px-4">
+          <div class="border w-full"></div>
+        </div>
+        <div class="absolute inset-0 flex h-full w-full justify-center items-center">
+          <div class="bg-ae-gray px-2">
+            <span class="text-gray-500 opacity-75"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center w-full mt-1 text-xs relative">
+        <div class="opacity-40">
+          open source at
+          <a href="https://github.com/aeternity/aepp-governance/"
+             @click.stop.prevent="openLink('verify', 'https://github.com/aeternity/aepp-governance/')"
+             v-if="!showCopyNoticeVerify" class="text-primary">aeternity/aepp-governance</a>
+        </div>
+        <a href="https://github.com/aeternity/aepp-governance/blob/master/docs/how-to-verify-results.md"
+           @click.stop.prevent="openLink('verify', 'https://github.com/aeternity/aepp-governance/blob/master/docs/how-to-verify-results.md')"
+           v-if="!showCopyNoticeVerify" class="text-primary opacity-40">verify the poll result</a>
+        <transition name="fade">
+          <div class="inset-0 absolute bg-gray-500 text-white h-8 p-2" v-if="showCopyNoticeVerify">
+            copied link to clipboard
+          </div>
+        </transition>
+      </div>
+
+      <BottomButtons :cta-text="voteOption !== null && !isClosed ?  'Revoke Vote' : null " @cta="revokeVote">
+      </BottomButtons>
     </div>
+
     <CriticalErrorOverlay :error="error" @continue="continueFunction"></CriticalErrorOverlay>
   </div>
 </template>
 
 <script>
   import aeternity from "~/utils/aeternity";
-  import {AeButton, AeCheck, AeIcon, AeToolbar, AeCard} from '@aeternity/aepp-components/src/components/';
+  import {AeCheck} from '@aeternity/aepp-components/src/components/';
   import pollContractSource from '../../../governance-contracts/contracts/Poll.aes';
   import Backend from "~/utils/backend";
   import BiggerLoader from '../components/BiggerLoader';
@@ -133,7 +163,6 @@
   import BigNumber from 'bignumber.js';
   import BottomButtons from "~/components/BottomButtons";
   import AccountHeader from "~/components/AccountHeader";
-  import GrayText from "~/components/GrayText";
   import CriticalErrorOverlay from "~/components/CriticalErrorOverlay";
   import AccountTreeLine from "~/components/AccountTreeLine";
   import copy from 'copy-to-clipboard';
@@ -145,8 +174,7 @@
       HintBubble,
       AccountTreeLine,
       CriticalErrorOverlay,
-      GrayText,
-      AccountHeader, BottomButtons, AeIcon, AeCheck, AeButton, AeToolbar, BiggerLoader, AeIdentityLight, AeCard
+      AccountHeader, BottomButtons, AeCheck, BiggerLoader, AeIdentityLight
     },
     data() {
       return {
@@ -165,6 +193,7 @@
         isClosed: false,
         closeBlock: null,
         showCopyNotice: false,
+        showCopyNoticeVerify: false,
         continueFunction: () => {
           this.error = null
         }
@@ -176,15 +205,25 @@
       }
     },
     methods: {
-      openLink() {
+      openLink(mode, url) {
+        var target = url ? url : this.pollState.metadata.link;
+
         if (window.parent === window) {
           // No Iframe
-          window.open(this.pollState.metadata.link);
+          window.open(target);
         } else {
-          copy(this.pollState.metadata.link);
-          this.showCopyNotice = true;
+          copy(target);
+          if (mode === 'verify') {
+            this.showCopyNoticeVerify = true;
+          } else {
+            this.showCopyNotice = true;
+          }
           setTimeout(() => {
-            this.showCopyNotice = false
+            if (mode === 'verify') {
+              this.showCopyNoticeVerify = false;
+            } else {
+              this.showCopyNotice = false;
+            }
           }, 1500)
         }
       },
@@ -261,7 +300,7 @@
         this.voteOption = accountVote ? accountVote[1] : null;
 
         await new Backend(aeternity.networkId).votesState(this.pollAddress).then(votesState => {
-          if(votesState === null) return;
+          if (votesState === null) return;
           this.pollVotesState = votesState;
           this.delegateeVote = this.pollVotesState.stakesForOption
             .map(data => data.votes.find(vote =>
