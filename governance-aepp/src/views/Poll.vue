@@ -128,15 +128,18 @@
         </div>
       </div>
 
-      <div class="text-center w-full mt-1 text-xs">
+      <div class="text-center w-full mt-1 text-xs relative">
         <div class="opacity-40">
-          open source at <span class="text-primary">aeternity/aepp-governance</span>
+          open source at
+          <a href="https://github.com/aeternity/aepp-governance/"
+             @click.stop.prevent="openLink('verify', 'https://github.com/aeternity/aepp-governance/')"
+             v-if="!showCopyNoticeVerify" class="text-primary">aeternity/aepp-governance</a>
         </div>
         <a href="https://github.com/aeternity/aepp-governance/blob/master/docs/how-to-verify-results.md"
-           @click.stop.prevent="openLink('verify')"
+           @click.stop.prevent="openLink('verify', 'https://github.com/aeternity/aepp-governance/blob/master/docs/how-to-verify-results.md')"
            v-if="!showCopyNoticeVerify" class="text-primary opacity-40">verify the poll result</a>
         <transition name="fade">
-          <div class="inset-0 bg-gray-500 text-white p-2" v-if="showCopyNoticeVerify">
+          <div class="inset-0 absolute bg-gray-500 text-white h-8 p-2" v-if="showCopyNoticeVerify">
             copied link to clipboard
           </div>
         </transition>
@@ -202,17 +205,14 @@
       }
     },
     methods: {
-      openLink(mode) {
-        var url = this.pollState.metadata.link;
-        if (mode === 'verify') {
-          url = 'https://github.com/aeternity/aepp-governance/blob/master/docs/how-to-verify-results.md';
-        }
+      openLink(mode, url) {
+        var target = url ? url : this.pollState.metadata.link;
 
         if (window.parent === window) {
           // No Iframe
-          window.open(url);
+          window.open(target);
         } else {
-          copy(url);
+          copy(target);
           if (mode === 'verify') {
             this.showCopyNoticeVerify = true;
           } else {
