@@ -1,10 +1,10 @@
 <template>
   <div class="absolute w-full" :style="{top: top + 'px'}">
-    <div v-if="top !== null" class="flex justify-end items-start content-start" >
+    <div v-if="top !== null" class="flex justify-end items-start content-start text-gray-600" >
       <div class="mr-2">
         <slot/>
       </div>
-      <div class="border border-gray-500 w-16 mt-3"></div>
+      <div class="border border-primary w-16 mt-3"></div>
     </div>
   </div>
 </template>
