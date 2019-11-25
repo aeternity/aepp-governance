@@ -116,16 +116,29 @@
                            :key="voter.account"/>
         </div>
       </div>
-      <BottomButtons :cta-text="voteOption !== null && !isClosed ?  'Revoke Vote' : null "
-                     @cta="revokeVote"></BottomButtons>
+
+      <div class="text-center w-full mt-8 text-xs">
+        <a href="https://github.com/aeternity/aepp-governance/blob/master/docs/how-to-verify-results.md"
+           @click.stop.prevent="openLink('verify')"
+           v-if="!showCopyNoticeVerify" class="text-primary opacity-25">verify the poll result</a>
+        <transition name="fade">
+          <div class="inset-0 bg-gray-500 text-white p-2" v-if="showCopyNoticeVerify">
+            copied link to clipboard
+          </div>
+        </transition>
+      </div>
+
+      <BottomButtons :cta-text="voteOption !== null && !isClosed ?  'Revoke Vote' : null " @cta="revokeVote">
+      </BottomButtons>
     </div>
+
     <CriticalErrorOverlay :error="error" @continue="continueFunction"></CriticalErrorOverlay>
   </div>
 </template>
 
 <script>
   import aeternity from "~/utils/aeternity";
-  import {AeButton, AeCheck, AeIcon, AeToolbar, AeCard} from '@aeternity/aepp-components/src/components/';
+  import {AeCheck} from '@aeternity/aepp-components/src/components/';
   import pollContractSource from '../../../governance-contracts/contracts/Poll.aes';
   import Backend from "~/utils/backend";
   import BiggerLoader from '../components/BiggerLoader';
@@ -133,7 +146,6 @@
   import BigNumber from 'bignumber.js';
   import BottomButtons from "~/components/BottomButtons";
   import AccountHeader from "~/components/AccountHeader";
-  import GrayText from "~/components/GrayText";
   import CriticalErrorOverlay from "~/components/CriticalErrorOverlay";
   import AccountTreeLine from "~/components/AccountTreeLine";
   import copy from 'copy-to-clipboard';
@@ -145,8 +157,7 @@
       HintBubble,
       AccountTreeLine,
       CriticalErrorOverlay,
-      GrayText,
-      AccountHeader, BottomButtons, AeIcon, AeCheck, AeButton, AeToolbar, BiggerLoader, AeIdentityLight, AeCard
+      AccountHeader, BottomButtons, AeCheck, BiggerLoader, AeIdentityLight
     },
     data() {
       return {
@@ -165,6 +176,7 @@
         isClosed: false,
         closeBlock: null,
         showCopyNotice: false,
+        showCopyNoticeVerify: false,
         continueFunction: () => {
           this.error = null
         }
@@ -176,15 +188,28 @@
       }
     },
     methods: {
-      openLink() {
+      openLink(mode) {
+        var url = this.pollState.metadata.link;
+        if (mode === 'verify') {
+          url = 'https://github.com/aeternity/aepp-governance/blob/master/docs/how-to-verify-results.md';
+        }
+
         if (window.parent === window) {
           // No Iframe
-          window.open(this.pollState.metadata.link);
+          window.open(url);
         } else {
-          copy(this.pollState.metadata.link);
-          this.showCopyNotice = true;
+          copy(url);
+          if (mode === 'verify') {
+            this.showCopyNoticeVerify = true;
+          } else {
+            this.showCopyNotice = true;
+          }
           setTimeout(() => {
-            this.showCopyNotice = false
+            if (mode === 'verify') {
+              this.showCopyNoticeVerify = false;
+            } else {
+              this.showCopyNotice = false;
+            }
           }, 1500)
         }
       },
