@@ -172,32 +172,37 @@
 
       this.address = aeternity.address;
       this.balance = aeternity.balance;
-      const fetchPolls = aeternity.polls().then(allPolls => {
-        this.allPolls = allPolls;
 
+      const fetchPolls = aeternity.polls().catch(e => {
+        console.error(e);
+        this.error = 'Could not fetch polls.'
+      });
+      const fetchOrdering = new Backend(aeternity.networkId).pollOrdering(false).catch(console.error);
+
+      const [allPolls, pollOrdering] = await Promise.all([fetchPolls, fetchOrdering]);
+
+      this.pollOrdering = pollOrdering;
+      this.allPolls = allPolls;
+
+      if(this.allPolls) {
         this.closedPolls = this.allPolls.filter(([_, data]) => data.is_listed).filter(poll => typeof poll[1].close_height === 'number' && poll[1].close_height <= aeternity.height);
         this.activePolls = this.allPolls.filter(([_, data]) => data.is_listed).filter(poll => typeof poll[1].close_height !== 'number' || poll[1].close_height > aeternity.height);
-      });
+      }
 
-      const fetchOrdering = new Backend(aeternity.networkId).pollOrdering(false).then(pollOrdering => {
-        this.pollOrdering = pollOrdering;
-      }).catch(console.error);
+      // Only overwrite if active tab is not set yet
+      if (!this.activeTab) this.activeTab = this.pollOrdering ? 'hot' : 'new';
+      // Fallback if poll order fetching fails
+      if ((this.activeTab === 'stake' || this.activeTab === 'hot') && !this.pollOrdering) this.activeTab = 'new';
+      // Update available tabs if there is no backend
+      if (!this.pollOrdering) this.availableTabs = ["closing", "new", "closed"];
 
-      Promise.all([fetchPolls, fetchOrdering]).finally(() => {
-        // Only overwrite if active tab is not set yet
-        if (!this.activeTab) this.activeTab = this.pollOrdering ? 'hot' : 'new';
-        // Fallback if poll order fetching fails
-        if ((this.activeTab === 'stake' || this.activeTab === 'hot') && !this.pollOrdering) this.activeTab = 'new';
-        // Update available tabs if there is no backend
-        if (!this.pollOrdering) this.availableTabs = ["closing", "new", "closed"];
+      this.updateTabView();
 
-        this.updateTabView();
+      document.addEventListener('touchstart', this.touchStartEvent, false);
+      document.addEventListener('touchend', this.touchEndEvent, false);
 
-        document.addEventListener('touchstart', this.touchStartEvent, false);
-        document.addEventListener('touchend', this.touchEndEvent, false);
+      this.showLoading = false;
 
-        this.showLoading = false;
-      });
     },
     created() {
       this.activeTab = this.$route.query.tab ? this.$route.query.tab : null;
