@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="overlay-loader" v-show="showLoading">
-      <BiggerLoader></BiggerLoader>
+      <BiggerLoader/>
     </div>
     <BlackHeader>
       Create Poll
@@ -20,7 +20,7 @@
         </div>
       </div>
       <ul class="block ml-6 pl-1">
-        <li v-for="error in Object.values(this.errors)" class="list-disc" v-if="error">
+        <li :key="error" v-for="error in Object.values(this.errors).filter(e => e)" class="list-disc">
           {{error}}
         </li>
       </ul>
@@ -53,14 +53,16 @@
     </div>
 
     <div class="my-2 mx-4 flex items-center bg-white px-4" :class="{'bg-ae-error': !!errors.optionError}"
-         v-for="option in options">
+         :key="option.id" v-for="option in options">
       <div class="w-6 flex justify-center">
         <div v-if="option.text" class="rounded-full border-2 border-gray-500 w-6 h-6">&nbsp;</div>
         <div v-else class="text-3xl text-gray-300 text-right font-bold">&plus;</div>
       </div>
-      <input v-model="option.text" @input="optionInput" type="text" placeholder="Add Option"
-             class="ae-input-option w-full h-full px-2 py-6 outline-none"
-             :class="{'bg-ae-error': !!errors.optionError}"/>
+      <label>
+        <input v-model="option.text" @input="optionInput" type="text" placeholder="Add Option"
+               class="ae-input-option w-full h-full px-2 py-6 outline-none"
+               :class="{'bg-ae-error': !!errors.optionError}"/>
+      </label>
       <div v-if="option.text">
         <div class="text-2xl text-gray-500 text-right" @click="removeOption(option.id)">&times;</div>
       </div>
@@ -72,8 +74,8 @@
       </ae-input>
       <div class="mt-4 flex">
         <ae-input type="date" class="mr-2" label="Est. close date" v-model="dateString"
-                  @input="updateCloseHeight"></ae-input>
-        <ae-input type="time" label="Est. close time" v-model="timeString" @input="updateCloseHeight"></ae-input>
+                  @input="updateCloseHeight"/>
+        <ae-input type="time" label="Est. close time" v-model="timeString" @input="updateCloseHeight"/>
       </div>
       <div class="text-gray-500 text-sm p-2">
         <span v-if="closeHeight && closeHeight > height">
@@ -87,14 +89,14 @@
         </span>
       </div>
     </div>
-    <BottomButtons cta-text="Create Poll" @cta="createPoll"></BottomButtons>
-    <CriticalErrorOverlay :error="criticalError" @continue="criticalError = null"></CriticalErrorOverlay>
+    <BottomButtons cta-text="Create Poll" @cta="createPoll"/>
+    <CriticalErrorOverlay :error="criticalError" @continue="criticalError = null"/>
   </div>
 </template>
 
 <script>
   import aeternity from "~/utils/aeternity";
-  import {AeIcon, AeButton, AeCheck, AeButtonGroup} from "@aeternity/aepp-components/src/components";
+  import {AeButton, AeButtonGroup} from "@aeternity/aepp-components/src/components";
   import pollContractSource from '../assets/contracts/Poll.aes';
   import BiggerLoader from '~/components/BiggerLoader';
   import BottomButtons from "~/components/BottomButtons";
@@ -109,7 +111,7 @@
     components: {
       CriticalErrorOverlay,
       HintBubble,
-      GrayText, BlackHeader, BottomButtons, AeIcon, AeButton, AeInput, AeCheck, BiggerLoader, AeButtonGroup
+      GrayText, BlackHeader, BottomButtons, AeButton, AeInput, BiggerLoader, AeButtonGroup
     },
     data() {
       return {
@@ -229,7 +231,7 @@
 
         }
       },
-      optionInput(event) {
+      optionInput() {
         if (this.options[this.options.length - 1].text) {
           const nextID = ++this.nextId;
           this.options.push({
