@@ -1,0 +1,17 @@
+contract Poll = entrypoint version : () => int
+
+contract Registry =
+  record poll_data = { poll : Poll, is_listed : bool, title : string, close_height : option(int) }
+
+  type polls = map(int, poll_data)
+  type delegations = map(address, address)
+
+  stateful entrypoint add_poll : (Poll, bool) => int
+  stateful entrypoint delegate : (address) => unit
+  stateful entrypoint revoke_delegation : () => unit
+
+  entrypoint polls : () => polls
+  entrypoint poll : (int) => poll_data
+
+  entrypoint delegatee : (address) => option(address)
+  entrypoint delegators : (address) => delegations

@@ -76,7 +76,8 @@
       "eslint:recommended"
     ],
     "rules": {
-      "no-console": "off"
+      "no-console": "off",
+      "no-unused-vars": [2, {"args": "after-used", "argsIgnorePattern": "^_"}]
     },
     "parserOptions": {
       "parser": "babel-eslint"
