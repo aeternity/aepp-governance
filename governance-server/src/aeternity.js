@@ -6,8 +6,8 @@ const axios = require('axios');
 const util = require("./util");
 const delegationLogic = require("./delegation_logic");
 
-const registryContractSource = fs.readFileSync(__dirname + "/../etc/Registry.aes", "utf-8");
-const pollContractSource = fs.readFileSync(__dirname + "/../etc/Poll.aes", "utf-8");
+const registryContractSource = fs.readFileSync(__dirname + "/../etc/RegistryInterface.aes", "utf-8");
+const pollContractSource = fs.readFileSync(__dirname + "/../etc/PollInterface.aes", "utf-8");
 
 module.exports = class Aeternity {
     cache;
