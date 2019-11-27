@@ -1,6 +1,6 @@
 <template>
   <div class="toaster rounded-full py-2 px-4">
-    <slot></slot>
+    <slot/>
   </div>
 </template>
 
