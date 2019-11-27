@@ -22,5 +22,6 @@ jobs:
        - cd $DIR/governance-contracts
        - npm install -g aeproject
        - npm install
+       - aeproject compiler
        - aeproject node
        - aeproject test
