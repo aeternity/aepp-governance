@@ -18,10 +18,12 @@
       </div>
     </div>
     <div class="ml-2 my-1">
-      <AccountTreeLine :account="directDelegator.account" :balance="directDelegator.balance"
-                       :delegators="directDelegator.delegations"
-                       v-for="directDelegator in directDelegators" :key="directDelegator.account"
-                       v-if="showSubTree"></AccountTreeLine>
+      <div v-if="showSubTree">
+        <AccountTreeLine :account="directDelegator.account" :balance="directDelegator.balance"
+                         :delegators="directDelegator.delegations"
+                         v-for="directDelegator in directDelegators" :key="directDelegator.account"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -65,7 +67,10 @@
         }
       });
       this.totalTreeDepth = this.obtainTotalNumberOfDelegations(this.delegators);
-      this.totalBalance = this.noSum ? this.balance : this.obtainTotalBalanceFromDelegations({delegations: this.delegators, balance: this.balance});
+      this.totalBalance = this.noSum ? this.balance : this.obtainTotalBalanceFromDelegations({
+        delegations: this.delegators,
+        balance: this.balance
+      });
     }
   }
 </script>

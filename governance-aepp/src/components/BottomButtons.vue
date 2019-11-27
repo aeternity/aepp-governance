@@ -4,16 +4,18 @@
     <div class="fixed bottom-0 h-12 pb-8 w-full max-w-desktop bottom-bar" :class="{'h-32': view === 'search'}">
       <!-- SEARCH BAR -->
       <div class="w-full flex h-12 mb-6 px-8 items-center" v-if="view === 'search'">
-        <input v-model="searchString" type="search" placeholder="Search..."
-               class="rounded-full flex-1 bg-white h-full flex justify-center items-center px-4 mr-2 search-bar"/>
+        <label>
+          <input v-model="searchString" type="search" placeholder="Search..."
+                 class="rounded-full flex-1 bg-white h-full flex justify-center items-center px-4 mr-2 search-bar"/>
+        </label>
         <SmallButton :img="images.searchImg" v-if="searchButton"
-                     @click="$emit('searchSubmit', searchString)"></SmallButton>
+                     @click="$emit('searchSubmit', searchString)"/>
       </div>
       <!-- BUTTONS -->
       <div class="w-full flex h-12" :id="htmlId">
         <!-- LEFT BUTTON> -->
         <div class="flex justify-evenly items-center h-full flex-2">
-          <SmallButton :img="images.homeImg" @click="() => $route.path !== '/' && $router.push('/')"></SmallButton>
+          <SmallButton :img="images.homeImg" @click="() => $route.path !== '/' && $router.push('/')"/>
           <SmallButton :img="images.accountImg" v-if="account"
                        @click="() => $route.path !== `/account/${account}` &&  $router.push(`/account/${account}`)">
           </SmallButton>
@@ -35,8 +37,8 @@
         <!-- RIGHT BUTTONS -->
         <div class="flex justify-evenly items-center h-full flex-2">
           <SmallButton :img="images.createImg" v-if="account"
-                       @click="() => $route.path !== '/create' && $router.push('/create')"></SmallButton>
-          <SmallButton :img="images.backImg" @click="() => $router.go(-1)"></SmallButton>
+                       @click="() => $route.path !== '/create' && $router.push('/create')"/>
+          <SmallButton :img="images.backImg" @click="() => $router.go(-1)"/>
         </div>
       </div>
     </div>
@@ -44,7 +46,6 @@
 </template>
 
 <script>
-  import {AeIcon, AeButton} from "@aeternity/aepp-components/src/components";
   import SmallButton from "~/components/SmallButton";
   import searchImg from '../assets/search.svg';
   import createImg from '../assets/create.svg';
@@ -55,7 +56,7 @@
 
   export default {
     name: "BottomButtons",
-    components: {SmallButton, AeButton, AeIcon},
+    components: {SmallButton},
     data() {
       return {
         view: 'buttons',

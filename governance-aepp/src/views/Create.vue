@@ -103,7 +103,7 @@
   import BlackHeader from "~/components/BlackHeader";
   import GrayText from "~/components/GrayText";
   import CriticalErrorOverlay from "~/components/CriticalErrorOverlay";
-  import AeInput from "~/components/ae-input";
+  import AeInput from "~/components/AeInput";
   import HintBubble from "~/components/HintBubble";
 
   export default {

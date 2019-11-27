@@ -4,7 +4,7 @@
     <div class="flex items-center justify-end">
       <div ref="inputContainer" class="relative rounded-full hide-input flex items-center pr-3 pb-1"
            v-if="showNumberInput">
-        <img src="../assets/hash_white.svg" class="h-6 pl-4 pt-1 cursor-pointer" @click="showInput">
+        <img src="../assets/hash_white.svg" class="h-6 pl-4 pt-1 cursor-pointer" @click="showInput" alt="enter id">
         <form @submit.prevent="submit">
           <input v-model="id" ref="input" type="number" @input="$emit('input', id)"
                  class="text-gray-800 w-full text-2xl outline-none bg-transparent leading-none" @blur="onBlur">

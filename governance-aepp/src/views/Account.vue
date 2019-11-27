@@ -104,7 +104,7 @@
   import BottomButtons from "~/components/BottomButtons";
   import AccountHeader from "~/components/AccountHeader";
   import CriticalErrorOverlay from "~/components/CriticalErrorOverlay";
-  import AeInput from '~/components/ae-input'
+  import AeInput from '~/components/AeInput'
 
   export default {
     name: 'Home',
@@ -244,7 +244,7 @@
           this.authorOfPolls = data.authorOfPolls.filter(poll => poll[1].is_listed).sort((a, b) => b[0] - a[0]);
         }).catch(console.error);
 
-        const [_, delegation, delegations] = await Promise.all([fetchBalance, fetchDelegation, fetchDelegations, fetchDelegatedPower, fetchAccountPollVoterAuthor]);
+        const [delegation, delegations] = await Promise.all([fetchDelegation, fetchDelegations, fetchBalance, fetchDelegatedPower, fetchAccountPollVoterAuthor]);
         this.delegation = delegation;
         this.delegations = delegations;
 

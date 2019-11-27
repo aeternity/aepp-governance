@@ -1,16 +1,13 @@
 <template>
   <div class="mt-8 relative flex justify-center">
-    <img src="../assets/loading_logo.svg">
+    <img src="../assets/loading_logo.svg" alt="loading">
   </div>
 </template>
 
 <script>
-
-  import { AeLoader } from '@aeternity/aepp-components/src/components'
-
   export default {
     name: "BiggerLoader",
-    components: {AeLoader}
+    components: {}
   }
 </script>
 

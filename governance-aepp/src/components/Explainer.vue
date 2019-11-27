@@ -1,7 +1,7 @@
 <template>
   <div class="hidden md:flex cursor-pointer " v-if="activeView.items.length > 0 || activeView.headline" @click="toggleView">
     <div class="h-full flex justify-center items-center px-2 text-gray-600 shadow-left hover:shadow-xl" >
-      <img src="../assets/back_gray.svg" :class="{'rotate-180': showHints}">
+      <img src="../assets/back_gray.svg" :class="{'rotate-180': showHints}" alt="back">
     </div>
     <div class="relative show-hints ae-transition-300" :class="{'hide-hints': !showHints}">
       <h1 class="text-2xl mr-8 mb-0 leading-tight mt-1">Helps and Hints</h1>
