@@ -12,6 +12,7 @@ const pollContractSource = fs.readFileSync(__dirname + "/../etc/PollInterface.ae
 module.exports = class Aeternity {
     cache;
     client;
+    pollContracts = {};
 
     constructor(verifyConstants = null) {
         this.verifyConstants = verifyConstants;
@@ -74,7 +75,12 @@ module.exports = class Aeternity {
     };
 
     pollState = async (address) => {
-        const pollContract = await this.client.getContractInstance(pollContractSource, {contractAddress: address.replace("ak_", "ct_")});
+        const pollAddress = address.replace("ak_", "ct_");
+        const pollContract = this.pollContracts[pollAddress] ? this.pollContracts[pollAddress] : await this.client.getContractInstance(pollContractSource, {contractAddress: pollAddress}).then(contract => {
+            this.pollContracts[pollAddress] = contract;
+            return contract;
+        });
+
         const pollState = await pollContract.methods.get_state();
         return pollState.decodedResult;
     };
