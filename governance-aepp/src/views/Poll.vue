@@ -1,11 +1,11 @@
 <template>
   <div>
     <div class="overlay-loader" v-show="showLoading && !error">
-      <BiggerLoader></BiggerLoader>
+      <BiggerLoader/>
     </div>
     <div v-if="pollState.metadata">
       <AccountHeader class="mb-4" :address="accountAddress" :poll-address="pollAddress"
-                     v-if="accountAddress && !isClosed" :startOpen="false" :canOpen="true"></AccountHeader>
+                     v-if="accountAddress && !isClosed" :startOpen="false" :canOpen="true"/>
       <div v-if="isClosed" class="text-center">
         <div class="text-gray-500 mt-4">POLL CLOSED</div>
       </div>
@@ -72,48 +72,50 @@
 
       <!-- POLL OPTIONS -->
       <div id="poll-options">
-        <div v-for="[id, title] in pollState.vote_options" v-if="pollState.vote_options">
-          <HintBubble v-if="delegateeVote && delegateeVote.option === id">
-            Your <span v-if="!Object.keys(delegateeVote.delegationTree).includes(accountAddress)">sub-</span>delegatee
-            <a class="font-mono text-primary text-xs" href="#"
-               @click.stop.prevent="$router.push(`/account/${delegateeVote.account}`)">
-              {{delegateeVote.account.substr(0,12)}} •••
-            </a>
-            <span v-if="!isClosed">has</span>
-            <span v-if="isClosed">had</span>
-            voted with your stake for "{{title}}"<span v-if="isClosed"> at the time the poll closed</span>. <span
-            v-if="!isClosed">Unhappy? You can overwrite their choice by placing your own vote.</span>
-          </HintBubble>
-          <div class="m-4 ae-card cursor-pointer" @click="showVoters(id)">
-            <div class="flex justify-between items-center w-full py-4 px-3">
-              <ae-check class="mr-1" v-model="voteOption" :value="id" type="radio" @click.stop.prevent
-                        @change="vote(id)" :disabled="isClosed || !accountAddress"></ae-check>
-              <!-- TODO find better solution than this -->
-              <div class="mr-auto ml-2" style="margin-top: 4px">
+        <div v-if="pollState.vote_options">
+          <div :key="id" v-for="[id, title] in pollState.vote_options">
+            <HintBubble v-if="delegateeVote && delegateeVote.option === id">
+              Your <span v-if="!Object.keys(delegateeVote.delegationTree).includes(accountAddress)">sub-</span>delegatee
+              <a class="font-mono text-primary text-xs" href="#"
+                 @click.stop.prevent="$router.push(`/account/${delegateeVote.account}`)">
+                {{delegateeVote.account.substr(0,12)}} •••
+              </a>
+              <span v-if="!isClosed">has</span>
+              <span v-if="isClosed">had</span>
+              voted with your stake for "{{title}}"<span v-if="isClosed"> at the time the poll closed</span>. <span
+              v-if="!isClosed">Unhappy? You can overwrite their choice by placing your own vote.</span>
+            </HintBubble>
+            <div class="m-4 ae-card cursor-pointer" @click="showVoters(id)">
+              <div class="flex justify-between items-center w-full py-4 px-3">
+                <ae-check class="mr-1" v-model="voteOption" :value="id" type="radio" @click.stop.prevent
+                          @change="vote(id)" :disabled="isClosed || !accountAddress"/>
+                <!-- TODO find better solution than this -->
+                <div class="mr-auto ml-2" style="margin-top: 4px">
               <span
                 class="font-bold" v-if="pollVotesState">{{pollVotesState.stakesForOption[id].percentageOfTotal | formatPercent}}</span>
-                <span>{{title}}</span>
+                  <span>{{title}}</span>
+                </div>
+                <div class="min-w-3" style="margin-top: 4px" v-if="pollVotesState">
+                  <img src="../assets/back_gray.svg" class="ae-transition-300" alt="show poll state"
+                       :class="{'rotate-90': votersForOption.id != null && votersForOption.id === id}">
+                </div>
               </div>
-              <div class="min-w-3" style="margin-top: 4px" v-if="pollVotesState">
-                <img src="../assets/back_gray.svg" class="ae-transition-300" alt="show poll state"
-                     :class="{'rotate-90': votersForOption.id != null && votersForOption.id == id}">
+              <div class="h-1 bg-primary rounded-bl" v-if="pollVotesState"
+                   :class="{'rounded-br': pollVotesState.stakesForOption[id].percentageOfTotal > 99}"
+                   :style="{'width': `${pollVotesState.stakesForOption[id].percentageOfTotal}%`}">
               </div>
             </div>
-            <div class="h-1 bg-primary rounded-bl" v-if="pollVotesState"
-                 :class="{'rounded-br': pollVotesState.stakesForOption[id].percentageOfTotal > 99}"
-                 :style="{'width': `${pollVotesState.stakesForOption[id].percentageOfTotal}%`}">
+            <div class="text-gray-500 text-sm mx-4" v-show="votersForOption.id != null && votersForOption.id === id">
+              <div class="text-gray-500 text-sm my-1 mx-2" v-if="pollVotesState">
+                {{pollVotesState.stakesForOption[id].percentageOfTotal | formatPercent(2)}}
+                ({{pollVotesState.stakesForOption[id].optionStake | toAE}}) -
+                {{pollVotesState.stakesForOption[id].votes.length}} Votes -
+                {{pollVotesState.stakesForOption[id].delegatorsCount}} Delegators
+              </div>
+              <AccountTreeLine :balance="voter.stake" :account="voter.account" :delegators="voter.delegators"
+                               v-for="voter in votersForOption.voters" :no-sum="true"
+                               :key="voter.account"/>
             </div>
-          </div>
-          <div class="text-gray-500 text-sm mx-4" v-show="votersForOption.id != null && votersForOption.id == id">
-            <div class="text-gray-500 text-sm my-1 mx-2" v-if="pollVotesState">
-              {{pollVotesState.stakesForOption[id].percentageOfTotal | formatPercent(2)}}
-              ({{pollVotesState.stakesForOption[id].optionStake | toAE}}) -
-              {{pollVotesState.stakesForOption[id].votes.length}} Votes -
-              {{pollVotesState.stakesForOption[id].delegatorsCount}} Delegators
-            </div>
-            <AccountTreeLine :balance="voter.stake" :account="voter.account" :delegators="voter.delegators"
-                             v-for="voter in votersForOption.voters" :no-sum="true"
-                             :key="voter.account"/>
           </div>
         </div>
       </div>
@@ -121,11 +123,6 @@
       <div class="relative h-4 mt-6 w-full">
         <div class="absolute inset-0 flex h-full w-full justify-center items-center px-4">
           <div class="border w-full"></div>
-        </div>
-        <div class="absolute inset-0 flex h-full w-full justify-center items-center">
-          <div class="bg-ae-gray px-2">
-            <span class="text-gray-500 opacity-75"></span>
-          </div>
         </div>
       </div>
 
@@ -147,10 +144,10 @@
       </div>
 
       <BottomButtons htmlId="poll-nav-buttons" :cta-text="voteOption !== null && !isClosed ?  'Revoke Vote' : null "
-                     @cta="revokeVote"></BottomButtons>
+                     @cta="revokeVote"/>
     </div>
 
-    <CriticalErrorOverlay :error="error" @continue="continueFunction"></CriticalErrorOverlay>
+    <CriticalErrorOverlay :error="error" @continue="continueFunction"/>
   </div>
 </template>
 
@@ -258,7 +255,7 @@
         }
       },
       showVoters(id) {
-        if (this.votersForOption.id != null && this.votersForOption.id == id) {
+        if (this.votersForOption.id != null && this.votersForOption.id === id) {
           this.votersForOption = {};
           return;
         }
