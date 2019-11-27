@@ -72,7 +72,7 @@
 
       <!-- POLL OPTIONS -->
       <div id="poll-options">
-        <div v-for="[id, title] in pollState.vote_options" v-if="pollState.vote_options" >
+        <div v-for="[id, title] in pollState.vote_options" v-if="pollState.vote_options">
           <HintBubble v-if="delegateeVote && delegateeVote.option === id">
             Your <span v-if="!Object.keys(delegateeVote.delegationTree).includes(accountAddress)">sub-</span>delegatee
             <a class="font-mono text-primary text-xs" href="#"
@@ -104,7 +104,7 @@
                  :style="{'width': `${pollVotesState.stakesForOption[id].percentageOfTotal}%`}">
             </div>
           </div>
-          <div class="text-gray-500 text-sm mx-4" v-show="votersForOption.id != null && votersForOption.id == id" >
+          <div class="text-gray-500 text-sm mx-4" v-show="votersForOption.id != null && votersForOption.id == id">
             <div class="text-gray-500 text-sm my-1 mx-2" v-if="pollVotesState">
               {{pollVotesState.stakesForOption[id].percentageOfTotal | formatPercent(2)}}
               ({{pollVotesState.stakesForOption[id].optionStake | toAE}}) -
@@ -118,7 +118,7 @@
         </div>
       </div>
 
-<div class="relative h-4 mt-6 w-full">
+      <div class="relative h-4 mt-6 w-full">
         <div class="absolute inset-0 flex h-full w-full justify-center items-center px-4">
           <div class="border w-full"></div>
         </div>
@@ -283,24 +283,39 @@
         this.pollId = this.$route.params.id;
 
         this.votersForOption = {};
+        var fetchBalance = Promise.resolve();
         if (!aeternity.passive) {
           this.accountAddress = aeternity.address;
-          this.balance = await aeternity.client.balance(aeternity.address).catch(() => '0');
+          fetchBalance = aeternity.client.balance(this.address).catch(() => '0').then(balance => {
+            this.balance = balance
+          });
         }
-        const poll = await aeternity.contract.methods.poll(this.pollId);
-        this.pollAddress = poll.decodedResult.poll;
-        this.pollContract = await aeternity.client.getContractInstance(pollContractSource, {contractAddress: this.pollAddress});
-        this.pollState = (await this.pollContract.methods.get_state()).decodedResult;
-        this.isClosed = this.pollState.close_height <= parseInt(await aeternity.client.height());
-        try {
-          this.closeBlock = this.isClosed ? await aeternity.client.getGeneration(this.pollState.close_height) : null;
-        } catch (e) {
-          // The base-aepp SDK does not support this function yet
-        }
-        const accountVote = this.pollState.votes.find(([voter, _]) => voter === this.accountAddress);
-        this.voteOption = accountVote ? accountVote[1] : null;
 
-        await new Backend(aeternity.networkId).votesState(this.pollAddress).then(votesState => {
+        const fetchPollAddress = aeternity.contract.methods.poll(this.pollId).then(poll => {
+          this.pollAddress = poll.decodedResult.poll;
+          return this.pollAddress;
+        }).catch(e => {
+          console.error(e);
+          this.error = 'Could not fetch poll address.'
+        });
+
+        const fetchPollState = (async () => {
+          this.pollContract = await aeternity.client.getContractInstance(pollContractSource, {contractAddress: await fetchPollAddress});
+          this.pollState = (await this.pollContract.methods.get_state()).decodedResult;
+          this.isClosed = this.pollState.close_height <= parseInt(await aeternity.client.height());
+          try {
+            this.closeBlock = this.isClosed ? await aeternity.client.getGeneration(this.pollState.close_height) : null;
+          } catch (e) {
+            // The base-aepp SDK does not support this function yet
+          }
+          const accountVote = this.pollState.votes.find(([voter, _]) => voter === this.accountAddress);
+          this.voteOption = accountVote ? accountVote[1] : null;
+        })().catch(e => {
+          console.error(e);
+          this.error = 'Could not fetch poll state.'
+        });
+
+        const fetchVotesState = new Backend(aeternity.networkId).votesState(await fetchPollAddress).then(votesState => {
           if (votesState === null) return;
           this.pollVotesState = votesState;
           this.delegateeVote = this.pollVotesState.stakesForOption
@@ -309,6 +324,7 @@
                 delegation.delegator === this.accountAddress))).find(x => x) || {};
         }).catch(console.error);
 
+        await Promise.all([fetchBalance, fetchPollAddress, fetchPollState, fetchVotesState]);
         this.showLoading = false;
       }
     },
