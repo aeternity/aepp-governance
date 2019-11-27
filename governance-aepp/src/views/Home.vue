@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="overlay-loader" v-show="showLoading && !error">
-      <BiggerLoader></BiggerLoader>
+      <BiggerLoader/>
     </div>
     <div class="fixed w-full top-0 max-w-desktop">
       <BlackHeader :show-number-input="true" @submit="showPoll" @input="handleIdInput">
@@ -28,7 +28,7 @@
     <div class="mt-32" id="home-poll-list">
       <transition name="fade">
         <div v-show="polls" class="mx-4 mt-6" :key="activeTab">
-          <div class="my-2" :key="id" v-for="[id, data] in polls">
+          <div class="my-2" :key="id" v-for="[id, data] in polls" :key="id">
             <PollListing :id="id" :data="data"/>
           </div>
         </div>
@@ -38,9 +38,9 @@
         Could not find any polls.
       </div>
     </div>
-    <BottomButtons htmlId="home-nav-buttons" v-if="showSearch" @search="filterPolls" :search-bar="true"></BottomButtons>
-    <BottomButtons htmlId="home-nav-buttons" v-else @cta="showPoll(pollId)" cta-text="Show Poll"></BottomButtons>
-    <CriticalErrorOverlay :error="error" @continue="error = null"></CriticalErrorOverlay>
+    <BottomButtons htmlId="home-nav-buttons" v-if="showSearch" @search="filterPolls" :search-bar="true"/>
+    <BottomButtons htmlId="home-nav-buttons" v-else @cta="showPoll(pollId)" cta-text="Show Poll"/>
+    <CriticalErrorOverlay :error="error" @continue="error = null"/>
   </div>
 </template>
 

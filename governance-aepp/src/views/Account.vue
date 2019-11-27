@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="overlay-loader" v-show="showLoading && !error">
-      <BiggerLoader></BiggerLoader>
+      <BiggerLoader/>
     </div>
     <div v-if="address" id="account-summary">
       <AccountHeader :address="address" :canOpen="false"/>
@@ -16,7 +16,8 @@
           :address="delegation"
         />
         <div v-if="isOwnAccount" class="flex ml-auto">
-          <img src="../assets/edit.svg" class="pr-4" @click="() => { delegatee = delegation; delegation = null}"
+          <img src="../assets/edit.svg" class="pr-4"
+               @click="() => { delegatee = delegation; delegation = null}"
                alt="edit">
           <div class="h-full border-r border-gray-500 opacity-50"></div>
           <img src="../assets/delete.svg" class="pl-4 pr-1" @click="revokeDelegation" alt="delete">
@@ -26,7 +27,7 @@
     <div v-if="!delegation && isOwnAccount">
       <div class="mx-4 mt-4">Delegate your voting power</div>
       <div class="flex bg-white mx-4 my-2">
-        <ae-input label="Delegatee" v-model="delegatee" aeddress></ae-input>
+        <ae-input label="Delegatee" v-model="delegatee" aeddress/>
         <div class="ml-auto border-r border-gray-500 opacity-50 my-2"></div>
         <img src="../assets/back_gray.svg" class="px-4 rotate-180" @click="createDelegation" alt="back">
       </div>
@@ -46,7 +47,7 @@
     <div v-if="activeTab === 'delegations'" id="account-tab-delegations">
       <div v-if="delegations.length">
         <div v-for="{delegator, delegatorAmount, includesIndirectDelegations} in delegations"
-             class="ae-card py-4 mx-4 my-2">
+             :key="delegator" class="ae-card py-4 mx-4 my-2">
           <ae-identity-light
             :collapsed="true"
             :balance="delegatorAmount"
@@ -63,8 +64,7 @@
     </div>
     <div v-if="activeTab === 'votes'" id="account-tab-votes">
       <div v-if="votedInPolls.length" class="mt-1">
-        <div class="my-2" v-for="[id, data] in votedInPolls">
-          <!-- TODO add voted option -->
+        <div class="my-2" v-for="[id, data] in votedInPolls" :key="id">
           <PollListing :id="id" :data="data" :showVote="true" class="mx-4"/>
         </div>
       </div>
@@ -74,7 +74,7 @@
     </div>
     <div v-if="activeTab === 'polls'" id="account-tab-polls">
       <div v-if="authorOfPolls.length" class="mt-1">
-        <div class="my-2" v-for="[id, data] in authorOfPolls">
+        <div class="my-2" v-for="[id, data] in authorOfPolls" :key="id">
           <PollListing :id="id" :data="data" class="mx-4"/>
         </div>
       </div>
@@ -83,13 +83,13 @@
       </div>
     </div>
     <BottomButtons htmlId="account-nav-buttons" :search-bar="true" :search-button="true" @searchSubmit="handleSearch"
-                   :key="`bottomButtons${address}`"></BottomButtons>
+                   :key="`bottomButtons${address}`"/>
     <div class="fixed flex bottom-36 px-8 w-full" v-if="searchError">
       <div class="flex-1 rounded-full bg-gray-500 text-white px-4 py-2 ae-error-field">
         {{searchError}}
       </div>
     </div>
-    <CriticalErrorOverlay :error="error" @continue="error = null"></CriticalErrorOverlay>
+    <CriticalErrorOverlay :error="error" @continue="error = null"/>
   </div>
 </template>
 

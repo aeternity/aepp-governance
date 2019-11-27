@@ -5,7 +5,7 @@
     </BlackHeader>
     <div class="m-4 ae-card cursor-pointer" @click="toggleCard()">
       <div class="flex justify-between items-center w-full py-4 px-3">
-        <img src="../assets/warning-24px.svg">
+        <img src="../assets/warning-24px.svg" alt="warning symbol">
         <div class="mr-auto ml-2" style="margin-top: 4px">
           <span class="font-bold">The Governance Aepp is still in testing mode.</span>
         </div>
@@ -34,11 +34,13 @@
         </div>
       </div>
     </div>
-    <div class="p-4" v-for="key in Object.keys(views)" v-if="views">
-      <h1 class="text-3xl">{{views[key].headline}}</h1>
-      <p>{{views[key].text}}</p>
+    <div v-if="views">
+      <div class="p-4" v-for="key in Object.keys(views)" :key="key">
+        <h1 class="text-3xl">{{views[key].headline}}</h1>
+        <p>{{views[key].text}}</p>
+      </div>
     </div>
-    <BottomButtons></BottomButtons>
+    <BottomButtons/>
   </div>
 </template>
 
