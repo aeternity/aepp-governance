@@ -180,7 +180,6 @@
       const fetchOrdering = new Backend(aeternity.networkId).pollOrdering(false).catch(console.error);
 
       const [allPolls, pollOrdering] = await Promise.all([fetchPolls, fetchOrdering]);
-
       this.pollOrdering = pollOrdering;
       this.allPolls = allPolls;
 

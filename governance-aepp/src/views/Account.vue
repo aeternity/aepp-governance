@@ -16,7 +16,8 @@
           :address="delegation"
         />
         <div v-if="isOwnAccount" class="flex ml-auto">
-          <img src="../assets/edit.svg" class="pr-4" @click="() => { delegatee = delegation; delegation = null}" alt="edit">
+          <img src="../assets/edit.svg" class="pr-4" @click="() => { delegatee = delegation; delegation = null}"
+               alt="edit">
           <div class="h-full border-r border-gray-500 opacity-50"></div>
           <img src="../assets/delete.svg" class="pl-4 pr-1" @click="revokeDelegation" alt="delete">
         </div>
@@ -81,7 +82,8 @@
         Could not find any polls you created.
       </div>
     </div>
-    <BottomButtons htmlId="account-nav-buttons"  :search-bar="true" :search-button="true" @searchSubmit="handleSearch" :key="`bottomButtons${address}`"></BottomButtons>
+    <BottomButtons htmlId="account-nav-buttons" :search-bar="true" :search-button="true" @searchSubmit="handleSearch"
+                   :key="`bottomButtons${address}`"></BottomButtons>
     <div class="fixed flex bottom-36 px-8 w-full" v-if="searchError">
       <div class="flex-1 rounded-full bg-gray-500 text-white px-4 py-2 ae-error-field">
         {{searchError}}
@@ -211,18 +213,29 @@
 
         this.address = this.$route.params.account;
         this.isOwnAccount = this.address === aeternity.address;
-        this.balance = await aeternity.client.balance(this.address).catch(() => '0');
-        this.delegation = await aeternity.delegation(this.address);
-        this.delegations = await aeternity.delegations(this.address);
-        await new Backend(aeternity.networkId).delegatedPower(this.address).then(delegatedPower => {
 
-          if(delegatedPower === null) return;
+        const fetchBalance = aeternity.client.balance(this.address).catch(() => '0').then(balance => {
+          this.balance = balance
+        });
+        const fetchDelegation = aeternity.delegation(this.address).catch(e => {
+          console.error(e);
+          this.error = 'Could not fetch delegation.'
+        });
+        const fetchDelegations = aeternity.delegations(this.address).catch(e => {
+          console.error(e);
+          this.error = 'Could not fetch delegations.'
+        });
+
+
+        const fetchDelegatedPower = new Backend(aeternity.networkId).delegatedPower(this.address).then(async delegatedPower => {
+          await fetchBalance;
+          if (delegatedPower === null) return;
           this.delegatedPower = delegatedPower.delegatedPower;
           this.totalStake = new BigNumber(this.balance).plus(this.delegatedPower);
         }).catch(console.error);
 
-        await new Backend(aeternity.networkId).accountPollVoterAuthor(this.address).then(data => {
-          if(data === null) return;
+        const fetchAccountPollVoterAuthor = new Backend(aeternity.networkId).accountPollVoterAuthor(this.address).then(data => {
+          if (data === null) return;
           this.votedInPolls = data.votedInPolls.filter(poll => poll[1].is_listed);
           this.votedInPolls = this.votedInPolls.concat(data.delegateeVotes.filter(poll => {
             return poll[1].is_listed && !data.votedInPolls.some(vote => vote[0] === poll[0])
@@ -230,6 +243,10 @@
           this.votedInPolls = this.votedInPolls.sort((a, b) => b[0] - a[0]);
           this.authorOfPolls = data.authorOfPolls.filter(poll => poll[1].is_listed).sort((a, b) => b[0] - a[0]);
         }).catch(console.error);
+
+        const [_, delegation, delegations] = await Promise.all([fetchBalance, fetchDelegation, fetchDelegations, fetchDelegatedPower, fetchAccountPollVoterAuthor]);
+        this.delegation = delegation;
+        this.delegations = delegations;
 
         this.showLoading = false;
       }
