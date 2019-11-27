@@ -27,8 +27,6 @@ services:
     volumes:
       - ./aeternity.yaml:/home/aeternity/.aeternity/aeternity/aeternity.yaml
       - aeternity_data:/home/aeternity/node/data/mnesia
-    ports:
-      - 3013:3013
       
   compiler:
     image: aeternity/aesophia_http:v4.0.0
@@ -47,6 +45,8 @@ services:
       - ./proxy.conf:/etc/nginx/conf.d/default.conf
     logging:
       driver: none
+    ports:
+      - 3013:3013
 
   middleware_db:
     image: postgres:11
