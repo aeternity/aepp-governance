@@ -52,7 +52,6 @@
   import BottomButtons from "~/components/BottomButtons";
   import BlackHeader from "~/components/BlackHeader";
   import CriticalErrorOverlay from "~/components/CriticalErrorOverlay";
-  import axios from "axios";
   import BigNumber from 'bignumber.js';
 
   export default {
@@ -167,7 +166,11 @@
 
     async mounted() {
       if (aeternity.isTestnet() && aeternity.balance <= 5) {
-        await axios.post(`https://testnet.faucet.aepps.com/account/${aeternity.address}`, {}, {headers: {'content-type': 'application/x-www-form-urlencoded'}}).catch(console.error);
+        await fetch(`https://testnet.faucet.aepps.com/account/${aeternity.address}`,
+          {
+            headers: {'content-type': 'application/x-www-form-urlencoded'},
+            method: 'POST'
+          }).catch(console.error);
       }
 
       this.address = aeternity.address;
