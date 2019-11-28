@@ -48,7 +48,8 @@ aeternity.initMobileBaseAepp = async () => {
     if (window.parent === window) return false;
     return await timeout(Aepp());
   } catch (e) {
-    console.warn('Base Aepp init failed');
+    console.error(e);
+    console.error('Base Aepp init failed');
     return false;
   }
 };

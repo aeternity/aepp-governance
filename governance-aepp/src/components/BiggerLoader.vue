@@ -6,8 +6,7 @@
 
 <script>
   export default {
-    name: "BiggerLoader",
-    components: {}
+    name: "BiggerLoader"
   }
 </script>
 

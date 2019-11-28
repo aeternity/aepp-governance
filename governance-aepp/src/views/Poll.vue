@@ -152,8 +152,11 @@
 </template>
 
 <script>
+
+  import "@aeternity/aepp-components/dist/ae-check/ae-check.css"
+  import AeCheck from "@aeternity/aepp-components/dist/ae-check/"
+
   import aeternity from "~/utils/aeternity";
-  import {AeCheck} from '@aeternity/aepp-components/src/components/';
   import pollContractSource from '../assets/contracts/PollInterface.aes';
   import Backend from "~/utils/backend";
   import BiggerLoader from '../components/BiggerLoader';

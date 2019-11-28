@@ -27,7 +27,11 @@
 </template>
 
 <script>
-  import {AeLoader} from '@aeternity/aepp-components/src/components/';
+
+  import "@aeternity/aepp-components/dist/aeLoader/aeLoader.css"
+  import AeLoader from "@aeternity/aepp-components/dist/aeLoader/"
+
+
   import Backend from "~/utils/backend";
   import aeternity from "~/utils/aeternity";
   import AeIdentityLight from '~/components/AeIdentityLight'
