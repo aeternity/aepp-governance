@@ -14,7 +14,7 @@ process.on('unhandledRejection', (reason, p) => console.log('Unhandled Rejection
 const init = async () => {
     const aeternity = new Aeternity();
     await aeternity.init();
-    cache.init(aeternity);
+    await cache.init(aeternity);
     logic = new Logic(aeternity);
 
     const port = process.env.PORT ? process.env.PORT : 3000;
