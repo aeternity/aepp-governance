@@ -27,7 +27,9 @@
 
 <script>
 
-  import {AeButton} from '@aeternity/aepp-components/src/components'
+  import "@aeternity/aepp-components/dist/ae-button/ae-button.css"
+  import AeButton from "@aeternity/aepp-components/dist/ae-button/"
+
   import CriticalErrorOverlay from '~/components/CriticalErrorOverlay'
   import Explainer from '~/components/Explainer'
   import aeternity from '~/utils/aeternity.js'

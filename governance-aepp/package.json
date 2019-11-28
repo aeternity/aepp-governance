@@ -59,7 +59,6 @@
     "vue-style-loader": "^4.1.2",
     "vue-template-compiler": "^2.6.10",
     "webpack": "^4.35.2",
-    "webpack-bundle-analyzer": "^3.3.2",
     "webpack-cli": "^3.3.5",
     "webpack-dev-server": "^3.7.2",
     "webpack-merge": "^4.2.2",
@@ -76,7 +75,13 @@
     ],
     "rules": {
       "no-console": "off",
-      "no-unused-vars": [2, {"args": "after-used", "argsIgnorePattern": "^_"}]
+      "no-unused-vars": [
+        2,
+        {
+          "args": "after-used",
+          "argsIgnorePattern": "^_"
+        }
+      ]
     },
     "parserOptions": {
       "parser": "babel-eslint"
