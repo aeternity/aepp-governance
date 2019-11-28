@@ -36,6 +36,10 @@ module.exports = class Aeternity {
         }
     };
 
+    networkId = async () => {
+        return (await this.client.getNodeInfo()).nodeNetworkId
+    };
+
     registryCreationHeight = async () => {
         return this.cache.getOrSet(["registryCreationHeight"], async () => {
             process.stdout.write(".");

@@ -11,6 +11,8 @@ const set = promisify(client.set).bind(client);
 const del = promisify(client.del).bind(client);
 const keys = promisify(client.keys).bind(client);
 const WebSocketClient = require('websocket').client;
+var AsyncLock = require('async-lock');
+var lock = new AsyncLock();
 
 const cache = {};
 cache.wsconnection = null;
@@ -18,26 +20,41 @@ cache.wsconnection = null;
 cache.shortCacheTime = process.env.SHORT_CACHE_TIME || 2 * 60;
 cache.longCacheTime = process.env.LONG_CACHE_TIME || 8 * 60 * 60;
 cache.keepHotInterval = process.env.KEEP_HOT_INTERVAL || 60 * 1000;
+cache.networkKey = "";
 
-cache.init = (aeternity) => {
+cache.init = async (aeternity) => {
+    cache.networkKey = await aeternity.networkId();
+    console.log("networkKey", cache.networkKey);
     cache.startInvalidator(aeternity);
     cache.keepHot(aeternity);
 };
 
+const buildKey = (keys) => [cache.networkKey, ...keys].join(":");
+
 cache.getOrSet = async (keys, asyncFetchData, expire = null) => {
-    const key = keys.join(":");
+    const key = buildKey(keys);
     const value = await get(key);
     if (value) return JSON.parse(value);
 
-    const start = new Date().getTime();
-    const data = await asyncFetchData();
-    cache.set(keys, data, expire);
-    (new Date().getTime() - start > 50) ? console.log("\n   cache", key, new Date().getTime() - start, "ms") : process.stdout.write("'");
-    return data;
+    const startLock = new Date().getTime();
+    return lock.acquire(key, async () => {
+        const lockedValue = await get(key);
+        if (lockedValue) {
+            console.log("\n   lock.acquire", key, new Date().getTime() - startLock, "ms");
+            return JSON.parse(lockedValue);
+        }
+
+        const start = new Date().getTime();
+        const data = await asyncFetchData();
+        cache.set(keys, data, expire);
+        (new Date().getTime() - start > 50) ? console.log("\n   cache", key, new Date().getTime() - start, "ms") : process.stdout.write("'");
+
+        return data;
+    });
 };
 
 cache.set = async (keys, data, expire = null) => {
-    const key = keys.join(":");
+    const key = buildKey(keys);
 
     if (expire) {
         await set(key, JSON.stringify(data), "EX", expire);
@@ -47,7 +64,7 @@ cache.set = async (keys, data, expire = null) => {
 };
 
 cache.delByPrefix = async (prefixes) => {
-    const prefix = prefixes.join(":");
+    const prefix = buildKey(prefixes);
     const rows = await keys(prefix + "*");
     if (rows.length) console.log("      cache delByPrefix", rows);
     await Promise.all(rows.map(key => del(key)));
