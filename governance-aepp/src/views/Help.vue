@@ -40,6 +40,19 @@
         <p>{{views[key].text}}</p>
       </div>
     </div>
+
+    <div class="relative h-4 mt-6 w-full">
+      <div class="absolute inset-0 flex h-full w-full justify-center items-center px-4">
+        <div class="border w-full"></div>
+      </div>
+    </div>
+
+    <div class="text-center w-full mt-1 text-xs relative">
+      <div class="opacity-40">
+        GIT_REV
+      </div>
+    </div>
+
     <BottomButtons/>
   </div>
 </template>
