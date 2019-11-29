@@ -8,6 +8,7 @@ Additionally there will be an frontend-aepp that allows for user-friendly regist
 ## Resources
 
 [GUIDE: How to verify results](./docs/how-to-verify-results.md)
+[GUIDE: How to run governance locally](./docs/how-to-run.md)
 
 ## Introduction
 
