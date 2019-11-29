@@ -4,7 +4,7 @@ const wrapTry = async (f) => {
   try {
     return Promise.race([
       f().then(res => {
-        if(!res.ok) throw new Error(`Request failed with ${res.status}`);
+        if (!res.ok) throw new Error(`Request failed with ${res.status}`);
         return res.json()
       }),
       new Promise(function (resolve, reject) {
@@ -27,7 +27,7 @@ export default class Backend {
 
   votesState = async (poll) => {
     const votesState = await wrapTry(async () => fetch(`${this.BACKEND_URL}/votesState/${poll}`));
-    if(!votesState) return null;
+    if (!votesState) return null;
     return {
       ...votesState, ...{
         stakesForOption: votesState.stakesForOption.map(option => {
@@ -60,5 +60,9 @@ export default class Backend {
 
   pollOrdering = async (closed = false) => wrapTry(async () => {
     return fetch(`${this.BACKEND_URL}/pollOrdering?closed=${closed ? "true" : "false"}`);
+  });
+
+  version = async () => wrapTry(async () => {
+    return fetch(`${this.BACKEND_URL}/version`);
   });
 }

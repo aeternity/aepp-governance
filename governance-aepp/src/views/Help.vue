@@ -49,7 +49,12 @@
 
     <div class="text-center w-full mt-1 text-xs relative">
       <div class="opacity-40">
-        GIT_REV
+        aepp: GIT_REV
+      </div>
+    </div>
+    <div class="text-center w-full mt-1 text-xs relative">
+      <div class="opacity-40">
+        server: {{serverVersion}}
       </div>
     </div>
 
@@ -62,12 +67,15 @@
   import BottomButtons from "~/components/BottomButtons";
   import copy from 'copy-to-clipboard';
   import help from '~/assets/help.json';
+  import aeternity from "~/utils/aeternity";
+  import Backend from "~/utils/backend";
 
   export default {
     name: 'Help',
     components: {BlackHeader, BottomButtons},
     data() {
       return {
+        serverVersion: "",
         showCopyNotice: false,
         showCard: false,
         views: help
@@ -89,6 +97,11 @@
         this.showCard = !this.showCard
       }
     },
+    mounted() {
+      new Backend(aeternity.networkId).version().then(data => {
+        this.serverVersion = data.version
+      })
+    }
   }
 </script>
 
