@@ -7,6 +7,8 @@ const Logic = require("./src/logic");
 const cache = require("./src/cache");
 logic = null;
 
+const GIT_REV = null;
+
 const app = express();
 app.use(bodyParser.json());
 process.on('unhandledRejection', (reason, p) => console.log('Unhandled Rejection at: Promise', p, 'reason:', reason));
@@ -96,5 +98,9 @@ app.get('/pollOrdering', errorHandler(async (req, res) => {
     if (new Date().getTime() - start > 10) console.log("\nrequest pollOrdering", new Date().getTime() - start, "ms");
     res.json(data)
 }));
+
+app.get('/version', (req, res) => {
+    res.json({version: GIT_REV ? GIT_REV : "local"})
+});
 
 init();
