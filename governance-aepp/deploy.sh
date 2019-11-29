@@ -15,6 +15,7 @@ git rm -rf . && \
 git clean -ffxd && \
 cp -r ../dist/* . && \
 echo "governance.aeternity.com" > CNAME && \
+sed -i "s/GIT_REV/${GIT_REV}/g" bundle.js && \
 git add * && \
 git commit -m "governance aepp ${GIT_REV} deployment to gh-pages" && \
 git fetch && git rebase -s recursive -Xtheirs origin/gh-pages && \
