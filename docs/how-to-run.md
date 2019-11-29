@@ -27,6 +27,7 @@ Additionally [governance-server](../governance-server) contains a script to inde
  **Running (with hosted mainnet node)**
 ```
 cd governance-server
+npm install
 
 docker run --name server-redis -p 6379:6379 -d redis
 
@@ -49,9 +50,21 @@ mkdir -p .data/aeternity
 sudo chown -R 1000:1000 .data/aeternity
 
 docker-compose up -d
+
 # check logs using docker-compose logs -f
 # wait for node to sync to 100%, see localhost:3013/v2/status
 # eventually restart the server afterwards docker-compose restart server
 ```
 
 ## Aepp
+[governance-aepp](../governance-aepp) contains the frontend decentralized application for governance. It is usable from within the [base-aepp](https://base.aepps.com/) on mobile or on itself in read-only mode on desktop.
+Configuration for node selection and choosing the registry smart contract address can be found in `src/utils/settings.js`.
+
+**Running locally**
+```
+cd governance-aepp
+
+npm install
+npm run dev
+```
+
