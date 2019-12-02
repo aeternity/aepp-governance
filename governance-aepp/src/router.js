@@ -10,12 +10,12 @@ const routes = [
     path: '/',
     name: 'home',
     component: Home,
-    meta: {title: 'Home'}
+    meta: {title: 'Home', description: 'An governance aepp for the aeternity blockchain.'}
   }, {
     path: '/create',
     name: 'create',
     component: Create,
-    meta: {title: 'Create'}
+    meta: {title: 'Create', description: 'Add a new poll to the governance aepp for the aeternity blockchain.'}
   }, {
     path: '/account/:account',
     name: 'account',
@@ -30,7 +30,7 @@ const routes = [
     path: '/help',
     name: 'help',
     component: Help,
-    meta: {title: 'Help & Hints'}
+    meta: {title: 'Help & Hints', description: 'How to use the governance aepp for the aeternity blockchain.'}
   }
 ];
 
