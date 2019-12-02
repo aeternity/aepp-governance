@@ -117,7 +117,7 @@
     data() {
       return {
         showLoading: true,
-        address: null,
+        address: "",
         balance: null,
         power: null,
         delegatee: "",
