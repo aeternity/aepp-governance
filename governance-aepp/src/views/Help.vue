@@ -66,7 +66,7 @@
   import BlackHeader from "../components/BlackHeader";
   import BottomButtons from "../components/BottomButtons";
   import copy from 'copy-to-clipboard';
-  import help from '../assets/help.json';
+  import help from '../data/help.json';
   import aeternity from "../utils/aeternity";
   import Backend from "../utils/backend";
 
