@@ -184,7 +184,7 @@
 
       const [allPolls, pollOrdering] = await Promise.all([fetchPolls, fetchOrdering]);
       this.pollOrdering = pollOrdering;
-      this.allPolls = allPolls;
+      this.allPolls = allPolls.filter(([_, data]) => data.title.length <= 50);
 
       if(this.allPolls) {
         this.closedPolls = this.allPolls.filter(([_, data]) => data.is_listed).filter(poll => typeof poll[1].close_height === 'number' && poll[1].close_height <= aeternity.height);
