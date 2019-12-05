@@ -29,7 +29,7 @@ module.exports = {
       // chunks: ['main'],
       title: 'Governance Aepp',
       template: './src/index.html',
-      filename: distFolder + '/index.html',
+      domain: 'https://governance.aeternity.com',
       // Avoids building twice for dev
       alwaysWriteToDisk: true
     }),

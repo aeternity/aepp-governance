@@ -53,12 +53,10 @@
   import BlackHeader from "../components/BlackHeader";
   import CriticalErrorOverlay from "../components/CriticalErrorOverlay";
   import BigNumber from 'bignumber.js';
-  import generateMetaData from '../data/meta';
 
   export default {
     name: 'Home',
     components: {BlackHeader, BottomButtons, PollListing, BiggerLoader, CriticalErrorOverlay},
-    metaInfo() {return {meta: generateMetaData(this.$route.meta.title, this.$route.meta.description)}},
     data() {
       return {
         error: null,
