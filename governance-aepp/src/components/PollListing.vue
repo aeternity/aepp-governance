@@ -4,7 +4,7 @@
       <AeIdentityLight :address="data.delegatee"
                        :collapsed="true"
                        balance="">
-      </AeIdentityLight> voted with your stake in
+      </AeIdentityLight> voted with this stake in
     </div>
     <div class="p-4 pb-2" @click="$router.push(`/poll/${id}`)">
       <div class="flex items-center vote-id w-full">

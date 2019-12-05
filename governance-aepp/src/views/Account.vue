@@ -59,7 +59,7 @@
         </div>
       </div>
       <div v-else class="text-gray-500 text-xl text-center my-8">
-        Could not find any delegations to you.
+        Could not find any delegations to {{isOwnAccount ? 'you' : 'this account'}}.
       </div>
     </div>
     <div v-if="activeTab === 'votes'" id="account-tab-votes">
@@ -79,7 +79,7 @@
         </div>
       </div>
       <div v-else class="text-gray-500 text-xl text-center py-4 my-4">
-        Could not find any polls you created.
+        Could not find any polls created by {{isOwnAccount ? 'you' : 'this account'}}.
       </div>
     </div>
     <BottomButtons htmlId="account-nav-buttons" :search-bar="true" :search-button="true" @searchSubmit="handleSearch"
