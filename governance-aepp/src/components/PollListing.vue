@@ -32,9 +32,9 @@
   import AeLoader from "@aeternity/aepp-components/dist/aeLoader/"
 
 
-  import Backend from "~/utils/backend";
-  import aeternity from "~/utils/aeternity";
-  import AeIdentityLight from '~/components/AeIdentityLight'
+  import Backend from "../utils/backend";
+  import aeternity from "../utils/aeternity";
+  import AeIdentityLight from './AeIdentityLight'
 
   export default {
     components: {AeLoader, AeIdentityLight},

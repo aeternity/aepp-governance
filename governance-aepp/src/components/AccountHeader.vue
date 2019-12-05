@@ -64,9 +64,9 @@
 </template>
 
 <script>
-  import AeIdentityLight from "~/components/AeIdentityLight";
-  import aeternity from "~/utils/aeternity";
-  import Backend from "~/utils/backend";
+  import AeIdentityLight from "./AeIdentityLight";
+  import aeternity from "../utils/aeternity";
+  import Backend from "../utils/backend";
   import BigNumber from "bignumber.js";
   import copy from 'copy-to-clipboard';
 

@@ -46,13 +46,13 @@
 </template>
 
 <script>
-  import SmallButton from "~/components/SmallButton";
+  import SmallButton from "./SmallButton";
   import searchImg from '../assets/search.svg';
   import createImg from '../assets/create.svg';
   import accountImg from '../assets/account.svg';
   import homeImg from '../assets/home.svg';
   import backImg from '../assets/back.svg';
-  import aeternity from "~/utils/aeternity";
+  import aeternity from "../utils/aeternity";
 
   export default {
     name: "BottomButtons",

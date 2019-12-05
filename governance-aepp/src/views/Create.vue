@@ -101,15 +101,15 @@
   import "@aeternity/aepp-components/dist/ae-button-group/ae-button-group.css"
   import AeButtonGroup from "@aeternity/aepp-components/dist/ae-button-group/"
 
-  import aeternity from "~/utils/aeternity";
+  import aeternity from "../utils/aeternity";
   import pollContractSource from '../assets/contracts/Poll.aes';
-  import BiggerLoader from '~/components/BiggerLoader';
-  import BottomButtons from "~/components/BottomButtons";
-  import BlackHeader from "~/components/BlackHeader";
-  import GrayText from "~/components/GrayText";
-  import CriticalErrorOverlay from "~/components/CriticalErrorOverlay";
-  import AeInput from "~/components/AeInput";
-  import HintBubble from "~/components/HintBubble";
+  import BiggerLoader from '../components/BiggerLoader';
+  import BottomButtons from "../components/BottomButtons";
+  import BlackHeader from "../components/BlackHeader";
+  import GrayText from "../components/GrayText";
+  import CriticalErrorOverlay from "../components/CriticalErrorOverlay";
+  import AeInput from "../components/AeInput";
+  import HintBubble from "../components/HintBubble";
 
   export default {
     name: 'Home',

@@ -15,7 +15,7 @@
 
 <script>
   import ExplainerItem from "./ExplainerItem";
-  import help from '~/assets/help.json'
+  import help from '../assets/help.json'
 
   export default {
     name: "Explainer",

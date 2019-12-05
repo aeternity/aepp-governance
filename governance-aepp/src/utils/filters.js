@@ -1,4 +1,4 @@
-import BlockchainUtil from "~/utils/util";
+import BlockchainUtil from "./util";
 
 export function toAE(num, decimalPlaces) {
   if (num) {

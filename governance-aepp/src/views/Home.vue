@@ -45,13 +45,13 @@
 </template>
 
 <script>
-  import aeternity from "~/utils/aeternity";
-  import Backend from "~/utils/backend";
+  import aeternity from "../utils/aeternity";
+  import Backend from "../utils/backend";
   import BiggerLoader from '../components/BiggerLoader';
-  import PollListing from "~/components/PollListing";
-  import BottomButtons from "~/components/BottomButtons";
-  import BlackHeader from "~/components/BlackHeader";
-  import CriticalErrorOverlay from "~/components/CriticalErrorOverlay";
+  import PollListing from "../components/PollListing";
+  import BottomButtons from "../components/BottomButtons";
+  import BlackHeader from "../components/BlackHeader";
+  import CriticalErrorOverlay from "../components/CriticalErrorOverlay";
   import BigNumber from 'bignumber.js';
 
   export default {
