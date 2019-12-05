@@ -296,7 +296,8 @@
           return this.pollAddress;
         }).catch(e => {
           console.error(e);
-          this.error = 'Could not fetch poll address.'
+          this.error = 'Could not fetch poll address.';
+          this.continueFunction = () => this.$router.push('/');
         });
 
         const fetchPollState = (async () => {
@@ -312,7 +313,8 @@
           this.voteOption = accountVote ? accountVote[1] : null;
         })().catch(e => {
           console.error(e);
-          this.error = 'Could not fetch poll state.'
+          this.error = 'Could not fetch poll state.';
+          this.continueFunction = () => this.$router.push('/');
         });
 
         const fetchVotesState = new Backend(aeternity.networkId).votesState(await fetchPollAddress).then(votesState => {
