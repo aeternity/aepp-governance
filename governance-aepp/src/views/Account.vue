@@ -94,17 +94,17 @@
 </template>
 
 <script>
-  import aeternity from "~/utils/aeternity";
+  import aeternity from "../utils/aeternity";
   import * as Crypto from '@aeternity/aepp-sdk/es/utils/crypto';
   import BiggerLoader from '../components/BiggerLoader'
   import AeIdentityLight from '../components/AeIdentityLight'
   import BigNumber from 'bignumber.js';
-  import Backend from "~/utils/backend";
-  import PollListing from "~/components/PollListing";
-  import BottomButtons from "~/components/BottomButtons";
-  import AccountHeader from "~/components/AccountHeader";
-  import CriticalErrorOverlay from "~/components/CriticalErrorOverlay";
-  import AeInput from '~/components/AeInput'
+  import Backend from "../utils/backend";
+  import PollListing from "../components/PollListing";
+  import BottomButtons from "../components/BottomButtons";
+  import AccountHeader from "../components/AccountHeader";
+  import CriticalErrorOverlay from "../components/CriticalErrorOverlay";
+  import AeInput from '../components/AeInput'
 
   export default {
     name: 'Home',

@@ -156,18 +156,18 @@
   import "@aeternity/aepp-components/dist/ae-check/ae-check.css"
   import AeCheck from "@aeternity/aepp-components/dist/ae-check/"
 
-  import aeternity from "~/utils/aeternity";
+  import aeternity from "../utils/aeternity";
   import pollContractSource from '../assets/contracts/PollInterface.aes';
-  import Backend from "~/utils/backend";
+  import Backend from "../utils/backend";
   import BiggerLoader from '../components/BiggerLoader';
   import AeIdentityLight from '../components/AeIdentityLight';
   import BigNumber from 'bignumber.js';
-  import BottomButtons from "~/components/BottomButtons";
-  import AccountHeader from "~/components/AccountHeader";
-  import CriticalErrorOverlay from "~/components/CriticalErrorOverlay";
-  import AccountTreeLine from "~/components/AccountTreeLine";
+  import BottomButtons from "../components/BottomButtons";
+  import AccountHeader from "../components/AccountHeader";
+  import CriticalErrorOverlay from "../components/CriticalErrorOverlay";
+  import AccountTreeLine from "../components/AccountTreeLine";
   import copy from 'copy-to-clipboard';
-  import HintBubble from "~/components/HintBubble";
+  import HintBubble from "../components/HintBubble";
 
   export default {
     name: 'Home',
