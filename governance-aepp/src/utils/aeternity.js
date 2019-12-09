@@ -3,6 +3,7 @@ import Util from './util';
 import registryContractSource from '../assets/contracts/RegistryInterface.aes';
 import {Universal} from "@aeternity/aepp-sdk/es/ae/universal";
 import settings from '../data/settings';
+import pollContractSource from '../assets/contracts/Poll.aes';
 
 const aeternity = {
   client: null,
@@ -88,6 +89,35 @@ aeternity.initStaticClient = async () => {
     compilerUrl: settings.ae_mainnet.compilerUrl
   });
 };
+
+aeternity.verifyPollContract = async (pollAddress) => {
+  const contractCreateBytecode = await fetch(`https://testnet.aeternal.io/middleware/contracts/transactions/address/${pollAddress}?limit=1&page=1`).then(async res => {
+    return (await res.json()).transactions.filter(tx => tx.tx.type === 'ContractCreateTx')[0].tx.code
+  })
+
+  const compilersResult = await Promise.all([
+    { url: 'https://v400.compiler.aeternity.art', version: 'v4.0.0' },
+    { url: 'https://v410.compiler.aeternity.art', version: 'v4.1.0' }
+  ].map(compiler => {
+    return fetch(`${compiler.url}/compile`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        code: pollContractSource,
+        options: { 'backend': 'fate' }
+      })
+    }).then(async res => {
+      const bytecode = (await res.json()).bytecode
+      return {
+        bytecode: bytecode,
+        matches: bytecode === contractCreateBytecode,
+        version: compiler.version
+      }
+    })
+  }));
+
+  return compilersResult.find(test => test.matches);
+}
 
 aeternity.checkAvailableWallets = async () => {
 
