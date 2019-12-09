@@ -109,8 +109,8 @@
 
         switch (this.activeTab) {
           case "hot":
-            this.polls = this.activePolls.sort((a, b) => {
-              return this.pollOrdering.ordering.indexOf(a[0]) - this.pollOrdering.ordering.indexOf(b[0]);
+            this.polls = this.activePolls.filter(([id, _]) => this.pollOrdering.ordering.includes(id)).sort((a, b) => {
+              return this.pollOrdering.ordering.indexOf(a[0]) - this.pollOrdering.ordering.indexOf(b[0])
             });
             break;
           case "stake":
