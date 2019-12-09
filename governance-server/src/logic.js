@@ -104,7 +104,7 @@ module.exports = class Logic {
             const delegateePower = await this.delegatedPower(address, closingHeightOrUndefined, [], true);
             acc.delegateeVotes = [...acc.delegateeVotes, ...delegateePower.flattenedDelegationTree
                 .filter(delegation => votingAccountList.includes(delegation.delegatee))
-                .map(delegation => [id, {delegatee:delegation.delegatee, ...data, ...getVoteForAccount(delegation.delegatee)}])];
+                .map(delegation => [id, {delegatee: delegation.delegatee, ...data, ...getVoteForAccount(delegation.delegatee)}])];
             return acc;
         }, Promise.resolve({votedInPolls: [], authorOfPolls: [], delegateeVotes: []}));
     };
@@ -148,7 +148,6 @@ module.exports = class Logic {
                 votingAccountList: votingAccountList
             }
         };
-
 
         if (cached) {
             return this.cache.getOrSet(["pollStateAndVotingAccounts", address], result, this.cache.shortCacheTime);
@@ -253,7 +252,7 @@ module.exports = class Logic {
      * @param searchDelegatee
      * @returns {Promise<*>}
      */
-    delegationTree = async (address, height, ignoreAccounts = [], searchDelegatee ) => {
+    delegationTree = async (address, height, ignoreAccounts = [], searchDelegatee) => {
         const initialAddress = address;
         const aeternity = this.aeternity;
         const balanceAtHeight = this.balanceAtHeight;
@@ -299,7 +298,10 @@ module.exports = class Logic {
                 return {
                     delegatedPower: delegatedPower.plus(new BigNumber(delegation.balance)).plus(recursionResult.delegatedPower),
                     flattenedDelegationTree: flattenedDelegationTree
-                        .concat([{[searchDelegatee ? "delegatee" : "delegator"]: delegator, balance: delegation.balance}])
+                        .concat([{
+                            [searchDelegatee ? "delegatee" : "delegator"]: delegator,
+                            balance: delegation.balance
+                        }])
                         .concat(recursionResult.flattenedDelegationTree)
                 }
             }, {delegatedPower: new BigNumber('0'), flattenedDelegationTree: []})
