@@ -6,8 +6,14 @@ const axios = require('axios');
 const util = require("./util");
 const delegationLogic = require("./delegation_logic");
 
-const registryContractSource = fs.readFileSync(__dirname + "/../etc/RegistryInterface.aes", "utf-8");
-const pollContractSource = fs.readFileSync(__dirname + "/../etc/PollInterface.aes", "utf-8");
+const registryContractInterface = fs.readFileSync(__dirname + "/../etc/RegistryInterface.aes", "utf-8");
+const pollContractInterface = fs.readFileSync(__dirname + "/../etc/PollInterface.aes", "utf-8");
+const pollContractSource = fs.readFileSync(__dirname + "/../etc/Poll.aes", "utf-8");
+
+const compilers = [
+    {url: 'https://v400.compiler.aeternity.art', version: 'v4.0.0'},
+    {url: 'https://v410.compiler.aeternity.art', version: 'v4.1.0'}
+];
 
 module.exports = class Aeternity {
     cache;
@@ -31,13 +37,40 @@ module.exports = class Aeternity {
                 compilerUrl: process.env.COMPILER_URL || this.verifyConstants.compilerUrl
             });
 
-            this.contract = await this.client.getContractInstance(registryContractSource, {contractAddress: process.env.CONTRACT_ADDRESS || this.verifyConstants.registryContract});
+            this.contract = await this.client.getContractInstance(registryContractInterface, {contractAddress: process.env.CONTRACT_ADDRESS || this.verifyConstants.registryContract});
             console.log("initialized aeternity sdk");
         }
     };
 
     networkId = async () => {
         return (await this.client.getNodeInfo()).nodeNetworkId
+    };
+
+    verifyPollContract = async (pollAddress) => {
+        const result = async () => {
+            const contractCreateBytecode = await axios.get(`${process.env.MIDDLEWARE_URL}middleware/contracts/transactions/address/${pollAddress}?limit=1&page=1`).then(async res => {
+                const contractCreateTx = res.data.transactions.filter(tx => tx.tx.type === 'ContractCreateTx')[0];
+                return contractCreateTx ? contractCreateTx.tx.code : null;
+            });
+
+            const compilersResult = await Promise.all(compilers.map(compiler => {
+                return axios.post(`${compiler.url}/compile`, {
+                    code: pollContractSource,
+                    options: {backend: 'fate'}
+                }).then(async res => {
+                    const bytecode = res.data.bytecode;
+                    return {
+                        bytecode: bytecode,
+                        matches: bytecode === contractCreateBytecode,
+                        version: compiler.version
+                    }
+                });
+            }));
+
+            return compilersResult.find(test => test.matches) || false;
+        };
+
+        return this.cache.getOrSet(["verifyPollContract", pollAddress], result, this.cache.longCacheTime);
     };
 
     registryCreationHeight = async () => {
@@ -93,7 +126,7 @@ module.exports = class Aeternity {
 
     pollState = async (address) => {
         const pollAddress = address.replace("ak_", "ct_");
-        const pollContract = this.pollContracts[pollAddress] ? this.pollContracts[pollAddress] : await this.client.getContractInstance(pollContractSource, {contractAddress: pollAddress}).then(contract => {
+        const pollContract = this.pollContracts[pollAddress] ? this.pollContracts[pollAddress] : await this.client.getContractInstance(pollContractInterface, {contractAddress: pollAddress}).then(contract => {
             this.pollContracts[pollAddress] = contract;
             return contract;
         });
