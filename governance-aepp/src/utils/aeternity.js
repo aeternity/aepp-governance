@@ -91,14 +91,11 @@ aeternity.initStaticClient = async () => {
 };
 
 aeternity.verifyPollContract = async (pollAddress) => {
-  const contractCreateBytecode = await fetch(`https://testnet.aeternal.io/middleware/contracts/transactions/address/${pollAddress}?limit=1&page=1`).then(async res => {
+  const contractCreateBytecode = await fetch(`${settings[aeternity.networkId].middlewareUrl}/middleware/contracts/transactions/address/${pollAddress}?limit=1&page=1`).then(async res => {
     return (await res.json()).transactions.filter(tx => tx.tx.type === 'ContractCreateTx')[0].tx.code
   })
 
-  const compilersResult = await Promise.all([
-    { url: 'https://v400.compiler.aeternity.art', version: 'v4.0.0' },
-    { url: 'https://v410.compiler.aeternity.art', version: 'v4.1.0' }
-  ].map(compiler => {
+  const compilersResult = await Promise.all(settings.compilers.map(compiler => {
     return fetch(`${compiler.url}/compile`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
