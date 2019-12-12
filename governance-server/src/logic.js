@@ -41,12 +41,18 @@ module.exports = class Logic {
                         return !poll[1].close_height || poll[1].close_height > height;
                     }
                 });
+
             const pollsData = await polls.asyncMap(async ([id, data]) => {
                 const state = await this.cachedPollState(data.poll);
+                const verified = await this.aeternity.verifyPollContract(data.poll).catch(e => {
+                    console.error("verifyPollContract", e);
+                    return null
+                });
 
                 return {
                     id: id,
                     poll: data.poll,
+                    verified: verified,
                     totalStake: state.totalStake,
                     voteCount: state.voteCount,
                     closeHeight: state.pollState.close_height ? state.pollState.close_height : null,
