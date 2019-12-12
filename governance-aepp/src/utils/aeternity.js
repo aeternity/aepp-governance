@@ -92,7 +92,8 @@ aeternity.initStaticClient = async () => {
 
 aeternity.verifyPollContract = async (pollAddress) => {
   const contractCreateBytecode = await fetch(`${settings[aeternity.networkId].middlewareUrl}/middleware/contracts/transactions/address/${pollAddress}?limit=1&page=1`).then(async res => {
-    return (await res.json()).transactions.filter(tx => tx.tx.type === 'ContractCreateTx')[0].tx.code
+    const contractCreateTx = (await res.json()).transactions.filter(tx => tx.tx.type === 'ContractCreateTx')[0];
+    return contractCreateTx ? contractCreateTx.tx.code : null;
   })
 
   const compilersResult = await Promise.all(settings.compilers.map(compiler => {
