@@ -91,9 +91,22 @@ aeternity.initStaticClient = async () => {
 
 aeternity.checkAvailableWallets = async () => {
 
-  // Check for base aepp
   const wallets = {};
 
+  if(process && process.env && process.env.PRIVATE_KEY && process.env.PUBLIC_KEY) {
+    wallets['mock'] = await Universal({
+      url: settings.ae_uat.nodeUrl,
+      internalUrl: settings.ae_uat.nodeUrl,
+      compilerUrl: settings.ae_uat.compilerUrl,
+      keypair: {
+        publicKey: process.env.PUBLIC_KEY,
+        secretKey: process.env.PRIVATE_KEY
+      }
+    });
+    return wallets;
+  }
+
+  // Check for base aepp
   const baseAeppClient = await aeternity.initMobileBaseAepp();
   if (baseAeppClient && baseAeppClient !== 'TIMEOUT') wallets['MobileBaseAepp'] = baseAeppClient;
 

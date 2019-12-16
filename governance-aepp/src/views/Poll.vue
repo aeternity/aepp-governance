@@ -11,18 +11,18 @@
       </div>
       <div class="flex justify-between mx-4 mt-4 mb-2">
         <div class="max-w-75">
-          <h1 class="text-3xl leading-tight w-full break-words">{{pollState.metadata.title}}</h1>
+          <h1 class="text-3xl leading-tight w-full break-words cy-poll-title">{{pollState.metadata.title}}</h1>
         </div>
         <div class="h-8 flex items-center vote-id justify-end">
           <img class="h-full" src="../assets/hash.svg" alt="hash"/>
           <span class="text-primary text-4xl leading-none">{{pollId}}</span>
         </div>
       </div>
-      <div class="text-gray-500 mx-4 font-xl" id="poll-description">
+      <div class="text-gray-500 mx-4 font-xl cy-poll-description" id="poll-description">
         {{pollState.metadata.description}}
       </div>
       <div class="text-gray-500 mx-4 py-2 font-xl relative">
-        <a :href="pollState.metadata.link" @click.stop.prevent="openLink" class="text-blue-500 opacity-75">{{pollState.metadata.link}}</a>
+        <a :href="pollState.metadata.link" @click.stop.prevent="openLink" class="text-blue-500 opacity-75 cy-poll-link">{{pollState.metadata.link}}</a>
         <transition name="fade">
           <div class="absolute inset-0 bg-gray-500 text-white p-2 rounded" v-if="showCopyNotice">
             Copied link to clipboard
@@ -59,7 +59,7 @@
         <div v-if="typeof pollState.close_height !== 'number'" class="inline-block">
           - Closes never
         </div>
-        <div v-else-if="!isClosed">
+        <div v-else-if="!isClosed" class="cy-poll-close-height">
           Closes in ~{{timeDifference | timeDifferenceToString}} (Block {{pollState.close_height}})
         </div>
         <div v-else-if="isClosed && closeBlock">
@@ -93,7 +93,7 @@
                 <div class="mr-auto ml-2" style="margin-top: 4px">
               <span
                 class="font-bold" v-if="pollVotesState">{{pollVotesState.stakesForOption[id].percentageOfTotal | formatPercent}}</span>
-                  <span>{{title}}</span>
+                  <span class="cy-poll-option">{{title}}</span>
                 </div>
                 <div class="min-w-3" style="margin-top: 4px" v-if="pollVotesState">
                   <img src="../assets/back_gray.svg" class="ae-transition-300" alt="show poll state"
