@@ -45,12 +45,13 @@ util.encodeEventAddress = (log, index, prefix) => `${prefix}${Crypto.encodeBase5
 util.range = (start, end) => (new Array(end - start + 1)).fill(undefined).map((_, i) => i + start);
 
 Array.prototype.asyncMap = async function (asyncF) {
-    return this.reduce(async (promiseAcc, cur) => {
+    return this.reduce(async (promiseAcc, cur, i) => {
         const acc = await promiseAcc;
         const res = await asyncF(cur).catch(e => {
             console.error("asyncMap asyncF", e.message);
             return null;
         });
+        if (i % 100 === 0) console.log("asyncMap", `${i}/${this.length} (${Math.round((i / this.length) * 100)}%)`);
         if (Array.isArray(res)) {
             return acc.concat(res);
         } else {
