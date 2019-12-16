@@ -48,11 +48,12 @@ module.exports = class Aeternity {
     };
 
     middlewareContractTransactions = async (height) => {
-        return axios.get(`${process.env.MIDDLEWARE_URL}/middleware/contracts/transactions/address/${process.env.CONTRACT_ADDRESS || this.verifyConstants.registryContract}`)
-            .then(res => res.data.transactions
-                .filter(tx => tx.tx.type === "ContractCallTx")
-                .filter(tx => tx.block_height <= height)
-                .map(tx => tx.hash));
+        const txs = await axios.get(`${process.env.MIDDLEWARE_URL}/middleware/contracts/calls/address/${process.env.CONTRACT_ADDRESS || this.verifyConstants.registryContract}`)
+            .then(res => res.data.filter(call => call.callinfo.height <= height));
+
+        return txs.map(call => {
+            return {hash: call.transaction_id, info: call.callinfo}
+        });
     };
 
     microBlocks = async (height) => {
@@ -70,7 +71,9 @@ module.exports = class Aeternity {
         return this.cache.getOrSet(["contractTransactionHashes", hash], async () => {
             process.stdout.write(";");
             const txs = (await this.client.getMicroBlockTransactions(hash));
-            return txs.filter(tx => tx.tx.contractId === (process.env.CONTRACT_ADDRESS || this.verifyConstants.registryContract)).map(tx => tx.hash);
+            return txs.filter(tx => tx.tx.contractId === (process.env.CONTRACT_ADDRESS || this.verifyConstants.registryContract)).map(tx => {
+                return {hash: tx.hash, info: null}
+            });
         });
     };
 
@@ -132,10 +135,10 @@ module.exports = class Aeternity {
         return this.cache.getOrSet(["height"], () => this.client.height(), this.cache.shortCacheTime);
     };
 
-    transactionEvent = async (hash) => {
+    transactionEvent = async (hash, info = null) => {
         return this.cache.getOrSet(["transactionEvent", hash], async () => {
             process.stdout.write(",");
-            const tx = await this.client.getTxInfo(hash);
+            const tx = info ? info : await this.client.getTxInfo(hash);
             if (tx.log.length === 1) {
                 const topics = ["AddPoll", "Delegation", "RevokeDelegation", "Vote", "RevokeVote"];
                 const topic = topics.find(topic => util.hashTopic(topic) === util.topicHashFromResult(tx.log));

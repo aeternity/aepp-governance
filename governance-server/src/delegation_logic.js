@@ -15,7 +15,7 @@ delegationLogic.findDelegationEvents = async (cache, aeternity, height, setCache
         };
 
         const registryContractTransactions = await contractTransactionHashes();
-        const registryContractEvents = await registryContractTransactions.asyncMap(aeternity.transactionEvent);
+        const registryContractEvents = await registryContractTransactions.asyncMap(({hash, info}) => aeternity.transactionEvent(hash, info));
 
         const sortedDelegationEvents = registryContractEvents
             .filter(event => event && event.height <= height)
