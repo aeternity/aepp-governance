@@ -55,6 +55,19 @@ module.exports = class Aeternity {
                 .map(tx => tx.hash));
     };
 
+    nodeContractTransactions = async (registryCreationHeight, height) => {
+        const contractTransactionsForRange = async (range) => {
+            const rangeLastHeight = range[range.length - 1];
+            return this.cache.getOrSet(["contractTransactionsForRange", range[0], rangeLastHeight], async () => {
+                const microBlockHashes = await range.asyncMap(this.microBlocks);
+                return microBlockHashes.asyncMap(this.contractTransactionHashes);
+            }, rangeLastHeight === height ? this.cache.shortCacheTime : null);
+        };
+
+        const steppedRanges = util.steppedRanges(registryCreationHeight, height, 100);
+        return steppedRanges.asyncMap(contractTransactionsForRange);
+    };
+
     microBlocks = async (height) => {
         return this.cache.getOrSet(["microBlocks", height], async () => {
             try {
