@@ -65,9 +65,15 @@ cache.set = async (keys, data, expire = null) => {
 
 cache.delByPrefix = async (prefixes) => {
     const prefix = buildKey(prefixes);
+    console.log("      cache keys", prefix + "*");
     const rows = await keys(prefix + "*");
     if (rows.length) console.log("      cache delByPrefix", rows);
     await Promise.all(rows.map(key => del(key)));
+};
+
+cache.del = async (keys) => {
+    const key = buildKey(keys);
+    await del(key);
 };
 
 const addPollInvalidationListeners = async (aeternity) => {
@@ -91,21 +97,21 @@ cache.handleContractEvent = async (event) => {
             break;
         case "Delegation":
             await cache.delByPrefix(["pollOrdering"]);
-            await cache.delByPrefix(["delegations", undefined]);
+            await cache.del(["delegations", undefined]);
             break;
         case "RevokeDelegation":
             await cache.delByPrefix(["pollOrdering"]);
-            await cache.delByPrefix(["delegations", undefined]);
+            await cache.del(["delegations", undefined]);
             break;
         case "Vote":
             await cache.delByPrefix(["pollOverview", event.poll]);
             await cache.delByPrefix(["pollOrdering"]);
-            await cache.delByPrefix(["pollStateAndVotingAccounts", event.poll]);
+            await cache.del(["pollStateAndVotingAccounts", event.poll]);
             break;
         case "RevokeVote":
             await cache.delByPrefix(["pollOverview", event.poll]);
             await cache.delByPrefix(["pollOrdering"]);
-            await cache.delByPrefix(["pollStateAndVotingAccounts", event.poll]);
+            await cache.del(["pollStateAndVotingAccounts", event.poll]);
             break;
     }
 };
@@ -128,14 +134,14 @@ cache.startInvalidator = (aeternity) => {
             if (message.type === 'utf8' && message.utf8Data.includes("payload")) {
                 const data = JSON.parse(message.utf8Data);
                 if (data.subscription === "KeyBlocks") {
-                    await cache.delByPrefix(["height"]);
+                    await cache.del(["height"]);
                 }
                 if (data.subscription === "Transactions") {
                     switch (data.payload.tx.type) {
                         // TODO consider invalidating cache for other transaction types that may change balance significantly
                         case "SpendTx":
-                            await cache.delByPrefix(["balanceAtHeight", undefined, data.payload.tx.sender_id]);
-                            await cache.delByPrefix(["balanceAtHeight", undefined, data.payload.tx.recipient_id]);
+                            await cache.del(["balanceAtHeight", undefined, data.payload.tx.sender_id]);
+                            await cache.del(["balanceAtHeight", undefined, data.payload.tx.recipient_id]);
                             break;
                     }
                 }
