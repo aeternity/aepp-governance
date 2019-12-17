@@ -9,8 +9,7 @@ delegationLogic.findDelegationEvents = async (cache, aeternity, height, setCache
                 return aeternity.middlewareContractTransactions(height);
             } else {
                 const registryCreationHeight = await aeternity.registryCreationHeight();
-                const microBlockHashes = await util.range(registryCreationHeight, height).asyncMap(aeternity.microBlocks);
-                return microBlockHashes.asyncMap(aeternity.contractTransactionHashes);
+                return aeternity.nodeContractTransactions(registryCreationHeight, height);
             }
         };
 

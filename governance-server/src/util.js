@@ -44,14 +44,24 @@ util.encodeEventAddress = (log, index, prefix) => `${prefix}${Crypto.encodeBase5
 
 util.range = (start, end) => (new Array(end - start + 1)).fill(undefined).map((_, i) => i + start);
 
+util.steppedRanges = (start, end, step) => {
+    const firstBatchStartStep = Math.ceil(start / step);
+    const lastBatchEndStep = Math.floor(end / step);
+
+    const firstRange = util.range(start, firstBatchStartStep * step - 1);
+    const inBetweenRanges = util.range(firstBatchStartStep, lastBatchEndStep - 1).map(i => util.range(i * step, i * step + step - 1));
+    const lastRange = util.range(lastBatchEndStep * step, end);
+
+    return [firstRange].concat(inBetweenRanges).concat([lastRange]);
+};
+
 Array.prototype.asyncMap = async function (asyncF) {
-    return this.reduce(async (promiseAcc, cur, i) => {
+    return this.reduce(async (promiseAcc, cur) => {
         const acc = await promiseAcc;
         const res = await asyncF(cur).catch(e => {
             console.error("asyncMap asyncF", e.message);
             return null;
         });
-        if (i % 100 === 0) console.log("asyncMap", `${i}/${this.length} (${Math.round((i / this.length) * 100)}%)`);
         if (Array.isArray(res)) {
             return acc.concat(res);
         } else {
