@@ -29,7 +29,7 @@
       <div class="flex bg-white mx-4 my-2">
         <ae-input label="Delegatee" v-model="delegatee" aeddress/>
         <div class="ml-auto border-r border-gray-500 opacity-50 my-2"></div>
-        <img src="../assets/back_gray.svg" class="px-4 rotate-180" @click="createDelegation" alt="back">
+        <img src="../assets/back_gray.svg" class="px-4 rotate-180" @click="createDelegation" alt="createDelegation">
       </div>
     </div>
     <div class="flex w-full text-center text-gray-500 mt-4 text-sm">
