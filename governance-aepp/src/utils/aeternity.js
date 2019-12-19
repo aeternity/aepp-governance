@@ -91,31 +91,30 @@ aeternity.initStaticClient = async () => {
 };
 
 aeternity.verifyPollContract = async (pollAddress) => {
-  const contractCreateBytecode = await fetch(`${settings[aeternity.networkId].middlewareUrl}/middleware/contracts/transactions/address/${pollAddress}?limit=1&page=1`).then(async res => {
+  const contractCreateBytecode = fetch(`${settings[aeternity.networkId].middlewareUrl}/middleware/contracts/transactions/address/${pollAddress}?limit=1&page=1`).then(async res => {
     const contractCreateTx = (await res.json()).transactions.filter(tx => tx.tx.type === 'ContractCreateTx')[0];
     return contractCreateTx ? contractCreateTx.tx.code : null;
-  })
+  });
 
-  const compilersResult = await Promise.all(settings.compilers.map(compiler => {
-    return fetch(`${compiler.url}/compile`, {
+  const compilersResult = await Promise.all(settings.compilers.map(async compiler => {
+    const compilerBytecode = await fetch(`${compiler.url}/compile`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         code: pollContractSource,
-        options: { 'backend': 'fate' }
+        options: {'backend': 'fate'}
       })
-    }).then(async res => {
-      const bytecode = (await res.json()).bytecode
-      return {
-        bytecode: bytecode,
-        matches: bytecode === contractCreateBytecode,
-        version: compiler.version
-      }
-    })
+    }).then(async res => (await res.json()).bytecode);
+
+    return {
+      bytecode: compilerBytecode,
+      matches: compilerBytecode === (await contractCreateBytecode),
+      version: compiler.version
+    }
   }));
 
   return compilersResult.find(test => test.matches);
-}
+};
 
 aeternity.checkAvailableWallets = async () => {
 
@@ -166,7 +165,7 @@ aeternity.initClient = async () => {
   if (!aeternity.client) {
     try {
       const preferredWallet = sessionStorage.getItem('aeWallet');
-      if(preferredWallet === 'StaticClient' && window.parent !== window) {
+      if (preferredWallet === 'StaticClient' && window.parent !== window) {
         // Retry base-aepp
         sessionStorage.removeItem('aeWallet');
       } else if (preferredWallet) {
