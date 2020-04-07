@@ -13,7 +13,9 @@ const pollContractSource = fs.readFileSync(__dirname + "/../etc/Poll.aes", "utf-
 const compilers = [
     {url: 'https://v400.compiler.aeternity.art', version: 'v4.0.0'},
     {url: 'https://v410.compiler.aeternity.art', version: 'v4.1.0'},
-    {url: 'https://v420.compiler.aeternity.art', version: 'v4.2.0'}
+    {url: 'https://v420.compiler.aeternity.art', version: 'v4.2.0'},
+    {url: 'https://v421.compiler.aeternity.art', version: 'v4.2.1'},
+    {url: 'https://v430.compiler.aeternity.art', version: 'v4.3.0'}
 ];
 
 module.exports = class Aeternity {
