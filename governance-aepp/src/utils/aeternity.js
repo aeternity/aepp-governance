@@ -2,6 +2,7 @@ import Aepp from '@aeternity/aepp-sdk/es/ae/aepp';
 import Util from './util';
 import registryContractSource from '../assets/contracts/RegistryInterface.aes';
 import {Universal} from "@aeternity/aepp-sdk/es/ae/universal";
+import Node from "@aeternity/aepp-sdk/es/node";
 import settings from '../data/settings';
 import pollContractSource from '../assets/contracts/Poll.aes';
 
@@ -84,8 +85,7 @@ aeternity.initReverseIframe = async () => {
 
 aeternity.initStaticClient = async () => {
   return Universal({
-    url: settings.ae_mainnet.nodeUrl,
-    internalUrl: settings.ae_mainnet.nodeUrl,
+    nodes: [{ name: 'mainnet', instance: await Node({ url: settings.ae_mainnet.nodeUrl, internalUrl:settings.ae_mainnet.nodeUrl }) }],
     compilerUrl: settings.ae_mainnet.compilerUrl
   });
 };
