@@ -1,10 +1,10 @@
 const fs = require('fs');
 const Universal = require('@aeternity/aepp-sdk').Universal;
-const BigNumber = require('bignumber.js');
 const axios = require('axios');
 
 const util = require("./util");
 const delegationLogic = require("./delegation_logic");
+const {totalSupplyAtHeight} = require("./coinbase");
 
 const registryContractInterface = fs.readFileSync(__dirname + "/../etc/RegistryInterface.aes", "utf-8");
 const pollContractInterface = fs.readFileSync(__dirname + "/../etc/PollInterface.aes", "utf-8");
@@ -171,9 +171,8 @@ module.exports = class Aeternity {
         const closingHeightOrUndefined = await this.getClosingHeightOrUndefined(pollCloseHeight);
         const closingHeightOrCurrentHeight = closingHeightOrUndefined ? closingHeightOrUndefined : height;
 
-        return this.cache.getOrSet(["totalSupply", (closingHeightOrCurrentHeight / 1000).toFixed()], async () => {
-            const result = await axios.get(`${process.env.NODE_URL || this.verifyConstants.nodeUrl}v2/debug/token-supply/height/${closingHeightOrCurrentHeight}`);
-            return new BigNumber(result.data.total).toFixed();
+        return this.cache.getOrSet(["totalSupply", closingHeightOrCurrentHeight], async () => {
+            return totalSupplyAtHeight(closingHeightOrCurrentHeight);
         });
     };
 
