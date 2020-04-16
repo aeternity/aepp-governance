@@ -4,29 +4,47 @@ const Util = require('./util');
 
 const MULTIPLIER = new BigNumber(1000000000000000000);
 
-async function totalSupplyAtHeight(height) {
-  const urls = [
-    {
-      height: 0,
-      accounts: "https://raw.githubusercontent.com/aeternity/aeternity/master/data/aecore/.genesis/accounts.json"
-    },
-    {
-      height: 47800,
-      accounts: "https://raw.githubusercontent.com/aeternity/aeternity/master/data/aecore/.minerva/accounts.json"
-    },
-    {
-      height: 90800,
-      accounts: "https://raw.githubusercontent.com/aeternity/aeternity/master/data/aecore/.fortuna/accounts.json"
-    },
-    {
-      height: 161150,
-      accounts: "https://raw.githubusercontent.com/aeternity/aeternity/master/data/aecore/.lima/accounts.json"
-    }
-  ]
+async function totalSupplyAtHeight(cache, networkId, height) {
+  let urls = [];
+
+  switch (networkId) {
+    case "ae_mainnet":
+      urls = [{
+        height: 0,
+        accounts: "https://raw.githubusercontent.com/aeternity/aeternity/master/data/aecore/.genesis/accounts.json"
+      }, {
+        height: 47800,
+        accounts: "https://raw.githubusercontent.com/aeternity/aeternity/master/data/aecore/.minerva/accounts.json"
+      }, {
+        height: 90800,
+        accounts: "https://raw.githubusercontent.com/aeternity/aeternity/master/data/aecore/.fortuna/accounts.json"
+      }, {
+        height: 161150,
+        accounts: "https://raw.githubusercontent.com/aeternity/aeternity/master/data/aecore/.lima/accounts.json"
+      }];
+      break;
+    case "ae_uat":
+      urls = [{
+        height: 0,
+        accounts: "https://raw.githubusercontent.com/aeternity/aeternity/master/data/aecore/.genesis/accounts_uat.json"
+      }, {
+        height: 40900,
+        accounts: "https://raw.githubusercontent.com/aeternity/aeternity/master/data/aecore/.minerva/accounts_uat.json"
+      }, {
+        height: 82900,
+        accounts: "https://raw.githubusercontent.com/aeternity/aeternity/master/data/aecore/.fortuna/accounts_uat.json"
+      }, {
+        height: 154300,
+        accounts: "https://raw.githubusercontent.com/aeternity/aeternity/master/data/aecore/.lima/accounts_uat.json"
+      }];
+      break;
+  }
 
   const migrationAccounts = await Promise.all(urls
     .filter(url => url.height < height)
-    .map(url => axios.get(url.accounts).then(res => res.data)));
+    .map(url => cache.getOrSet(["migrationAccounts", url.accounts], () => {
+      return axios.get(url.accounts).then(res => res.data)
+    })));
 
   const totalMigratedAmount = migrationAccounts
     .map(accounts => Object.keys(accounts)
