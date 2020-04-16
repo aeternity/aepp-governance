@@ -172,7 +172,7 @@ module.exports = class Aeternity {
         const closingHeightOrCurrentHeight = closingHeightOrUndefined ? closingHeightOrUndefined : height;
 
         return this.cache.getOrSet(["totalSupply", closingHeightOrCurrentHeight], async () => {
-            const networkId = this.networkId();
+            const networkId = await this.networkId();
             return totalSupplyAtHeight(this.cache, networkId, closingHeightOrCurrentHeight);
         });
     };
