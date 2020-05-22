@@ -4,7 +4,7 @@
     <HintOverlay></HintOverlay>
     <div class="content min-h-screen max-w-desktop z-10">
       <div class="min-h-screen wrapper" ref="wrapper">
-        <router-view v-if="clientAvailable" :resetView="resetView"></router-view>
+        <router-view v-if="foundWallet" :resetView="resetView"></router-view>
         <div class="inset-0 flex justify-center flex-col items-center z-50" v-else>
           <BiggerLoader></BiggerLoader>
           <h2 class="mt-2 font-bold">Looking for a wallet. Check for popups.</h2>
@@ -35,6 +35,7 @@
   import aeternity from './utils/aeternity.js'
   import BiggerLoader from './components/BiggerLoader'
   import HintOverlay from './components/HintOverlay'
+  import {wallet} from "./utils/wallet";
 
   export default {
     name: 'app',
@@ -43,7 +44,7 @@
       return {
         error: null,
         errorCTA: null,
-        clientAvailable: false,
+        foundWallet: false,
         ignoreErrors: (window.location.host.includes('localhost') || window.location.host.includes('0.0.0.0')),
         errorClick: () => {
         },
@@ -53,45 +54,48 @@
     methods: {
       async checkAndReloadProvider() {
         if (!aeternity.address) return;
-
         const changesDetected = await aeternity.verifyAddress();
+        // Reload the page, if changes have been detected.
         if (changesDetected) this.$router.go();
       },
       async abortWalletCheck() {
         await aeternity.disableWallet();
-        this.clientAvailable = true;
+        this.foundWallet = true;
       },
       resetView() {
         this.$refs.wrapper.scrollTo(0, 0);
       }
     },
     async created() {
-
       setTimeout(() => {
         this.showSkip = true
-      }, 4000);
+      }, 5000);
 
-      // Bypass check if there is already an active wallet
-      try {
-        if (aeternity.hasActiveWallet()) {
-          return this.clientAvailable = true
-        } else if (aeternity.client && !aeternity.contract) {
-          await aeternity.initProvider();
-          return this.clientAvailable = true
-        }
+      //First try AEX-2
+      await Promise.race([
+        new Promise((resolve) => wallet.init(() => {
+          this.foundWallet = true;
+          resolve();
+        })),
+        new Promise((resolve) => setTimeout(resolve, 3000, 'TIMEOUT')),
+      ]).catch(console.error);
 
-        if (!(await aeternity.initClient())) throw new Error('Wallet init failed');
+      //Otherwise try for Base-Aepp
+      if (!this.foundWallet) {
+        try {
+          // Bypass check if there is already an active wallet
+          if (aeternity.hasActiveWallet())
+            return this.foundWallet = true;
 
-        this.clientAvailable = true;
+          // Otherwise init the aeternity sdk
+          if (!(await aeternity.initClient()))
+            return console.error('Wallet init failed');
 
-        // Constantly check if wallet is changed
-        setInterval(this.checkAndReloadProvider, 1000)
-      } catch (e) {
-        console.error('Initializing Wallet Error', e);
-        this.error = 'Could not connect to your wallet. Please make sure you grant this application access to your wallet. Also make sure the choosen Account has funds available.';
-        this.errorCTA = 'Retry';
-        this.errorClick = () => {
-          window.location.reload()
+          this.foundWallet = true;
+          // Constantly check if wallet is changed
+          setInterval(this.checkAndReloadProvider, 1000)
+        } catch (e) {
+          console.error('Initializing Wallet Error', e);
         }
       }
     }

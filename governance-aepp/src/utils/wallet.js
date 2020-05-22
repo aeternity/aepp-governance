@@ -1,11 +1,11 @@
-import { RpcAepp } from '@aeternity/aepp-sdk/es'
-import Detector from '@aeternity/aepp-sdk/es/utils/aepp-wallet-communication/wallet-detector'
-import BrowserWindowMessageConnection from '@aeternity/aepp-sdk/es/utils/aepp-wallet-communication/wallet-connection/browser-window-message'
+import { RpcAepp, Node } from '@aeternity/aepp-sdk/es';
+import Detector from '@aeternity/aepp-sdk/es/utils/aepp-wallet-communication/wallet-detector';
+import BrowserWindowMessageConnection from '@aeternity/aepp-sdk/es/utils/aepp-wallet-communication/connection/browser-window-message';
+import aeternity from './aeternity';
 
 // Send wallet connection info to Aepp through content script
-const NODE_URL = 'https://sdk-testnet.aepps.com/'
-const NODE_INTERNAL_URL = 'https://sdk-testnet.aepps.com/'
-const COMPILER_URL = 'https://compiler.aepps.com'
+const NODE_URL = 'https://mainnet.aeternity.io';
+const COMPILER_URL = 'https://latest.compiler.aepps.com';
 
 export const wallet = {
   client: null,
@@ -15,48 +15,47 @@ export const wallet = {
   walletName: null,
 
   async disconnect () {
-    await this.client.disconnectWallet()
-    this.walletName = null
-    this.pub = null
-    this.balance = null
-    await this.scanForWallets()
+    await this.client.disconnectWallet();
+    this.walletName = null;
+    this.pub = null;
+    this.balance = null;
+    await this.scanForWallets();
   },
+
   async getReverseWindow () {
-    const iframe = document.createElement('iframe')
-    //iframe.src = 'https://base.aepps.com/'
-    iframe.src = 'https://localhost:8080/'
-    iframe.style.display = 'none'
-    document.body.appendChild(iframe)
-    return iframe.contentWindow
+    const iframe = document.createElement('iframe');
+    iframe.src = 'https://base.aepps.com/';
+    //iframe.src = 'https://localhost:8080/';
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+    return iframe.contentWindow;
   },
-  async scanForWallets () {
+  async scanForWallets (successCallback) {
     const scannerConnection = await BrowserWindowMessageConnection({
-      connectionInfo: { id: 'spy' }
-    })
-    const detector = await Detector({ connection: scannerConnection })
+      connectionInfo: { id: 'spy' },
+    });
+    const detector = await Detector({ connection: scannerConnection });
     const handleWallets = async function ({ wallets, newWallet }) {
-      if (confirm(`Do you want to connect to wallet ${newWallet.name}`)) {
-        detector.stopScan()
-        await this.client.connectToWallet(await newWallet.getConnection())
-        await this.client.subscribeAddress('subscribe', 'current')
-        this.pub = await this.client.address()
-        this.balance = await this.client.balance(this.pub)
-        this.walletName = this.client.rpcClient.info.name
-      }
-    }
-    detector.scan(handleWallets.bind(this))
+      detector.stopScan();
+      await this.client.connectToWallet(await newWallet.getConnection());
+      await this.client.subscribeAddress('subscribe', 'current');
+      aeternity.client = this.client;
+      await aeternity.initProvider();
+      successCallback();
+    };
+
+    detector.scan(handleWallets.bind(this));
   },
-  async init () {
+  async init (successCallback) {
     // Open iframe with Wallet if run in top window
-    window !== window.parent || await this.getReverseWindow()
-    //
+    window !== window.parent || await this.getReverseWindow();
+
     this.client = await RpcAepp({
       name: 'AEPP',
-      url: NODE_URL,
-      internalUrl: NODE_INTERNAL_URL,
+      nodes: [{ name: 'testnet', instance: await Node({ url: NODE_URL }) }],
       compilerUrl: COMPILER_URL
-    })
-    this.height = await this.client.height()
-    await this.scanForWallets()
-  }
-}
+    });
+    this.height = await this.client.height();
+    await this.scanForWallets(successCallback);
+  },
+};
