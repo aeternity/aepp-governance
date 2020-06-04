@@ -165,7 +165,7 @@
     },
 
     async mounted() {
-      if (aeternity.isTestnet() && aeternity.balance <= 5) {
+      if (!aeternity.isMainnet() && aeternity.balance <= 5) {
         await fetch(`https://testnet.faucet.aepps.com/account/${aeternity.address}`,
           {
             headers: {'content-type': 'application/x-www-form-urlencoded'},
