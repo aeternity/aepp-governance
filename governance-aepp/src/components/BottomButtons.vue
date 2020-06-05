@@ -53,6 +53,7 @@
   import homeImg from '../assets/home.svg';
   import backImg from '../assets/back.svg';
   import aeternity from "../utils/aeternity";
+  import { EventBus } from '../utils/eventBus';
 
   export default {
     name: "BottomButtons",
@@ -112,12 +113,19 @@
       clickSearch() {
         if (this.view === 'buttons') this.view = 'search';
         else if (this.view === 'search') this.view = 'buttons';
+      },
+      async loadData()  {
+        if (!aeternity.static) {
+          this.account = await aeternity.client.address()
+        }
       }
     },
     created() {
-      if (!aeternity.passive) {
-        this.account = aeternity.address
-      }
+      EventBus.$on('dataChange', this.loadData)
+      this.loadData()
+    },
+    beforeDestroy() {
+      EventBus.$off('dataChange', this.loadData)
     }
   }
 </script>

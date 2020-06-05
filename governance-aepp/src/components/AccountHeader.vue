@@ -69,6 +69,8 @@
   import Backend from "../utils/backend";
   import BigNumber from "bignumber.js";
   import copy from 'copy-to-clipboard';
+  import { EventBus } from '../utils/eventBus';
+  import Util from '../utils/util';
 
   export default {
     name: "AccountHeader",
@@ -104,8 +106,8 @@
     },
     methods: {
       async loadData() {
-        this.isOwnAccount = aeternity.address === this.address;
-        this.balance = await aeternity.client.balance(this.address).catch(() => '0');
+        this.isOwnAccount = (await aeternity.client.address()) === this.address;
+        this.balance = await aeternity.client.getBalance(this.address);
         await new Backend(aeternity.networkId).delegatedPower(this.address, this.pollAddress).then(delegatedPower => {
           if(delegatedPower === null) {
             this.totalStake = new BigNumber(this.balance);
@@ -132,8 +134,12 @@
       }
     },
     created() {
+      EventBus.$on('dataChange', this.loadData)
       this.loadData();
       this.open = this.startOpen;
+    },
+    beforeDestroy() {
+      EventBus.$off('dataChange', this.loadData)
     }
   }
 </script>

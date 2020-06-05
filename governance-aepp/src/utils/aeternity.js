@@ -1,47 +1,33 @@
-import Aepp from '@aeternity/aepp-sdk/es/ae/aepp';
-import Util from './util';
+import {Node, Universal, MemoryAccount, RpcAepp} from '@aeternity/aepp-sdk/es';
+import BrowserWindowMessageConnection from "@aeternity/aepp-sdk/es/utils/aepp-wallet-communication/connection/browser-window-message";
+import Detector from "@aeternity/aepp-sdk/es/utils/aepp-wallet-communication/wallet-detector";
+
 import registryContractSource from '../assets/contracts/RegistryInterface.aes';
-import {Universal} from "@aeternity/aepp-sdk/es/ae/universal";
-import Node from "@aeternity/aepp-sdk/es/node";
 import settings from '../data/settings';
 import pollContractSource from '../assets/contracts/Poll.aes';
+import { EventBus } from './eventBus';
 
 const TESTNET_URL = 'https://testnet.aeternity.io';
 const MAINNET_URL = 'https://mainnet.aeternity.io';
 const COMPILER_URL = 'https://compiler.aepps.com';
 
 const aeternity = {
+  rpcClient: null,
   client: null,
-  address: null,
-  height: null,
   networkId: null,
-  passive: false
+  static: true,
 };
 
-const timeout = async (promise) => {
-  return Promise.race([
-    promise,
-    new Promise(resolve =>
-      setTimeout(() => {
-        resolve('TIMEOUT');
-      }, 30000))
-  ]);
-};
-
-aeternity.initProvider = async () => {
+aeternity.initProvider = async (changedClient = false) => {
   try {
-    try {
-      aeternity.address = await aeternity.client.address();
-      aeternity.balance = await aeternity.client.balance(aeternity.address)
-        .then(balance => `${Util.atomsToAe(balance)}`.replace(',', ''))
-        .catch(() => '0');
-    } catch (e) {
-      aeternity.passive = true;
+    const networkId = (await aeternity.client.getNodeInfo()).nodeNetworkId;
+    const changedNetwork = aeternity.networkId !== networkId;
+    aeternity.networkId = networkId
+    aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, { contractAddress: settings[aeternity.networkId].contractAddress });
+    if (changedClient || changedNetwork) {
+      EventBus.$emit('networkChange');
+      EventBus.$emit('dataChange');
     }
-
-    aeternity.height = await aeternity.client.height();
-    aeternity.networkId = (await aeternity.client.getNodeInfo()).nodeNetworkId;
-    aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, {contractAddress: settings[aeternity.networkId].contractAddress});
     return true;
   } catch (e) {
     console.error(e);
@@ -49,32 +35,6 @@ aeternity.initProvider = async () => {
   }
 };
 
-aeternity.getWalletWindow = async () => {
-  const iframe = document.createElement('iframe');
-  iframe.src = 'https://base.aepps.com/'; //https://stage-identity.aepps.com/ http://localhost:8080/
-  iframe.style.display = 'none';
-  document.body.appendChild(iframe);
-  await new Promise(resolve => {
-    const handler = ({data}) => {
-      if (data.method !== 'ready') return;
-      window.removeEventListener('message', handler);
-      resolve();
-    };
-    window.addEventListener('message', handler);
-  });
-  return iframe.contentWindow;
-};
-
-aeternity.initReverseIframe = async () => {
-  try {
-    return await timeout(Aepp({
-      parent: await aeternity.getWalletWindow()
-    }));
-  } catch (e) {
-    console.warn('Reverse iFrame init failed');
-    return false;
-  }
-};
 
 /**
  * Initialize a static client, mainnet or testnet
@@ -85,6 +45,7 @@ aeternity.initStaticClient = async () => {
   aeternity.static = true;
 
   // TESTNET
+  /*
   return Universal({
     compilerUrl: COMPILER_URL,
     nodes: [
@@ -96,7 +57,7 @@ aeternity.initStaticClient = async () => {
       }],
   });
   // MAINNET
-  /*
+  */
   return Universal({
     compilerUrl: COMPILER_URL,
     nodes: [
@@ -107,39 +68,23 @@ aeternity.initStaticClient = async () => {
         }),
       }],
   });
-  */
+
+
 };
 
-aeternity.verifyPollContract = async (pollAddress) => {
-  const contractCreateBytecode = fetch(`${settings[aeternity.networkId].middlewareUrl}/middleware/contracts/transactions/address/${pollAddress}?limit=1&page=1`).then(async res => {
-    const contractCreateTx = (await res.json()).transactions.filter(tx => tx.tx.type === 'ContractCreateTx')[0];
-    return contractCreateTx ? contractCreateTx.tx.code : null;
-  });
-
-  const compilersResult = await Promise.all(settings.compilers.map(async compiler => {
-    const compilerBytecode = await fetch(`${compiler.url}/compile`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        code: pollContractSource,
-        options: {'backend': 'fate'}
-      })
-    }).then(async res => (await res.json()).bytecode);
-
-    return {
-      bytecode: compilerBytecode,
-      matches: compilerBytecode === (await contractCreateBytecode),
-      version: compiler.version
-    }
-  }));
-
-  return compilersResult.find(test => test.matches);
-};
-
+/**
+ * Returns true if a client has been initialized.
+ * Used to check after switching pages if the initialization was already done.
+ * @returns {boolean}
+ */
 aeternity.hasActiveWallet = () => {
-  return !!aeternity.client && !!aeternity.contract;
+  return !!aeternity.client;
 };
 
+/**
+ * Checks if the initialized client is connected to the ae-mainnet
+ * @returns {boolean}
+ */
 aeternity.isMainnet = () => {
   return aeternity.networkId === 'ae_mainnet';
 };
@@ -157,12 +102,74 @@ aeternity.initClient = async () => {
         MemoryAccount({keypair: {secretKey: process.env.PRIVATE_KEY, publicKey: process.env.PUBLIC_KEY}}),
       ],
     });
-    return aeternity.initProvider();
+    aeternity.static = false;
+    return aeternity.initProvider(true);
   }
 
   if (!aeternity.client) aeternity.client = await aeternity.initStaticClient();
-  return aeternity.initProvider();
+  return aeternity.initProvider(true);
 };
+
+aeternity.disconnect = async () => {
+  await aeternity.rpcClient.disconnectWallet();
+  await aeternity.scanForWallets();
+}
+
+aeternity.getReverseWindow = () => {
+  const iframe = document.createElement('iframe');
+  iframe.src = 'https://base.aepps.com/';
+  //iframe.src = 'https://localhost:8080/';
+  iframe.style.display = 'none';
+  document.body.appendChild(iframe);
+  return iframe.contentWindow;
+}
+
+aeternity.scanForWallets = async (successCallback) => {
+  const scannerConnection = await BrowserWindowMessageConnection({
+    connectionInfo: { id: 'spy' },
+  });
+  const detector = await Detector({ connection: scannerConnection });
+  const handleWallets = async function ({ wallets, newWallet }) {
+    detector.stopScan();
+    const connected = await aeternity.rpcClient.connectToWallet(await newWallet.getConnection());
+    aeternity.rpcClient.selectNode(connected.networkId); // connected.networkId needs to be defined as node in RpcAepp
+    await aeternity.rpcClient.subscribeAddress('subscribe', 'current');
+    aeternity.client = aeternity.rpcClient;
+    aeternity.static = false;
+    await aeternity.initProvider(true);
+    successCallback();
+  };
+
+  detector.scan(handleWallets);
+}
+
+aeternity.initWalletSearch = async (successCallback) => {
+  // Open iframe with Wallet if run in top window
+  // window !== window.parent || await aeternity.getReverseWindow();
+
+  aeternity.rpcClient = await RpcAepp({
+    name: 'AEPP',
+    nodes: [
+      {name: 'ae_mainnet', instance: await Node({url: MAINNET_URL})},
+      {name: 'ae_uat', instance: await Node({url: TESTNET_URL})}
+    ],
+    compilerUrl: COMPILER_URL,
+    onNetworkChange (params) {
+      this.selectNode(params.networkId); // params.networkId needs to be defined as node in RpcAepp
+      aeternity.initProvider();
+    },
+    onAddressChange(addresses) {
+      if (!addresses.current[aeternity.address]) {
+        EventBus.$emit('addressChange');
+        EventBus.$emit('dataChange');
+      }
+    }
+  });
+
+  await aeternity.scanForWallets(successCallback);
+}
+
+// GOVERNANCE CUSTOM LOGIC
 
 aeternity.delegation = async (address) => {
   return (await aeternity.contract.methods.delegatee(address)).decodedResult;
@@ -176,7 +183,7 @@ aeternity.delegations = async (address) => {
       delegator: delegator,
       delegatee: delegatee,
       delegatorAmount: await aeternity.client.balance(delegator).catch(() => '0'),
-      includesIndirectDelegations: delegateeDelegations.length !== 0
+      includesIndirectDelegations: delegateeDelegations.length !== 0,
     };
   }));
 };
@@ -186,4 +193,30 @@ aeternity.polls = async () => {
   return polls.decodedResult;
 };
 
+
+aeternity.verifyPollContract = async (pollAddress) => {
+  const contractCreateBytecode = fetch(`${settings[aeternity.networkId].middlewareUrl}/middleware/contracts/transactions/address/${pollAddress}?limit=1&page=1`).then(async res => {
+    const contractCreateTx = (await res.json()).transactions.filter(tx => tx.tx.type === 'ContractCreateTx')[0];
+    return contractCreateTx ? contractCreateTx.tx.code : null;
+  });
+
+  const compilersResult = await Promise.all(settings.compilers.map(async compiler => {
+    const compilerBytecode = await fetch(`${compiler.url}/compile`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        code: pollContractSource,
+        options: { 'backend': 'fate' },
+      }),
+    }).then(async res => (await res.json()).bytecode);
+
+    return {
+      bytecode: compilerBytecode,
+      matches: compilerBytecode === (await contractCreateBytecode),
+      version: compiler.version,
+    };
+  }));
+
+  return compilersResult.find(test => test.matches);
+};
 export default aeternity;

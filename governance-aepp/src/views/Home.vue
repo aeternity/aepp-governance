@@ -45,18 +45,20 @@
 </template>
 
 <script>
-  import aeternity from "../utils/aeternity";
-  import Backend from "../utils/backend";
+  import aeternity from '../utils/aeternity';
+  import Backend from '../utils/backend';
   import BiggerLoader from '../components/BiggerLoader';
-  import PollListing from "../components/PollListing";
-  import BottomButtons from "../components/BottomButtons";
-  import BlackHeader from "../components/BlackHeader";
-  import CriticalErrorOverlay from "../components/CriticalErrorOverlay";
+  import PollListing from '../components/PollListing';
+  import BottomButtons from '../components/BottomButtons';
+  import BlackHeader from '../components/BlackHeader';
+  import CriticalErrorOverlay from '../components/CriticalErrorOverlay';
   import BigNumber from 'bignumber.js';
+  import { EventBus } from '../utils/eventBus';
+  import Util from '../utils/util'
 
   export default {
     name: 'Home',
-    components: {BlackHeader, BottomButtons, PollListing, BiggerLoader, CriticalErrorOverlay},
+    components: { BlackHeader, BottomButtons, PollListing, BiggerLoader, CriticalErrorOverlay },
     data() {
       return {
         error: null,
@@ -64,7 +66,7 @@
         address: null,
         balance: null,
         activeTab: null,
-        availableTabs: ["hot", "closing", "stake", "new", "closed"],
+        availableTabs: ['hot', 'closing', 'stake', 'new', 'closed'],
         pollOverview: [],
         polls: [],
         allPolls: [],
@@ -75,8 +77,8 @@
         pollId: null,
         startPosition: {
           x: null,
-          y: null
-        }
+          y: null,
+        },
       };
     },
     watch: {
@@ -85,9 +87,9 @@
         this.showLoading = true;
         this.updateTabView();
         this.showLoading = false;
-      }
+      },
     },
-    props: ["resetView"],
+    props: ['resetView'],
     methods: {
       handleIdInput(id) {
         if (id) {
@@ -99,21 +101,21 @@
         if (this.allPolls.find(poll => poll[0] === parseInt(id)))
           this.$router.push(`/poll/${id}`);
         else
-          this.error = `Could not find poll with id "${id}".`
+          this.error = `Could not find poll with id "${id}".`;
       },
       switchTab(newTab) {
-        if (this.activeTab !== newTab) this.$router.push({query: {tab: newTab}});
+        if (this.activeTab !== newTab) this.$router.push({ query: { tab: newTab } });
       },
       updateTabView() {
         this.resetView();
 
         switch (this.activeTab) {
-          case "hot":
+          case 'hot':
             this.polls = this.activePolls.filter(([id, _]) => this.pollOrdering.ordering.includes(id)).sort((a, b) => {
-              return this.pollOrdering.ordering.indexOf(a[0]) - this.pollOrdering.ordering.indexOf(b[0])
+              return this.pollOrdering.ordering.indexOf(a[0]) - this.pollOrdering.ordering.indexOf(b[0]);
             });
             break;
-          case "stake":
+          case 'stake':
             // eslint-disable-next-line no-case-declarations
             const stakeOrdering = this.pollOrdering.data.sort((a, b) => {
               return new BigNumber(b.totalStake).comparedTo(a.totalStake);
@@ -122,15 +124,15 @@
               return stakeOrdering.indexOf(a[0]) - stakeOrdering.indexOf(b[0]);
             });
             break;
-          case "closing":
+          case 'closing':
             this.polls = this.activePolls.filter(([_, data]) => data.close_height).sort((a, b) => {
               return (a[1].close_height || b[1].close_height) ? (!a[1].close_height ? 1 : !b[1].close_height ? 1 : a[1].close_height - b[1].close_height) : 0;
             });
             break;
-          case "new":
+          case 'new':
             this.polls = this.activePolls.sort((a, b) => b[0] - a[0]);
             break;
-          case "closed":
+          case 'closed':
             this.polls = this.closedPolls.sort((a, b) => b[1].close_height - a[1].close_height);
             break;
         }
@@ -144,17 +146,17 @@
         else this.polls = this.polls.filter(poll => poll[1].title.indexOf(searchString) > -1);
       },
       touchStartEvent(event) {
-        this.startPosition = {x: event.touches[0].clientX, y: event.touches[0].clientY};
+        this.startPosition = { x: event.touches[0].clientX, y: event.touches[0].clientY };
       },
       touchEndEvent(event) {
         const diff = {
           x: event.changedTouches[event.changedTouches.length - 1].clientX - this.startPosition.x,
-          y: event.changedTouches[event.changedTouches.length - 1].clientY - this.startPosition.y
+          y: event.changedTouches[event.changedTouches.length - 1].clientY - this.startPosition.y,
         };
         if (Math.abs(diff.x) > Math.abs(diff.y) && Math.abs(diff.x) > 100) {
           this.swipeTab(diff.x);
         }
-        this.startPosition = {x: null, y: null};
+        this.startPosition = { x: null, y: null };
       },
       swipeTab(diffX) {
         const currentIndex = this.availableTabs.indexOf(this.activeTab);
@@ -162,49 +164,56 @@
         if (currentIndex + direction < 0) direction = 4;
         this.switchTab(this.availableTabs[(currentIndex + direction) % this.availableTabs.length]);
       },
+      async loadData() {
+        if(!aeternity.static) {
+          this.address = await aeternity.client.address();
+          this.balance = await aeternity.client.getBalance(this.address);
+
+          if (!aeternity.isMainnet() && Util.atomsToAe(this.balance) <= 5) {
+            await fetch(`https://testnet.faucet.aepps.com/account/${this.address}`,
+              {
+                headers: { 'content-type': 'application/x-www-form-urlencoded' },
+                method: 'POST',
+              }).catch(console.error);
+          }
+        }
+
+        const fetchPolls = aeternity.polls().catch(e => {
+          console.error(e);
+          this.error = 'Could not fetch polls.';
+        });
+        const fetchOrdering = new Backend(aeternity.networkId).pollOrdering(false).catch(console.error);
+        const [allPolls, pollOrdering] = await Promise.all([fetchPolls, fetchOrdering]);
+
+        this.pollOrdering = pollOrdering;
+        this.allPolls = allPolls.filter(([_, data]) => data.title.length <= 50);
+
+        if (this.allPolls) {
+          let height = await aeternity.client.height()
+          this.closedPolls = this.allPolls.filter(([_, data]) => data.is_listed).filter(poll => typeof poll[1].close_height === 'number' && poll[1].close_height <= height);
+          this.activePolls = this.allPolls.filter(([_, data]) => data.is_listed).filter(poll => typeof poll[1].close_height !== 'number' || poll[1].close_height > height);
+        }
+
+        // Only overwrite if active tab is not set yet
+        if (!this.activeTab) this.activeTab = this.pollOrdering ? 'hot' : 'new';
+        // Fallback if poll order fetching fails
+        if ((this.activeTab === 'stake' || this.activeTab === 'hot') && !this.pollOrdering) this.activeTab = 'new';
+        // Update available tabs if there is no backend
+        if (!this.pollOrdering) this.availableTabs = ['closing', 'new', 'closed'];
+
+        this.updateTabView();
+
+        document.addEventListener('touchstart', this.touchStartEvent, false);
+        document.addEventListener('touchend', this.touchEndEvent, false);
+        this.showLoading = false;
+
+      },
     },
 
     async mounted() {
-      if (!aeternity.isMainnet() && aeternity.balance <= 5) {
-        await fetch(`https://testnet.faucet.aepps.com/account/${aeternity.address}`,
-          {
-            headers: {'content-type': 'application/x-www-form-urlencoded'},
-            method: 'POST'
-          }).catch(console.error);
-      }
+      EventBus.$on('dataChange', this.loadData);
 
-      this.address = aeternity.address;
-      this.balance = aeternity.balance;
-
-      const fetchPolls = aeternity.polls().catch(e => {
-        console.error(e);
-        this.error = 'Could not fetch polls.'
-      });
-      const fetchOrdering = new Backend(aeternity.networkId).pollOrdering(false).catch(console.error);
-
-      const [allPolls, pollOrdering] = await Promise.all([fetchPolls, fetchOrdering]);
-      this.pollOrdering = pollOrdering;
-      this.allPolls = allPolls.filter(([_, data]) => data.title.length <= 50);
-
-      if(this.allPolls) {
-        this.closedPolls = this.allPolls.filter(([_, data]) => data.is_listed).filter(poll => typeof poll[1].close_height === 'number' && poll[1].close_height <= aeternity.height);
-        this.activePolls = this.allPolls.filter(([_, data]) => data.is_listed).filter(poll => typeof poll[1].close_height !== 'number' || poll[1].close_height > aeternity.height);
-      }
-
-      // Only overwrite if active tab is not set yet
-      if (!this.activeTab) this.activeTab = this.pollOrdering ? 'hot' : 'new';
-      // Fallback if poll order fetching fails
-      if ((this.activeTab === 'stake' || this.activeTab === 'hot') && !this.pollOrdering) this.activeTab = 'new';
-      // Update available tabs if there is no backend
-      if (!this.pollOrdering) this.availableTabs = ["closing", "new", "closed"];
-
-      this.updateTabView();
-
-      document.addEventListener('touchstart', this.touchStartEvent, false);
-      document.addEventListener('touchend', this.touchEndEvent, false);
-
-      this.showLoading = false;
-
+      await this.loadData();
     },
     created() {
       this.activeTab = this.$route.query.tab ? this.$route.query.tab : null;
@@ -212,7 +221,8 @@
     beforeDestroy() {
       document.removeEventListener('touchstart', this.touchStartEvent, false);
       document.removeEventListener('touchend', this.touchEndEvent, false);
-    }
+      EventBus.$off('dataChange', this.loadData);
+    },
   };
 </script>
 
