@@ -1,0 +1,8 @@
+node_modules/
+.idea/
+.idea/**
+*.iml
+package-lock.json
+dist/
+tailwind.css
+deployment
