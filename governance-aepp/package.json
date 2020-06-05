@@ -7,7 +7,7 @@
     "build:stats": "webpack --config ./webpack.prod.js  --profile --json > stats.json"
   },
   "dependencies": {
-    "@aeternity/aepp-components": "git+https://github.com/aeternity/aepp-components.git#develop",
+    "@aeternity/aepp-components": "github:aeternity/aepp-components#develop",
     "@aeternity/aepp-sdk": "^7.4.1",
     "bignumber.js": "^9.0.0",
     "copy-to-clipboard": "^3.3.1",
