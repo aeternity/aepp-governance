@@ -32,7 +32,6 @@
   import aeternity from './utils/aeternity.js';
   import BiggerLoader from './components/BiggerLoader';
   import HintOverlay from './components/HintOverlay';
-  import { wallet } from './utils/wallet';
   import { EventBus } from './utils/eventBus';
 
   export default {
@@ -54,28 +53,17 @@
       },
     },
     async created() {
-      EventBus.$on('networkChange', () => this.$router.go(0));
-      EventBus.$on('addressChange', () => this.$router.go(0));
-
       try {
         // Bypass check if there is already an active wallet
         if (aeternity.hasActiveWallet())
           return this.foundWallet = true;
 
-        //First try AEX-2
-        await Promise.race([
-          new Promise((resolve) => wallet.init(() => {
-            this.foundWallet = true;
-            resolve();
-          })),
-          new Promise((resolve) => setTimeout(resolve, 3000, 'TIMEOUT')),
-        ]).catch(console.error);
-
-        // Otherwise init the aeternity sdk
-        if (!(await aeternity.initClient()))
-          return console.error('Wallet init failed');
-
-        this.foundWallet = true;
+        aeternity.initClient().then(() => {
+          this.foundWallet = true;
+        });
+        aeternity.initWalletSearch(() => {
+          this.foundWallet = true;
+        });
       } catch (e) {
         console.error('Initializing Wallet Error', e);
       }

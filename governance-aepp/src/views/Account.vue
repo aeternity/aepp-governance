@@ -105,6 +105,7 @@
   import AccountHeader from "../components/AccountHeader";
   import CriticalErrorOverlay from "../components/CriticalErrorOverlay";
   import AeInput from '../components/AeInput'
+  import { EventBus } from '../utils/eventBus';
 
   export default {
     name: 'Home',
@@ -212,9 +213,9 @@
         this.resetData();
 
         this.address = this.$route.params.account;
-        this.isOwnAccount = this.address === aeternity.address;
+        this.isOwnAccount = this.address === (await aeternity.client.address());
 
-        const fetchBalance = aeternity.client.balance(this.address).catch(() => '0').then(balance => {
+        const fetchBalance = aeternity.client.getBalance(this.address).then(balance => {
           this.balance = balance
         });
         const fetchDelegation = aeternity.delegation(this.address).catch(e => {
@@ -249,15 +250,20 @@
         this.delegations = delegations;
 
         this.showLoading = false;
+      },
+      async goToOwnAccountPage() {
+        await this.$router.push(`/account/${(await aeternity.client.address())}`)
       }
     },
     async mounted() {
+      EventBus.$on('dataChange', this.goToOwnAccountPage)
       await this.loadData();
       this.activeTab = this.$route.query.tab ? this.$route.query.tab : "delegations";
       document.addEventListener('touchstart', this.touchStartEvent, false);
       document.addEventListener('touchend', this.touchEndEvent, false);
     },
     beforeDestroy() {
+      EventBus.$off('dataChange', this.goToOwnAccountPage)
       document.removeEventListener('touchstart', this.touchStartEvent, false);
       document.removeEventListener('touchend', this.touchEndEvent, false);
     }

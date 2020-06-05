@@ -43,6 +43,7 @@
         loading: true,
         percentOfTotalSupply: null,
         voteCount: null,
+        height: 0
       };
     },
     props: {
@@ -59,13 +60,13 @@
     },
     computed: {
       isClosed() {
-        return this.data.close_height < aeternity.height
+        return this.data.close_height < this.height
       },
       timeDifference() {
-        return (this.data.close_height - aeternity.height) * 3 * 60 * 1000;
+        return (this.data.close_height - this.height) * 3 * 60 * 1000;
       }
     },
-    mounted() {
+    async mounted() {
       new Backend(aeternity.networkId).pollOverview(this.data.poll).then(overview => {
         if(overview !== null) {
           this.percentOfTotalSupply = overview.percentOfTotalSupply;
@@ -76,6 +77,7 @@
         console.error(e);
         this.loading = false;
       });
+      this.height = await aeternity.client.height()
     }
   };
 </script>
