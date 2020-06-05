@@ -31,7 +31,7 @@ module.exports = merge(common, {
                     path.join(__dirname, './**/*.vue'),
                     path.join(__dirname, './src/**/*.js')
                   ],
-                  whitelistPatterns: [/^ae/],
+                  whitelistPatterns: [/^ae/, /data-v-.*/],
                   defaultExtractor: content => content.match(/[\w-/:]+(?<!:)/g) || []
                 }),
                 require('cssnano')({
