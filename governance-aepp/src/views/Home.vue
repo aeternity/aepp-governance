@@ -143,7 +143,7 @@
 
         // ONLY NUMBERS?
         if (/^\d+$/.test(searchString)) this.polls = this.polls.filter(poll => poll[0] === parseInt(searchString));
-        else this.polls = this.polls.filter(poll => poll[1].title.indexOf(searchString) > -1);
+        else this.polls = this.polls.filter(poll => poll[1].title.toLowerCase().indexOf(searchString.toLowerCase()) > -1);
       },
       touchStartEvent(event) {
         this.startPosition = { x: event.touches[0].clientX, y: event.touches[0].clientY };
