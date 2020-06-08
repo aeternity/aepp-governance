@@ -1,7 +1,5 @@
 <template>
   <div id="app" class="min-h-screen">
-    <Explainer></Explainer>
-    <HintOverlay></HintOverlay>
     <div class="content min-h-screen max-w-desktop z-10">
       <div class="min-h-screen wrapper" ref="wrapper">
         <router-view v-if="foundWallet" :resetView="resetView"></router-view>
@@ -27,16 +25,14 @@
   import '@aeternity/aepp-components/dist/ae-button/ae-button.css';
   import AeButton from '@aeternity/aepp-components/dist/ae-button/';
 
-  import CriticalErrorOverlay from './components/CriticalErrorOverlay';
-  import Explainer from './components/Explainer';
-  import aeternity from './utils/aeternity.js';
-  import BiggerLoader from './components/BiggerLoader';
-  import HintOverlay from './components/HintOverlay';
-  import { EventBus } from './utils/eventBus';
+  import CriticalErrorOverlay from './components/CriticalErrorOverlay'
+  import aeternity from './utils/aeternity.js'
+  import BiggerLoader from './components/BiggerLoader'
+  import HintOverlay from './components/HintOverlay'
 
   export default {
     name: 'app',
-    components: { BiggerLoader, CriticalErrorOverlay, AeButton, Explainer, HintOverlay },
+    components: { BiggerLoader, CriticalErrorOverlay, AeButton, HintOverlay },
     data() {
       return {
         error: null,
