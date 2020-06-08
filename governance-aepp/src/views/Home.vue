@@ -4,28 +4,25 @@
       <BiggerLoader/>
     </div>
     <div class="fixed w-full top-0 max-w-desktop">
-      <BlackHeader :show-number-input="true" @submit="showPoll" @input="handleIdInput">
-        {{activeTab}} Polls
-      </BlackHeader>
-      <div class="flex bg-gray-ae text-gray-200" id="home-tab-switcher">
+      <div class="tab-switcher" id="home-tab-switcher">
         <div v-if="pollOrdering" :class="{active: activeTab === 'hot'}" @click="switchTab('hot')" class="tab">
-          <span>HOT</span>
+          <span>Hot Polls</span>
         </div>
         <div :class="{active: activeTab === 'closing'}" @click="switchTab('closing')" class="tab">
-          <span>CLOSING</span>
+          <span>Closing</span>
         </div>
         <div v-if="pollOrdering" :class="{active: activeTab === 'stake'}" @click="switchTab('stake')" class="tab">
-          <span>STAKE</span>
+          <span>Stake</span>
         </div>
         <div :class="{active: activeTab === 'new'}" @click="switchTab('new')" class="tab">
-          <span>NEW</span>
+          <span>New</span>
         </div>
         <div :class="{active: activeTab === 'closed'}" @click="switchTab('closed')" class="tab">
-          <span>CLOSED</span>
+          <span>Closed</span>
         </div>
       </div>
     </div>
-    <div class="mt-32" id="home-poll-list">
+    <div id="home-poll-list" class="poll-list">
       <transition name="fade">
         <div v-show="polls" class="mx-4 mt-6" :key="activeTab">
           <div class="my-2" :key="id" v-for="[id, data] in polls">
@@ -226,32 +223,51 @@
   };
 </script>
 
-<style scoped>
-  .bg-gray-ae {
-    background-color: #333333;
+<style lang="scss" scoped>
+  .tab-switcher {
+    display: flex;
+    background-color: #272831;
+    color: #727278;
+    font-weight: 400;
+    padding: 20px 20px 0 20px;
+
+    &:hover {
+      cursor: pointer;
+    }
   }
 
   .tab {
-    @apply flex-1 text-center pb-2 relative;
-    font-size: .825rem;
+    font-size: 16px;
+    font-weight: 600;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #272831;
+    margin: 0 15px;
+
+    &:last-child {
+      margin-right: 0;
+    }
+
+    &:first-child {
+      margin-left: 0;
+    }
   }
 
   .tab.active {
-    font-weight: bold;
+    color: #67F7B8;
+    border-bottom: 2px solid #67F7B8;
   }
 
-  .tab span {
-    @apply cursor-pointer inline-block;
+  .poll-list {
+    margin-top: 76px;
   }
 
-  .tab.active::after {
-    content: "";
-    border: 8px solid #333;
-    width: 8px;
-    height: 8px;
-    transform: rotate(45deg);
-    position: absolute;
-    left: calc(50% - 8px);
-    top: calc(100% - 8px);
+  @media only screen
+  and (min-device-width: 320px)
+  and (max-device-width: 480px)
+  and (-webkit-min-device-pixel-ratio: 2) {
+    .tab {
+      font-size: 15px;
+      margin: 0 10px;
+    }
   }
 </style>
