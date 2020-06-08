@@ -24,8 +24,8 @@
     </div>
     <div id="home-poll-list" class="poll-list">
       <transition name="fade">
-        <div v-show="polls" class="mx-4 mt-6" :key="activeTab">
-          <div class="my-2" :key="id" v-for="[id, data] in polls">
+        <div v-show="polls" :key="activeTab">
+          <div class="list-item" :key="id" v-for="[id, data] in polls">
             <PollListing :id="id" :data="data"/>
           </div>
         </div>
@@ -229,7 +229,7 @@
     background-color: #272831;
     color: #727278;
     font-weight: 400;
-    padding: 20px 20px 0 20px;
+    padding: 15px 15px 0 15px;
 
     &:hover {
       cursor: pointer;
@@ -239,7 +239,7 @@
   .tab {
     font-size: 16px;
     font-weight: 600;
-    padding-bottom: 20px;
+    padding-bottom: 15px;
     border-bottom: 2px solid #272831;
     margin: 0 15px;
 
@@ -259,6 +259,7 @@
 
   .poll-list {
     margin-top: 76px;
+    padding: 0 15px;
   }
 
   @media only screen
@@ -268,6 +269,16 @@
     .tab {
       font-size: 15px;
       margin: 0 10px;
+      padding-bottom: 10px;
+    }
+
+    .tab-switcher {
+      padding: 10px 10px 0 10px;
+    }
+
+    .poll-list {
+      padding: 0 10px;
+      margin-top: 66px;
     }
   }
 </style>
