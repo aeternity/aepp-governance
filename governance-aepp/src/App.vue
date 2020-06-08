@@ -104,7 +104,7 @@
     max-height: 100vh;
     padding-bottom: 0;
     overflow-y: auto;
-    background-color: #f8f8f8;
+    background-color: #21222C;;
   }
 
   @media (min-width: 700px) {
