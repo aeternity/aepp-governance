@@ -2,13 +2,10 @@
   <div id="app" class="min-h-screen">
     <div class="content min-h-screen max-w-desktop z-10">
       <div class="min-h-screen wrapper" ref="wrapper">
-        <router-view v-if="clientAvailable" :resetView="resetView"></router-view>
+        <router-view v-if="foundWallet" :resetView="resetView"></router-view>
         <div class="inset-0 flex justify-center flex-col items-center z-50" v-else>
           <BiggerLoader></BiggerLoader>
           <h2 class="mt-2 font-bold">Looking for a wallet. Check for popups.</h2>
-          <ae-button v-show="showSkip" class="mt-4" face="round" fill="neutral" @click="abortWalletCheck">Continue
-            without wallet
-          </ae-button>
         </div>
         <div class="mb-24">
           <!-- BOTTOM SPACER -->
@@ -25,74 +22,52 @@
 
 <script>
 
-  import "@aeternity/aepp-components/dist/ae-button/ae-button.css"
-  import AeButton from "@aeternity/aepp-components/dist/ae-button/"
+  import '@aeternity/aepp-components/dist/ae-button/ae-button.css';
+  import AeButton from '@aeternity/aepp-components/dist/ae-button/';
 
-  import CriticalErrorOverlay from './components/CriticalErrorOverlay'
-  import aeternity from './utils/aeternity.js'
-  import BiggerLoader from './components/BiggerLoader'
-  import HintOverlay from './components/HintOverlay'
+  import CriticalErrorOverlay from './components/CriticalErrorOverlay';
+  import Explainer from './components/Explainer';
+  import aeternity from './utils/aeternity.js';
+  import BiggerLoader from './components/BiggerLoader';
+  import HintOverlay from './components/HintOverlay';
+  import { EventBus } from './utils/eventBus';
 
   export default {
     name: 'app',
-    components: {BiggerLoader, CriticalErrorOverlay, AeButton, HintOverlay},
+    components: { BiggerLoader, CriticalErrorOverlay, AeButton, Explainer, HintOverlay },
     data() {
       return {
         error: null,
         errorCTA: null,
-        clientAvailable: false,
+        foundWallet: false,
         ignoreErrors: (window.location.host.includes('localhost') || window.location.host.includes('0.0.0.0')),
         errorClick: () => {
         },
-        showSkip: false
-      }
+      };
     },
     methods: {
-      async checkAndReloadProvider() {
-        if (!aeternity.address) return;
-
-        const changesDetected = await aeternity.verifyAddress();
-        if (changesDetected) this.$router.go();
-      },
-      async abortWalletCheck() {
-        await aeternity.disableWallet();
-        this.clientAvailable = true;
-      },
       resetView() {
         this.$refs.wrapper.scrollTo(0, 0);
-      }
+      },
     },
     async created() {
-
-      setTimeout(() => {
-        this.showSkip = true
-      }, 4000);
-
-      // Bypass check if there is already an active wallet
       try {
-        if (aeternity.hasActiveWallet()) {
-          return this.clientAvailable = true
-        } else if (aeternity.client && !aeternity.contract) {
-          await aeternity.initProvider();
-          return this.clientAvailable = true
-        }
+        // Bypass check if there is already an active wallet
+        if (aeternity.hasActiveWallet())
+          return this.foundWallet = true;
 
-        if (!(await aeternity.initClient())) throw new Error('Wallet init failed');
-
-        this.clientAvailable = true;
-
-        // Constantly check if wallet is changed
-        setInterval(this.checkAndReloadProvider, 1000)
+        aeternity.initClient().then(() => {
+          this.foundWallet = true;
+        });
+        aeternity.initWalletSearch(() => {
+          this.foundWallet = true;
+        });
       } catch (e) {
         console.error('Initializing Wallet Error', e);
-        this.error = 'Could not connect to your wallet. Please make sure you grant this application access to your wallet. Also make sure the choosen Account has funds available.';
-        this.errorCTA = 'Retry';
-        this.errorClick = () => {
-          window.location.reload()
-        }
       }
-    }
-  }
+
+    },
+  };
 </script>
 
 <style scoped>

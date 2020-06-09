@@ -153,6 +153,7 @@
   import AccountTreeLine from "../components/AccountTreeLine";
   import copy from 'copy-to-clipboard';
   import HintBubble from "../components/HintBubble";
+  import { EventBus } from '../utils/eventBus';
 
   export default {
     name: 'Home',
@@ -180,6 +181,7 @@
         closeBlock: null,
         showCopyNotice: false,
         showCopyNoticeVerify: false,
+        height: 0,
         continueFunction: () => {
           this.error = null
         }
@@ -187,7 +189,7 @@
     },
     computed: {
       timeDifference() {
-        return (this.pollState.close_height - aeternity.height) * 3 * 60 * 1000;
+        return (this.pollState.close_height - this.height) * 3 * 60 * 1000;
       }
     },
     methods: {
@@ -269,9 +271,9 @@
 
         this.votersForOption = {};
         var fetchBalance = Promise.resolve();
-        if (!aeternity.passive) {
-          this.accountAddress = aeternity.address;
-          fetchBalance = aeternity.client.balance(this.address).catch(() => '0').then(balance => {
+        if (!aeternity.static) {
+          this.accountAddress = await aeternity.client.address();
+          fetchBalance = aeternity.client.getBalance(this.accountAddress).then(balance => {
             this.balance = balance
           });
         }
@@ -321,10 +323,14 @@
             console.log('verified poll contract', verifiedPoll)
           }
         })
+
+        this.height = await aeternity.client.height();
+
         this.showLoading = false;
       }
     },
     async mounted() {
+      EventBus.$on('dataChange', this.loadData)
       try {
         await this.loadData();
       } catch (e) {
@@ -335,6 +341,9 @@
         };
         this.showLoading = false;
       }
+    },
+    beforeDestroy() {
+      EventBus.$off('dataChange', this.loadData)
     }
   };
 </script>

@@ -4,9 +4,9 @@
     <div class="fixed bottom-0 h-16 items-center flex flex-wrap w-full max-w-desktop bottom-bar" :class="{'h-40': view === 'search'}">
       <!-- SEARCH BAR -->
       <div class="w-full flex h-16 px-8 items-center" v-if="view === 'search'">
-        <label>
+        <label class="w-full h-full">
           <input v-model="searchString" type="search" placeholder="Search..."
-                 class="rounded-full flex-1 bg-white h-full flex justify-center items-center px-4 mr-2 search-bar"/>
+                 class="rounded-full flex-1 bg-white h-full flex justify-center items-center px-4 w-full search-bar"/>
         </label>
         <SmallButton :img="images.searchImg" v-if="searchButton"
                      @click="$emit('searchSubmit', searchString)"/>
@@ -53,6 +53,7 @@
   import homeImg from '../assets/home.svg';
   import backImg from '../assets/back.svg';
   import aeternity from "../utils/aeternity";
+  import { EventBus } from '../utils/eventBus';
 
   export default {
     name: "BottomButtons",
@@ -112,12 +113,19 @@
       clickSearch() {
         if (this.view === 'buttons') this.view = 'search';
         else if (this.view === 'search') this.view = 'buttons';
+      },
+      async loadData()  {
+        if (!aeternity.static) {
+          this.account = await aeternity.client.address()
+        }
       }
     },
     created() {
-      if (!aeternity.passive) {
-        this.account = aeternity.address
-      }
+      EventBus.$on('dataChange', this.loadData)
+      this.loadData()
+    },
+    beforeDestroy() {
+      EventBus.$off('dataChange', this.loadData)
     }
   }
 </script>
