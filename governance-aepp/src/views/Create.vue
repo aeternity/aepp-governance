@@ -95,23 +95,23 @@
 </template>
 
 <script>
-import '@aeternity/aepp-components/dist/ae-button/ae-button.css'
-import AeButton from '@aeternity/aepp-components/dist/ae-button/'
-import '@aeternity/aepp-components/dist/ae-button-group/ae-button-group.css'
-import AeButtonGroup from '@aeternity/aepp-components/dist/ae-button-group/'
+  import '@aeternity/aepp-components/dist/ae-button/ae-button.css'
+  import AeButton from '@aeternity/aepp-components/dist/ae-button/'
+  import '@aeternity/aepp-components/dist/ae-button-group/ae-button-group.css'
+  import AeButtonGroup from '@aeternity/aepp-components/dist/ae-button-group/'
 
-import aeternity from '../utils/aeternity'
-import pollContractSource from '../assets/contracts/Poll.aes'
-import pollIrisContractSource from '../assets/contracts/Poll_Iris.aes';
+  import aeternity from '../utils/aeternity'
+  import pollContractSource from '../assets/contracts/Poll.aes'
+  import pollIrisContractSource from '../assets/contracts/Poll_Iris.aes';
   import BiggerLoader from '../components/BiggerLoader'
-import BottomButtons from '../components/BottomButtons'
-import BlackHeader from '../components/BlackHeader'
-import GrayText from '../components/GrayText'
-import CriticalErrorOverlay from '../components/CriticalErrorOverlay'
-import AeInput from '../components/AeInput'
-import HintBubble from '../components/HintBubble'
+  import BottomButtons from '../components/BottomButtons'
+  import BlackHeader from '../components/BlackHeader'
+  import GrayText from '../components/GrayText'
+  import CriticalErrorOverlay from '../components/CriticalErrorOverlay'
+  import AeInput from '../components/AeInput'
+  import HintBubble from '../components/HintBubble'
 
-export default {
+  export default {
     name: 'Home',
     components: {
       CriticalErrorOverlay,
