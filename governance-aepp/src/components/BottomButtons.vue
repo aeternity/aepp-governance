@@ -4,9 +4,9 @@
     <div class="fixed bottom-0 h-12 pb-8 w-full max-w-desktop bottom-bar" :class="{'h-32': view === 'search'}">
       <!-- SEARCH BAR -->
       <div class="w-full flex h-12 mb-6 px-8 items-center" v-if="view === 'search'">
-        <label>
+        <label class="w-full h-full">
           <input v-model="searchString" type="search" placeholder="Search..."
-                 class="rounded-full flex-1 bg-white h-full flex justify-center items-center px-4 mr-2 search-bar"/>
+                 class="rounded-full flex-1 bg-white h-full flex justify-center items-center px-4 w-full search-bar"/>
         </label>
         <SmallButton :img="images.searchImg" v-if="searchButton"
                      @click="$emit('searchSubmit', searchString)"/>
