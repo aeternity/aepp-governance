@@ -180,13 +180,14 @@
 
   .ae-identity-light .avatar {
     border-width: 1px;
-    width: 23px;
-    height: 23px;
+    width: 34px;
+    height: 34px;
   }
 
   .identity-name-position {
     margin-left: 10px;
     font-weight: 500;
+    color: #727278;
 
     &._collapsed {
       margin-left: 9px;
@@ -197,6 +198,7 @@
   .identity-name {
     margin: 0;
     font-size: 17px;
+    color: #fff;
 
     &._collapsed {
       font-size: 12px;

@@ -106,10 +106,6 @@
   font-weight: 400;
 }
 
-.highlited {
-  color: #AEAEAE;
-}
-
 .listing-id {
   position: absolute;
   bottom: 3px;

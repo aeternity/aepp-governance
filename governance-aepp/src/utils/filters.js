@@ -1,8 +1,9 @@
 import BlockchainUtil from "./util";
 
-export function toAE(num, decimalPlaces) {
+export function toAE(num, decimalPlaces, valueOnly) {
   if (num) {
     if(typeof decimalPlaces === 'undefined') decimalPlaces = 2;
+    if(valueOnly) return BlockchainUtil.atomsToAe(num).toFixed(decimalPlaces);
     return BlockchainUtil.atomsToAe(num).toFixed(decimalPlaces) + " AE";
   } else {
     return "";
