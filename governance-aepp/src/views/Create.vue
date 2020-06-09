@@ -6,9 +6,9 @@
     <BlackHeader>
       Create Poll
     </BlackHeader>
-    <GrayText>
+    <div class="text-gray-500 font-bold px-5 py-4">
       Use the form below to create a new governance poll.
-    </GrayText>
+    </div>
     <div v-if="Object.values(this.errors).some(val => !!val)" class="bg-ae-error mx-4 p-2 my-2">
       <div class="flex mb-1">
         <div class="text-4xl font-bold pl-1 pr-3 leading-none flex items-center">
@@ -43,7 +43,7 @@
       <ae-input :error="!!errors.linkError" v-model="createMetadata.link" label="Link" @blur="linkBlurHandler">
       </ae-input>
     </div>
-    <div class="py-2 px-4">
+    <div class="py-2 px-4 flex justify-center">
       <AeButtonGroup>
         <ae-button face="round" @click="is_listed = true" :fill="is_listed ? 'primary' : 'neutral'">Publicly Listed
         </ae-button>
@@ -52,11 +52,11 @@
       </AeButtonGroup>
     </div>
 
-    <div class="my-2 mx-4 flex items-center bg-white px-4" :class="{'bg-ae-error': !!errors.optionError}"
+    <div class="my-2 mx-4 flex items-center item-options px-4" :class="{'bg-ae-error': !!errors.optionError}"
          :key="option.id" v-for="option in options">
       <div class="w-6 flex justify-center">
         <div v-if="option.text" class="rounded-full border-2 border-gray-500 w-6 h-6">&nbsp;</div>
-        <div v-else class="text-3xl text-gray-300 text-right font-bold">&plus;</div>
+        <div v-else class="text-2xl w-6 h-6" id="plus-icon">&plus;</div>
       </div>
       <label>
         <input v-model="option.text" @input="optionInput" type="text" placeholder="Add Option"
@@ -95,23 +95,22 @@
 </template>
 
 <script>
+import '@aeternity/aepp-components/dist/ae-button/ae-button.css'
+import AeButton from '@aeternity/aepp-components/dist/ae-button/'
+import '@aeternity/aepp-components/dist/ae-button-group/ae-button-group.css'
+import AeButtonGroup from '@aeternity/aepp-components/dist/ae-button-group/'
 
-  import "@aeternity/aepp-components/dist/ae-button/ae-button.css"
-  import AeButton from "@aeternity/aepp-components/dist/ae-button/"
-  import "@aeternity/aepp-components/dist/ae-button-group/ae-button-group.css"
-  import AeButtonGroup from "@aeternity/aepp-components/dist/ae-button-group/"
+import aeternity from '../utils/aeternity'
+import pollContractSource from '../assets/contracts/Poll.aes'
+import BiggerLoader from '../components/BiggerLoader'
+import BottomButtons from '../components/BottomButtons'
+import BlackHeader from '../components/BlackHeader'
+import GrayText from '../components/GrayText'
+import CriticalErrorOverlay from '../components/CriticalErrorOverlay'
+import AeInput from '../components/AeInput'
+import HintBubble from '../components/HintBubble'
 
-  import aeternity from "../utils/aeternity";
-  import pollContractSource from '../assets/contracts/Poll.aes';
-  import BiggerLoader from '../components/BiggerLoader';
-  import BottomButtons from "../components/BottomButtons";
-  import BlackHeader from "../components/BlackHeader";
-  import GrayText from "../components/GrayText";
-  import CriticalErrorOverlay from "../components/CriticalErrorOverlay";
-  import AeInput from "../components/AeInput";
-  import HintBubble from "../components/HintBubble";
-
-  export default {
+export default {
     name: 'Home',
     components: {
       CriticalErrorOverlay,
@@ -263,14 +262,34 @@
 </script>
 
 <style scoped type="text/scss">
+  @import '../theme/ae-button.scss';
+
+  .item-options {
+    background: #292B35;
+    border-radius: 5px;
+  }
+
   input.ae-input-option {
+    background: #292B35;
+    color: #fff;
     font-size: 1.0625rem;
     line-height: 1.5rem;
-    font-family: Inter UI, sans-serif;
+  }
+
+  #plus-icon {
+    align-items: center;
+    border: 2px solid #67f7b8;
+    border-radius: 100%;
+    color: #67F7B8;
+    display: flex;
+    font-family: sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    justify-content: center;
+    line-height: 1px;
   }
 
   .bg-ae-error {
-    background-color: #ffeeee;
     /* color: #ff0d0d; */
     color: #ff0d0d;
   }

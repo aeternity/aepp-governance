@@ -1,9 +1,9 @@
 <template>
   <div class="flex justify-center w-full z-20">
 
-    <div class="fixed bottom-0 h-12 pb-8 w-full max-w-desktop bottom-bar" :class="{'h-32': view === 'search'}">
+    <div class="fixed bottom-0 h-16 items-center flex flex-wrap w-full max-w-desktop bottom-bar" :class="{'h-40': view === 'search'}">
       <!-- SEARCH BAR -->
-      <div class="w-full flex h-12 mb-6 px-8 items-center" v-if="view === 'search'">
+      <div class="w-full flex h-16 px-8 items-center" v-if="view === 'search'">
         <label class="w-full h-full">
           <input v-model="searchString" type="search" placeholder="Search..."
                  class="rounded-full flex-1 bg-white h-full flex justify-center items-center px-4 w-full search-bar"/>
@@ -23,7 +23,7 @@
         <!-- CENTER SECTION -->
         <div class="flex-3 flex justify-center">
           <button
-            class="rounded-full bg-primary px-8 h-full flex justify-center items-center text-white font-semibold cursor-pointer"
+            class="ae-button round px-8 h-full flex justify-center items-center text-white font-semibold cursor-pointer"
             @click="$emit('cta')" :disabled="ctaDisabled" v-if="ctaText">
             {{ctaText}}
           </button>
@@ -131,10 +131,6 @@
 </script>
 
 <style scoped>
-  .search-bar {
-    box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.15);
-  }
-
   textarea:focus, input:focus {
     outline: none;
   }
@@ -151,9 +147,9 @@
     flex: 3 1 0;
   }
 
-  .search-button::after {
+  .search-button::before {
     content: "";
-    border: 10px solid #FF0D6A;
+    border: 10px solid #2a9cff;
     transform: rotate(45deg);
     position: absolute;
     top: -10px;
@@ -163,8 +159,7 @@
   }
 
   .bottom-bar {
-    background-image: linear-gradient(to bottom, rgba(255, 0, 0, 0), #f8f8f8);
-    border-bottom: solid 1.5rem #f8f8f8;
+    background: #272831;
   }
 
   button[disabled] {

@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-gray-ae px-6 py-4 w-full text-3xl text-white flex justify-between items-center">
+  <div class="bg-gray-ae px-5 py-1 w-full text-xl text-white flex justify-between items-center">
     <slot/>
     <div class="flex items-center justify-end">
       <div ref="inputContainer" class="relative rounded-full hide-input flex items-center pr-3 pb-1"
@@ -10,7 +10,7 @@
                  class="text-gray-800 w-full text-2xl outline-none bg-transparent leading-none" @blur="onBlur">
         </form>
       </div>
-      <div class="w-8 text-2xl h-8 bg-primary rounded-full justify-center flex items-center ml-2 cursor-pointer"
+      <div class="w-6 text-2xl h-6 justify-center flex items-center ml-2 cursor-pointer"
            @click.stop.prevent="toggleHelp()" id="question-mark-icon">
         ?
       </div>
@@ -71,8 +71,22 @@
 
 <style scoped>
   .bg-gray-ae {
-    background-color: #333333;
-    text-transform: capitalize;
+    background: #272831;
+    color: #2a9cff;
+    font-weight: 500;
+    line-height: 3.25rem;
+    letter-spacing: 0.1rem;
+  }
+
+  #question-mark-icon {
+    border: 3px solid #727278;
+    border-radius: 100%;
+    color: #727278;
+    font-family: sans-serif;
+    font-size: 16px;
+    font-weight: bolder;
+    line-height: 1px;
+    padding-left: 1px;
   }
 
   .hide-input {
@@ -86,7 +100,6 @@
   }
 
   .show-input {
-    background: white;
     padding-right: 1.5rem;
   }
 

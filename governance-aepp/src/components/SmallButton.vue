@@ -16,6 +16,6 @@
 
 <style scoped>
  .bg-gray-ae {
-   background-color: #929CA6;
+   background-color: #272831;
  }
 </style>
