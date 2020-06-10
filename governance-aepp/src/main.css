@@ -170,6 +170,11 @@ body {
   color: #AEAEAE;
 }
 
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
 /* Overrides */
 span.ae-check-button.ae-check-button::after {
   background: none;
