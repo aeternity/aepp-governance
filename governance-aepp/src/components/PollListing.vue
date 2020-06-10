@@ -91,6 +91,10 @@
   border-radius: 5px;
   margin-bottom: 15px;
   position: relative;
+
+  &:hover {
+    cursor: pointer;
+  }
 }
 
 .listing-text {
