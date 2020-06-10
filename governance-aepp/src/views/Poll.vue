@@ -381,7 +381,7 @@
     h1 {
       font-size: 20px;
       font-weight: 400;
-      color: #2A9CFF;
+      color: #2a9cff;
       vertical-align: middle;
     }
   }
@@ -521,13 +521,6 @@
     border-bottom-right-radius: 0;
   } 
 
-  .ae-value {
-    color: #fff;
-  }
-
-  .ae-text {
-    color: #2A9CFF;
-  }
 @media only screen
 and (max-device-width: 480px)
 and (-webkit-min-device-pixel-ratio: 2) {
