@@ -1,18 +1,21 @@
 <template>
-  <div class="mx-4 mt-2 ae-card">
-    <div class="bg-primary px-3 w-full text-2xl text-white relative rounded-t ae-max-height-0 overflow-hidden ae-transition-300"
+  <div class="ae-card">
+    <div class="header ae-max-height-0 overflow-hidden ae-transition-300"
          :key="address"
          :class="{'ae-max-height-40': open}">
       <transition name="fade">
-        <div class="absolute flex inset-0 justify-center items-center bg-primary z-20" v-if="showCopyNotice">
+        <div class="copy-overlay inset-0" v-if="showCopyNotice">
           <span>Copied address to clipboard</span>
         </div>
       </transition>
-      <div class="flex justify-between items-center mt-2">
+      <div class="title">
         <span><span v-if="isOwnAccount">Your </span> Account</span>
-        <img src="../assets/copy.svg" class="w-4 h-4 text-white cursor-pointer" @click="copyToClipboard" alt="copy"/>
+        <span class="copy">
+          Copy
+          <img src="../assets/copy.svg" class="cursor-pointer" @click="copyToClipboard" alt="copy"/>
+        </span>
       </div>
-      <div class="flex justify-between items-center mt-3">
+      <div class="header-row flex justify-between items-center mt-3">
         <div>
           <AeIdentityLight
             :collapsed="true"
@@ -26,36 +29,39 @@
         <div class="text-sm font-bold font-mono ml-auto" v-if="balance !== null">
           {{balance | toAE}}
         </div>
-        <div class="w-5" v-if="canOpen"></div>
       </div>
 
-      <div class="flex justify-between items-center my-3" v-if="delegatedPower">
-        <div class="text-xs opacity-90 leading-tight flex-1">
-          Estimated delegated stake <br/>
-          Delegators votes can overwrite delegation
+      <div class="header-row" v-if="delegatedPower">
+        <div class="flex ">
+          Estimated delegated stake:
+          <div class="ml-auto text-right">
+            <span class="ae-value">{{delegatedPower | toAE(2, true)}}</span>
+            <span class="ae-text">AE</span>
+          </div>
         </div>
-        <div class="text-sm font-bold font-mono ml-auto text-right">
-          {{delegatedPower | toAE}}
+        <div class="sub-text">
+          Delegators votes can overwrite delegation
         </div>
         <div class="w-5" v-if="canOpen"></div>
       </div>
-      <div class="flex justify-between items-center my-3" v-else>
-        <div class="text-xs opacity-90 leading-tight">
+      <div class="header-row flex justify-between items-center my-3" v-else>
+        <div class="leading-tight">
           Could not fetch information about delegated stake.
         </div>
       </div>
     </div>
-    <div class="bg-ae-purple text-white pl-3 pr-2 py-2 rounded-b" :class="{'rounded-t': !open, 'pr-3': !canOpen}">
+    <div class="expand-account" :class="{'rounded-t': !open, 'pr-3': !canOpen, 'canOpen': canOpen}">
       <div class="flex justify-between items-center">
-        <div class="text-xs opacity-90 leading-tight font-bold">
+        <div>
           Estimated voting power
         </div>
-        <div class="text-sm font-bold font-mono ml-auto leading-tight mt-1" v-if="totalStake">
-          {{totalStake | toAE}}
+        <div class="ml-auto" v-if="totalStake">
+          <span class="ae-value">{{totalStake | toAE(2, true)}}</span>
+          <span class="ae-text">AE</span>
         </div>
-        <div class="w-5 flex justify-center items-center ml-2 ae-transition-300" v-if="canOpen" @click="open = !open"
+        <div class="w-5 flex justify-center items-center ml-2 ae-transition-300 cursor-pointer" v-if="canOpen" @click="open = !open"
              :class="{'rotate-90': open}">
-          <img src="../assets/open_arrow.svg" class="w-full" alt="show voting power"/>
+          <img :src="open ? caretActive : caret" alt="show voting power"/>
         </div>
       </div>
     </div>
@@ -71,6 +77,8 @@
   import copy from 'copy-to-clipboard';
   import { EventBus } from '../utils/eventBus';
   import Util from '../utils/util';
+  import caret from '../assets/caret.svg';
+  import caretActive from '../assets/caretActive.svg';
 
   export default {
     name: "AccountHeader",
@@ -101,7 +109,9 @@
         totalStake: null,
         isOwnAccount: false,
         showCopyNotice: false,
-        open: true
+        open: true,
+        caret,
+        caretActive
       }
     },
     methods: {
@@ -144,18 +154,73 @@
   }
 </script>
 
-<style scoped>
-  .bg-primary {
-    box-shadow: 0 2px 20px 0 rgba(0, 0, 0, 0.15);
+<style lang="scss" scoped>
+  .header {
+    position: relative;
   }
 
-  .bg-ae-purple {
-    background-color: #d12869;
+  .title {
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #2a9cff;
+    font-size: 20px;
+    font-weight: 400;
   }
 
+  .expand-account.canOpen,
+  .title {
+    background-color: #272831;
+  }
 
-  .opacity-90 {
-    opacity: .9;
+  .expand-account {
+    color: #fff;
+    font-size: 15px;
+    font-weight: 400;
+    border-bottom: 1px solid #12121b;
+    padding: 10px 0;
+    margin: 0 20px;
+
+    &.canOpen{
+      border-bottom: none;
+      padding: 10px 20px;
+      margin: 0;
+    }
+  }
+
+  .copy {
+    color: #fff;
+    font-size: 12px;
+
+    img {
+      display: inline;
+      width: 18.2px;
+    }
+  }
+
+  .copy-overlay {
+    background-color: #12121b;
+    color: #fff;
+    position: absolute;
+    z-index: 20;
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+  }
+
+  .header-row {
+    padding: 10px 0;
+    margin: 0 20px;
+    border-bottom: 1px solid #12121b;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 400;
+  }
+
+  .sub-text {
+    color: #727278;
+    font-style: italic;
   }
 
   .rotate-90 {
@@ -167,6 +232,23 @@
   }
 
   .ae-max-height-40 {
-    max-height: 10rem;
+    max-height: 20rem;
+  }
+
+  @media only screen
+  and (max-device-width: 480px)
+  and (-webkit-min-device-pixel-ratio: 2) {
+    .expand-account {
+      margin: 0 10px;
+    }
+
+    .header-row {
+      margin: 0 10px;
+    }
+
+    .title,
+    .expand-account.canOpen {
+      padding: 10px;
+    }
   }
 </style>

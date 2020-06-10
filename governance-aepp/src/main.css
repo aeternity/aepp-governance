@@ -170,6 +170,14 @@ body {
   color: #AEAEAE;
 }
 
+.ae-value {
+  color: #fff;
+}
+
+.ae-text {
+  color: #2a9cff;
+}
+
 ::-webkit-scrollbar {
   width: 0px;
   background: transparent;
