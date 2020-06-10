@@ -75,7 +75,7 @@
               voted with your stake for "{{title}}"<span v-if="isClosed"> at the time the poll closed</span>. <span
               v-if="!isClosed">Unhappy? You can overwrite their choice by placing your own vote.</span>
             </HintBubble>
-            <div class="m-4 ae-card cursor-pointer" @click="showVoters(id)">
+            <div class="ae-card cursor-pointer" @click="showVoters(id)">
               <div class="flex justify-between items-center w-full py-4 px-3">
                 <ae-check class="mr-1" v-model="voteOption" :value="id" type="radio" @click.stop.prevent
                           @change="vote(id)" :disabled="isClosed || !accountAddress"/>
@@ -86,11 +86,14 @@
                   <span>{{title}}</span>
                 </div>
                 <div class="min-w-3" style="margin-top: 4px" v-if="pollVotesState">
-                  <img src="../assets/back_gray.svg" class="ae-transition-300" alt="show poll state"
-                       :class="{'rotate-90': votersForOption.id != null && votersForOption.id === id}">
+                  <img 
+                    :src="votersForOption.id != null && votersForOption.id === id ? caretActive : caret" 
+                    class="ae-transition-300"
+                    alt="show poll state"
+                    :class="{'rotate-90': votersForOption.id != null && votersForOption.id === id}">
                 </div>
               </div>
-              <div class="h-1 bg-primary rounded-bl" v-if="pollVotesState"
+              <div class="progress-line rounded-bl" v-if="pollVotesState"
                    :class="{'rounded-br': pollVotesState.stakesForOption[id].percentageOfTotal > 99}"
                    :style="{'width': `${pollVotesState.stakesForOption[id].percentageOfTotal}%`}">
               </div>
@@ -120,8 +123,8 @@
               @click.stop.prevent="openLink('verify', 'https://github.com/aeternity/aepp-governance/blob/master/docs/how-to-verify-results.md')"
               v-if="!showCopyNoticeVerify">Verify Poll Result</a>
             <transition name="fade">
-              <div class="inset-0 absolute text-white h-8 p-2" v-if="showCopyNoticeVerify">
-                copied link to clipboard
+              <div class="inset-0 absolute text-white h-8" v-if="showCopyNoticeVerify">
+                Copied link to clipboard
               </div>
             </transition>
           </div>
@@ -154,6 +157,8 @@
   import copy from 'copy-to-clipboard';
   import HintBubble from "../components/HintBubble";
   import { EventBus } from '../utils/eventBus';
+  import caret from '../assets/caret.svg';
+  import caretActive from '../assets/caretActive.svg';
 
   export default {
     name: 'Home',
@@ -182,6 +187,8 @@
         showCopyNotice: false,
         showCopyNoticeVerify: false,
         height: 0,
+        caret,
+        caretActive,
         continueFunction: () => {
           this.error = null
         }
@@ -350,7 +357,7 @@
 
 <style lang="scss" scoped>
   .poll-heading {
-    padding: 10px;
+    padding: 10px 20px;
     background-color: #272831;
     position: sticky;
     top: 0;
@@ -373,7 +380,7 @@
   }
 
   .poll-data {
-    padding: 10px;
+    padding: 20px;
 
     .title {
       color: #fff;
@@ -415,9 +422,8 @@
   .title,
   .description,
   .link,
-  .poll-author,
-  .poll-metadata {
-    margin-bottom: 10px;
+  .poll-author {
+    margin-bottom: 20px;
   }
 
   .poll-author {
@@ -437,6 +443,8 @@
     color: #727278;
     font-size: 15px;
     font-weight: 400;
+    padding: 0 20px 20px 20px;
+    position: relative;
 
     .ae-value {
       color: #fff;
@@ -445,16 +453,27 @@
     .ae-text {
       color: #2A9CFF;
     }
+
+    &::after {
+      content: '';
+      position: absolute;
+      border-left: 24px solid transparent;
+      border-right: 24px solid transparent;
+      border-top: 15px solid #21222C;
+      bottom: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
   }
 
   .poll-options {
     background-color: #12121B;
-    padding: 20px 10px;
+    padding: 20px;
   }
 
   .footer {
     margin-top: 20px;
-    font-size: 11px;
+    font-size: 10px;
     color: #727278;
 
     .highlited:hover {
@@ -463,8 +482,34 @@
 
     .verify-result {
       position: relative;
-      min-width: 150px;
+      min-width: 85px;
       text-align: right;
     }
   }
+
+  .progress-line {
+    background-color: #2A9CFF;
+    height: 5px;
+  }
+
+  .ae-card {
+    margin: 20px 0;
+  }
+
+@media only screen
+and (max-device-width: 480px)
+and (-webkit-min-device-pixel-ratio: 2) {
+  .poll-data,
+  .poll-options {
+    padding: 20px 10px;
+  }
+
+  .poll-metadata {
+    padding: 0 10px 10px 10px;
+  }
+
+  .poll-heading {
+    padding: 10px;
+  }
+}
 </style>

@@ -1,5 +1,7 @@
 <template>
   <div id="app" class="min-h-screen">
+    <Explainer></Explainer>
+    <HintOverlay></HintOverlay>
     <div class="content min-h-screen max-w-desktop z-10">
       <div class="min-h-screen wrapper" ref="wrapper">
         <router-view v-if="foundWallet" :resetView="resetView"></router-view>
