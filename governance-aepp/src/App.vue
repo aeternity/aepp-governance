@@ -76,7 +76,7 @@
     max-height: 100vh;
     padding-bottom: 0;
     overflow-y: auto;
-    background-color: #21222C;;
+    background-color: #21222c;
   }
 
   @media (min-width: 700px) {
