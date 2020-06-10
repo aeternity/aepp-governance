@@ -114,7 +114,7 @@
   position: absolute;
   bottom: 3px;
   right: 3px;
-  color: #2A9CFF;
+  color: #2a9cff;
   font-size: 15px;
   background-color: #21222c;
   padding: 3px 5px;
