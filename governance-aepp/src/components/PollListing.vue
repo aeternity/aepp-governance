@@ -116,7 +116,7 @@
   right: 3px;
   color: #2A9CFF;
   font-size: 15px;
-  background-color: #21222C;
+  background-color: #21222c;
   padding: 3px 5px;
   border-bottom-right-radius: 5px;
   border-top-left-radius: 5px;
