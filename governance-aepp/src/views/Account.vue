@@ -213,7 +213,7 @@
         this.resetData();
 
         this.address = this.$route.params.account;
-        this.isOwnAccount = this.address === (await aeternity.client.address());
+        if(!aeternity.static) this.isOwnAccount = this.address === (await aeternity.client.address());
 
         const fetchBalance = aeternity.client.getBalance(this.address).then(balance => {
           this.balance = balance

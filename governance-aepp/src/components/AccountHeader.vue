@@ -106,7 +106,7 @@
     },
     methods: {
       async loadData() {
-        this.isOwnAccount = (await aeternity.client.address()) === this.address;
+        if(!aeternity.static) this.isOwnAccount = (await aeternity.client.address()) === this.address;
         this.balance = await aeternity.client.getBalance(this.address);
         await new Backend(aeternity.networkId).delegatedPower(this.address, this.pollAddress).then(delegatedPower => {
           if(delegatedPower === null) {
