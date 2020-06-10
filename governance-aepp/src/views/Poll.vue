@@ -334,8 +334,6 @@
           if (!verifiedPoll) {
             this.error = 'Could not verify poll contract correctness, proceed with caution.'
             this.continueFunction = () => {this.error = null}
-          } else {
-            console.log('verified poll contract', verifiedPoll)
           }
         })
 
