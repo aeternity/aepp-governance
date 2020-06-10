@@ -75,7 +75,10 @@
               voted with your stake for "{{title}}"<span v-if="isClosed"> at the time the poll closed</span>. <span
               v-if="!isClosed">Unhappy? You can overwrite their choice by placing your own vote.</span>
             </HintBubble>
-            <div class="ae-card cursor-pointer" @click="showVoters(id)">
+            <div class="ae-card cursor-pointer"
+              @click="showVoters(id)"
+              :class="{'remove-progress-border': votersForOption.id != null && votersForOption.id === id}"
+            >
               <div class="flex justify-between items-center w-full py-4 px-3">
                 <ae-check class="mr-1" v-model="voteOption" :value="id" type="radio" @click.stop.prevent
                           @change="vote(id)" :disabled="isClosed || !accountAddress"/>
@@ -98,10 +101,13 @@
                    :style="{'width': `${pollVotesState.stakesForOption[id].percentageOfTotal}%`}">
               </div>
             </div>
-            <div class="text-gray-500 text-sm mx-4" v-show="votersForOption.id != null && votersForOption.id === id">
-              <div class="text-gray-500 text-sm my-1 mx-2" v-if="pollVotesState">
+            <div class="card-content" v-show="votersForOption.id != null && votersForOption.id === id">
+              <div class="poll-votes" v-if="pollVotesState">
                 {{pollVotesState.stakesForOption[id].percentageOfTotal | formatPercent(2)}}
-                ({{pollVotesState.stakesForOption[id].optionStake | toAE}}) -
+                (
+                  <span class="ae-value">{{pollVotesState.stakesForOption[id].optionStake | toAE(2, true)}}</span>
+                  <span class="ae-text">AE</span>
+                ) -
                 {{pollVotesState.stakesForOption[id].votes.length}} Votes -
                 {{pollVotesState.stakesForOption[id].delegatorsCount}} Delegators
               </div>
@@ -408,7 +414,7 @@
       }
 
       .copy-msg {
-        background-color: #21222C;
+        background-color: #21222c;
         color: #fff;
         position: absolute;
       }
@@ -445,14 +451,6 @@
     font-weight: 400;
     padding: 0 20px 20px 20px;
     position: relative;
-
-    .ae-value {
-      color: #fff;
-    }
-
-    .ae-text {
-      color: #2A9CFF;
-    }
 
     &::after {
       content: '';
@@ -496,6 +494,39 @@
     margin: 20px 0;
   }
 
+  .card-content {
+    margin-top: -20px;
+    border: 1px solid #292B35;
+    border-top: none;
+
+    & > div {
+      border-bottom: 1px solid #292B35;
+      padding: 10px;
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+  }
+
+  .poll-votes {
+    font-size: 15px;
+    font-weight: 400;
+    color: #727278;
+  }
+
+  .remove-progress-border .progress-line, .remove-progress-border {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  } 
+
+  .ae-value {
+    color: #fff;
+  }
+
+  .ae-text {
+    color: #2A9CFF;
+  }
 @media only screen
 and (max-device-width: 480px)
 and (-webkit-min-device-pixel-ratio: 2) {
