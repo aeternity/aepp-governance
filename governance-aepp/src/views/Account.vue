@@ -7,7 +7,7 @@
       <AccountHeader :address="address" :canOpen="false"/>
     </div>
     <div v-if="delegation">
-      <div class="mx-4 mt-4">Delegatee</div>
+      <div class="mx-4 mt-4">delegate</div>
       <div class="ae-card mx-4 my-2 py-4 px-3 flex justify-between" id="account-delegatee">
         <ae-identity-light
           :collapsed="true"
@@ -25,11 +25,16 @@
       </div>
     </div>
     <div v-if="!delegation && isOwnAccount">
-      <div class="header-row">Delegate your voting power</div>
-      <div class="flex bg-white mx-4 my-2">
-        <ae-input label="Delegatee" v-model="delegatee" aeddress/>
-        <div class="ml-auto border-r border-gray-500 opacity-50 my-2"></div>
-        <img src="../assets/back_gray.svg" class="px-4 rotate-180" @click="createDelegation" alt="back">
+      <div class="header-row">
+        <span>Delegate your voting power</span>
+        <div class="flex my-2">
+          <ae-input
+            label="Paste the wallet address or .chain name of the person who will vote on your behalf."
+            v-model="delegatee" aeddress
+          />
+          <div class="ml-auto border-r border-gray-500 opacity-50 my-2"></div>
+          <img src="../assets/back_gray.svg" class="px-4 rotate-180" @click="createDelegation" alt="back">
+        </div>
       </div>
     </div>
     <div class="navigation">
@@ -59,7 +64,7 @@
         </div>
       </div>
       <div v-else class="msg text-center my-8">
-        Could not find any delegations to {{isOwnAccount ? 'you' : 'this account'}}.
+        No votes have been delegated to {{isOwnAccount ? 'you' : 'this account'}}.
       </div>
     </div>
     <div v-if="activeTab === 'votes'" id="account-tab-votes">
@@ -69,7 +74,7 @@
         </div>
       </div>
       <div v-else class="msg text-center my-8">
-        Could not find any votes.
+        No votes on record. Browse through active polls and start getting involved!
       </div>
     </div>
     <div v-if="activeTab === 'polls'" id="account-tab-polls">
@@ -79,7 +84,8 @@
         </div>
       </div>
       <div v-else class="msg text-center py-4 my-4">
-        Could not find any polls created by {{isOwnAccount ? 'you' : 'this account'}}.
+        {{isOwnAccount ? 'You' : 'This account'}} haven’t created any polls yet. 
+        Create one by clicking the button on the bottom right.
       </div>
     </div>
     <BottomButtons htmlId="account-nav-buttons" :search-bar="true" :search-button="true" @searchSubmit="handleSearch"
