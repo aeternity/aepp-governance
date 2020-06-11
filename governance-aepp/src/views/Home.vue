@@ -6,16 +6,16 @@
     <div class="fixed w-full top-0 max-w-desktop">
       <div class="tab-switcher" id="home-tab-switcher">
         <div v-if="pollOrdering" :class="{active: activeTab === 'hot'}" @click="switchTab('hot')" class="tab">
-          <span>Hot Polls</span>
+          <span>Trending</span>
         </div>
         <div :class="{active: activeTab === 'closing'}" @click="switchTab('closing')" class="tab">
-          <span>Closing</span>
+          <span>Ending soon</span>
         </div>
         <div v-if="pollOrdering" :class="{active: activeTab === 'stake'}" @click="switchTab('stake')" class="tab">
           <span>Stake</span>
         </div>
         <div :class="{active: activeTab === 'new'}" @click="switchTab('new')" class="tab">
-          <span>New</span>
+          <span>Latest</span>
         </div>
         <div :class="{active: activeTab === 'closed'}" @click="switchTab('closed')" class="tab">
           <span>Closed</span>
