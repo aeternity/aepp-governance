@@ -9,7 +9,7 @@
         </div>
       </transition>
       <div class="title">
-        <span><span v-if="isOwnAccount">Your </span> Account</span>
+        <span>Voter Account</span>
         <span class="copy">
           Copy
           <img src="../assets/copy.svg" class="cursor-pointer" @click="copyToClipboard" alt="copy"/>
@@ -40,7 +40,7 @@
           </div>
         </div>
         <div class="sub-text">
-          Delegators votes can overwrite delegation
+          You may still vote for yourself, but this voids your delegatee’s vote for you.
         </div>
         <div class="w-5" v-if="canOpen"></div>
       </div>
