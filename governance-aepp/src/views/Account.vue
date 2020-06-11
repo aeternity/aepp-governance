@@ -25,22 +25,22 @@
       </div>
     </div>
     <div v-if="!delegation && isOwnAccount">
-      <div class="mx-4 mt-4">Delegate your voting power</div>
+      <div class="header-row">Delegate your voting power</div>
       <div class="flex bg-white mx-4 my-2">
         <ae-input label="Delegatee" v-model="delegatee" aeddress/>
         <div class="ml-auto border-r border-gray-500 opacity-50 my-2"></div>
         <img src="../assets/back_gray.svg" class="px-4 rotate-180" @click="createDelegation" alt="back">
       </div>
     </div>
-    <div class="flex w-full text-center text-gray-500 mt-4 text-sm">
-      <div class="flex-1 pb-2 border-b-2 border-gray-300 cursor-pointer" @click="switchTab('delegations')"
-           :class="{'active-tab': activeTab === 'delegations'}">DELEGATIONS
+    <div class="navigation">
+      <div class="navigation-item" @click="switchTab('delegations')"
+           :class="{'active-tab': activeTab === 'delegations'}">Delegations
       </div>
-      <div class="flex-1 pb-2 border-b-2 border-gray-300 cursor-pointer" @click="switchTab('votes')"
-           :class="{'active-tab': activeTab === 'votes'}">VOTES
+      <div class="navigation-item" @click="switchTab('votes')"
+           :class="{'active-tab': activeTab === 'votes'}">Votes
       </div>
-      <div class="flex-1 pb-2 border-b-2 border-gray-300 cursor-pointer" @click="switchTab('polls')"
-           :class="{'active-tab': activeTab === 'polls'}">POLLS
+      <div class="navigation-item" @click="switchTab('polls')"
+           :class="{'active-tab': activeTab === 'polls'}">Polls
       </div>
     </div>
 
@@ -270,7 +270,44 @@
   }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+
+  .header-row {
+    padding: 10px 0;
+    margin: 0 20px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 400;
+  }
+
+  .navigation {
+    display: flex;
+    width: 100%;
+    background-color: #272831;
+    padding: 0 20px;
+  }
+
+  .navigation-item {
+    font-size: 15px;
+    font-weight: 600;
+    color: #727278;
+    padding: 11px 0;
+    margin: 0 15px;
+    border-bottom: 2px solid #272831;
+
+    &:first-child {
+      margin-left: 0;
+    }
+
+    &.active-tab {
+      color: #67f7b8;
+      border-bottom: 2px solid #67f7b8;
+    }
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
 
   .rotate-180 {
     transform: rotate(180deg);
@@ -288,6 +325,18 @@
   .ae-error-field {
     border-color: #ff0d0d;
     background-color: #ff0d0d;
+  }
+
+  @media only screen
+  and (max-device-width: 480px)
+  and (-webkit-min-device-pixel-ratio: 2) {
+    .header-row {
+      margin: 0 10px;
+    }
+
+    .navigation {
+      padding: 0 10px
+    }
   }
 
 </style>
