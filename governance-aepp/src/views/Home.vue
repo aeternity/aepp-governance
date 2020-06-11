@@ -47,7 +47,6 @@
   import BiggerLoader from '../components/BiggerLoader';
   import PollListing from '../components/PollListing';
   import BottomButtons from '../components/BottomButtons';
-  import BlackHeader from '../components/BlackHeader';
   import CriticalErrorOverlay from '../components/CriticalErrorOverlay';
   import BigNumber from 'bignumber.js';
   import { EventBus } from '../utils/eventBus';
@@ -55,7 +54,7 @@
 
   export default {
     name: 'Home',
-    components: { BlackHeader, BottomButtons, PollListing, BiggerLoader, CriticalErrorOverlay },
+    components: { BottomButtons, PollListing, BiggerLoader, CriticalErrorOverlay },
     data() {
       return {
         error: null,

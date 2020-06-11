@@ -3,10 +3,10 @@
 
     <div class="fixed bottom-0 h-16 items-center flex flex-wrap w-full max-w-desktop bottom-bar" :class="{'h-40': view === 'search'}">
       <!-- SEARCH BAR -->
-      <div class="w-full flex h-16 px-8 items-center" v-if="view === 'search'">
+      <div class="w-full flex h-16 px-8 items-center search-bar" v-if="view === 'search'">
         <label class="w-full h-full">
           <input v-model="searchString" type="search" placeholder="Search..."
-                 class="rounded-full flex-1 bg-white h-full flex justify-center items-center px-4 w-full search-bar"/>
+                 class="flex-1 h-full flex justify-center items-center px-4 w-full"/>
         </label>
         <SmallButton :img="images.searchImg" v-if="searchButton"
                      @click="$emit('searchSubmit', searchString)"/>
@@ -28,7 +28,7 @@
             {{ctaText}}
           </button>
           <div
-            class="rounded-full bg-primary px-8 h-full flex justify-center items-center text-white font-semibold relative cursor-pointer"
+            class="ae-button round px-8 h-full flex justify-center items-center text-white font-semibold cursor-pointer relative"
             @click="clickSearch" v-if="searchBar" :class="{'search-button': view === 'search'}">
             Search
           </div>
@@ -159,6 +159,10 @@
   }
 
   .bottom-bar {
+    background: #272831;
+  }
+
+  .search-bar input {
     background: #272831;
   }
 

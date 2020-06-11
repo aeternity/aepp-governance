@@ -166,6 +166,7 @@ body {
   white-space: nowrap;
 }
 
+.text-gray-600,
 .highlited {
   color: #AEAEAE;
 }
