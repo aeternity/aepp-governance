@@ -216,9 +216,31 @@
     margin-top: 1px;
   }
 
-@media (max-width: 480px) {
-  .truncated-address[data-v-4bf5ad98] {
-    font-size: 10px !important;
+  @media (max-width: 640px) {
+    .truncated-address[data-v-4bf5ad98] {
+      font-size: 10px !important;
+    }
   }
-}
+
+  @media (max-width: 480px) {
+    .truncated-address[data-v-4bf5ad98] {
+      font-size: 9px !important;
+    }
+
+    .avatar,
+    .ae-identity-light .avatar {
+      width: 20px;
+      height: 20px;
+    }
+    .identity-name-position {
+      margin-left: 5px;
+      font-weight: 500;
+      color: #727278;
+
+      &._collapsed {
+        margin-left: 5px;
+        margin-right: 5px;
+      }
+    }
+  }
 </style>
