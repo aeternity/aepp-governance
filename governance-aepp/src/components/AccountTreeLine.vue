@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex justify-between">
+    <div class="flex flex-wrap justify-between">
       <ae-identity-light
         :collapsed="true"
         :address="account"
