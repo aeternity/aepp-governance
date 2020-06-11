@@ -21,7 +21,7 @@
           </SmallButton>
         </div>
         <!-- CENTER SECTION -->
-        <div class="flex-3 flex justify-center">
+        <div class="flex-2 flex justify-center">
           <button
             class="ae-button round px-8 h-full flex justify-center items-center text-white font-semibold cursor-pointer"
             @click="$emit('cta')" :disabled="ctaDisabled" v-if="ctaText">
