@@ -8,13 +8,15 @@
           <span>Copied address to clipboard</span>
         </div>
       </transition>
-      <div class="title">
-        <span>Voter Account</span>
-        <span class="copy">
-          Copy
-          <img src="../assets/copy.svg" class="cursor-pointer" @click="copyToClipboard" alt="copy"/>
-        </span>
-      </div>
+      <BlackHeader>
+        <div class="w-full flex flex-wrap justify-between items-center">
+          <span>Voter Account</span>
+          <span class="copy">
+            Copy
+            <img src="../assets/copy.svg" class="cursor-pointer" @click="copyToClipboard" alt="copy"/>
+          </span>
+        </div>
+      </BlackHeader>
       <div class="header-row flex flex-wrap justify-between items-center mt-3">
         <div>
           <AeIdentityLight
@@ -76,13 +78,13 @@
   import BigNumber from "bignumber.js";
   import copy from 'copy-to-clipboard';
   import { EventBus } from '../utils/eventBus';
-  import Util from '../utils/util';
+  import BlackHeader from '../components/BlackHeader';
   import caret from '../assets/caret.svg';
   import caretActive from '../assets/caretActive.svg';
 
   export default {
     name: "AccountHeader",
-    components: {AeIdentityLight},
+    components: {BlackHeader, AeIdentityLight},
     props: {
       address: {
         type: String,
@@ -159,18 +161,7 @@
     position: relative;
   }
 
-  .title {
-    padding: 10px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: #2a9cff;
-    font-size: 20px;
-    font-weight: 400;
-  }
-
-  .expand-account.canOpen,
-  .title {
+  .expand-account.canOpen {
     background-color: #272831;
   }
 
@@ -236,8 +227,7 @@
   }
 
   @media only screen
-  and (max-device-width: 480px)
-  and (-webkit-min-device-pixel-ratio: 2) {
+  and (max-width: 480px) {
     .expand-account {
       margin: 0 10px;
     }
@@ -246,7 +236,6 @@
       margin: 0 10px;
     }
 
-    .title,
     .expand-account.canOpen {
       padding: 10px;
     }
