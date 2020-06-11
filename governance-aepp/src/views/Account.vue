@@ -32,7 +32,7 @@
             label="Paste the wallet address or .chain name of the person who will vote on your behalf."
             v-model="delegatee" aeddress
           />
-          <div class="ml-auto border-r border-gray-500 opacity-50 my-2"></div>
+          <div class="ml-auto my-2"></div>
           <img src="../assets/back_gray.svg" class="px-4 rotate-180" @click="createDelegation" alt="back">
         </div>
       </div>
@@ -84,7 +84,7 @@
         </div>
       </div>
       <div v-else class="msg text-center py-4 my-4">
-        {{isOwnAccount ? 'You' : 'This account'}} haven’t created any polls yet. 
+        {{isOwnAccount ? 'You' : 'This account'}} haven’t created any polls yet.
         Create one by clicking the button on the bottom right.
       </div>
     </div>

@@ -61,10 +61,12 @@
     <div class="my-2 mx-4 flex items-center item-options px-4" :class="{'bg-ae-error': !!errors.optionError}"
          :key="option.id" v-for="option in options">
       <div class="w-6 flex justify-center">
-        <div v-if="option.text" class="rounded-full border-2 border-gray-500 w-6 h-6">&nbsp;</div>
+        <div v-if="option.text" class="h-6">
+          <ae-check class="mr-2" type="radio" @click.stop.prevent disabled/>
+        </div>
         <img v-else src="../assets/plus-option.svg" id="plus-icon" alt="add option">
       </div>
-      <label>
+      <label class="w-full">
         <input v-model="option.text" @input="optionInput" type="text" placeholder="Add Option"
                class="ae-input-option w-full h-full px-2 py-6 outline-none"
                :class="{'bg-ae-error': !!errors.optionError}"/>
@@ -108,6 +110,8 @@
   import AeButton from '@aeternity/aepp-components/dist/ae-button/';
   import '@aeternity/aepp-components/dist/ae-button-group/ae-button-group.css';
   import AeButtonGroup from '@aeternity/aepp-components/dist/ae-button-group/';
+  import "@aeternity/aepp-components/dist/ae-check/ae-check.css"
+  import AeCheck from "@aeternity/aepp-components/dist/ae-check/"
 
   import aeternity from '../utils/aeternity';
   import pollContractSource from '../assets/contracts/Poll.aes';
@@ -123,7 +127,8 @@
     components: {
       CriticalErrorOverlay,
       HintBubble,
-      BlackHeader, BottomButtons, AeButton, AeInput, BiggerLoader, AeButtonGroup
+      BlackHeader, BottomButtons,
+      AeCheck, AeButton, AeInput, BiggerLoader, AeButtonGroup
     },
     data() {
       return {
