@@ -7,20 +7,22 @@
       <AccountHeader :address="address" :canOpen="false"/>
     </div>
     <div v-if="delegation">
-      <div class="mx-4 mt-4">delegate</div>
-      <div class="ae-card mx-4 my-2 py-4 px-3 flex justify-between" id="account-delegatee">
-        <ae-identity-light
-          :collapsed="true"
-          :balance="''"
-          @click="$router.push(`/account/${delegation}`)"
-          :address="delegation"
-        />
-        <div v-if="isOwnAccount" class="flex ml-auto">
-          <img src="../assets/edit.svg" class="pr-4"
-               @click="() => { delegatee = delegation; delegation = null}"
-               alt="edit">
-          <div class="h-full border-r border-gray-500 opacity-50"></div>
-          <img src="../assets/delete.svg" class="pl-4 pr-1" @click="revokeDelegation" alt="delete">
+      <div class="header-row">
+        <div>Delegate</div>
+        <div class="ae-card my-2 py-4 px-3 flex justify-between" id="account-delegatee">
+          <ae-identity-light
+            :collapsed="true"
+            :balance="''"
+            @click="$router.push(`/account/${delegation}`)"
+            :address="delegation"
+          />
+          <div v-if="isOwnAccount" class="flex ml-auto">
+            <img src="../assets/edit.svg" class="pr-4"
+                @click="() => { delegatee = delegation; delegation = null}"
+                alt="edit">
+            <div class="h-full border-r border-gray-500 opacity-50"></div>
+            <img src="../assets/delete.svg" class="pl-4 pr-1" @click="revokeDelegation" alt="delete">
+          </div>
         </div>
       </div>
     </div>
@@ -29,11 +31,15 @@
         <span>Delegate your voting power</span>
         <div class="flex my-2">
           <ae-input
-            label="Paste the wallet address or .chain name of the person who will vote on your behalf."
+            label="Paste the wallet address of the person who will vote on your behalf."
             v-model="delegatee" aeddress
           />
           <div class="ml-auto my-2"></div>
-          <img src="../assets/back_gray.svg" class="px-4 rotate-180" @click="createDelegation" alt="back">
+          <div
+            class="ae-button round flex justify-center items-center text-white font-semibold cursor-pointer"
+            @click="createDelegation">
+            Delegate
+          </div>
         </div>
       </div>
     </div>
@@ -189,7 +195,6 @@
             console.error(e);
             this.showLoading = false;
             this.error = 'Could not create your delegation. Please try again.';
-
           }
         }
       },
@@ -320,10 +325,6 @@
     font-size: 15px;
   }
 
-  .rotate-180 {
-    transform: rotate(180deg);
-  }
-
   .bottom-36 {
     bottom: 9rem;
   }
@@ -331,6 +332,18 @@
   .ae-error-field {
     border-color: #ff0d0d;
     background-color: #ff0d0d;
+  }
+
+  .ae-button {
+    padding: 0 20px;
+    margin-bottom: 3px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  .ae-input-container {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
   }
 
   @media only screen
@@ -342,6 +355,10 @@
 
     .navigation {
       padding: 0 10px
+    }
+
+    .ae-button {
+      padding: 0 5px;
     }
   }
 
