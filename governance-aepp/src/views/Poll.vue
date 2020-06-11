@@ -28,7 +28,7 @@
             </div>
           </transition>
         </div>
-        <div class="poll-author" id="poll-author">
+        <div class="poll-author flex-wrap" id="poll-author">
           <span>BY:</span>
           <div class="text-primary">
             <ae-identity-light
@@ -42,7 +42,7 @@
       </div>
       <div class="poll-metadata">
         <div class="inline-block" v-if="pollVotesState && pollVotesState.totalStake">
-          Stake: 
+          Stake:
           <span class="ae-value">{{pollVotesState.totalStake | toAE(0, true)}}</span>
           <span class="ae-text">AE</span> ({{pollVotesState.percentOfTotalSupply | formatPercent(2)}})
         </div>
@@ -89,8 +89,8 @@
                   <span>{{title}}</span>
                 </div>
                 <div class="min-w-3" style="margin-top: 4px" v-if="pollVotesState">
-                  <img 
-                    :src="votersForOption.id != null && votersForOption.id === id ? caretActive : caret" 
+                  <img
+                    :src="votersForOption.id != null && votersForOption.id === id ? caretActive : caret"
                     class="ae-transition-300"
                     alt="show poll state"
                     :class="{'rotate-90': votersForOption.id != null && votersForOption.id === id}">
@@ -520,7 +520,7 @@
   .remove-progress-border .progress-line, .remove-progress-border {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
-  } 
+  }
 
 @media only screen
 and (max-device-width: 480px)

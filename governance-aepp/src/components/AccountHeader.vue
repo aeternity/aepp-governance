@@ -15,7 +15,7 @@
           <img src="../assets/copy.svg" class="cursor-pointer" @click="copyToClipboard" alt="copy"/>
         </span>
       </div>
-      <div class="header-row flex justify-between items-center mt-3">
+      <div class="header-row flex flex-wrap justify-between items-center mt-3">
         <div>
           <AeIdentityLight
             :collapsed="true"
@@ -206,7 +206,7 @@
     z-index: 20;
     display: flex;
     justify-content: center;
-    align-items: center; 
+    align-items: center;
   }
 
   .header-row {
