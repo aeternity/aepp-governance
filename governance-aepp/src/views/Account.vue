@@ -58,7 +58,7 @@
           <div v-if="includesIndirectDelegations" class="mx-4 mt-1 text-xs">(includes more indirect delegations)</div>
         </div>
       </div>
-      <div v-else class="text-gray-500 text-xl text-center my-8">
+      <div v-else class="msg text-center my-8">
         Could not find any delegations to {{isOwnAccount ? 'you' : 'this account'}}.
       </div>
     </div>
@@ -68,7 +68,7 @@
           <PollListing :id="id" :data="data" :showVote="true" class="mx-4"/>
         </div>
       </div>
-      <div v-else class="text-gray-500 text-xl text-center my-8">
+      <div v-else class="msg text-center my-8">
         Could not find any votes.
       </div>
     </div>
@@ -78,7 +78,7 @@
           <PollListing :id="id" :data="data" class="mx-4"/>
         </div>
       </div>
-      <div v-else class="text-gray-500 text-xl text-center py-4 my-4">
+      <div v-else class="msg text-center py-4 my-4">
         Could not find any polls created by {{isOwnAccount ? 'you' : 'this account'}}.
       </div>
     </div>
@@ -307,6 +307,11 @@
     &:hover {
       cursor: pointer;
     }
+  }
+
+  .msg {
+    color: #AEAEAE;
+    font-size: 15px;
   }
 
   .rotate-180 {
