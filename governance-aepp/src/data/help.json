@@ -1,7 +1,7 @@
 {
   "home": {
-    "headline": "The Governance Aepp",
-    "text": "On the home page all listed polls are shown. The different tabs can be used to filter and/or sort the polls. To navigate the aepp, use the buttons at the bottom of the screen.",
+    "headline": "The Voting Aepp",
+    "text": "This voting æpp serves as a tool for community members to signal their preferences, opinion, and insights on issues as well as decisions for topics within and beyond the æternity network.\nAnyone can vote so long as they have AE tokens (1 AE = 1 vote). Users may also delegate their vote to other wallet holders.\nAll polls launched and all votes cast through the Voting æpp are\nforever recorded on æternity blockchain. ",
     "items": [
       {
         "target": "#home-tab-switcher",
