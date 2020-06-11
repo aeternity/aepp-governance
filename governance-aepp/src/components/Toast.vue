@@ -1,5 +1,5 @@
 <template>
-  <div class="toaster rounded-full py-2 px-4">
+  <div class="toaster rounded py-2 px-4">
     <slot/>
   </div>
 </template>
