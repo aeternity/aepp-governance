@@ -2,12 +2,12 @@
   <div class="bg-gray-ae px-5 py-1 w-full text-xl text-white flex justify-between items-center">
     <slot/>
     <div class="flex items-center justify-end">
-      <div ref="inputContainer" class="relative rounded-full hide-input flex items-center pr-3 pb-1"
+      <div ref="inputContainer" class="relative rounded hide-input flex items-center pr-3 pb-1"
            v-if="showNumberInput">
         <img src="../assets/hash_white.svg" class="h-6 pl-4 pt-1 cursor-pointer" @click="showInput" alt="enter id">
         <form @submit.prevent="submit">
           <input v-model="id" ref="input" type="number" @input="$emit('input', id)"
-                 class="text-gray-800 w-full text-2xl outline-none bg-transparent leading-none" @blur="onBlur">
+                 class="text-gray-600 w-full text-2xl outline-none bg-transparent leading-none" @blur="onBlur">
         </form>
       </div>
       <div class="w-6 text-2xl h-6 justify-center flex items-center ml-2 cursor-pointer"
@@ -89,7 +89,6 @@
 
   .hide-input {
     width: auto;
-    background: #333;
     padding-right: 0;
   }
 
@@ -99,6 +98,7 @@
 
   .show-input {
     padding-right: 1.5rem;
+    background: #12121b;
   }
 
   .show-input img {
@@ -138,15 +138,15 @@
 
   @keyframes background-frames {
     from {
-      background-color: #333;
+      background-color: #272831;
       padding-right: 0;
     }
     40% {
-      background-color: #FFF;
+      background-color: #12121b;
       padding-right: 1.5rem;
     }
     to {
-      background-color: #FFF;
+      background-color: #12121b;
       padding-right: 1.5rem;
     }
   }
