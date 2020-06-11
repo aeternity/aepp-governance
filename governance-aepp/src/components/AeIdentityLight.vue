@@ -5,7 +5,7 @@
       <span :class="['identity-name-position', collapsedModifier]">
         <span role="heading" :class="['identity-name', collapsedModifier]">{{name}}</span>
         <small class="truncated-address cursor-pointer" v-if="collapsed" @click="$emit('click')">
-           {{address | shorten}} •••
+           {{address}}
         </small>
       </span>
       <div class="balances">
@@ -215,4 +215,10 @@
   .identity-name + .truncated-address {
     margin-top: 1px;
   }
+
+@media (max-width: 480px) {
+  .truncated-address[data-v-4bf5ad98] {
+    font-size: 10px !important;
+  }
+}
 </style>
