@@ -5,9 +5,9 @@
     </BlackHeader>
     <div class="m-4 ae-card cursor-pointer" @click="toggleCard()">
       <div class="flex justify-between items-center w-full py-4 px-3">
-        <img src="../assets/warning-24px.svg" alt="warning symbol">
+        <img src="../assets/warning.svg" alt="warning symbol">
         <div class="mr-auto ml-2" style="margin-top: 4px">
-          <span class="font-bold">The Governance Aepp is still in testing mode.</span>
+          <span class="font-bold">The Voting Aepp is still in beta</span>
         </div>
         <div class="min-w-3" style="margin-top: 4px">
           <img src="../assets/back_gray.svg" class="ae-transition-300" alt="show poll state"
@@ -17,7 +17,7 @@
       <div v-show="showCard">
         <div class="p-4">
           This means <span class="font-bold">the aeternity crypto foundation did not finally decide how to take results into effect</span>,
-          that are outcome of signaling on polls in the governance aepp.
+          that are outcome of signaling on polls in the Voting aepp.
         </div>
         <div class="p-4">
           Additionally participating with <span class="font-bold">ledger hardware wallets is still not supported</span>
@@ -106,4 +106,14 @@
 </script>
 
 <style scoped>
+  .ae-card {
+    background: #292b35;
+    color: #aeaeae;
+  }
+  h1 {
+    color: #fff;
+  }
+  p {
+    color: #aeaeae;
+  }
 </style>
