@@ -313,11 +313,6 @@
     transform: rotate(180deg);
   }
 
-  .active-tab {
-    border-color: #FF0D6A;
-    color: black;
-  }
-
   .bottom-36 {
     bottom: 9rem;
   }
