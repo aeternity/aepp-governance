@@ -50,7 +50,7 @@
           - Closes never
         </div>
         <div v-else-if="!isClosed">
-          Closes in <span class="highlited">~{{timeDifference | timeDifferenceToString}}</span> (Block {{pollState.close_height}})
+          Closes in <span class="highlited">{{timeDifference | timeDifferenceToString}}</span> (Block {{pollState.close_height}})
         </div>
         <div v-else-if="isClosed && closeBlock">
           Closed on {{closeBlock.keyBlock.time | timeStampToString}} (Block {{pollState.close_height}})

@@ -16,7 +16,7 @@
       <div class="listing-data">
         <span v-if="percentOfTotalSupply"><span class="highlited">{{percentOfTotalSupply | formatPercent(2)}}</span> stake - </span>
         <span v-else-if="loading"><ae-loader/> stake - </span>
-        <span v-if="isClosed">closed at {{data.close_height}}( <span class="highlited">{{Math.abs(timeDifference) | timeDifferenceToString}}</span> ago )</span>
+        <span v-if="isClosed">closed <span class="highlited">{{Math.abs(timeDifference) | timeDifferenceToString}}</span> ago (Block {{data.close_height}}) </span>
         <span v-else-if="typeof data.close_height !== 'number'">never closes</span>
         <span v-else>closes in <span class="highlited">{{timeDifference | timeDifferenceToString}}</span></span>
       </div>
