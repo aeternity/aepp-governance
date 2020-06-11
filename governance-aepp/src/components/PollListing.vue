@@ -10,13 +10,13 @@
       <div class="flex items-center vote-id w-full">
         <span class="listing-text">{{data.title}}</span>
       </div>
-      <div v-if="showVote" class="mt-2 flex items-center">
-        <img src="../assets/check_circle-24px.svg" class="mb-1"> <span class="pl-1 leading-none text-gray-600">{{data.vote}}</span>
+      <div v-if="showVote" class="vote">
+       <ae-check :value="true" type="radio" v-model="showVote"/> <span class="vote-text">{{data.vote}}</span>
       </div>
       <div class="listing-data">
         <span v-if="percentOfTotalSupply"><span class="highlited">{{percentOfTotalSupply | formatPercent(2)}}</span> stake - </span>
         <span v-else-if="loading"><ae-loader/> stake - </span>
-        <span v-if="isClosed">closed at {{data.close_height}}(~<span class="highlited">{{Math.abs(timeDifference) | timeDifferenceToString}}</span> ago)</span>
+        <span v-if="isClosed">closed at {{data.close_height}}( <span class="highlited">{{Math.abs(timeDifference) | timeDifferenceToString}}</span> ago )</span>
         <span v-else-if="typeof data.close_height !== 'number'">never closes</span>
         <span v-else>closes in <span class="highlited">{{timeDifference | timeDifferenceToString}}</span></span>
       </div>
@@ -32,6 +32,7 @@
 
   import "@aeternity/aepp-components/dist/aeLoader/aeLoader.css"
   import AeLoader from "@aeternity/aepp-components/dist/aeLoader/"
+  import AeCheck from "@aeternity/aepp-components/dist/ae-check/"
 
 
   import Backend from "../utils/backend";
@@ -39,7 +40,7 @@
   import AeIdentityLight from './AeIdentityLight'
 
   export default {
-    components: {AeLoader, AeIdentityLight},
+    components: {AeLoader, AeIdentityLight, AeCheck},
     data() {
       return {
         loading: true,
@@ -131,5 +132,18 @@
     vertical-align: middle;
     margin-left: -3px;
   }
+}
+
+.vote {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.vote-text {
+  margin-left: 5px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 400;
 }
 </style>
