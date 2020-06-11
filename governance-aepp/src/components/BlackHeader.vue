@@ -12,7 +12,7 @@
       </div>
       <div class="w-6 text-2xl h-6 justify-center flex items-center ml-2 cursor-pointer"
            @click.stop.prevent="toggleHelp()" id="question-mark-icon">
-        ?
+        <img src="../assets/help.svg" alt="help">
       </div>
     </div>
 
@@ -79,8 +79,6 @@
   }
 
   #question-mark-icon {
-    border: 3px solid #727278;
-    border-radius: 100%;
     color: #727278;
     font-family: sans-serif;
     font-size: 16px;
