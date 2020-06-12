@@ -59,7 +59,7 @@
         this.$refs.input.focus();
       },
       toggleHelp() {
-        if(this.$route.name !== 'help') this.$router.push('help');
+        if(this.$route.name !== 'help') this.$router.push('/help');
         else this.$router.go(-1);
       }
     },
