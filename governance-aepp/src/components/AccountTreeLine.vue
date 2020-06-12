@@ -12,8 +12,9 @@
         (<span class="text-primary cursor-pointer">{{totalTreeDepth}}D</span>)
       </span>
         <span>
-        {{totalBalance | toAE}}
-      </span>
+          <span class="ae-value">{{totalBalance | toAE(2, true)}}</span>
+          <span class="ae-text">AE</span>
+        </span>
       </div>
     </div>
     <div class="ml-2 my-1">
