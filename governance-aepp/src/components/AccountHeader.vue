@@ -28,8 +28,9 @@
             @click="copyToClipboard"
           />
         </div>
-        <div class="text-sm font-bold font-mono ml-auto" v-if="balance !== null">
-          {{balance | toAE}}
+        <div class="ml-auto" v-if="balance !== null">
+          <span class="ae-value">{{balance | toAE(2, true)}}</span>
+          <span class="ae-text">AE</span>
         </div>
       </div>
 
