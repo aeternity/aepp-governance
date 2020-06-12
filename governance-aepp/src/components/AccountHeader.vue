@@ -17,7 +17,7 @@
           </span>
         </div>
       </BlackHeader>
-      <div class="header-row flex flex-wrap justify-between items-center mt-3">
+      <div class="header-row flex flex-wrap justify-between items-center mt-3 relative">
         <div>
           <AeIdentityLight
             :collapsed="true"
@@ -28,7 +28,7 @@
             @click="copyToClipboard"
           />
         </div>
-        <div class="ml-auto" v-if="balance !== null">
+        <div class="ml-auto absolute right-0" v-if="balance !== null">
           <span class="ae-value">{{balance | toAE(2, true)}}</span>
           <span class="ae-text">AE</span>
         </div>
