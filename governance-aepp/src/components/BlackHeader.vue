@@ -1,10 +1,10 @@
 <template>
-  <div class="bg-gray-ae px-5 py-1 w-full text-xl text-white flex justify-between items-center">
+  <div class="black-header bg-gray-ae py-1 w-full text-xl text-white flex justify-between items-center">
     <slot/>
     <div class="flex items-center justify-end">
       <div ref="inputContainer" class="relative rounded hide-input flex items-center pr-3 pb-1"
            v-if="showNumberInput">
-        <img src="../assets/hash_white.svg" class="h-6 pl-4 pt-1 cursor-pointer" @click="showInput" alt="enter id">
+        <img src="../assets/hash.svg" class="h-6 pl-4 pt-1 cursor-pointer" @click="showInput" alt="enter id">
         <form @submit.prevent="submit">
           <input v-model="id" ref="input" type="number" @input="$emit('input', id)"
                  class="text-gray-600 w-full text-2xl outline-none bg-transparent leading-none" @blur="onBlur">
@@ -102,7 +102,7 @@
   }
 
   .show-input img {
-    filter: brightness(0.2);
+    filter: brightness(0.6);
   }
 
   .show-input input {
@@ -136,6 +136,11 @@
     animation-direction: reverse;
   }
 
+  .black-header {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
   @keyframes background-frames {
     from {
       background-color: #272831;
@@ -165,10 +170,10 @@
       filter: brightness(1);
     }
     40% {
-      filter: brightness(0.2);
+      filter: brightness(0.6);
     }
     to {
-      filter: brightness(0.2)
+      filter: brightness(0.6)
     }
   }
 
@@ -182,4 +187,13 @@
     -moz-appearance: textfield;
   }
 
+ @media only screen
+  and (min-device-width: 320px)
+  and (max-device-width: 480px)
+  and (-webkit-min-device-pixel-ratio: 2) {
+    .black-header {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+  }
 </style>
