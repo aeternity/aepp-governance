@@ -3,22 +3,25 @@
     <div class="overlay-loader" v-show="showLoading && !error">
       <BiggerLoader/>
     </div>
-    <div class="fixed w-full top-0 max-w-desktop">
+    <div class="fixed w-full top-0 max-w-desktop z-20">
+      <BlackHeader :show-number-input="true" @submit="showPoll" @input="handleIdInput">
+        {{getTabLabelByValue(activeTab)}} Polls
+      </BlackHeader>
       <div class="tab-switcher" id="home-tab-switcher">
         <div v-if="pollOrdering" :class="{active: activeTab === 'hot'}" @click="switchTab('hot')" class="tab">
-          <span>Trending</span>
+          <span>{{getTabLabelByValue('hot')}}</span>
         </div>
         <div :class="{active: activeTab === 'closing'}" @click="switchTab('closing')" class="tab">
-          <span>Ending soon</span>
+          <span>{{getTabLabelByValue('closing')}}</span>
         </div>
         <div v-if="pollOrdering" :class="{active: activeTab === 'stake'}" @click="switchTab('stake')" class="tab">
-          <span>Stake</span>
+          <span>{{getTabLabelByValue('stake')}}</span>
         </div>
         <div :class="{active: activeTab === 'new'}" @click="switchTab('new')" class="tab">
-          <span>Latest</span>
+          <span>{{getTabLabelByValue('new')}}</span>
         </div>
         <div :class="{active: activeTab === 'closed'}" @click="switchTab('closed')" class="tab">
-          <span>Closed</span>
+          <span>{{getTabLabelByValue('closed')}}</span>
         </div>
       </div>
     </div>
@@ -50,11 +53,12 @@
   import CriticalErrorOverlay from '../components/CriticalErrorOverlay';
   import BigNumber from 'bignumber.js';
   import { EventBus } from '../utils/eventBus';
-  import Util from '../utils/util'
+  import Util from '../utils/util';
+  import BlackHeader from '../components/BlackHeader';
 
   export default {
     name: 'Home',
-    components: { BottomButtons, PollListing, BiggerLoader, CriticalErrorOverlay },
+    components: { BlackHeader, BottomButtons, PollListing, BiggerLoader, CriticalErrorOverlay },
     data() {
       return {
         error: null,
@@ -204,6 +208,30 @@
         this.showLoading = false;
 
       },
+
+      getTabLabelByValue(tabValue) {
+        let tabText = ''
+
+        switch (tabValue) {
+          case 'hot':
+            tabText = 'Trending'
+            break;
+          case 'stake':
+           tabText = 'Stake'
+            break;
+          case 'closing':
+           tabText = 'Ending soon'
+            break;
+          case 'new':
+             tabText = 'Latest'
+            break;
+          case 'closed':
+            tabText = 'Closed'
+            break;
+        }
+
+        return tabText;
+      }
     },
 
     async mounted() {
@@ -257,7 +285,7 @@
   }
 
   .poll-list {
-    margin-top: 76px;
+    margin-top: 135px;
     padding: 0 15px;
   }
 
@@ -277,7 +305,6 @@
 
     .poll-list {
       padding: 0 10px;
-      margin-top: 66px;
     }
   }
 </style>
