@@ -1,5 +1,5 @@
 <template>
-  <div class="">
+  <div>
     <div class="flex bg-gray-200 text-gray-600 text-sm px-4 py-2 rounded-t" v-if="data.delegatee" @click="$router.push(`/account/${data.delegatee}`)">
       <AeIdentityLight :address="data.delegatee"
                        :collapsed="true"
@@ -14,11 +14,11 @@
        <ae-check :value="true" type="radio" v-model="showVote"/> <span class="vote-text">{{data.vote}}</span>
       </div>
       <div class="listing-data">
-        <span v-if="percentOfTotalSupply"><span class="highlited">{{percentOfTotalSupply | formatPercent(2)}}</span> stake - </span>
+        <span v-if="percentOfTotalSupply"><span class="highlighted">{{percentOfTotalSupply | formatPercent(2)}}</span> stake - </span>
         <span v-else-if="loading"><ae-loader/> stake - </span>
-        <span v-if="isClosed">closed <span class="highlited">{{Math.abs(timeDifference) | timeDifferenceToString}}</span> ago (Block {{data.close_height}}) </span>
+        <span v-if="isClosed">closed <span class="highlighted">{{Math.abs(timeDifference) | timeDifferenceToString}}</span> ago (Block {{data.close_height}}) </span>
         <span v-else-if="typeof data.close_height !== 'number'">never closes</span>
-        <span v-else>closes in <span class="highlited">{{timeDifference | timeDifferenceToString}}</span></span>
+        <span v-else>closes in <span class="highlighted">{{timeDifference | timeDifferenceToString}}</span></span>
       </div>
       <div class="listing-id">
         <img src="../assets/hash.svg" alt="hash"/>

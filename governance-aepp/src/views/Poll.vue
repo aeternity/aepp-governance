@@ -50,7 +50,7 @@
           - Closes never
         </div>
         <div v-else-if="!isClosed">
-          Closes in <span class="highlited">{{timeDifference | timeDifferenceToString}}</span> (Block {{pollState.close_height}})
+          Closes in <span class="highlighted">{{timeDifference | timeDifferenceToString}}</span> (Block {{pollState.close_height}})
         </div>
         <div v-else-if="isClosed && closeBlock">
           Closed on {{closeBlock.keyBlock.time | timeStampToString}} (Block {{pollState.close_height}})
@@ -122,10 +122,10 @@
             Open source at
             <a href="https://github.com/aeternity/aepp-governance/"
               @click.stop.prevent="openLink('verify', 'https://github.com/aeternity/aepp-governance/')"
-              class="highlited">aeternity/aepp-governance</a>
+              class="highlighted">aeternity/aepp-governance</a>
           </div>
           <div class="float-right verify-result">
-            <a class="highlited" href="https://github.com/aeternity/aepp-governance/blob/master/docs/how-to-verify-results.md"
+            <a class="highlighted" href="https://github.com/aeternity/aepp-governance/blob/master/docs/how-to-verify-results.md"
               @click.stop.prevent="openLink('verify', 'https://github.com/aeternity/aepp-governance/blob/master/docs/how-to-verify-results.md')"
               v-if="!showCopyNoticeVerify">Verify Poll Result</a>
             <transition name="fade">
@@ -476,7 +476,7 @@
     font-size: 10px;
     color: #727278;
 
-    .highlited:hover {
+    .highlighted:hover {
       filter: brightness(1.3)
     }
 
