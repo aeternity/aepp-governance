@@ -1,7 +1,7 @@
 <template>
   <div class="fixed flex inset-0 z-30 bg-transparent-80 justify-center items-center" v-if="!hide && top !== null" @click.stop.prevent="removeOverlay">
       <img src="../assets/help.svg" alt="help" class="rounded-full flex items-center cursor-pointer absolute shadow-white"
-           :style="{'top': top + 'px', 'left': left + 'px'}" @click="$router.push('help')">
+           :style="{'top': top + 'px', 'left': left + 'px'}" @click="$router.push('/help')">
     <div class="text-white text-2xl p-4">
       Tap the question mark to learn more (or anywhere to close).
     </div>
