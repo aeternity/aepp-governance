@@ -1,7 +1,7 @@
 <template>
   <div :class="classObject">
     <div class="flex-row">
-      <ae-identicon class="avatar" :address='address'/>
+      <div class="user-identicon" v-html="avatar.src"></div>
       <span :class="['identity-name-position', collapsedModifier]">
         <span role="heading" :class="['identity-name', collapsedModifier]">{{name}}</span>
         <small class="truncated-address cursor-pointer" v-if="collapsed" @click="$emit('click')">
@@ -28,14 +28,13 @@
   </div>
 </template>
 <script>
-    import AeIdenticon from '@aeternity/aepp-components/src/components/ae-identicon/ae-identicon.vue'
+    import jdenticon from 'jdenticon';
 
     /**
      * Displays an Identity with an avatar blockie, the address and an amount of ether
      */
     export default {
         name: 'ae-identity-light',
-        components: {AeIdenticon},
         props: {
             /**
              * An identity name
@@ -76,6 +75,23 @@
             },
         },
         computed: {
+            avatar() {
+              jdenticon.config = {
+                lightness: {
+                  color: [0.4, 1.0],
+                  grayscale: [0.5, 1.0],
+                },
+                saturation: {
+                  color: 1.0,
+                  grayscale: 1.0,
+                },
+                backColor: '#12121bff',
+              };
+              return {
+                type: 'identicon',
+                src: jdenticon.toSvg(this.address, 32),
+              };
+            },
             classObject() {
                 return [
                     'ae-identity-light',
@@ -103,6 +119,10 @@
 </script>
 <style lang="scss" scoped>
   @import '~@aeternity/aepp-components/src/styles/fallback/variables';
+
+  .user-identicon {
+    display: inline-block;
+  }
 
   .ae-identity-light._invert {
     color: $white;
