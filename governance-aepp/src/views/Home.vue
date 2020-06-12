@@ -54,6 +54,7 @@
   import BigNumber from 'bignumber.js';
   import { EventBus } from '../utils/eventBus';
   import Util from '../utils/util';
+  import blacklistJSON from '../data/blacklist.json';
   import BlackHeader from '../components/BlackHeader';
 
   export default {
@@ -183,15 +184,17 @@
           this.error = 'Could not fetch polls.';
         });
         const fetchOrdering = new Backend(aeternity.networkId).pollOrdering(false).catch(console.error);
-        const [allPolls, pollOrdering] = await Promise.all([fetchPolls, fetchOrdering]);
+        const fetchBlacklist = new Backend(aeternity.networkId).getBlacklistedPolls().catch(() => blacklistJSON);
+        const [allPolls, pollOrdering, blacklist] = await Promise.all([fetchPolls, fetchOrdering, fetchBlacklist]);
 
         this.pollOrdering = pollOrdering;
         this.allPolls = allPolls.filter(([_, data]) => data.title.length <= 50);
+        const publicPolls = allPolls.filter(([_, data]) => data.is_listed).filter(([id]) => !blacklist[aeternity.networkId].includes(id));
 
         if (this.allPolls) {
           let height = await aeternity.client.height()
-          this.closedPolls = this.allPolls.filter(([_, data]) => data.is_listed).filter(poll => typeof poll[1].close_height === 'number' && poll[1].close_height <= height);
-          this.activePolls = this.allPolls.filter(([_, data]) => data.is_listed).filter(poll => typeof poll[1].close_height !== 'number' || poll[1].close_height > height);
+          this.closedPolls = publicPolls.filter(poll => typeof poll[1].close_height === 'number' && poll[1].close_height <= height);
+          this.activePolls = publicPolls.filter(poll => typeof poll[1].close_height !== 'number' || poll[1].close_height > height);
         }
 
         // Only overwrite if active tab is not set yet
