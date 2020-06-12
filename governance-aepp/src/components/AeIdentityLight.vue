@@ -1,5 +1,7 @@
 <template>
-  <div :class="classObject">
+  <div 
+    :class="['identity-card', classObject]"
+  >
     <div class="flex-row">
       <div class="user-identicon" v-html="avatar.src"></div>
       <span :class="['identity-name-position', collapsedModifier]">
@@ -117,150 +119,158 @@
         },
     }
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
   @import '~@aeternity/aepp-components/src/styles/fallback/variables';
 
-  .user-identicon {
-    display: inline-block;
-  }
+  .identity-card {
 
-  .ae-identity-light._invert {
-    color: $white;
-  }
+    .user-identicon {
+      display: inline-block;
 
-  .flex-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .chunk-row {
-    font-family: 'Roboto Mono', monospace;
-    font-size: 17px;
-    font-weight: 500;
-    font-style: normal;
-    line-height: 1.53;
-    letter-spacing: 3.1px;
-    font-stretch: normal;
-    text-align: left;
-
-    &:first-of-type {
-      margin-top: 14px;
-    }
-  }
-
-  .chunk {
-    display: inline-block;
-    width: calc(100% / 3);
-
-    &:nth-child(2n) {
-      text-align: center;
+      svg {
+        border-radius: 50%;
+      }
     }
 
-    &:nth-child(3n) {
-      text-align: right;
-    }
-  }
-
-  .flex-row + .chunk-row {
-    margin-top: 16px;
-  }
-
-  .identity-info._long {
-    width: calc(100% - 65px);
-    overflow: hidden;
-  }
-
-  .balances {
-    width: auto;
-    flex-grow: 1;
-  }
-
-  .balance {
-    font-family: 'Roboto Mono', monospace;
-    font-size: 12px;
-    font-stretch: normal;
-    line-height: 12px;
-    text-align: right;
-    margin-top: 2px;
-
-    &:first-of-type {
-      margin-top: 0;
+    .ae-identity-light._invert {
+      color: $white;
     }
 
-    &.token {
-      font-weight: bold;
+    .flex-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-  }
 
-  .currency-symbol {
-    letter-spacing: 0.12em;
-    padding-right: 3px;
-  }
+    .chunk-row {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 17px;
+      font-weight: 500;
+      font-style: normal;
+      line-height: 1.53;
+      letter-spacing: 3.1px;
+      font-stretch: normal;
+      text-align: left;
 
-  .ae-identity-light .avatar {
-    border-width: 1px;
-    width: 34px;
-    height: 34px;
-  }
-
-  .identity-name-position {
-    margin-left: 10px;
-    font-weight: 500;
-    color: #727278;
-
-    &._collapsed {
-      margin-left: 9px;
-      margin-right: 9px;
+      &:first-of-type {
+        margin-top: 14px;
+      }
     }
-  }
 
-  .identity-name {
-    margin: 0;
-    font-size: 17px;
-    color: #fff;
+    .chunk {
+      display: inline-block;
+      width: calc(100% / 3);
 
-    &._collapsed {
+      &:nth-child(2n) {
+        text-align: center;
+      }
+
+      &:nth-child(3n) {
+        text-align: right;
+      }
+    }
+
+    .flex-row + .chunk-row {
+      margin-top: 16px;
+    }
+
+    .identity-info._long {
+      width: calc(100% - 65px);
+      overflow: hidden;
+    }
+
+    .balances {
+      width: auto;
+      flex-grow: 1;
+    }
+
+    .balance {
+      font-family: 'Roboto Mono', monospace;
       font-size: 12px;
-      margin-top: -2px;
-    }
-  }
+      font-stretch: normal;
+      line-height: 12px;
+      text-align: right;
+      margin-top: 2px;
 
-  .truncated-address {
-    font-family: 'Roboto Mono', monospace;
-    font-size: 11px;
-    display: block;
-  }
+      &:first-of-type {
+        margin-top: 0;
+      }
 
-  .identity-name + .truncated-address {
-    margin-top: 1px;
-  }
-
-  @media (max-width: 640px) {
-    .truncated-address[data-v-4bf5ad98] {
-      font-size: 10px !important;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .truncated-address[data-v-4bf5ad98] {
-      font-size: 9px !important;
+      &.token {
+        font-weight: bold;
+      }
     }
 
-    .avatar,
+    .currency-symbol {
+      letter-spacing: 0.12em;
+      padding-right: 3px;
+    }
+
     .ae-identity-light .avatar {
-      width: 20px;
-      height: 20px;
+      border-width: 1px;
+      width: 34px;
+      height: 34px;
     }
+
     .identity-name-position {
-      margin-left: 5px;
+      margin-left: 10px;
       font-weight: 500;
       color: #727278;
 
       &._collapsed {
-        margin-left: 5px;
-        margin-right: 5px;
+        margin-left: 9px;
+        margin-right: 9px;
       }
     }
+
+    .identity-name {
+      margin: 0;
+      font-size: 17px;
+      color: #fff;
+
+      &._collapsed {
+        font-size: 12px;
+        margin-top: -2px;
+      }
+    }
+
+    .truncated-address {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 11px;
+      display: block;
+    }
+
+    .identity-name + .truncated-address {
+      margin-top: 1px;
+    }
+
+    @media (max-width: 640px) {
+      .truncated-address[data-v-4bf5ad98] {
+        font-size: 10px !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .truncated-address[data-v-4bf5ad98] {
+        font-size: 9px !important;
+      }
+
+      .avatar,
+      .ae-identity-light .avatar {
+        width: 20px;
+        height: 20px;
+      }
+      .identity-name-position {
+        margin-left: 5px;
+        font-weight: 500;
+        color: #727278;
+
+        &._collapsed {
+          margin-left: 5px;
+          margin-right: 5px;
+        }
+      }
+    }
+
   }
 </style>
