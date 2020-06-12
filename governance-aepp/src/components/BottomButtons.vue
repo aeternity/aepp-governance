@@ -1,7 +1,7 @@
 <template>
   <div class="flex justify-center w-full z-20">
 
-    <div class="fixed bottom-0 h-16 items-center flex flex-wrap w-full max-w-desktop bottom-bar" :class="{'h-40': view === 'search'}">
+    <div class="fixed bottom-0 h-16 items-center flex flex-wrap w-full max-w-desktop bottom-bar" :class="{'open': view === 'search'}">
       <!-- SEARCH BAR -->
       <div class="w-full flex h-16 px-8 items-center search-bar" v-if="view === 'search'">
         <label class="w-full h-full">
@@ -143,8 +143,8 @@
     flex: 2 1 0;
   }
 
-  .flex-3 {
-    flex: 3 1 0;
+  .open {
+    height: 146px;
   }
 
   .search-button::before {
