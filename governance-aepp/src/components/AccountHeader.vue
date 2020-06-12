@@ -52,7 +52,7 @@
         </div>
       </div>
     </div>
-    <div class="expand-account" :class="{'rounded-t': !open, 'pr-3': !canOpen, 'canOpen': canOpen}">
+    <div class="expand-account" :class="{'rounded-t': !open, 'pr-3': !canOpen, 'can-open': canOpen}">
       <div class="flex justify-between items-center">
         <div>
           Estimated voting power
@@ -161,7 +161,7 @@
     position: relative;
   }
 
-  .expand-account.canOpen {
+  .expand-account.can-open {
     background-color: #272831;
   }
 
@@ -173,7 +173,7 @@
     padding: 10px 0;
     margin: 0 20px;
 
-    &.canOpen{
+    &.can-open{
       border-bottom: none;
       padding: 10px 20px;
       margin: 0;
@@ -236,7 +236,7 @@
       margin: 0 10px;
     }
 
-    .expand-account.canOpen {
+    .expand-account.can-open {
       padding: 10px;
     }
   }
