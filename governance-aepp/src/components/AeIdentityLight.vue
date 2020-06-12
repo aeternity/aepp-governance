@@ -1,22 +1,22 @@
 <template>
-  <div 
+  <div
     :class="['identity-card', classObject]"
   >
-    <div class="flex-row">
+    <div class="flex flex-wrap relative">
       <div class="user-identicon" v-html="avatar.src"></div>
       <span :class="['identity-name-position', collapsedModifier]">
         <span role="heading" :class="['identity-name', collapsedModifier]">{{name}}</span>
-        <small class="truncated-address cursor-pointer" v-if="collapsed" @click="$emit('click')">
-           {{address}}
-        </small>
       </span>
-      <div class="balances">
+      <div class="balances flex items-center justify-end">
         <div class="balance token">
           <span class="amount">{{additionalText}}</span>
           <span class="amount">{{balance | toAE}}</span>
           <span class="currency-symbol">{{currency}}</span>
         </div>
       </div>
+      <small class="truncated-address cursor-pointer w-full flex-shrink-0" v-if="collapsed" @click="$emit('click')">
+         {{address}}
+      </small>
     </div>
     <div
       v-if="!collapsed"
@@ -123,6 +123,18 @@
   @import '~@aeternity/aepp-components/src/styles/fallback/variables';
 
   .identity-card {
+    .balance.token {
+      font-size: 15px;
+      font-weight: 400;
+      font-family: inherit;
+
+      .amount {
+        color: #fff;
+      }
+      .currency-symbol {
+        color: #2a9cff;
+      }
+    }
 
     .user-identicon {
       display: inline-block;
@@ -191,6 +203,7 @@
       line-height: 12px;
       text-align: right;
       margin-top: 2px;
+      white-space: nowrap;
 
       &:first-of-type {
         margin-top: 0;
@@ -213,6 +226,8 @@
     }
 
     .identity-name-position {
+      display: flex;
+      align-items: center;
       margin-left: 10px;
       font-weight: 500;
       color: #727278;
@@ -225,52 +240,41 @@
 
     .identity-name {
       margin: 0;
-      font-size: 17px;
+      font-size: 15px;
       color: #fff;
-
-      &._collapsed {
-        font-size: 12px;
-        margin-top: -2px;
-      }
     }
 
     .truncated-address {
       font-family: 'Roboto Mono', monospace;
       font-size: 11px;
       display: block;
+      color: #727278;
     }
 
     .identity-name + .truncated-address {
       margin-top: 1px;
     }
-
-    @media (max-width: 640px) {
-      .truncated-address[data-v-4bf5ad98] {
-        font-size: 10px !important;
-      }
+  }
+  @media (max-width: 480px) {
+    .avatar,
+    .ae-identity-light .avatar {
+      width: 20px;
+      height: 20px;
     }
 
-    @media (max-width: 480px) {
-      .truncated-address[data-v-4bf5ad98] {
-        font-size: 9px !important;
-      }
+    .identity-name-position {
+      margin-left: 5px;
 
-      .avatar,
-      .ae-identity-light .avatar {
-        width: 20px;
-        height: 20px;
-      }
-      .identity-name-position {
+      &._collapsed {
         margin-left: 5px;
-        font-weight: 500;
-        color: #727278;
-
-        &._collapsed {
-          margin-left: 5px;
-          margin-right: 5px;
-        }
+        margin-right: 5px;
       }
     }
+  }
 
+  @media (max-width: 360px) {
+    .truncated-address {
+      font-size: 9px !important;
+    }
   }
 </style>

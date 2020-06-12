@@ -29,7 +29,7 @@
           </transition>
         </div>
         <div class="poll-author flex-wrap" id="poll-author">
-          <span>BY:</span>
+          <span class="h-10">BY:</span>
           <div class="text-primary">
             <ae-identity-light
               :collapsed="true"
