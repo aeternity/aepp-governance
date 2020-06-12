@@ -3,37 +3,7 @@
     <BlackHeader>
       Help & Hints
     </BlackHeader>
-    <div class="m-4 ae-card cursor-pointer" @click="toggleCard()">
-      <div class="flex justify-between items-center w-full py-4 px-3">
-        <img src="../assets/warning.svg" alt="warning symbol">
-        <div class="mr-auto ml-2" style="margin-top: 4px">
-          <span class="font-bold">The Voting Aepp is still in beta</span>
-        </div>
-        <div class="min-w-3" style="margin-top: 4px">
-          <img src="../assets/back_gray.svg" class="ae-transition-300" alt="show poll state"
-               :class="{'rotate-90': showCard}">
-        </div>
-      </div>
-      <div v-show="showCard">
-        <div class="p-4">
-          This means <span class="font-bold">the aeternity crypto foundation did not finally decide how to take results into effect</span>,
-          that are outcome of signaling on polls in the Voting aepp.
-        </div>
-        <div class="p-4">
-          Additionally participating with <span class="font-bold">ledger hardware wallets is still not supported</span>
-          and this may result in distorted signaling results.
-        </div>
-        <div class="text-primary p-4 font-xl relative">
-          <a href="https://forum.aeternity.com/t/governance-aepp-launch/5281" @click.stop.prevent="openLink"
-             class="">Take part in our discussion in the Forum!</a>
-          <transition name="fade">
-            <div class="absolute inset-0 bg-gray-500 text-white p-2 rounded" v-if="showCopyNotice">
-              Copied link to clipboard
-            </div>
-          </transition>
-        </div>
-      </div>
-    </div>
+    
     <div v-if="views">
       <div class="p-4" v-for="key in Object.keys(views)" :key="key">
         <h1 class="text-3xl">{{views[key].headline}}</h1>
