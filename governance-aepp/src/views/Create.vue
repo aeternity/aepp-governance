@@ -3,12 +3,12 @@
     <div class="overlay-loader" v-show="showLoading">
       <BiggerLoader/>
     </div>
-    <BlackHeader>
+    <BlackHeader class="custom-create-paddings">
       Create Poll
     </BlackHeader>
-    <GrayText>
-      Use the form below to create a new governance poll.
-    </GrayText>
+    <div class="text-gray-500 font-bold px-5 py-4">
+      Please fill in all the fields below.
+    </div>
     <div v-if="Object.values(this.errors).some(val => !!val)" class="bg-ae-error mx-4 p-2 my-2">
       <div class="flex mb-1">
         <div class="text-4xl font-bold pl-1 pr-3 leading-none flex items-center">
@@ -26,11 +26,13 @@
       </ul>
     </div>
     <div class="py-2 px-4">
-      <ae-input :error="!!errors.titleError" v-model="createMetadata.title" label="Title">
+      <ae-input :error="!!errors.titleError" v-model="createMetadata.title" label="Title"
+                placeholder="Please make it clear and concise">
       </ae-input>
     </div>
     <div class="py-2 px-4">
-      <ae-input :error="!!errors.descriptionError" v-model="createMetadata.description" label="Description">
+      <ae-input :error="!!errors.descriptionError" v-model="createMetadata.description" label="Description"
+                placeholder="Please provide more info for other users">
       </ae-input>
     </div>
     <div class="mt-2">
@@ -40,10 +42,11 @@
       </HintBubble>
     </div>
     <div class="pb-2 px-4">
-      <ae-input :error="!!errors.linkError" v-model="createMetadata.link" label="Link" @blur="linkBlurHandler">
+      <ae-input :error="!!errors.linkError" v-model="createMetadata.link" label="Link" @blur="linkBlurHandler"
+                placeholder="If this vote is related to a forum post or paper, please add the link here">
       </ae-input>
     </div>
-    <div class="py-2 px-4">
+    <div class="py-2 px-4 flex justify-center">
       <AeButtonGroup>
         <ae-button face="round" @click="is_listed = true" :fill="is_listed ? 'primary' : 'neutral'">Publicly Listed
         </ae-button>
@@ -52,22 +55,30 @@
       </AeButtonGroup>
     </div>
 
-    <div class="my-2 mx-4 flex items-center bg-white px-4" :class="{'bg-ae-error': !!errors.optionError}"
+    <div class="text-gray-500 font-bold px-5 py-4">
+      Poll options
+    </div>
+    <div class="my-2 mx-4 flex items-center item-options px-4" :class="{'bg-ae-error': !!errors.optionError}"
          :key="option.id" v-for="option in options">
       <div class="w-6 flex justify-center">
-        <div v-if="option.text" class="rounded-full border-2 border-gray-500 w-6 h-6">&nbsp;</div>
-        <div v-else class="text-3xl text-gray-300 text-right font-bold">&plus;</div>
+        <div v-if="option.text" class="h-6">
+          <ae-check class="mr-2" type="radio" @click.stop.prevent disabled/>
+        </div>
+        <img v-else src="../assets/plus-option.svg" id="plus-icon" alt="add option">
       </div>
-      <label>
+      <label class="w-full">
         <input v-model="option.text" @input="optionInput" type="text" placeholder="Add Option"
                class="ae-input-option w-full h-full px-2 py-6 outline-none"
                :class="{'bg-ae-error': !!errors.optionError}"/>
       </label>
       <div v-if="option.text">
-        <div class="text-2xl text-gray-500 text-right" @click="removeOption(option.id)">&times;</div>
+        <div class="text-2xl text-gray-500 text-right remove-button" @click="removeOption(option.id)">&times;</div>
       </div>
     </div>
 
+    <div class="text-gray-500 font-bold px-5 py-4">
+      Poll ending
+    </div>
     <div class="py-2 px-4 mb-16">
       <ae-input :error="!!errors.closeHeightError" type="number" v-model="closeHeight" @input="updateDateInputs"
                 label="Close at height">
@@ -79,13 +90,13 @@
       </div>
       <div class="text-gray-500 text-sm p-2">
         <span v-if="closeHeight && closeHeight > height">
-          To create a never closing poll, set close height to 0.
+          To create a poll that runs infinitely, set "Close at height" to 0.
         </span>
         <span v-if="closeHeight && closeHeight < height && closeHeight !== '0'">
           Current height is {{height}} and closing height {{closeHeight}} lies in the past.
         </span>
         <span v-if="closeHeight === '0'">
-          This poll will never close.
+          This poll will run infinitely.
         </span>
       </div>
     </div>
@@ -95,28 +106,29 @@
 </template>
 
 <script>
+  import '@aeternity/aepp-components/dist/ae-button/ae-button.css';
+  import AeButton from '@aeternity/aepp-components/dist/ae-button/';
+  import '@aeternity/aepp-components/dist/ae-button-group/ae-button-group.css';
+  import AeButtonGroup from '@aeternity/aepp-components/dist/ae-button-group/';
+  import "@aeternity/aepp-components/dist/ae-check/ae-check.css"
+  import AeCheck from "@aeternity/aepp-components/dist/ae-check/"
 
-  import "@aeternity/aepp-components/dist/ae-button/ae-button.css"
-  import AeButton from "@aeternity/aepp-components/dist/ae-button/"
-  import "@aeternity/aepp-components/dist/ae-button-group/ae-button-group.css"
-  import AeButtonGroup from "@aeternity/aepp-components/dist/ae-button-group/"
-
-  import aeternity from "../utils/aeternity";
+  import aeternity from '../utils/aeternity';
   import pollContractSource from '../assets/contracts/Poll.aes';
   import BiggerLoader from '../components/BiggerLoader';
-  import BottomButtons from "../components/BottomButtons";
-  import BlackHeader from "../components/BlackHeader";
-  import GrayText from "../components/GrayText";
-  import CriticalErrorOverlay from "../components/CriticalErrorOverlay";
-  import AeInput from "../components/AeInput";
-  import HintBubble from "../components/HintBubble";
+  import BottomButtons from '../components/BottomButtons';
+  import BlackHeader from '../components/BlackHeader';
+  import CriticalErrorOverlay from '../components/CriticalErrorOverlay';
+  import AeInput from '../components/AeInput';
+  import HintBubble from '../components/HintBubble';
 
   export default {
     name: 'Home',
     components: {
       CriticalErrorOverlay,
       HintBubble,
-      GrayText, BlackHeader, BottomButtons, AeButton, AeInput, BiggerLoader, AeButtonGroup
+      BlackHeader, BottomButtons,
+      AeCheck, AeButton, AeInput, BiggerLoader, AeButtonGroup
     },
     data() {
       return {
@@ -263,14 +275,36 @@
 </script>
 
 <style scoped type="text/scss">
+  @import '../theme/ae-button.scss';
+
+  .item-options {
+    background: #292B35;
+    border-radius: 5px;
+  }
+
   input.ae-input-option {
+    background: #292B35;
+    color: #fff;
     font-size: 1.0625rem;
     line-height: 1.5rem;
-    font-family: Inter UI, sans-serif;
+  }
+
+  #plus-icon {
+    align-items: center;
+    color: #67F7B8;
+    display: flex;
+    font-family: sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    justify-content: center;
+    line-height: 1px;
+  }
+
+  .remove-button {
+    cursor: pointer;
   }
 
   .bg-ae-error {
-    background-color: #ffeeee;
     /* color: #ff0d0d; */
     color: #ff0d0d;
   }
@@ -283,4 +317,8 @@
     border-color: #ff0d0d;
   }
 
+  .custom-create-paddings {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
 </style>

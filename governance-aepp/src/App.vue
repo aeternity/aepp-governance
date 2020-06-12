@@ -24,19 +24,15 @@
 
 <script>
 
-  import '@aeternity/aepp-components/dist/ae-button/ae-button.css';
-  import AeButton from '@aeternity/aepp-components/dist/ae-button/';
-
   import CriticalErrorOverlay from './components/CriticalErrorOverlay';
   import Explainer from './components/Explainer';
   import aeternity from './utils/aeternity.js';
   import BiggerLoader from './components/BiggerLoader';
   import HintOverlay from './components/HintOverlay';
-  import { EventBus } from './utils/eventBus';
 
   export default {
     name: 'app',
-    components: { BiggerLoader, CriticalErrorOverlay, AeButton, Explainer, HintOverlay },
+    components: { BiggerLoader, CriticalErrorOverlay, Explainer, HintOverlay },
     data() {
       return {
         error: null,
@@ -78,7 +74,7 @@
     max-height: 100vh;
     padding-bottom: 0;
     overflow-y: auto;
-    background-color: #f8f8f8;
+    background-color: #21222c;
   }
 
   @media (min-width: 700px) {

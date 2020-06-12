@@ -1,20 +1,22 @@
 <template>
-  <div :class="classObject">
-    <div class="flex-row">
-      <ae-identicon class="avatar" :address='address'/>
+  <div
+    :class="['identity-card', classObject]"
+  >
+    <div class="flex flex-wrap relative">
+      <div class="user-identicon" v-html="avatar.src"></div>
       <span :class="['identity-name-position', collapsedModifier]">
         <span role="heading" :class="['identity-name', collapsedModifier]">{{name}}</span>
-        <small class="truncated-address cursor-pointer" v-if="collapsed" @click="$emit('click')">
-           {{address | shorten}} •••
-        </small>
       </span>
-      <div class="balances">
+      <div class="balances flex items-center justify-end">
         <div class="balance token">
           <span class="amount">{{additionalText}}</span>
           <span class="amount">{{balance | toAE}}</span>
           <span class="currency-symbol">{{currency}}</span>
         </div>
       </div>
+      <small class="truncated-address cursor-pointer w-full flex-shrink-0" v-if="collapsed" @click="$emit('click')">
+         {{address}}
+      </small>
     </div>
     <div
       v-if="!collapsed"
@@ -28,14 +30,13 @@
   </div>
 </template>
 <script>
-    import AeIdenticon from '@aeternity/aepp-components/src/components/ae-identicon/ae-identicon.vue'
+    import jdenticon from 'jdenticon';
 
     /**
      * Displays an Identity with an avatar blockie, the address and an amount of ether
      */
     export default {
         name: 'ae-identity-light',
-        components: {AeIdenticon},
         props: {
             /**
              * An identity name
@@ -76,6 +77,23 @@
             },
         },
         computed: {
+            avatar() {
+              jdenticon.config = {
+                lightness: {
+                  color: [0.4, 1.0],
+                  grayscale: [0.5, 1.0],
+                },
+                saturation: {
+                  color: 1.0,
+                  grayscale: 1.0,
+                },
+                backColor: '#12121bff',
+              };
+              return {
+                type: 'identicon',
+                src: jdenticon.toSvg(this.address, 32),
+              };
+            },
             classObject() {
                 return [
                     'ae-identity-light',
@@ -101,116 +119,162 @@
         },
     }
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
   @import '~@aeternity/aepp-components/src/styles/fallback/variables';
 
-  .ae-identity-light._invert {
-    color: $white;
-  }
+  .identity-card {
+    .balance.token {
+      font-size: 15px;
+      font-weight: 400;
+      font-family: inherit;
 
-  .flex-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .chunk-row {
-    font-family: 'Roboto Mono', monospace;
-    font-size: 17px;
-    font-weight: 500;
-    font-style: normal;
-    line-height: 1.53;
-    letter-spacing: 3.1px;
-    font-stretch: normal;
-    text-align: left;
-
-    &:first-of-type {
-      margin-top: 14px;
-    }
-  }
-
-  .chunk {
-    display: inline-block;
-    width: calc(100% / 3);
-
-    &:nth-child(2n) {
-      text-align: center;
+      .amount {
+        color: #fff;
+      }
+      .currency-symbol {
+        color: #2a9cff;
+      }
     }
 
-    &:nth-child(3n) {
-      text-align: right;
-    }
-  }
+    .user-identicon {
+      display: inline-block;
 
-  .flex-row + .chunk-row {
-    margin-top: 16px;
-  }
-
-  .identity-info._long {
-    width: calc(100% - 65px);
-    overflow: hidden;
-  }
-
-  .balances {
-    width: auto;
-    flex-grow: 1;
-  }
-
-  .balance {
-    font-family: 'Roboto Mono', monospace;
-    font-size: 12px;
-    font-stretch: normal;
-    line-height: 12px;
-    text-align: right;
-    margin-top: 2px;
-
-    &:first-of-type {
-      margin-top: 0;
+      svg {
+        border-radius: 50%;
+      }
     }
 
-    &.token {
-      font-weight: bold;
+    .ae-identity-light._invert {
+      color: $white;
     }
-  }
 
-  .currency-symbol {
-    letter-spacing: 0.12em;
-    padding-right: 3px;
-  }
-
-  .ae-identity-light .avatar {
-    border-width: 1px;
-    width: 23px;
-    height: 23px;
-  }
-
-  .identity-name-position {
-    margin-left: 10px;
-    font-weight: 500;
-
-    &._collapsed {
-      margin-left: 9px;
-      margin-right: 9px;
+    .flex-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-  }
 
-  .identity-name {
-    margin: 0;
-    font-size: 17px;
+    .chunk-row {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 17px;
+      font-weight: 500;
+      font-style: normal;
+      line-height: 1.53;
+      letter-spacing: 3.1px;
+      font-stretch: normal;
+      text-align: left;
 
-    &._collapsed {
+      &:first-of-type {
+        margin-top: 14px;
+      }
+    }
+
+    .chunk {
+      display: inline-block;
+      width: calc(100% / 3);
+
+      &:nth-child(2n) {
+        text-align: center;
+      }
+
+      &:nth-child(3n) {
+        text-align: right;
+      }
+    }
+
+    .flex-row + .chunk-row {
+      margin-top: 16px;
+    }
+
+    .identity-info._long {
+      width: calc(100% - 65px);
+      overflow: hidden;
+    }
+
+    .balances {
+      width: auto;
+      flex-grow: 1;
+    }
+
+    .balance {
+      font-family: 'Roboto Mono', monospace;
       font-size: 12px;
-      margin-top: -2px;
+      font-stretch: normal;
+      line-height: 12px;
+      text-align: right;
+      margin-top: 2px;
+      white-space: nowrap;
+
+      &:first-of-type {
+        margin-top: 0;
+      }
+
+      &.token {
+        font-weight: bold;
+      }
+    }
+
+    .currency-symbol {
+      letter-spacing: 0.12em;
+      padding-right: 3px;
+    }
+
+    .ae-identity-light .avatar {
+      border-width: 1px;
+      width: 34px;
+      height: 34px;
+    }
+
+    .identity-name-position {
+      display: flex;
+      align-items: center;
+      margin-left: 10px;
+      font-weight: 500;
+      color: #727278;
+
+      &._collapsed {
+        margin-left: 9px;
+        margin-right: 9px;
+      }
+    }
+
+    .identity-name {
+      margin: 0;
+      font-size: 15px;
+      color: #fff;
+    }
+
+    .truncated-address {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 11px;
+      display: block;
+      color: #727278;
+    }
+
+    .identity-name + .truncated-address {
+      margin-top: 1px;
+    }
+  }
+  @media (max-width: 480px) {
+    .avatar,
+    .ae-identity-light .avatar {
+      width: 20px;
+      height: 20px;
+    }
+
+    .identity-name-position {
+      margin-left: 5px;
+
+      &._collapsed {
+        margin-left: 5px;
+        margin-right: 5px;
+      }
     }
   }
 
-  .truncated-address {
-    font-family: 'Roboto Mono', monospace;
-    font-size: 11px;
-    display: block;
-  }
-
-  .identity-name + .truncated-address {
-    margin-top: 1px;
+  @media (max-width: 360px) {
+    .truncated-address {
+      font-size: 9px !important;
+    }
   }
 </style>

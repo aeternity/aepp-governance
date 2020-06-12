@@ -94,45 +94,40 @@ export default {
   display: flex;
   flex-direction: column;
   width: 100%;
-  border-radius: 4px;
+  border-radius: 5px;
   overflow: hidden;
   transition: all $base-transition-time;
-
-  &.focus, &.error {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-  }
+  border-bottom: 2px solid transparent;
 
   &.focus {
-    border-left: 2px solid $color-focus;
-    caret-color: $color-focus;
+    border-bottom: 2px solid #2a9cff;
   }
+
   &.focus .ae-input-label {
-    color: $color-focus;
+    color: #fff;
   }
+
   &.error {
-    border-left: 2px solid #ff0d0d;
+    border-bottom: 2px solid #ff0d0d;
     caret-color: #ff0d0d;
   }
+
   &.error .ae-input-label {
     color: #ff0d0d;
   }
 
-  &.focus .ae-input-label:after,
-  &.error .ae-input-label:after {
+  .ae-input-label:after,
+  .ae-input-label:after {
     content: '*';
+    color: #fff;
   }
 }
 
 .ae-input-box {
   display: flex;
   flex-direction: column;
-  background: #fff;
+  background: #12121b;
   min-height: 4rem;
-}
-
-.ae-input-container.error .ae-input-box {
-  background-color: #ffeeee;
 }
 
 .ae-input-header {
@@ -149,14 +144,16 @@ export default {
 .ae-input-label {
   @extend %face-sans-xs;
 
-  color: $color-neutral-negative-1;
+  color: #727278;
+  font-style: italic;
 }
 
 .ae-input {
   @extend %face-sans-base;
-  @include placeholder-color($color-neutral-negative-1);
+  @include placeholder-color(#727278);
 
   align-self: center;
+  color: #aeaeae;
   justify-self: center;
   flex: 0 1 100%;
   width: 100%;

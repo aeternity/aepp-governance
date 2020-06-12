@@ -6,61 +6,51 @@
     <div v-if="pollState.metadata">
       <AccountHeader class="mb-4" :address="accountAddress" :poll-address="pollAddress"
                      v-if="accountAddress && !isClosed" :startOpen="false" :canOpen="true"/>
-      <div v-if="isClosed" class="text-center">
-        <div class="text-gray-500 mt-4">POLL CLOSED</div>
+      <div class="poll-heading">
+        <h1>
+          <span>Poll</span>
+          <img src="../assets/hash.svg" alt="hash"/>
+          <span>{{pollId}}</span>
+          <span v-if="isClosed">Closed</span>
+        </h1>
       </div>
-      <div class="flex justify-between mx-4 mt-4 mb-2">
-        <div class="max-w-75">
-          <h1 class="text-3xl leading-tight w-full break-words">{{pollState.metadata.title}}</h1>
+      <div class="poll-data">
+        <h1 class="title">{{pollState.metadata.title}}</h1>
+        <div class="description" id="poll-description">
+          {{pollState.metadata.description}}
         </div>
-        <div class="h-8 flex items-center vote-id justify-end">
-          <img class="h-full" src="../assets/hash.svg" alt="hash"/>
-          <span class="text-primary text-4xl leading-none">{{pollId}}</span>
+        <div class="link">
+          <img src="../assets/externalLink.svg" alt="externalLink"/>
+          <a :href="pollState.metadata.link" class="text-ellipsis" @click.stop.prevent="openLink">{{pollState.metadata.link}}</a>
+          <transition name="fade">
+            <div class="copy-msg inset-0" v-if="showCopyNotice">
+              Copied link to clipboard
+            </div>
+          </transition>
         </div>
-      </div>
-      <div class="text-gray-500 mx-4 font-xl" id="poll-description">
-        {{pollState.metadata.description}}
-      </div>
-      <div class="text-gray-500 mx-4 py-2 font-xl relative">
-        <a :href="pollState.metadata.link" @click.stop.prevent="openLink" class="text-blue-500 opacity-75">{{pollState.metadata.link}}</a>
-        <transition name="fade">
-          <div class="absolute inset-0 bg-gray-500 text-white p-2 rounded" v-if="showCopyNotice">
-            Copied link to clipboard
-          </div>
-        </transition>
-      </div>
-      <div class=" mx-4 my-2 flex" id="poll-author">
-        <span class="text-sm mr-1 text-gray-500">BY:</span>
-        <div class="text-primary">
-          <ae-identity-light
-            :collapsed="true"
-            balance=""
-            :address="pollState.author"
-            @click="$router.push(`/account/${pollState.author}`)"
-          />
-        </div>
-      </div>
-
-      <div class="relative h-4 w-full">
-        <div class="absolute inset-0 flex h-full w-full justify-center items-center px-4">
-          <div class="border w-full"></div>
-        </div>
-        <div class="absolute inset-0 flex h-full w-full justify-center items-center">
-          <div class="bg-ae-gray px-2">
-            <span class="text-gray-500 opacity-75">POLL</span>
+        <div class="poll-author flex-wrap" id="poll-author">
+          <span class="h-10">BY:</span>
+          <div class="text-primary">
+            <ae-identity-light
+              :collapsed="true"
+              balance=""
+              :address="pollState.author"
+              @click="$router.push(`/account/${pollState.author}`)"
+            />
           </div>
         </div>
       </div>
-
-      <div class="text-center w-full mt-2 text-gray-500 text-sm">
+      <div class="poll-metadata">
         <div class="inline-block" v-if="pollVotesState && pollVotesState.totalStake">
-          Stake: {{pollVotesState.totalStake | toAE(0)}} ({{pollVotesState.percentOfTotalSupply | formatPercent(2)}})
+          Stake:
+          <span class="ae-value">{{pollVotesState.totalStake | toAE(0, true)}}</span>
+          <span class="ae-text">AE</span> ({{pollVotesState.percentOfTotalSupply | formatPercent(2)}})
         </div>
         <div v-if="typeof pollState.close_height !== 'number'" class="inline-block">
           - Closes never
         </div>
         <div v-else-if="!isClosed">
-          Closes in ~{{timeDifference | timeDifferenceToString}} (Block {{pollState.close_height}})
+          Closes in <span class="highlighted">{{timeDifference | timeDifferenceToString}}</span> (Block {{pollState.close_height}})
         </div>
         <div v-else-if="isClosed && closeBlock">
           Closed on {{closeBlock.keyBlock.time | timeStampToString}} (Block {{pollState.close_height}})
@@ -71,7 +61,7 @@
       </div>
 
       <!-- POLL OPTIONS -->
-      <div id="poll-options">
+      <div id="poll-options" class="poll-options">
         <div v-if="pollState.vote_options">
           <div :key="id" v-for="[id, title] in pollState.vote_options">
             <HintBubble v-if="delegateeVote && delegateeVote.option === id">
@@ -85,7 +75,10 @@
               voted with your stake for "{{title}}"<span v-if="isClosed"> at the time the poll closed</span>. <span
               v-if="!isClosed">Unhappy? You can overwrite their choice by placing your own vote.</span>
             </HintBubble>
-            <div class="m-4 ae-card cursor-pointer" @click="showVoters(id)">
+            <div class="ae-card cursor-pointer"
+              @click="showVoters(id)"
+              :class="{'remove-progress-border': votersForOption.id != null && votersForOption.id === id}"
+            >
               <div class="flex justify-between items-center w-full py-4 px-3">
                 <ae-check class="mr-1" v-model="voteOption" :value="id" type="radio" @click.stop.prevent
                           @change="vote(id)" :disabled="isClosed || !accountAddress"/>
@@ -96,19 +89,25 @@
                   <span>{{title}}</span>
                 </div>
                 <div class="min-w-3" style="margin-top: 4px" v-if="pollVotesState">
-                  <img src="../assets/back_gray.svg" class="ae-transition-300" alt="show poll state"
-                       :class="{'rotate-90': votersForOption.id != null && votersForOption.id === id}">
+                  <img
+                    :src="votersForOption.id != null && votersForOption.id === id ? caretActive : caret"
+                    class="ae-transition-300"
+                    alt="show poll state"
+                    :class="{'rotate-90': votersForOption.id != null && votersForOption.id === id}">
                 </div>
               </div>
-              <div class="h-1 bg-primary rounded-bl" v-if="pollVotesState"
+              <div class="progress-line rounded-bl" v-if="pollVotesState"
                    :class="{'rounded-br': pollVotesState.stakesForOption[id].percentageOfTotal > 99}"
                    :style="{'width': `${pollVotesState.stakesForOption[id].percentageOfTotal}%`}">
               </div>
             </div>
-            <div class="text-gray-500 text-sm mx-4" v-show="votersForOption.id != null && votersForOption.id === id">
-              <div class="text-gray-500 text-sm my-1 mx-2" v-if="pollVotesState">
+            <div class="card-content" v-show="votersForOption.id != null && votersForOption.id === id">
+              <div class="poll-votes" v-if="pollVotesState">
                 {{pollVotesState.stakesForOption[id].percentageOfTotal | formatPercent(2)}}
-                ({{pollVotesState.stakesForOption[id].optionStake | toAE}}) -
+                (
+                  <span class="ae-value">{{pollVotesState.stakesForOption[id].optionStake | toAE(2, true)}}</span>
+                  <span class="ae-text">AE</span>
+                ) -
                 {{pollVotesState.stakesForOption[id].votes.length}} Votes -
                 {{pollVotesState.stakesForOption[id].delegatorsCount}} Delegators
               </div>
@@ -118,29 +117,24 @@
             </div>
           </div>
         </div>
-      </div>
-
-      <div class="relative h-4 mt-6 w-full">
-        <div class="absolute inset-0 flex h-full w-full justify-center items-center px-4">
-          <div class="border w-full"></div>
-        </div>
-      </div>
-
-      <div class="text-center w-full mt-1 text-xs relative">
-        <div class="opacity-40">
-          open source at
-          <a href="https://github.com/aeternity/aepp-governance/"
-             @click.stop.prevent="openLink('verify', 'https://github.com/aeternity/aepp-governance/')"
-             v-if="!showCopyNoticeVerify" class="text-primary">aeternity/aepp-governance</a>
-        </div>
-        <a href="https://github.com/aeternity/aepp-governance/blob/master/docs/how-to-verify-results.md"
-           @click.stop.prevent="openLink('verify', 'https://github.com/aeternity/aepp-governance/blob/master/docs/how-to-verify-results.md')"
-           v-if="!showCopyNoticeVerify" class="text-primary opacity-40">verify the poll result</a>
-        <transition name="fade">
-          <div class="inset-0 absolute bg-gray-500 text-white h-8 p-2" v-if="showCopyNoticeVerify">
-            copied link to clipboard
+        <div class="footer clearfix">
+          <div class="float-left">
+            Open source at
+            <a href="https://github.com/aeternity/aepp-governance/"
+              @click.stop.prevent="openLink('verify', 'https://github.com/aeternity/aepp-governance/')"
+              class="highlighted">aeternity/aepp-governance</a>
           </div>
-        </transition>
+          <div class="float-right verify-result">
+            <a class="highlighted" href="https://github.com/aeternity/aepp-governance/blob/master/docs/how-to-verify-results.md"
+              @click.stop.prevent="openLink('verify', 'https://github.com/aeternity/aepp-governance/blob/master/docs/how-to-verify-results.md')"
+              v-if="!showCopyNoticeVerify">Verify Poll Result</a>
+            <transition name="fade">
+              <div class="inset-0 absolute text-white h-8" v-if="showCopyNoticeVerify">
+                Copied link to clipboard
+              </div>
+            </transition>
+          </div>
+        </div>
       </div>
 
       <BottomButtons htmlId="poll-nav-buttons" :cta-text="voteOption !== null && !isClosed ?  'Revoke Vote' : null "
@@ -169,6 +163,8 @@
   import copy from 'copy-to-clipboard';
   import HintBubble from "../components/HintBubble";
   import { EventBus } from '../utils/eventBus';
+  import caret from '../assets/caret.svg';
+  import caretActive from '../assets/caretActive.svg';
 
   export default {
     name: 'Home',
@@ -197,6 +193,8 @@
         showCopyNotice: false,
         showCopyNoticeVerify: false,
         height: 0,
+        caret,
+        caretActive,
         continueFunction: () => {
           this.error = null
         }
@@ -363,23 +361,179 @@
   };
 </script>
 
-<style scoped>
-  .vote-id {
-    min-width: 85px;
+<style lang="scss" scoped>
+  .poll-heading {
+    padding: 10px 20px;
+    background-color: #272831;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid #12121B;
+
+    img {
+      display: inline;
+      height: 20px;
+      margin: -3px;
+    }
+
+    span,
+    h1 {
+      font-size: 20px;
+      font-weight: 400;
+      color: #2a9cff;
+      vertical-align: middle;
+    }
   }
 
-  .bg-ae-gray {
-    background-color: #f8f8f8;
+  .poll-data {
+    padding: 20px;
+
+    .title {
+      color: #fff;
+      font-weight: 600;
+      font-size: 18px;
+    }
+
+    .description {
+      color: #AEAEAE;
+      font-size: 15px;
+      font-weight: 400;
+    }
+
+    .link {
+      position: relative;
+      display: flex;
+
+      a {
+        margin-left: 5px;
+        color: #67F7B8;
+        font-size: 15px;
+        font-weight: 400;
+        display: inline-block;
+        width: 100%;
+      }
+
+      .copy-msg {
+        background-color: #21222c;
+        color: #fff;
+        position: absolute;
+      }
+
+      &:hover a{
+        text-decoration: underline;
+      }
+    }
   }
 
-
-  .max-w-75 {
-    max-width: 75%;
+  .title,
+  .description,
+  .link,
+  .poll-author {
+    margin-bottom: 20px;
   }
 
-  .min-w-3 {
-    min-width: 1.5rem;
+  .poll-author {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #12121B;
+    padding-bottom: 10px;
+
+    & > span {
+      color: #727278;
+      margin-right: 5px;
+      font-size: 15px;
+    }
   }
 
+  .poll-metadata {
+    color: #727278;
+    font-size: 15px;
+    font-weight: 400;
+    padding: 0 20px 20px 20px;
+    position: relative;
 
+    &::after {
+      content: '';
+      position: absolute;
+      border-left: 24px solid transparent;
+      border-right: 24px solid transparent;
+      border-top: 15px solid #21222C;
+      bottom: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+  }
+
+  .poll-options {
+    background-color: #12121B;
+    padding: 20px;
+  }
+
+  .footer {
+    margin-top: 20px;
+    font-size: 10px;
+    color: #727278;
+
+    .highlighted:hover {
+      filter: brightness(1.3)
+    }
+
+    .verify-result {
+      position: relative;
+      min-width: 85px;
+      text-align: right;
+    }
+  }
+
+  .progress-line {
+    background-color: #2A9CFF;
+    height: 5px;
+  }
+
+  .ae-card {
+    margin: 20px 0;
+  }
+
+  .card-content {
+    margin-top: -20px;
+    border: 1px solid #292B35;
+    border-top: none;
+
+    & > div {
+      border-bottom: 1px solid #292B35;
+      padding: 10px;
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+  }
+
+  .poll-votes {
+    font-size: 15px;
+    font-weight: 400;
+    color: #727278;
+  }
+
+  .remove-progress-border .progress-line, .remove-progress-border {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+@media only screen
+and (max-device-width: 480px)
+and (-webkit-min-device-pixel-ratio: 2) {
+  .poll-data,
+  .poll-options {
+    padding: 20px 10px;
+  }
+
+  .poll-metadata {
+    padding: 0 10px 10px 10px;
+  }
+
+  .poll-heading {
+    padding: 10px;
+  }
+}
 </style>

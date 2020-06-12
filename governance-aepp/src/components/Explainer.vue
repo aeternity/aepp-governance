@@ -67,6 +67,11 @@
     opacity: 1;
   }
 
+  .show-hints h1,
+  .show-hints h2 {
+    display: none;
+  }
+
   .hide-hints {
     max-width: 0;
     min-width: 0;

@@ -1,18 +1,18 @@
 <template>
-  <div class="bg-gray-ae px-6 py-4 w-full text-3xl text-white flex justify-between items-center">
+  <div class="black-header bg-gray-ae py-1 w-full text-xl text-white flex justify-between items-center">
     <slot/>
     <div class="flex items-center justify-end">
-      <div ref="inputContainer" class="relative rounded-full hide-input flex items-center pr-3 pb-1"
+      <div ref="inputContainer" class="relative rounded hide-input flex items-center pr-3 pb-1"
            v-if="showNumberInput">
-        <img src="../assets/hash_white.svg" class="h-6 pl-4 pt-1 cursor-pointer" @click="showInput" alt="enter id">
+        <img src="../assets/hash.svg" class="h-6 pl-4 pt-1 cursor-pointer" @click="showInput" alt="enter id">
         <form @submit.prevent="submit">
           <input v-model="id" ref="input" type="number" @input="$emit('input', id)"
-                 class="text-gray-800 w-full text-2xl outline-none bg-transparent leading-none" @blur="onBlur">
+                 class="text-gray-600 w-full text-2xl outline-none bg-transparent leading-none" @blur="onBlur">
         </form>
       </div>
-      <div class="w-8 text-2xl h-8 bg-primary rounded-full justify-center flex items-center ml-2 cursor-pointer"
+      <div class="w-6 text-2xl h-6 justify-center flex items-center ml-2 cursor-pointer"
            @click.stop.prevent="toggleHelp()" id="question-mark-icon">
-        ?
+        <img src="../assets/help.svg" alt="help">
       </div>
     </div>
 
@@ -59,7 +59,7 @@
         this.$refs.input.focus();
       },
       toggleHelp() {
-        if(this.$route.name !== 'help') this.$router.push('help');
+        if(this.$route.name !== 'help') this.$router.push('/help');
         else this.$router.go(-1);
       }
     },
@@ -71,13 +71,24 @@
 
 <style scoped>
   .bg-gray-ae {
-    background-color: #333333;
-    text-transform: capitalize;
+    background: #272831;
+    color: #2a9cff;
+    font-weight: 500;
+    line-height: 3.25rem;
+    letter-spacing: 0.1rem;
+  }
+
+  #question-mark-icon {
+    color: #727278;
+    font-family: sans-serif;
+    font-size: 16px;
+    font-weight: bolder;
+    line-height: 1px;
+    padding-left: 1px;
   }
 
   .hide-input {
     width: auto;
-    background: #333;
     padding-right: 0;
   }
 
@@ -86,12 +97,12 @@
   }
 
   .show-input {
-    background: white;
     padding-right: 1.5rem;
+    background: #12121b;
   }
 
   .show-input img {
-    filter: brightness(0.2);
+    filter: brightness(0.6);
   }
 
   .show-input input {
@@ -125,17 +136,22 @@
     animation-direction: reverse;
   }
 
+  .black-header {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
   @keyframes background-frames {
     from {
-      background-color: #333;
+      background-color: #272831;
       padding-right: 0;
     }
     40% {
-      background-color: #FFF;
+      background-color: #12121b;
       padding-right: 1.5rem;
     }
     to {
-      background-color: #FFF;
+      background-color: #12121b;
       padding-right: 1.5rem;
     }
   }
@@ -154,10 +170,10 @@
       filter: brightness(1);
     }
     40% {
-      filter: brightness(0.2);
+      filter: brightness(0.6);
     }
     to {
-      filter: brightness(0.2)
+      filter: brightness(0.6)
     }
   }
 
@@ -171,4 +187,13 @@
     -moz-appearance: textfield;
   }
 
+ @media only screen
+  and (min-device-width: 320px)
+  and (max-device-width: 480px)
+  and (-webkit-min-device-pixel-ratio: 2) {
+    .black-header {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+  }
 </style>

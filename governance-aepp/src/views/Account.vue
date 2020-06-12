@@ -7,40 +7,51 @@
       <AccountHeader :address="address" :canOpen="false"/>
     </div>
     <div v-if="delegation">
-      <div class="mx-4 mt-4">Delegatee</div>
-      <div class="ae-card mx-4 my-2 py-4 px-3 flex justify-between" id="account-delegatee">
-        <ae-identity-light
-          :collapsed="true"
-          :balance="''"
-          @click="$router.push(`/account/${delegation}`)"
-          :address="delegation"
-        />
-        <div v-if="isOwnAccount" class="flex ml-auto">
-          <img src="../assets/edit.svg" class="pr-4"
-               @click="() => { delegatee = delegation; delegation = null}"
-               alt="edit">
-          <div class="h-full border-r border-gray-500 opacity-50"></div>
-          <img src="../assets/delete.svg" class="pl-4 pr-1" @click="revokeDelegation" alt="delete">
+      <div class="header-row">
+        <div>Delegate</div>
+        <div class="ae-card my-2 py-4 px-3 flex justify-between" id="account-delegatee">
+          <ae-identity-light
+            :collapsed="true"
+            :balance="''"
+            @click="$router.push(`/account/${delegation}`)"
+            :address="delegation"
+          />
+          <div v-if="isOwnAccount" class="flex ml-auto">
+            <img src="../assets/edit.svg" class="pr-4"
+                @click="() => { delegatee = delegation; delegation = null}"
+                alt="edit">
+            <div class="h-full border-r border-gray-500 opacity-50"></div>
+            <img src="../assets/delete.svg" class="pl-4 pr-1" @click="revokeDelegation" alt="delete">
+          </div>
         </div>
       </div>
     </div>
     <div v-if="!delegation && isOwnAccount">
-      <div class="mx-4 mt-4">Delegate your voting power</div>
-      <div class="flex bg-white mx-4 my-2">
-        <ae-input label="Delegatee" v-model="delegatee" aeddress/>
-        <div class="ml-auto border-r border-gray-500 opacity-50 my-2"></div>
-        <img src="../assets/back_gray.svg" class="px-4 rotate-180" @click="createDelegation" alt="back">
+      <div class="header-row">
+        <span>Delegate your voting power</span>
+        <div class="flex my-2">
+          <ae-input
+            label="Paste the wallet address of the person who will vote on your behalf."
+            v-model="delegatee" aeddress
+          />
+          <div class="ml-auto my-2"></div>
+          <div
+            class="ae-button round flex justify-center items-center text-white font-semibold cursor-pointer"
+            @click="createDelegation">
+            Delegate
+          </div>
+        </div>
       </div>
     </div>
-    <div class="flex w-full text-center text-gray-500 mt-4 text-sm">
-      <div class="flex-1 pb-2 border-b-2 border-gray-300 cursor-pointer" @click="switchTab('delegations')"
-           :class="{'active-tab': activeTab === 'delegations'}">DELEGATIONS
+    <div class="navigation">
+      <div class="navigation-item" @click="switchTab('delegations')"
+           :class="{'active-tab': activeTab === 'delegations'}">Delegations
       </div>
-      <div class="flex-1 pb-2 border-b-2 border-gray-300 cursor-pointer" @click="switchTab('votes')"
-           :class="{'active-tab': activeTab === 'votes'}">VOTES
+      <div class="navigation-item" @click="switchTab('votes')"
+           :class="{'active-tab': activeTab === 'votes'}">Votes
       </div>
-      <div class="flex-1 pb-2 border-b-2 border-gray-300 cursor-pointer" @click="switchTab('polls')"
-           :class="{'active-tab': activeTab === 'polls'}">POLLS
+      <div class="navigation-item" @click="switchTab('polls')"
+           :class="{'active-tab': activeTab === 'polls'}">Polls
       </div>
     </div>
 
@@ -58,8 +69,8 @@
           <div v-if="includesIndirectDelegations" class="mx-4 mt-1 text-xs">(includes more indirect delegations)</div>
         </div>
       </div>
-      <div v-else class="text-gray-500 text-xl text-center my-8">
-        Could not find any delegations to {{isOwnAccount ? 'you' : 'this account'}}.
+      <div v-else class="msg text-center my-8">
+        No votes have been delegated to {{isOwnAccount ? 'you' : 'this account'}}.
       </div>
     </div>
     <div v-if="activeTab === 'votes'" id="account-tab-votes">
@@ -68,8 +79,8 @@
           <PollListing :id="id" :data="data" :showVote="true" class="mx-4"/>
         </div>
       </div>
-      <div v-else class="text-gray-500 text-xl text-center my-8">
-        Could not find any votes.
+      <div v-else class="msg text-center my-8">
+        No votes on record. Browse through active polls and start getting involved!
       </div>
     </div>
     <div v-if="activeTab === 'polls'" id="account-tab-polls">
@@ -78,14 +89,15 @@
           <PollListing :id="id" :data="data" class="mx-4"/>
         </div>
       </div>
-      <div v-else class="text-gray-500 text-xl text-center py-4 my-4">
-        Could not find any polls created by {{isOwnAccount ? 'you' : 'this account'}}.
+      <div v-else class="msg text-center py-4 my-4">
+        {{isOwnAccount ? 'You' : 'This account'}} haven’t created any polls yet.
+        Create one by clicking the button on the bottom right.
       </div>
     </div>
     <BottomButtons htmlId="account-nav-buttons" :search-bar="true" :search-button="true" @searchSubmit="handleSearch"
                    :key="`bottomButtons${address}`"/>
-    <div class="fixed flex bottom-36 px-8 w-full" v-if="searchError">
-      <div class="flex-1 rounded-full bg-gray-500 text-white px-4 py-2 ae-error-field">
+    <div class="fixed flex bottom-36 px-8" v-if="searchError">
+      <div class="flex-1 rounded bg-gray-500 text-white px-4 py-2 ae-error-field">
         {{searchError}}
       </div>
     </div>
@@ -183,7 +195,6 @@
             console.error(e);
             this.showLoading = false;
             this.error = 'Could not create your delegation. Please try again.';
-
           }
         }
       },
@@ -270,15 +281,48 @@
   }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 
-  .rotate-180 {
-    transform: rotate(180deg);
+  .header-row {
+    padding: 10px 0;
+    margin: 0 20px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 400;
   }
 
-  .active-tab {
-    border-color: #FF0D6A;
-    color: black;
+  .navigation {
+    display: flex;
+    width: 100%;
+    background-color: #272831;
+    padding: 0 20px;
+  }
+
+  .navigation-item {
+    font-size: 15px;
+    font-weight: 600;
+    color: #727278;
+    padding: 11px 0;
+    margin: 0 15px;
+    border-bottom: 2px solid #272831;
+
+    &:first-child {
+      margin-left: 0;
+    }
+
+    &.active-tab {
+      color: #67f7b8;
+      border-bottom: 2px solid #67f7b8;
+    }
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+  .msg {
+    color: #AEAEAE;
+    font-size: 15px;
   }
 
   .bottom-36 {
@@ -288,6 +332,34 @@
   .ae-error-field {
     border-color: #ff0d0d;
     background-color: #ff0d0d;
+  }
+
+  .ae-button {
+    padding: 0 20px;
+    margin-bottom: 3px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  .ae-input-container {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  @media only screen
+  and (max-device-width: 480px)
+  and (-webkit-min-device-pixel-ratio: 2) {
+    .header-row {
+      margin: 0 10px;
+    }
+
+    .navigation {
+      padding: 0 10px
+    }
+
+    .ae-button {
+      padding: 0 5px;
+    }
   }
 
 </style>

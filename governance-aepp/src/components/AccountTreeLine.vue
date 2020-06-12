@@ -1,20 +1,20 @@
 <template>
   <div>
-    <div class="flex justify-between">
+    <div class="flex justify-between relative">
       <ae-identity-light
         :collapsed="true"
         :address="account"
         balance=""
-        class="mx-2"
         @click="$router.push(`/account/${account}`)"
       />
-      <div @click="showSubTree = !showSubTree">
-      <span v-if="totalTreeDepth">
-        (<span class="text-primary cursor-pointer">{{totalTreeDepth}}D</span>)
-      </span>
-        <span>
-        {{totalBalance | toAE}}
-      </span>
+      <div @click="showSubTree = !showSubTree" class="tree-amount absolute flex flex-no-wrap items-center pt-1 right-0">
+        <span v-if="totalTreeDepth" class="pr-1">
+          (<span class="text-primary cursor-pointer">{{totalTreeDepth}}D</span>)
+        </span>
+        <span class="flex flex-no-wrap">
+          <span class="ae-value">{{totalBalance | toAE(2, true)}}</span>
+          <span class="ae-text">AE</span>
+        </span>
       </div>
     </div>
     <div class="ml-2 my-1">
@@ -76,5 +76,7 @@
 </script>
 
 <style scoped>
-
+  .tree-amount {
+    font-size: 15px;
+  }
 </style>
