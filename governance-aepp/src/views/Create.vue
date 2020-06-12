@@ -3,7 +3,7 @@
     <div class="overlay-loader" v-show="showLoading">
       <BiggerLoader/>
     </div>
-    <BlackHeader>
+    <BlackHeader class="custom-create-paddings">
       Create Poll
     </BlackHeader>
     <div class="text-gray-500 font-bold px-5 py-4">
@@ -317,4 +317,8 @@
     border-color: #ff0d0d;
   }
 
+  .custom-create-paddings {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
 </style>
