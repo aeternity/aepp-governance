@@ -65,4 +65,8 @@ export default class Backend {
   version = async () => wrapTry(async () => {
     return fetch(`${this.BACKEND_URL}/version`);
   });
+
+  getBlacklistedPolls = async () => wrapTry(async () => {
+    return fetch(`https://raw.githubusercontent.com/aeternity/aepp-governance/fork/superhero/governance-aepp/src/data/blacklist.json`);
+  });
 }
