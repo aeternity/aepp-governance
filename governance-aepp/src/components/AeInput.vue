@@ -108,12 +108,12 @@ export default {
   }
 
   &.error {
-    border-bottom: 2px solid #ff0d0d;
-    caret-color: #ff0d0d;
+    border-bottom: 2px solid #ff4952;
+    caret-color: #ff4952;
   }
 
   &.error .ae-input-label {
-    color: #ff0d0d;
+    color: #ff4952;
   }
 
   .ae-input-label:after,
