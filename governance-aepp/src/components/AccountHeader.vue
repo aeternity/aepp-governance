@@ -48,7 +48,7 @@
         <div class="w-5" v-if="canOpen"></div>
       </div>
       <div class="header-row flex justify-between items-center my-3" v-else>
-        <div class="text-red-500">
+        <div class="text-red">
           Could not fetch information about delegated stake.
         </div>
       </div>
