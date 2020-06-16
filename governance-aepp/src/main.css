@@ -61,6 +61,7 @@
 body {
   color: #727278;
   font-family: Roboto, sans-serif;
+  font-size: 0.9375rem;
 }
 
 .max-w-desktop {
@@ -92,11 +93,13 @@ body {
 }
 
 .h1 {
-  font-size: 2rem;
+  font-size: 1.25rem;
+  vertical-align: middle;
 }
 
 .h2 {
   font-size: 1.5rem;
+  vertical-align: middle;
 }
 
 .overlay-loader {
@@ -167,9 +170,8 @@ body {
   white-space: nowrap;
 }
 
-.text-gray-600,
 .highlighted {
-  color: #AEAEAE;
+  color: #aeaeae;
 }
 
 .ae-value {
