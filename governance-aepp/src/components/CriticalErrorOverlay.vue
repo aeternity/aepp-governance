@@ -1,8 +1,8 @@
 <template>
-  <div class="fixed inset-0 flex items-center justify-center bg-overlay p-6" v-show="error">
-    <ae-card class="bg-white">
+  <div class="fixed inset-0 flex items-center justify-center bg-overlay p-6 z-40" v-show="error">
+    <div class="bg-gray-800 w-full text-white p-5 rounded">
       <div class="w-full">
-        <h1 class="font-mono font-bold text-center text-black text-3xl pt-4 italic">Ooops!</h1>
+        <h1 class="font-bold pt-4 text-3xl text-center text-primary">Ooops!</h1>
         <p class="text-base pt-4 text-center">
           {{error}}
         </p>
@@ -10,7 +10,7 @@
           <ae-button fill="primary" face="round" @click="ctaClick">{{errorCTA}}</ae-button>
         </div>
       </div>
-    </ae-card>
+    </div>
   </div>
 </template>
 
@@ -19,12 +19,9 @@
   import "@aeternity/aepp-components/dist/ae-button/ae-button.css"
   import AeButton from "@aeternity/aepp-components/dist/ae-button/"
 
-  import "@aeternity/aepp-components/dist/ae-card/ae-card.css"
-  import AeCard from "@aeternity/aepp-components/dist/ae-card/"
-
   export default {
     name: 'CriticalErrorOverlay',
-    components: { AeButton, AeCard },
+    components: { AeButton },
     props:  {
       error: {
         type: String,
@@ -43,11 +40,10 @@
   }
 </script>
 
-<style scoped>
-  .white-bg {
-    background-color: white;
-  }
+<style scoped type="text/scss">
+  @import '../theme/ae-button.scss';
+
   .bg-overlay {
-    background-color: rgba(255,255,255,0.95);
+    background-color: #12121bbb;
   }
 </style>
