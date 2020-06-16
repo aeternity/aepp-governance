@@ -1,5 +1,5 @@
 <template>
-  <div class="black-header bg-gray-ae py-1 w-full text-xl text-white flex justify-between items-center">
+  <div class="black-header py-1 px-3 sm:px-4 w-full text-2xl flex justify-between items-center bg-gray-700 text-blue-500 font-medium">
     <slot/>
     <div class="flex items-center justify-end">
       <div ref="inputContainer" class="relative rounded hide-input flex items-center pr-3 pb-1"
@@ -70,21 +70,9 @@
 </script>
 
 <style scoped>
-  .bg-gray-ae {
-    background: #272831;
-    color: #2a9cff;
-    font-weight: 500;
+  .black-header {
     line-height: 3.25rem;
     letter-spacing: 0.1rem;
-  }
-
-  #question-mark-icon {
-    color: #727278;
-    font-family: sans-serif;
-    font-size: 16px;
-    font-weight: bolder;
-    line-height: 1px;
-    padding-left: 1px;
   }
 
   .hide-input {
@@ -136,11 +124,6 @@
     animation-direction: reverse;
   }
 
-  .black-header {
-    padding-left: 15px;
-    padding-right: 15px;
-  }
-
   @keyframes background-frames {
     from {
       background-color: #272831;
@@ -185,15 +168,5 @@
 
   input[type=number] {
     -moz-appearance: textfield;
-  }
-
- @media only screen
-  and (min-device-width: 320px)
-  and (max-device-width: 480px)
-  and (-webkit-min-device-pixel-ratio: 2) {
-    .black-header {
-      padding-left: 10px;
-      padding-right: 10px;
-    }
   }
 </style>
