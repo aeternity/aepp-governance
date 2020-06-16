@@ -3,13 +3,13 @@
     <div class="overlay-loader" v-show="showLoading">
       <BiggerLoader/>
     </div>
-    <BlackHeader class="custom-create-paddings">
+    <BlackHeader>
       Create Poll
     </BlackHeader>
     <div class="text-gray-500 font-bold px-5 py-4">
       Please fill in all the fields below.
     </div>
-    <div v-if="Object.values(this.errors).some(val => !!val)" class="bg-ae-error mx-4 p-2 my-2">
+    <div v-if="Object.values(this.errors).some(val => !!val)" class="color-red mx-4 p-2 my-2">
       <div class="flex mb-1">
         <div class="text-4xl font-bold pl-1 pr-3 leading-none flex items-center">
           !
@@ -58,7 +58,7 @@
     <div class="text-gray-500 font-bold px-5 py-4">
       Poll options
     </div>
-    <div class="my-2 mx-4 flex items-center item-options px-4" :class="{'bg-ae-error': !!errors.optionError}"
+    <div class="my-2 mx-4 flex items-center rounded bg-gray-700 px-4" :class="{'bg-ae-error': !!errors.optionError}"
          :key="option.id" v-for="option in options">
       <div class="w-6 flex justify-center">
         <div v-if="option.text" class="h-6">
@@ -68,11 +68,11 @@
       </div>
       <label class="w-full">
         <input v-model="option.text" @input="optionInput" type="text" placeholder="Add Option"
-               class="ae-input-option w-full h-full px-2 py-6 outline-none"
+               class="ae-input-option w-full h-full px-2 py-6 outline-none bg-gray-700 text-white"
                :class="{'bg-ae-error': !!errors.optionError}"/>
       </label>
       <div v-if="option.text">
-        <div class="text-2xl text-gray-500 text-right remove-button" @click="removeOption(option.id)">&times;</div>
+        <div class="text-2xl text-gray-500 text-right cursor-pointer hover:text-white" @click="removeOption(option.id)">&times;</div>
       </div>
     </div>
 
@@ -277,48 +277,12 @@
 <style scoped type="text/scss">
   @import '../theme/ae-button.scss';
 
-  .item-options {
-    background: #292B35;
-    border-radius: 5px;
-  }
-
   input.ae-input-option {
-    background: #292B35;
-    color: #fff;
     font-size: 1.0625rem;
     line-height: 1.5rem;
   }
 
-  #plus-icon {
-    align-items: center;
-    color: #67F7B8;
-    display: flex;
-    font-family: sans-serif;
-    font-size: 20px;
-    font-weight: 700;
-    justify-content: center;
-    line-height: 1px;
-  }
-
-  .remove-button {
-    cursor: pointer;
-  }
-
-  .bg-ae-error {
-    /* color: #ff0d0d; */
-    color: #ff0d0d;
-  }
-
-  .bg-ae-error .text-gray-500 {
-    color: #ff0d0d;
-  }
-
-  .bg-ae-error .border-gray-500 {
-    border-color: #ff0d0d;
-  }
-
-  .custom-create-paddings {
-    padding-left: 20px;
-    padding-right: 20px;
+  input::placeholder, textarea::placeholder {
+    color: #aeaeae;
   }
 </style>

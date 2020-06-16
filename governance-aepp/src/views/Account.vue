@@ -97,7 +97,7 @@
     <BottomButtons htmlId="account-nav-buttons" :search-bar="true" :search-button="true" @searchSubmit="handleSearch"
                    :key="`bottomButtons${address}`"/>
     <div class="fixed flex bottom-36 px-8" v-if="searchError">
-      <div class="flex-1 rounded bg-red-500 text-white px-4 py-2">
+      <div class="flex-1 rounded bg-red text-white px-4 py-2">
         {{searchError}}
       </div>
     </div>

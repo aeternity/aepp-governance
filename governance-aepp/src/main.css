@@ -130,22 +130,6 @@ body {
   background-color: #21222c;
 }
 
-.text-gray-500 {
-  color: #727278;
-}
-
-.border-gray-500 {
-  border-color: #727278;
-}
-
-.rotate-90 {
-  transform: rotate(-90deg);
-}
-.rotate-180 {
-  transform: rotate(-180deg);
-}
-
-
 .border-primary {
   border-color: #2a9cff;
 }
