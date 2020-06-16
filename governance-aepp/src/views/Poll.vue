@@ -6,7 +6,7 @@
     <div v-if="pollState.metadata">
       <AccountHeader class="mb-4" :address="accountAddress" :poll-address="pollAddress"
                      v-if="accountAddress && !isClosed" :startOpen="false" :canOpen="true"/>
-      <div class="poll-heading">
+      <div class="poll-heading py-3 px-3 md:px-5 text-2xl text-primary bg-gray-700 border-b border-gray-900">
         <h1>
           <span>Poll</span>
           <img src="../assets/hash.svg" alt="hash"/>
@@ -14,22 +14,24 @@
           <span v-if="isClosed">Closed</span>
         </h1>
       </div>
-      <div class="poll-data">
-        <h1 class="title">{{pollState.metadata.title}}</h1>
-        <div class="description" id="poll-description">
+      <div class="space-y-3 md:space-y-3 pt-5 px-3 md:px-5">
+        <h1 class="text-white font-semibold text-xl">{{pollState.metadata.title}}</h1>
+        <div class="mb-3 md:mb-5 text-gray-400" id="poll-description">
           {{pollState.metadata.description}}
         </div>
-        <div class="link">
+        <div class="relative flex space-x-1">
           <img src="../assets/externalLink.svg" alt="externalLink"/>
-          <a :href="pollState.metadata.link" class="text-ellipsis" @click.stop.prevent="openLink">{{pollState.metadata.link}}</a>
+          <a :href="pollState.metadata.link" class="text-ellipsis text-green-500 w-full hover:underline" @click.stop.prevent="openLink">
+            {{pollState.metadata.link}}
+          </a>
           <transition name="fade">
-            <div class="copy-msg inset-0" v-if="showCopyNotice">
+            <div class="inset-0 absolute m-0 bg-gray-800 text-white" v-if="showCopyNotice">
               Copied link to clipboard
             </div>
           </transition>
         </div>
-        <div class="poll-author flex-wrap" id="poll-author">
-          <span class="h-10">BY:</span>
+        <div class="poll-author flex items-center flex-wrap border-b border-gray-900 pb-3" id="poll-author">
+          <span class="h-10 mr-1 text-gray-500">BY:</span>
           <div class="text-primary">
             <ae-identity-light
               :collapsed="true"
@@ -40,7 +42,7 @@
           </div>
         </div>
       </div>
-      <div class="poll-metadata">
+      <div class="poll-metadata p-3 md:p-5 relative text-gray-500 text-sm">
         <div class="inline-block" v-if="pollVotesState && pollVotesState.totalStake">
           Stake:
           <span class="ae-value">{{pollVotesState.totalStake | toAE(0, true)}}</span>
@@ -59,9 +61,8 @@
           Closed at block {{pollState.close_height}}
         </div>
       </div>
-
       <!-- POLL OPTIONS -->
-      <div id="poll-options" class="poll-options">
+      <div id="poll-options" class="poll-options p-3 md:p-5 bg-gray-900">
         <div v-if="pollState.vote_options">
           <div :key="id" v-for="[id, title] in pollState.vote_options">
             <HintBubble v-if="delegateeVote && delegateeVote.option === id">
@@ -88,7 +89,7 @@
                 class="font-bold" v-if="pollVotesState">{{pollVotesState.stakesForOption[id].percentageOfTotal | formatPercent}}</span>
                   <span>{{title}}</span>
                 </div>
-                <div class="min-w-3" style="margin-top: 4px" v-if="pollVotesState">
+                <div class="min-w-3 flex-shrink-0" style="margin-top: 4px" v-if="pollVotesState">
                   <img
                     :src="votersForOption.id != null && votersForOption.id === id ? caretActive : caret"
                     class="ae-transition-300"
@@ -102,7 +103,7 @@
               </div>
             </div>
             <div class="card-content" v-show="votersForOption.id != null && votersForOption.id === id">
-              <div class="poll-votes" v-if="pollVotesState">
+              <div class="text-sm" v-if="pollVotesState">
                 {{pollVotesState.stakesForOption[id].percentageOfTotal | formatPercent(2)}}
                 (
                   <span class="ae-value">{{pollVotesState.stakesForOption[id].optionStake | toAE(2, true)}}</span>
@@ -117,7 +118,7 @@
             </div>
           </div>
         </div>
-        <div class="footer clearfix">
+        <div class="footer clearfix mt-5">
           <div class="float-left">
             Open source at
             <a href="https://github.com/aeternity/aepp-governance/"
@@ -207,26 +208,27 @@
     },
     methods: {
       openLink(mode, url) {
-        var target = url ? url : this.pollState.metadata.link;
+        let target = url ? url : this.pollState.metadata.link;
 
         if (window.parent === window) {
           // No Iframe
           window.open(target);
-        } else {
-          copy(target);
-          if (mode === 'verify') {
-            this.showCopyNoticeVerify = true;
-          } else {
-            this.showCopyNotice = true;
-          }
-          setTimeout(() => {
-            if (mode === 'verify') {
-              this.showCopyNoticeVerify = false;
-            } else {
-              this.showCopyNotice = false;
-            }
-          }, 1500)
+          return;
         }
+
+        copy(target);
+        if (mode === 'verify') {
+          this.showCopyNoticeVerify = true;
+        } else {
+          this.showCopyNotice = true;
+        }
+        setTimeout(() => {
+          if (mode === 'verify') {
+            this.showCopyNoticeVerify = false;
+          } else {
+            this.showCopyNotice = false;
+          }
+        }, 1500);
       },
       async vote(id) {
         this.showLoading = true;
@@ -364,95 +366,18 @@
 
 <style lang="scss" scoped>
   .poll-heading {
-    padding: 10px 20px;
-    background-color: #272831;
     position: sticky;
     top: 0;
     z-index: 100;
-    border-bottom: 1px solid #12121B;
 
     img {
       display: inline;
       height: 20px;
       margin: -3px;
     }
-
-    span,
-    h1 {
-      font-size: 20px;
-      font-weight: 400;
-      color: #2a9cff;
-      vertical-align: middle;
-    }
-  }
-
-  .poll-data {
-    padding: 20px;
-
-    .title {
-      color: #fff;
-      font-weight: 600;
-      font-size: 18px;
-    }
-
-    .description {
-      color: #AEAEAE;
-      font-size: 15px;
-      font-weight: 400;
-    }
-
-    .link {
-      position: relative;
-      display: flex;
-
-      a {
-        margin-left: 5px;
-        color: #67F7B8;
-        font-size: 15px;
-        font-weight: 400;
-        display: inline-block;
-        width: 100%;
-      }
-
-      .copy-msg {
-        background-color: #21222c;
-        color: #fff;
-        position: absolute;
-      }
-
-      &:hover a{
-        text-decoration: underline;
-      }
-    }
-  }
-
-  .title,
-  .description,
-  .link,
-  .poll-author {
-    margin-bottom: 20px;
-  }
-
-  .poll-author {
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid #12121B;
-    padding-bottom: 10px;
-
-    & > span {
-      color: #727278;
-      margin-right: 5px;
-      font-size: 15px;
-    }
   }
 
   .poll-metadata {
-    color: #727278;
-    font-size: 15px;
-    font-weight: 400;
-    padding: 0 20px 20px 20px;
-    position: relative;
-
     &::after {
       content: '';
       position: absolute;
@@ -465,15 +390,8 @@
     }
   }
 
-  .poll-options {
-    background-color: #12121B;
-    padding: 20px;
-  }
-
   .footer {
-    margin-top: 20px;
     font-size: 10px;
-    color: #727278;
 
     .highlighted:hover {
       filter: brightness(1.3)
@@ -510,31 +428,8 @@
     }
   }
 
-  .poll-votes {
-    font-size: 15px;
-    font-weight: 400;
-    color: #727278;
-  }
-
   .remove-progress-border .progress-line, .remove-progress-border {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
   }
-
-@media only screen
-and (max-device-width: 480px)
-and (-webkit-min-device-pixel-ratio: 2) {
-  .poll-data,
-  .poll-options {
-    padding: 20px 10px;
-  }
-
-  .poll-metadata {
-    padding: 0 10px 10px 10px;
-  }
-
-  .poll-heading {
-    padding: 10px;
-  }
-}
 </style>
