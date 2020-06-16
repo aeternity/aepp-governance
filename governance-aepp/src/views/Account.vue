@@ -43,7 +43,7 @@
         </div>
       </div>
     </div>
-    <div class="navigation">
+    <div class="navigation px-5 pt-5 space-x-3 sm:space-x-5 font-bold md:font-lg flex text-gray-500 bg-gray-700">
       <div class="navigation-item" @click="switchTab('delegations')"
            :class="{'active-tab': activeTab === 'delegations'}">Delegations
       </div>
@@ -69,7 +69,7 @@
           <div v-if="includesIndirectDelegations" class="mx-4 mt-1 text-xs">(includes more indirect delegations)</div>
         </div>
       </div>
-      <div v-else class="msg text-center my-8">
+      <div v-else class="color-gray-400 text-center my-8">
         No votes have been delegated to {{isOwnAccount ? 'you' : 'this account'}}.
       </div>
     </div>
@@ -79,7 +79,7 @@
           <PollListing :id="id" :data="data" :showVote="true" class="mx-4"/>
         </div>
       </div>
-      <div v-else class="msg text-center my-8">
+      <div v-else class="color-gray-400 text-center my-8">
         No votes on record. Browse through active polls and start getting involved!
       </div>
     </div>
@@ -89,7 +89,7 @@
           <PollListing :id="id" :data="data" class="mx-4"/>
         </div>
       </div>
-      <div v-else class="msg text-center py-4 my-4">
+      <div v-else class="color-gray-400 text-center py-4 my-4">
         {{isOwnAccount ? 'You' : 'This account'}} haven’t created any polls yet.
         Create one by clicking the button on the bottom right.
       </div>
@@ -97,7 +97,7 @@
     <BottomButtons htmlId="account-nav-buttons" :search-bar="true" :search-button="true" @searchSubmit="handleSearch"
                    :key="`bottomButtons${address}`"/>
     <div class="fixed flex bottom-36 px-8" v-if="searchError">
-      <div class="flex-1 rounded bg-gray-500 text-white px-4 py-2 ae-error-field">
+      <div class="flex-1 rounded bg-red-500 text-white px-4 py-2">
         {{searchError}}
       </div>
     </div>
@@ -282,56 +282,24 @@
 </script>
 
 <style lang="scss" scoped>
-
   .header-row {
     padding: 10px 0;
     margin: 0 20px;
     color: #fff;
-    font-size: 15px;
-    font-weight: 400;
-  }
-
-  .navigation {
-    display: flex;
-    width: 100%;
-    background-color: #272831;
-    padding: 0 20px;
   }
 
   .navigation-item {
-    font-size: 15px;
-    font-weight: 600;
-    color: #727278;
-    padding: 11px 0;
-    margin: 0 15px;
-    border-bottom: 2px solid #272831;
-
-    &:first-child {
-      margin-left: 0;
-    }
+    cursor: pointer;
+    padding-bottom: 0.9375rem;
 
     &.active-tab {
       color: #67f7b8;
       border-bottom: 2px solid #67f7b8;
     }
-
-    &:hover {
-      cursor: pointer;
-    }
-  }
-
-  .msg {
-    color: #AEAEAE;
-    font-size: 15px;
   }
 
   .bottom-36 {
     bottom: 9rem;
-  }
-
-  .ae-error-field {
-    border-color: #ff0d0d;
-    background-color: #ff0d0d;
   }
 
   .ae-button {
@@ -351,10 +319,6 @@
   and (-webkit-min-device-pixel-ratio: 2) {
     .header-row {
       margin: 0 10px;
-    }
-
-    .navigation {
-      padding: 0 10px
     }
 
     .ae-button {
