@@ -1,23 +1,23 @@
 <template>
   <div class="ae-card">
-    <div class="header ae-max-height-0 overflow-hidden ae-transition-300"
+    <div class="ae-max-height-0 overflow-hidden ae-transition-300 relative"
          :key="address"
          :class="{'ae-max-height-40': open}">
       <transition name="fade">
-        <div class="copy-overlay inset-0" v-if="showCopyNotice">
+        <div class="inset-0 flex justify-center items-center absolute text-white bg-gray-900 z-20" v-if="showCopyNotice">
           <span>Copied address to clipboard</span>
         </div>
       </transition>
       <BlackHeader>
         <div class="w-full flex flex-wrap justify-between items-center">
           <span>Voter Account</span>
-          <span class="copy">
+          <span class="copy" @click="copyToClipboard" >
             Copy
-            <img src="../assets/copy.svg" class="cursor-pointer" @click="copyToClipboard" alt="copy"/>
+            <img src="../assets/copy.svg" class="cursor-pointer" alt="copy"/>
           </span>
         </div>
       </BlackHeader>
-      <div class="header-row flex flex-wrap justify-between items-center mt-3 relative">
+      <div class="header-row flex flex-wrap justify-between items-center mt-3 relative text-white">
         <div>
           <AeIdentityLight
             :collapsed="true"
@@ -35,20 +35,20 @@
       </div>
 
       <div class="header-row" v-if="delegatedPower">
-        <div class="flex ">
+        <div class="flex text-white">
           Estimated delegated stake:
           <div class="ml-auto text-right">
             <span class="ae-value">{{delegatedPower | toAE(2, true)}}</span>
             <span class="ae-text">AE</span>
           </div>
         </div>
-        <div class="sub-text">
-          You may still vote for yourself, but this voids your delegatee’s vote for you.
+        <div class="text-gray-500 italic">
+          You may still vote by yourself, but this voids your delegatee’s vote for you.
         </div>
         <div class="w-5" v-if="canOpen"></div>
       </div>
       <div class="header-row flex justify-between items-center my-3" v-else>
-        <div class="leading-tight">
+        <div class="text-red-500">
           Could not fetch information about delegated stake.
         </div>
       </div>
@@ -158,10 +158,6 @@
 </script>
 
 <style lang="scss" scoped>
-  .header {
-    position: relative;
-  }
-
   .expand-account.can-open {
     background-color: #272831;
   }
@@ -182,37 +178,20 @@
   }
 
   .copy {
+    cursor: pointer;
     color: #fff;
     font-size: 12px;
 
     img {
       display: inline;
-      width: 18.2px;
+      width: 1.125rem;
     }
   }
 
-  .copy-overlay {
-    background-color: #12121b;
-    color: #fff;
-    position: absolute;
-    z-index: 20;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
   .header-row {
-    padding: 10px 0;
-    margin: 0 20px;
+    padding: 0.625rem 0;
+    margin: 0 1.25rem;
     border-bottom: 1px solid #12121b;
-    color: #fff;
-    font-size: 15px;
-    font-weight: 400;
-  }
-
-  .sub-text {
-    color: #727278;
-    font-style: italic;
   }
 
   .rotate-90 {
@@ -227,18 +206,17 @@
     max-height: 20rem;
   }
 
-  @media only screen
-  and (max-width: 480px) {
+  @media (max-width: 480px) {
     .expand-account {
       margin: 0 10px;
     }
 
     .header-row {
-      margin: 0 10px;
+      margin: 0 0.625rem;
     }
 
     .expand-account.can-open {
-      padding: 10px;
+      padding: 0.625rem;
     }
   }
 </style>
