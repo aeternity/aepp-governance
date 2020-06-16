@@ -1,5 +1,5 @@
 <template>
-  <div class="hidden md:flex cursor-pointer " v-if="activeView.items.length > 0 || activeView.headline" @click="toggleView">
+  <div class="hidden lg:flex cursor-pointer " v-if="activeView.items.length > 0 || activeView.headline" @click="toggleView">
     <div class="h-full flex justify-center items-center px-2 text-gray-600 shadow-left hover:shadow-xl" >
       <img src="../assets/back_gray.svg" :class="{'rotate-180': showHints}" alt="back">
     </div>
