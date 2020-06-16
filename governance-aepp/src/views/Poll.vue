@@ -21,7 +21,7 @@
         </div>
         <div class="relative flex space-x-1">
           <img src="../assets/externalLink.svg" alt="externalLink"/>
-          <a :href="pollState.metadata.link" class="text-ellipsis text-green-500 w-full hover:underline" @click.stop.prevent="openLink">
+          <a :href="pollState.metadata.link" class="text-ellipsis text-green w-full hover:underline" @click.stop.prevent="openLink">
             {{pollState.metadata.link}}
           </a>
           <transition name="fade">

@@ -15,15 +15,12 @@ module.exports = {
     colors: {
       transparent: 'transparent',
       current: 'currentColor',
-
       black: '#000',
       white: '#fff',
-      red: {
-        500: '#ff4952'
-      },
-      green: {
-        500: '#67f7b8'
-      },
+      green: '#67f7b8',
+      blue: '#2a9cff',
+      red: '#ff4952',
+
       gray: {
         100: '#f7f7fc',
         200: '#d2d2d4',
@@ -34,9 +31,6 @@ module.exports = {
         700: '#272831',
         800: '#21222c',
         900: '#12121b',
-      },
-      blue: {
-        500: '#2a9cff',
       },
     },
     spacing: {

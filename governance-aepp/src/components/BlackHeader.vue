@@ -1,5 +1,5 @@
 <template>
-  <div class="black-header py-1 px-3 sm:px-4 w-full text-2xl flex justify-between items-center bg-gray-700 text-blue-500 font-medium">
+  <div class="black-header py-1 px-3 sm:px-4 w-full text-2xl flex justify-between items-center bg-gray-700 text-blue font-medium">
     <slot/>
     <div class="flex items-center justify-end">
       <div ref="inputContainer" class="relative rounded hide-input flex items-center pr-3 pb-1"
