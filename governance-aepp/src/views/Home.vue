@@ -3,11 +3,11 @@
     <div class="overlay-loader" v-show="showLoading && !error">
       <BiggerLoader/>
     </div>
-    <div class="fixed w-full top-0 max-w-desktop z-20">
+    <div class="sticky w-full top-0 max-w-desktop z-20">
       <BlackHeader :show-number-input="true" @submit="showPoll" @input="handleIdInput">
         {{getTabLabelByValue(activeTab)}} Polls
       </BlackHeader>
-      <div class="tab-switcher" id="home-tab-switcher">
+      <div class="px-4 space-x-3 sm:space-x-5 font-bold md:font-lg flex text-gray-500 bg-gray-700" id="home-tab-switcher">
         <div v-if="pollOrdering" :class="{active: activeTab === 'hot'}" @click="switchTab('hot')" class="tab">
           <span>{{getTabLabelByValue('hot')}}</span>
         </div>
@@ -25,7 +25,7 @@
         </div>
       </div>
     </div>
-    <div id="home-poll-list" class="poll-list">
+    <div id="home-poll-list" class="p-3 md:p-4">
       <transition name="fade">
         <div v-show="polls" :key="activeTab">
           <div class="list-item" :key="id" v-for="[id, data] in polls">
@@ -254,32 +254,11 @@
 </script>
 
 <style lang="scss" scoped>
-  .tab-switcher {
-    display: flex;
-    background-color: #272831;
-    color: #727278;
-    font-weight: 400;
-    padding: 15px 15px 0 15px;
-
-    &:hover {
-      cursor: pointer;
-    }
-  }
-
   .tab {
-    font-size: 16px;
-    font-weight: 600;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #272831;
-    margin: 0 15px;
-
-    &:last-child {
-      margin-right: 0;
-    }
-
-    &:first-child {
-      margin-left: 0;
-    }
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    padding-bottom: 0.9375rem;
+    white-space: nowrap;
   }
 
   .tab.active {
@@ -287,27 +266,9 @@
     border-bottom: 2px solid #67F7B8;
   }
 
-  .poll-list {
-    margin-top: 135px;
-    padding: 0 15px;
-  }
-
-  @media only screen
-  and (min-device-width: 320px)
-  and (max-device-width: 480px)
-  and (-webkit-min-device-pixel-ratio: 2) {
+  @media (max-device-width: 480px) {
     .tab {
-      font-size: 15px;
-      margin: 0 10px;
-      padding-bottom: 10px;
-    }
-
-    .tab-switcher {
-      padding: 10px 10px 0 10px;
-    }
-
-    .poll-list {
-      padding: 0 10px;
+      padding-bottom: 0.625rem;
     }
   }
 </style>
