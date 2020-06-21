@@ -167,8 +167,16 @@ body {
 }
 
 ::-webkit-scrollbar {
-  width: 0px;
+  width: 0;
   background: transparent;
+}
+
+textarea:focus, input:focus {
+  outline: none;
+}
+
+.justify-evenly {
+  justify-content: space-evenly;
 }
 
 /* Overrides */

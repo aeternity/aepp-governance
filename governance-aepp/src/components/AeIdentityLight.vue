@@ -1,11 +1,9 @@
 <template>
-  <div
-    :class="['identity-card', classObject]"
-  >
+  <div class="identity-card" :class="[classObject]">
     <div class="flex flex-wrap relative">
       <div class="user-identicon" v-html="avatar.src"></div>
-      <span :class="['identity-name-position', collapsedModifier]">
-        <span role="heading" :class="['identity-name', collapsedModifier]">{{name}}</span>
+      <span class="identity-name-position" :class="[collapsedModifier]">
+        <span role="heading" class="identity-name m-0 text-white" :class="[collapsedModifier]">{{name}}</span>
       </span>
       <div class="balances flex items-center justify-end">
         <div class="balance token">
@@ -120,8 +118,6 @@
     }
 </script>
 <style lang="scss">
-  @import '~@aeternity/aepp-components/src/styles/fallback/variables';
-
   .identity-card {
     .balance.token {
       font-size: 15px;
@@ -145,13 +141,7 @@
     }
 
     .ae-identity-light._invert {
-      color: $white;
-    }
-
-    .flex-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      color: #fff;
     }
 
     .chunk-row {
@@ -180,10 +170,6 @@
       &:nth-child(3n) {
         text-align: right;
       }
-    }
-
-    .flex-row + .chunk-row {
-      margin-top: 16px;
     }
 
     .identity-info._long {
@@ -236,12 +222,6 @@
         margin-left: 9px;
         margin-right: 9px;
       }
-    }
-
-    .identity-name {
-      margin: 0;
-      font-size: 15px;
-      color: #fff;
     }
 
     .truncated-address {
