@@ -21,6 +21,9 @@ module.exports = {
       blue: '#2a9cff',
       red: '#ff4952',
 
+      secondary: '#67f7b8',
+      primary: '#2a9cff',
+
       gray: {
         100: '#f7f7fc',
         200: '#d2d2d4',
@@ -122,6 +125,7 @@ module.exports = {
     },
     flex: {
       '1': '1 1 0%',
+      '2': '2 1 0%',
       auto: '1 1 auto',
       initial: '0 1 auto',
       none: 'none',

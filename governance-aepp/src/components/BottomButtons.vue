@@ -1,12 +1,13 @@
 <template>
   <div class="flex justify-center w-full z-20">
 
-    <div class="fixed bottom-0 h-16 items-center flex flex-wrap w-full max-w-desktop bottom-bar" :class="{'open': view === 'search'}">
+    <div class="fixed bottom-0 h-16 items-center flex flex-wrap w-full max-w-desktop bg-gray-800 rounded"
+         :class="{'open': view === 'search'}">
       <!-- SEARCH BAR -->
       <div class="w-full flex h-16 px-8 items-center search-bar" v-if="view === 'search'">
         <label class="w-full h-full">
           <input v-model="searchString" type="search" placeholder="Search..."
-                 class="flex-1 h-full flex justify-center items-center px-4 w-full"/>
+                 class="flex-1 h-full flex justify-center items-center px-4 w-full  bg-gray-700"/>
         </label>
         <SmallButton :img="images.searchImg" v-if="searchButton"
                      @click="$emit('searchSubmit', searchString)"/>
@@ -131,20 +132,8 @@
 </script>
 
 <style scoped>
-  textarea:focus, input:focus {
-    outline: none;
-  }
-
-  .justify-evenly {
-    justify-content: space-evenly;
-  }
-
-  .flex-2 {
-    flex: 2 1 0;
-  }
-
   .open {
-    height: 146px;
+    height: 9.125rem;
   }
 
   .search-button::before {
@@ -156,14 +145,6 @@
     left: calc(50% - 10px);
     width: 20px;
     height: 20px;
-  }
-
-  .bottom-bar {
-    background: #272831;
-  }
-
-  .search-bar input {
-    background: #272831;
   }
 
   button[disabled] {

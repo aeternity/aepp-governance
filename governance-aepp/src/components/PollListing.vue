@@ -6,7 +6,7 @@
                        balance="">
       </AeIdentityLight> voted with this stake in
     </div>
-    <div class="poll-listing" @click="$router.push(`/poll/${id}`)">
+    <div class="mb-4 poll-listing px-4 py-3 relative rounded" @click="$router.push(`/poll/${id}`)">
       <div class="flex items-center vote-id w-full">
         <span class="listing-text">{{data.title}}</span>
       </div>
