@@ -7,7 +7,7 @@
         balance=""
         @click="$router.push(`/account/${account}`)"
       />
-      <div @click="showSubTree = !showSubTree" class="tree-amount absolute flex flex-no-wrap items-center pt-1 right-0">
+      <div @click="showSubTree = !showSubTree" class="absolute flex flex-no-wrap items-center pt-1 right-0">
         <span v-if="totalTreeDepth" class="pr-1">
           (<span class="text-primary cursor-pointer">{{totalTreeDepth}}D</span>)
         </span>
@@ -76,7 +76,4 @@
 </script>
 
 <style scoped>
-  .tree-amount {
-    font-size: 15px;
-  }
 </style>
