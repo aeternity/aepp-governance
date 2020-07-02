@@ -81,7 +81,7 @@
               :class="{'remove-progress-border': votersForOption.id != null && votersForOption.id === id}"
             >
               <div class="flex justify-between items-center w-full py-4 px-3">
-                <ae-check class="mr-1" v-model="voteOption" :value="id" type="radio" @click.stop.prevent
+                <Checkbox class="mr-1" v-model="voteOption" :value="id" type="radio" @click.stop.prevent
                           @change="vote(id)" :disabled="isClosed || !accountAddress"/>
                 <!-- TODO find better solution than this -->
                 <div class="mr-auto ml-2" style="margin-top: 4px">
@@ -149,7 +149,7 @@
 <script>
 
   import "@aeternity/aepp-components/dist/ae-check/ae-check.css"
-  import AeCheck from "@aeternity/aepp-components/dist/ae-check/"
+  import Checkbox from "../components/Checkbox.vue"
 
   import aeternity from "../utils/aeternity";
   import pollContractSource from '../assets/contracts/PollInterface.aes';
@@ -173,7 +173,7 @@
       HintBubble,
       AccountTreeLine,
       CriticalErrorOverlay,
-      AccountHeader, BottomButtons, AeCheck, BiggerLoader, AeIdentityLight
+      AccountHeader, BottomButtons, Checkbox, BiggerLoader, AeIdentityLight
     },
     data() {
       return {
