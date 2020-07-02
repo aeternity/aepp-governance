@@ -62,7 +62,7 @@
          :key="option.id" v-for="option in options">
       <div class="w-6 flex justify-center">
         <div v-if="option.text" class="h-6">
-          <ae-check class="mr-2" type="radio" @click.stop.prevent disabled/>
+          <Checkbox class="mr-2" type="radio" @click.stop.prevent disabled/>
         </div>
         <img v-else src="../assets/plus-option.svg" id="plus-icon" alt="add option">
       </div>
@@ -111,7 +111,7 @@
   import '@aeternity/aepp-components/dist/ae-button-group/ae-button-group.css';
   import AeButtonGroup from '@aeternity/aepp-components/dist/ae-button-group/';
   import "@aeternity/aepp-components/dist/ae-check/ae-check.css"
-  import AeCheck from "@aeternity/aepp-components/dist/ae-check/"
+  import Checkbox from "../components/Checkbox.vue"
 
   import aeternity from '../utils/aeternity';
   import pollContractSource from '../assets/contracts/Poll.aes';
@@ -128,7 +128,7 @@
       CriticalErrorOverlay,
       HintBubble,
       BlackHeader, BottomButtons,
-      AeCheck, AeButton, AeInput, BiggerLoader, AeButtonGroup
+      Checkbox, AeButton, AeInput, BiggerLoader, AeButtonGroup
     },
     data() {
       return {
