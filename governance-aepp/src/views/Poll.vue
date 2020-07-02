@@ -148,7 +148,6 @@
 
 <script>
 
-  import "@aeternity/aepp-components/dist/ae-check/ae-check.css"
   import Checkbox from "../components/Checkbox.vue"
 
   import aeternity from "../utils/aeternity";
