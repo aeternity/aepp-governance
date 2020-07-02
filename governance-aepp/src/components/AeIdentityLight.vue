@@ -1,18 +1,18 @@
 <template>
   <div class="identity-card" :class="[classObject]">
     <div class="flex flex-wrap relative">
-      <div class="user-identicon" v-html="avatar.src"></div>
-      <span class="identity-name-position" :class="[collapsedModifier]">
+      <div class="user-identicon inline-block" v-html="avatar.src"></div>
+      <span class="identity-name-position text-gray-500 flex items-center ml-3 font-medium" :class="[collapsedModifier]">
         <span role="heading" class="identity-name m-0 text-white" :class="[collapsedModifier]">{{name}}</span>
       </span>
-      <div class="balances flex items-center justify-end">
-        <div class="balance token">
-          <span class="amount">{{additionalText}}</span>
-          <span class="amount">{{balance | toAE}}</span>
-          <span class="currency-symbol">{{currency}}</span>
+      <div class="balances w-auto flex flex-grow items-center justify-end">
+        <div class="balance token whitespace-no-wrap text-right text-xs text-base font-normal">
+          <span class="amount text-white">{{additionalText}}</span>
+          <span class="amount text-white">{{balance | toAE}}</span>
+          <span class="currency-symbol text-blue">{{currency}}</span>
         </div>
       </div>
-      <small class="truncated-address cursor-pointer w-full flex-shrink-0" v-if="collapsed" @click="$emit('click')">
+      <small class="truncated-address text-gray-500 block cursor-pointer w-full flex-shrink-0" v-if="collapsed" @click="$emit('click')">
          {{address}}
       </small>
     </div>
@@ -20,8 +20,8 @@
       v-if="!collapsed"
       v-for="(chunk, idx) in chunkAddress"
       :key="idx"
-      class="chunk-row">
-      <div v-for="(data, idx) in chunk" :key="idx" class="chunk">
+      class="chunk-row font-medium not-italic text-left">
+      <div v-for="(data, idx) in chunk" :key="idx" class="chunk inline">
         {{data}}
       </div>
     </div>
@@ -120,21 +120,10 @@
 <style lang="scss">
   .identity-card {
     .balance.token {
-      font-size: 15px;
-      font-weight: 400;
       font-family: inherit;
-
-      .amount {
-        color: #fff;
-      }
-      .currency-symbol {
-        color: #2a9cff;
-      }
     }
 
     .user-identicon {
-      display: inline-block;
-
       svg {
         border-radius: 50%;
       }
@@ -146,21 +135,17 @@
 
     .chunk-row {
       font-family: 'Roboto Mono', monospace;
-      font-size: 17px;
-      font-weight: 500;
-      font-style: normal;
+      font-size: 1.0625rem;
       line-height: 1.53;
-      letter-spacing: 3.1px;
+      letter-spacing: 0.19375rem;
       font-stretch: normal;
-      text-align: left;
 
       &:first-of-type {
-        margin-top: 14px;
+        margin-top: 0.875rem;
       }
     }
 
     .chunk {
-      display: inline-block;
       width: calc(100% / 3);
 
       &:nth-child(2n) {
@@ -173,23 +158,15 @@
     }
 
     .identity-info._long {
-      width: calc(100% - 65px);
+      width: calc(100% - 4.0625rem);
       overflow: hidden;
-    }
-
-    .balances {
-      width: auto;
-      flex-grow: 1;
     }
 
     .balance {
       font-family: 'Roboto Mono', monospace;
-      font-size: 12px;
       font-stretch: normal;
-      line-height: 12px;
-      text-align: right;
-      margin-top: 2px;
-      white-space: nowrap;
+      line-height: 0.75rem;
+      margin-top: 0.125rem;
 
       &:first-of-type {
         margin-top: 0;
@@ -201,60 +178,50 @@
     }
 
     .currency-symbol {
-      letter-spacing: 0.12em;
-      padding-right: 3px;
+      letter-spacing: 0.12rem;
+      padding-right: 0.1875rem;
     }
 
     .ae-identity-light .avatar {
-      border-width: 1px;
-      width: 34px;
-      height: 34px;
+      border-width: 0.0625rem;
+      width: 2.125rem;
+      height: 2.125rem;
     }
 
-    .identity-name-position {
-      display: flex;
-      align-items: center;
-      margin-left: 10px;
-      font-weight: 500;
-      color: #727278;
-
-      &._collapsed {
-        margin-left: 9px;
-        margin-right: 9px;
-      }
+    .identity-name-position._collapsed {
+        margin-left: 0.5625rem;
+        margin-right: 0.5625rem;
     }
 
     .truncated-address {
       font-family: 'Roboto Mono', monospace;
-      font-size: 11px;
-      display: block;
-      color: #727278;
+      font-size: 0.6875rem;
     }
 
     .identity-name + .truncated-address {
-      margin-top: 1px;
+      margin-top: 0.0625rem;
     }
   }
   @media (max-width: 480px) {
     .avatar,
     .ae-identity-light .avatar {
-      width: 20px;
-      height: 20px;
+      width: 1.25rem;
+      height: 1.25rem;
     }
 
     .identity-name-position {
-      margin-left: 5px;
+      margin-left: 0.3126;
 
       &._collapsed {
-        margin-left: 5px;
-        margin-right: 5px;
+        margin-left: 0.3126;
+        margin-right: 0.3126;
       }
     }
   }
 
   @media (max-width: 360px) {
     .truncated-address {
-      font-size: 9px !important;
+      font-size: 0.5625rem !important;
     }
   }
 </style>

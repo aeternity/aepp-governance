@@ -7,7 +7,7 @@
       <AccountHeader :address="address" :canOpen="false"/>
     </div>
     <div v-if="delegation">
-      <div class="header-row">
+      <div class="header-row text-white py-3 px-0 my-0 xs:mx-3 sm:mx-5">
         <div>Delegate</div>
         <div class="ae-card my-2 py-4 px-3 flex justify-between" id="account-delegatee">
           <ae-identity-light
@@ -27,7 +27,7 @@
       </div>
     </div>
     <div v-if="!delegation && isOwnAccount">
-      <div class="header-row">
+      <div class="header-row text-white py-3 px-0 my-0 xs:mx-3 sm:mx-5">
         <span>Delegate your voting power</span>
         <div class="flex my-2">
           <ae-input
@@ -36,7 +36,7 @@
           />
           <div class="ml-auto my-2"></div>
           <div
-            class="ae-button round flex justify-center items-center text-white font-semibold cursor-pointer"
+            class="ae-button rounded-l-none sm:px-5 xs:px-1 py-0 round flex justify-center items-center text-white font-semibold cursor-pointer"
             @click="createDelegation">
             Delegate
           </div>
@@ -44,13 +44,13 @@
       </div>
     </div>
     <div class="navigation px-5 pt-5 space-x-3 sm:space-x-5 font-bold md:font-lg flex text-gray-500 bg-gray-700">
-      <div class="navigation-item" @click="switchTab('delegations')"
+      <div class="navigation-item pb-4 cursor-pointer" @click="switchTab('delegations')"
            :class="{'active-tab': activeTab === 'delegations'}">Delegations
       </div>
-      <div class="navigation-item" @click="switchTab('votes')"
+      <div class="navigation-item pb-4 cursor-pointer" @click="switchTab('votes')"
            :class="{'active-tab': activeTab === 'votes'}">Votes
       </div>
-      <div class="navigation-item" @click="switchTab('polls')"
+      <div class="navigation-item pb-4 cursor-pointer" @click="switchTab('polls')"
            :class="{'active-tab': activeTab === 'polls'}">Polls
       </div>
     </div>
@@ -282,20 +282,9 @@
 </script>
 
 <style lang="scss" scoped>
-  .header-row {
-    padding: 10px 0;
-    margin: 0 20px;
-    color: #fff;
-  }
-
-  .navigation-item {
-    cursor: pointer;
-    padding-bottom: 0.9375rem;
-
-    &.active-tab {
-      color: #67f7b8;
-      border-bottom: 2px solid #67f7b8;
-    }
+  .active-tab {
+    color: #67f7b8;
+    border-bottom: 0.125rem solid #67f7b8;
   }
 
   .bottom-36 {
@@ -303,8 +292,7 @@
   }
 
   .ae-button {
-    padding: 0 20px;
-    margin-bottom: 3px;
+    margin-bottom: 0.1875rem;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
   }
@@ -313,17 +301,4 @@
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
   }
-
-  @media only screen
-  and (max-device-width: 480px)
-  and (-webkit-min-device-pixel-ratio: 2) {
-    .header-row {
-      margin: 0 10px;
-    }
-
-    .ae-button {
-      padding: 0 5px;
-    }
-  }
-
 </style>
