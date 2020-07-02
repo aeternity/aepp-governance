@@ -11,7 +11,7 @@
         <span class="mb-4 font-normal text-lg text-white">{{data.title}}</span>
       </div>
       <div v-if="showVote" class="vote items-center mb-3 flex">
-       <ae-check :value="true" type="radio" v-model="showVote"/> <span class="vote-text ml-1 text-white text-base font-normal">{{data.vote}}</span>
+       <Checkbox :value="true" type="radio" v-model="showVote"/> <span class="vote-text ml-1 text-white text-base font-normal">{{data.vote}}</span>
       </div>
       <div class="text-gray-500 text-base font-normal">
         <span v-if="percentOfTotalSupply"><span class="highlighted">{{percentOfTotalSupply | formatPercent(2)}}</span> stake - </span>
@@ -32,7 +32,7 @@
 
   import "@aeternity/aepp-components/dist/aeLoader/aeLoader.css"
   import AeLoader from "@aeternity/aepp-components/dist/aeLoader/"
-  import AeCheck from "@aeternity/aepp-components/dist/ae-check/"
+  import Checkbox from "./Checkbox.vue"
 
 
   import Backend from "../utils/backend";
@@ -40,7 +40,7 @@
   import AeIdentityLight from './AeIdentityLight'
 
   export default {
-    components: {AeLoader, AeIdentityLight, AeCheck},
+    components: {AeLoader, AeIdentityLight, Checkbox},
     data() {
       return {
         loading: true,
