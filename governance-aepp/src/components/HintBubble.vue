@@ -18,12 +18,12 @@
 
   .ae-triangle-after::after {
     content: "";
-    width: 20px;
-    height: 20px;
-    border: 10px solid #edf2f7;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 0.625rem solid #edf2f7;
     transform: rotate(45deg);
     position: absolute;
-    bottom: -10px;
-    left: 20px;
+    bottom: -0.625rem;
+    left: 1.25rem;
   }
 </style>

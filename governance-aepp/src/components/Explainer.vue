@@ -3,7 +3,7 @@
     <div class="h-full flex justify-center items-center px-2 text-gray-600 shadow-left hover:shadow-xl" >
       <img src="../assets/back_gray.svg" :class="{'rotate-180': showHints}" alt="back">
     </div>
-    <div class="relative show-hints ae-transition-300" :class="{'hide-hints': !showHints}">
+    <div class="relative show-hints opacity-100 z-0 ml-rem overflow-hidden ae-transition-300" :class="{'hide-hints': !showHints}">
       <h1 class="text-2xl mr-8 mb-0 leading-tight mt-1">Helps and Hints</h1>
       <h2 class="text-xl mt-0 leading-none italic">{{activeView.headline}}</h2>
       <ExplainerItem v-for="item in activeView.items" :target="item.target" :offset="item.offset" :key="item.target">
@@ -59,12 +59,8 @@
 
 <style scoped>
   .show-hints {
-    min-width: 300px;
-    max-width: 500px;
-    overflow: hidden;
-    margin-left: 1rem;
-    z-index: 0;
-    opacity: 1;
+    min-width: 18.75rem;
+    max-width: 31.25rem;
   }
 
   .show-hints h1,
@@ -80,6 +76,6 @@
   }
 
   .shadow-left {
-    box-shadow: -2px 0 3px 0 rgba(0, 0, 0, 0.15);
+    box-shadow: -0.125rem 0 0.1875rem 0 rgba(0, 0, 0, 0.15);
   }
 </style>
