@@ -11,13 +11,13 @@
       <BlackHeader>
         <div class="w-full flex flex-wrap justify-between items-center">
           <span>Voter Account</span>
-          <span class="copy" @click="copyToClipboard" >
+          <span class="copy bg-gray-700 text-white text-xs cursor-pointer" @click="copyToClipboard" >
             Copy
-            <img src="../assets/copy.svg" class="cursor-pointer" alt="copy"/>
+            <img src="../assets/copy.svg" class="inline w-5" alt="copy"/>
           </span>
         </div>
       </BlackHeader>
-      <div class="header-row flex flex-wrap justify-between items-center mt-3 relative text-white">
+      <div class="header-row py-3 px-0 my-0 sm:mx-5 xs:mx-3 border-b border-solid border-gray-900 flex flex-wrap justify-between items-center relative text-white">
         <div>
           <AeIdentityLight
             :collapsed="true"
@@ -34,7 +34,7 @@
         </div>
       </div>
 
-      <div class="header-row" v-if="delegatedPower">
+      <div class="header-row my-0 sm:mx-5 xs:mx-3 border-b border-solid border-gray-900" v-if="delegatedPower">
         <div class="flex text-white">
           Estimated delegated stake:
           <div class="ml-auto text-right">
@@ -47,13 +47,13 @@
         </div>
         <div class="w-5" v-if="canOpen"></div>
       </div>
-      <div class="header-row flex justify-between items-center my-3" v-else>
+      <div class="header-row my-0 sm:mx-5 xs:mx-3 border-b border-solid border-gray-900 flex justify-between items-center my-3" v-else>
         <div class="text-red">
           Could not fetch information about delegated stake.
         </div>
       </div>
     </div>
-    <div class="expand-account" :class="{'rounded-t': !open, 'pr-3': !canOpen, 'can-open': canOpen}">
+    <div class="expand-account sm:mx-5 xs:mx-3 my-0 py-3 px-0 border-b border-solid border-gray-900 font-normal text-normal text-white" :class="{'rounded-t': !open, 'pr-3': !canOpen, 'can-open': canOpen}">
       <div class="flex justify-between items-center">
         <div>
           Estimated voting power
@@ -158,40 +158,11 @@
 </script>
 
 <style lang="scss" scoped>
-  .expand-account.can-open {
+  .can-open {
     background-color: #272831;
-  }
-
-  .expand-account {
-    color: #fff;
-    font-size: 15px;
-    font-weight: 400;
-    border-bottom: 1px solid #12121b;
-    padding: 10px 0;
-    margin: 0 20px;
-
-    &.can-open{
-      border-bottom: none;
-      padding: 10px 20px;
-      margin: 0;
-    }
-  }
-
-  .copy {
-    cursor: pointer;
-    color: #fff;
-    font-size: 12px;
-
-    img {
-      display: inline;
-      width: 1.125rem;
-    }
-  }
-
-  .header-row {
-    padding: 0.625rem 0;
-    margin: 0 1.25rem;
-    border-bottom: 1px solid #12121b;
+    border-bottom: none;
+    padding: 0.625rem 1.25rem;
+    margin: 0;
   }
 
   .rotate-90 {
@@ -207,14 +178,6 @@
   }
 
   @media (max-width: 480px) {
-    .expand-account {
-      margin: 0 10px;
-    }
-
-    .header-row {
-      margin: 0 0.625rem;
-    }
-
     .expand-account.can-open {
       padding: 0.625rem;
     }
