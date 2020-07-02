@@ -6,10 +6,10 @@
     <div v-if="pollState.metadata">
       <AccountHeader class="mb-4" :address="accountAddress" :poll-address="pollAddress"
                      v-if="accountAddress && !isClosed" :startOpen="false" :canOpen="true"/>
-      <div class="poll-heading py-3 px-3 md:px-5 text-2xl text-primary bg-gray-700 border-b border-gray-900">
+      <div class="sticky top-0 z-100 py-3 px-3 md:px-5 text-2xl text-primary bg-gray-700 border-b border-gray-900">
         <h1>
           <span>Poll</span>
-          <img src="../assets/hash.svg" alt="hash"/>
+          <img src="../assets/hash.svg" alt="hash" class="inline h-5 -m-1"/>
           <span>{{pollId}}</span>
           <span v-if="isClosed">Closed</span>
         </h1>
@@ -76,7 +76,7 @@
               voted with your stake for "{{title}}"<span v-if="isClosed"> at the time the poll closed</span>. <span
               v-if="!isClosed">Unhappy? You can overwrite their choice by placing your own vote.</span>
             </HintBubble>
-            <div class="ae-card cursor-pointer"
+            <div class="ae-card my-5 mx-0 cursor-pointer"
               @click="showVoters(id)"
               :class="{'remove-progress-border': votersForOption.id != null && votersForOption.id === id}"
             >
@@ -97,13 +97,13 @@
                     :class="{'rotate-90': votersForOption.id != null && votersForOption.id === id}">
                 </div>
               </div>
-              <div class="progress-line rounded-bl" v-if="pollVotesState"
+              <div class="progress-line rounded-bl h-1 bg-blue" v-if="pollVotesState"
                    :class="{'rounded-br': pollVotesState.stakesForOption[id].percentageOfTotal > 99}"
                    :style="{'width': `${pollVotesState.stakesForOption[id].percentageOfTotal}%`}">
               </div>
             </div>
-            <div class="card-content" v-show="votersForOption.id != null && votersForOption.id === id">
-              <div class="text-sm" v-if="pollVotesState">
+            <div class="-mt-5 border-t-0 border border-solid border-black-100" v-show="votersForOption.id != null && votersForOption.id === id">
+              <div class="p-3 text-sm border border-solid border-black-100" v-if="pollVotesState">
                 {{pollVotesState.stakesForOption[id].percentageOfTotal | formatPercent(2)}}
                 (
                   <span class="ae-value">{{pollVotesState.stakesForOption[id].optionStake | toAE(2, true)}}</span>
@@ -112,20 +112,20 @@
                 {{pollVotesState.stakesForOption[id].votes.length}} Votes -
                 {{pollVotesState.stakesForOption[id].delegatorsCount}} Delegators
               </div>
-              <AccountTreeLine :balance="voter.stake" :account="voter.account" :delegators="voter.delegators"
+              <AccountTreeLine class="p-3 last:border-b-0 border-b border-solid border-black-100" :balance="voter.stake" :account="voter.account" :delegators="voter.delegators"
                                v-for="voter in votersForOption.voters" :no-sum="true"
                                :key="voter.account"/>
             </div>
           </div>
         </div>
-        <div class="footer clearfix mt-5">
+        <div class="footer text-xss clearfix mt-5">
           <div class="float-left">
             Open source at
             <a href="https://github.com/aeternity/aepp-governance/"
               @click.stop.prevent="openLink('verify', 'https://github.com/aeternity/aepp-governance/')"
               class="highlighted">aeternity/aepp-governance</a>
           </div>
-          <div class="float-right verify-result">
+          <div class="float-right verify-result relative text-right">
             <a class="highlighted" href="https://github.com/aeternity/aepp-governance/blob/master/docs/how-to-verify-results.md"
               @click.stop.prevent="openLink('verify', 'https://github.com/aeternity/aepp-governance/blob/master/docs/how-to-verify-results.md')"
               v-if="!showCopyNoticeVerify">Verify Poll Result</a>
@@ -364,67 +364,25 @@
 </script>
 
 <style lang="scss" scoped>
-  .poll-heading {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-
-    img {
-      display: inline;
-      height: 20px;
-      margin: -3px;
-    }
-  }
-
   .poll-metadata {
     &::after {
       content: '';
       position: absolute;
-      border-left: 24px solid transparent;
-      border-right: 24px solid transparent;
-      border-top: 15px solid #21222C;
-      bottom: -14px;
+      border-left: 1.5rem solid transparent;
+      border-right: 1.5rem solid transparent;
+      border-top: 0.9375rem solid #21222C;
+      bottom: -0.875rem;
       left: 50%;
       transform: translateX(-50%);
     }
   }
 
-  .footer {
-    font-size: 10px;
-
-    .highlighted:hover {
-      filter: brightness(1.3)
-    }
-
-    .verify-result {
-      position: relative;
-      min-width: 85px;
-      text-align: right;
-    }
+  .footer .highlighted:hover{
+    filter: brightness(1.3)
   }
 
-  .progress-line {
-    background-color: #2A9CFF;
-    height: 5px;
-  }
-
-  .ae-card {
-    margin: 20px 0;
-  }
-
-  .card-content {
-    margin-top: -20px;
-    border: 1px solid #292B35;
-    border-top: none;
-
-    & > div {
-      border-bottom: 1px solid #292B35;
-      padding: 10px;
-
-      &:last-child {
-        border-bottom: none;
-      }
-    }
+  .verify-result {
+    min-width: 5.3125rem;
   }
 
   .remove-progress-border .progress-line, .remove-progress-border {
