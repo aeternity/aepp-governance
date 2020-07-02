@@ -110,7 +110,6 @@
   import AeButton from '@aeternity/aepp-components/dist/ae-button/';
   import '@aeternity/aepp-components/dist/ae-button-group/ae-button-group.css';
   import AeButtonGroup from '@aeternity/aepp-components/dist/ae-button-group/';
-  import "@aeternity/aepp-components/dist/ae-check/ae-check.css"
   import Checkbox from "../components/Checkbox.vue"
 
   import aeternity from '../utils/aeternity';
