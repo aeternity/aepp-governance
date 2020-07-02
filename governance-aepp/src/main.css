@@ -65,7 +65,7 @@ body {
 }
 
 .max-w-desktop {
-  max-width: 700px;
+  max-width: 43.75rem;
   width: 100%;
 }
 
@@ -81,7 +81,7 @@ body {
   background-color: #2a9cff;
   color: #fff;
   font-family: Roboto, sans-serif !important;
-  border-radius: 5px;
+  border-radius: 0.3125rem;
 }
 
 .opacity-40 {
@@ -113,20 +113,20 @@ body {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding-top: 150px;
+  padding-top: 9.375rem;
   background-color: #21222c;
   overflow: hidden;
 }
 
 .label {
-  font-size: 13px;
+  font-size: 0.8125rem;
   line-height: 1.23;
   color: #727278;
 }
 
 .ae-card {
-  border-radius: 5px;
-  box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.15);
+  border-radius: 0.3125rem;
+  box-shadow: 0 0.0625rem 0.3125rem 0 rgba(0, 0, 0, 0.15);
   background-color: #21222c;
 }
 
@@ -182,19 +182,19 @@ textarea:focus, input:focus {
 /* Overrides */
 span.ae-check-button.ae-check-button::after {
   background: none;
-  left: 12px;
-  top: 3px;
-  width: 8px;
-  height: 14px;
+  left: 0.75rem;
+  top: 0.1875;
+  width: 0.5rem;
+  height: 0.875rem;
   border: solid #67F7B8;
-  border-width: 0 2px 2px 0;
+  border-width: 0 0.125rem 0.125rem 0;
   transform: rotate(45deg);
 }
 
 span.ae-check-button.ae-check-button::before {
-  border-radius: 2px 7px 2px 7px;
+  border-radius: 0.125rem 0.4375rem 0.125rem 0.4375rem;
   background: #12121B !important;
-  border: 2px solid #12121B !important;
+  border: 0.125rem solid #12121B !important;
 }
 
 .ae-check.ae-check.ae-check > input[type="radio"]:checked + .ae-check-button:before,

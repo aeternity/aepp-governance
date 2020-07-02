@@ -138,13 +138,13 @@
 
   .search-button::before {
     content: "";
-    border: 10px solid #2a9cff;
+    border: 0.625rem solid #2a9cff;
     transform: rotate(45deg);
     position: absolute;
-    top: -10px;
-    left: calc(50% - 10px);
-    width: 20px;
-    height: 20px;
+    top: -0.625rem;
+    left: calc(50% - 0.625rem);
+    width: 1.25rem;
+    height: 1.25rem;
   }
 
   button[disabled] {

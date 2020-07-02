@@ -255,7 +255,7 @@
 
 <style lang="scss" scoped>
   .tab {
-    border-bottom: 2px solid transparent;
+    border-bottom: 0.125rem solid transparent;
     cursor: pointer;
     padding-bottom: 0.9375rem;
     white-space: nowrap;

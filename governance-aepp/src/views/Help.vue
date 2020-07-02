@@ -6,8 +6,8 @@
     
     <div v-if="views">
       <div class="p-4" v-for="key in Object.keys(views)" :key="key">
-        <h1 class="text-3xl">{{views[key].headline}}</h1>
-        <p>{{views[key].text}}</p>
+        <h1 class="text-3xl text-white">{{views[key].headline}}</h1>
+        <p class="text-gray-400">{{views[key].text}}</p>
       </div>
     </div>
 
@@ -76,14 +76,5 @@
 </script>
 
 <style scoped>
-  .ae-card {
-    background: #292b35;
-    color: #aeaeae;
-  }
-  h1 {
-    color: #fff;
-  }
-  p {
-    color: #aeaeae;
-  }
+
 </style>

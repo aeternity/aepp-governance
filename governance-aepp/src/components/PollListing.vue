@@ -6,23 +6,23 @@
                        balance="">
       </AeIdentityLight> voted with this stake in
     </div>
-    <div class="mb-4 poll-listing px-4 py-3 relative rounded" @click="$router.push(`/poll/${id}`)">
+    <div class="mb-4 bg-black-100 py-3 px-4 relative rounded cursor-pointer" @click="$router.push(`/poll/${id}`)">
       <div class="flex items-center vote-id w-full">
-        <span class="listing-text">{{data.title}}</span>
+        <span class="mb-4 font-normal text-lg text-white">{{data.title}}</span>
       </div>
-      <div v-if="showVote" class="vote">
-       <ae-check :value="true" type="radio" v-model="showVote"/> <span class="vote-text">{{data.vote}}</span>
+      <div v-if="showVote" class="vote items-center mb-3 flex">
+       <ae-check :value="true" type="radio" v-model="showVote"/> <span class="vote-text ml-1 text-white text-base font-normal">{{data.vote}}</span>
       </div>
-      <div class="listing-data">
+      <div class="text-gray-500 text-base font-normal">
         <span v-if="percentOfTotalSupply"><span class="highlighted">{{percentOfTotalSupply | formatPercent(2)}}</span> stake - </span>
         <span v-else-if="loading"><ae-loader/> stake - </span>
         <span v-if="isClosed">closed <span class="highlighted">{{Math.abs(timeDifference) | timeDifferenceToString}}</span> ago (Block {{data.close_height}}) </span>
         <span v-else-if="typeof data.close_height !== 'number'">never closes</span>
         <span v-else>closes in <span class="highlighted">{{timeDifference | timeDifferenceToString}}</span></span>
       </div>
-      <div class="listing-id">
-        <img src="../assets/hash.svg" alt="hash"/>
-        <span>{{id}}</span>
+      <div class="listing-id absolute text-blue text-base bg-gray-800 px-1 rounded-br rounded-tl">
+        <img src="../assets/hash.svg" alt="hash" class="inline h-4"/>
+        <span class="text-semibold align-middle">{{id}}</span>
       </div>
     </div>
   </div>
@@ -86,64 +86,14 @@
 </script>
 
 <style lang="scss" scoped>
-.poll-listing {
-  padding: 10px 15px;
-  background-color: #292B35;
-  border-radius: 5px;
-  margin-bottom: 15px;
-  position: relative;
-
-  &:hover {
-    cursor: pointer;
-  }
-}
-
-.listing-text {
-  color: #fff;
-  font-size: 16px;
-  font-weight: 400;
-  margin-bottom: 15px;
-}
-
-.listing-data {
-  color: #727278;
-  font-size: 15px;
-  font-weight: 400;
-}
-
 .listing-id {
-  position: absolute;
-  bottom: 3px;
-  right: 3px;
-  color: #2a9cff;
-  font-size: 15px;
-  background-color: #21222c;
-  padding: 3px 5px;
-  border-bottom-right-radius: 5px;
-  border-top-left-radius: 5px;
-
-  img {
-    display: inline;
-    height: 15px;
-  }
+  bottom: 0.1875rem;
+  right: 0.1875rem;
+  padding-top: 0.1875rem;
+  padding-bottom:  0.1875rem;
 
   span {
-    font-weight: 600;
-    vertical-align: middle;
-    margin-left: -3px;
+    margin-left: -0.1875rem;
   }
-}
-
-.vote {
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-}
-
-.vote-text {
-  margin-left: 5px;
-  color: #fff;
-  font-size: 15px;
-  font-weight: 400;
 }
 </style>
