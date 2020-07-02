@@ -35,9 +35,13 @@ module.exports = {
         800: '#21222c',
         900: '#12121b',
       },
+      black: {
+        100: '#292B35'
+      }
     },
     spacing: {
       px: '1px',
+      rem: '1rem',
       '0': '0',
       '1': '0.3125rem',
       '2': '0.5rem',
@@ -158,6 +162,7 @@ module.exports = {
       mono: ['Menlo', 'Monaco', 'Consolas', '"Liberation Mono"', '"Courier New"', 'monospace'],
     },
     fontSize: {
+      xss: '0.625rem',
       xs: '0.75rem',
       sm: '0.875rem',
       normal: '0.9375rem',
@@ -345,6 +350,7 @@ module.exports = {
       '30': '30',
       '40': '40',
       '50': '50',
+      '100': '100',
     },
     gap: theme => theme('spacing'),
     gridTemplateColumns: {
