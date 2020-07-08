@@ -33,8 +33,7 @@
           </div>
         </div>
       </transition>
-
-      <div v-if="!polls.length && !showLoading" class="text-gray-500 text-xl text-center my-8">
+      <div v-if="polls.length && !showLoading" class="text-gray-500 text-xl text-center -translate-y-1/2 relative top-half w-full">
         Could not find any polls.
       </div>
     </div>
@@ -257,7 +256,7 @@
   .tab {
     border-bottom: 0.125rem solid transparent;
     cursor: pointer;
-    padding-bottom: 0.9375rem;
+    padding: 0.9375rem 0;
     white-space: nowrap;
   }
 
