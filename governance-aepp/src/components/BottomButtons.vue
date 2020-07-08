@@ -7,7 +7,7 @@
       <div class="w-full flex h-16 px-8 items-center search-bar" v-if="view === 'search'">
         <label class="w-full h-full">
           <input v-model="searchString" type="search" placeholder="Search..."
-                 class="flex-1 h-full flex justify-center items-center px-4 w-full  bg-gray-700"/>
+                 class="flex-1 h-full flex justify-center items-center text-white px-4 w-full  bg-gray-900"/>
         </label>
         <SmallButton :img="images.searchImg" v-if="searchButton"
                      @click="$emit('searchSubmit', searchString)"/>
