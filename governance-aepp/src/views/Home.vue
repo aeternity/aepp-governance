@@ -25,7 +25,7 @@
         </div>
       </div>
     </div>
-    <div id="home-poll-list" class="p-3 md:p-4">
+    <div id="home-poll-list" class="p-3 md:p-4 poll-list relative">
       <transition name="fade">
         <div v-show="polls" :key="activeTab">
           <div class="list-item" :key="id" v-for="[id, data] in polls">
@@ -33,7 +33,7 @@
           </div>
         </div>
       </transition>
-      <div v-if="polls.length && !showLoading" class="text-gray-500 text-xl text-center -translate-y-1/2 relative top-half w-full">
+      <div v-if="!polls.length && !showLoading" class="text-gray-500 text-xl text-center -translate-y-1/2 absolute top-half w-full">
         Could not find any polls.
       </div>
     </div>
@@ -263,6 +263,10 @@
   .tab.active {
     color: #67F7B8;
     border-bottom: 2px solid #67F7B8;
+  }
+
+  .poll-list {
+    min-height: calc(100vh - 14rem);
   }
 
   @media (max-device-width: 480px) {
