@@ -69,7 +69,7 @@
           <div v-if="includesIndirectDelegations" class="mx-4 mt-1 text-xs">(includes more indirect delegations)</div>
         </div>
       </div>
-      <div v-else class="color-gray-400 text-center my-8">
+      <div v-else class="color-gray-400 text-center my-8 mx-4">
         No votes have been delegated to {{isOwnAccount ? 'you' : 'this account'}}.
       </div>
     </div>
@@ -79,7 +79,7 @@
           <PollListing :id="id" :data="data" :showVote="true" class="mx-4"/>
         </div>
       </div>
-      <div v-else class="color-gray-400 text-center my-8">
+      <div v-else class="color-gray-400 text-center my-8 mx-4">
         No votes on record. Browse through active polls and start getting involved!
       </div>
     </div>
@@ -89,7 +89,7 @@
           <PollListing :id="id" :data="data" class="mx-4"/>
         </div>
       </div>
-      <div v-else class="color-gray-400 text-center py-4 my-4">
+      <div v-else class="color-gray-400 text-center py-4 my-4 mx-4">
         {{isOwnAccount ? 'You' : 'This account'}} haven’t created any polls yet.
         Create one by clicking the button on the bottom right.
       </div>
