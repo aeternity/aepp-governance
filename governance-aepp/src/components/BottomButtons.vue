@@ -16,9 +16,16 @@
       <div class="w-full flex h-12" :id="htmlId">
         <!-- LEFT BUTTON> -->
         <div class="flex justify-evenly items-center h-full flex-2">
-          <SmallButton :img="images.homeImg" @click="() => $route.path !== '/' && $router.push('/')"/>
-          <SmallButton :img="images.accountImg" v-if="account"
-                       @click="() => $route.path !== `/account/${account}` &&  $router.push(`/account/${account}`)">
+          <SmallButton 
+            :hoverImg="images.homeImgActive" 
+            :img="images.homeImg" @click="() => $route.path !== '/' && $router.push('/')"
+          />
+          <SmallButton 
+            :img="$route.name === 'account' ? images.accountImgActive : images.accountImg"
+            :hoverImg="images.accountImgActive"
+            v-if="account"
+            @click="() => $route.path !== `/account/${account}` &&  $router.push(`/account/${account}`)"
+          >
           </SmallButton>
         </div>
         <!-- CENTER SECTION -->
@@ -37,9 +44,13 @@
 
         <!-- RIGHT BUTTONS -->
         <div class="flex justify-evenly items-center h-full flex-2">
-          <SmallButton :img="images.createImg" v-if="account"
-                       @click="() => $route.path !== '/create' && $router.push('/create')"/>
-          <SmallButton :img="images.backImg" @click="() => $router.go(-1)"/>
+          <SmallButton 
+            :img="$route.name === 'create' ? images.createImgActive : images.createImg" 
+            :hoverImg="images.createImgActive"
+            v-if="account"
+            @click="() => $route.path !== '/create' && $router.push('/create')"
+          />
+          <SmallButton :hoverImg="images.backImgActive" :img="images.backImg" @click="() => $router.go(-1)"/>
         </div>
       </div>
     </div>
@@ -51,8 +62,12 @@
   import searchImg from '../assets/search.svg';
   import createImg from '../assets/create.svg';
   import accountImg from '../assets/account.svg';
+  import accountImgActive from '../assets/accountActive.svg';
+  import createImgActive from '../assets/createActive.svg';
   import homeImg from '../assets/home.svg';
+  import homeImgActive from '../assets/homeActive.svg';
   import backImg from '../assets/back.svg';
+  import backImgActive from '../assets/backActive.svg';
   import aeternity from "../utils/aeternity";
   import { EventBus } from '../utils/eventBus';
 
@@ -62,7 +77,8 @@
     data() {
       return {
         view: 'buttons',
-        images: {searchImg, createImg, accountImg, homeImg, backImg},
+        images: {searchImg, createImg, accountImg, homeImg, backImg,
+            createImgActive, accountImgActive, homeImgActive, backImgActive},
         account: null,
         searchString: ''
       }
