@@ -217,6 +217,10 @@ aeternity.verifyPollContract = async (pollAddress) => {
     };
   }));
 
-  return compilersResult.find(test => test.matches);
+  return {
+    verified: compilersResult.find(test => test.matches),
+    compilersResult,
+    contractCreateBytecode: (await contractCreateBytecode)
+  };
 };
 export default aeternity;

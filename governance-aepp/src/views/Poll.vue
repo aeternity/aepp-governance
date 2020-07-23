@@ -329,10 +329,12 @@
 
         await Promise.all([fetchBalance, fetchPollAddress, fetchPollState, fetchVotesState]);
 
-        aeternity.verifyPollContract(await fetchPollAddress).then(verifiedPoll => {
-          if (!verifiedPoll) {
+        aeternity.verifyPollContract(await fetchPollAddress).then(({ verifiedPoll, contractCreateBytecode }) => {
+          if (!verifiedPoll && contractCreateBytecode !== null) {
             this.error = 'Could not verify poll contract correctness, proceed with caution.'
             this.continueFunction = () => {this.error = null}
+          } else if(contractCreateBytecode === null) {
+            console.log('could not find contractCreateTx')
           } else {
             console.log('verified poll contract', verifiedPoll)
           }
