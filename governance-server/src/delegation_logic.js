@@ -1,12 +1,11 @@
-const util = require('./util');
-
 const delegationLogic = {};
 
 delegationLogic.findDelegationEvents = async (cache, aeternity, height, setCache = true) => {
     const result = async () => {
         const contractTransactionHashes = async () => {
             if (process.env.MIDDLEWARE_URL) {
-                return aeternity.middlewareContractTransactions(height);
+                const middlewareContractTransactions = await aeternity.middlewareContractTransactions(height);
+                return middlewareContractTransactions.map(tx => ({tx: tx}));
             } else {
                 const registryCreationHeight = await aeternity.registryCreationHeight();
                 return aeternity.nodeContractTransactions(registryCreationHeight, height);
@@ -16,12 +15,12 @@ delegationLogic.findDelegationEvents = async (cache, aeternity, height, setCache
         const registryContractTransactions = await contractTransactionHashes();
         const registryContractEvents = await registryContractTransactions.asyncMap(aeternity.transactionEvent);
 
-        const sortedDelegationEvents = registryContractEvents
+        const filteredContractEvents = registryContractEvents
             .filter(event => event && event.height <= height)
             .filter(event => ["Delegation", "RevokeDelegation"].includes(event.topic))
-            .sort((a, b) => a.height - b.height || a.nonce - b.nonce);
 
-        return sortedDelegationEvents
+        filteredContractEvents.sort((a, b) => a.height - b.height || a.nonce - b.nonce);
+        return filteredContractEvents
     };
 
     if (setCache) {
