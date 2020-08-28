@@ -51,8 +51,9 @@ module.exports = class Aeternity {
 
     verifyPollContract = async (pollAddress) => {
         const result = async () => {
-            const contractCreateBytecode = await axios.get(`${process.env.MIDDLEWARE_URL}middleware/contracts/transactions/address/${pollAddress}?limit=1&page=1`).then(async res => {
-                const contractCreateTx = res.data.transactions.filter(tx => tx.tx.type === 'ContractCreateTx')[0];
+            const contractCreateBytecode = await axios.get(`${process.env.MIDDLEWARE_URL}/txs/backward/and?contract=${pollAddress}&type=contract_create`).then(async res => {
+                if(res.data.length !== 1) return null;
+                const contractCreateTx = res.data[0].data[0];
                 return contractCreateTx ? contractCreateTx.tx.code : null;
             });
 
@@ -83,13 +84,17 @@ module.exports = class Aeternity {
         });
     };
 
-    middlewareContractTransactions = async (height) => {
-        return axios.get(`${process.env.MIDDLEWARE_URL}/middleware/contracts/transactions/address/${process.env.CONTRACT_ADDRESS || this.verifyConstants.registryContract}`)
-            .then(res => res.data.transactions
-                .filter(tx => tx.tx.type === "ContractCallTx")
-                .filter(tx => tx.block_height <= height)
-                .map(tx => tx.hash));
-    };
+    iterateMdw = async (next) => {
+        const result = await axios.get(`${process.env.MIDDLEWARE_URL}/${next}`).then(res => res.data);
+        if (result.next) {
+            return result.data.concat(await this.iterateMdw(result.next));
+        }
+        return result.data;
+    }
+
+    middlewareContractTransactions = (height) => {
+        return this.iterateMdw(`txs/gen/${height}-0?contract=${process.env.CONTRACT_ADDRESS || this.verifyConstants.registryContract}&type=contract_call&limit=1000`);
+    }
 
     nodeContractTransactions = async (registryCreationHeight, height) => {
         const contractTransactionsForRange = async (range) => {
@@ -119,7 +124,7 @@ module.exports = class Aeternity {
         return this.cache.getOrSet(["contractTransactionHashes", hash], async () => {
             process.stdout.write(";");
             const txs = (await this.client.getMicroBlockTransactions(hash));
-            return txs.filter(tx => tx.tx.contractId === (process.env.CONTRACT_ADDRESS || this.verifyConstants.registryContract)).map(tx => tx.hash);
+            return txs.filter(tx => tx.tx.contractId === (process.env.CONTRACT_ADDRESS || this.verifyConstants.registryContract)).map(tx => ({hash: tx.hash}));
         });
     };
 
@@ -181,53 +186,55 @@ module.exports = class Aeternity {
         return this.cache.getOrSet(["height"], () => this.client.height(), this.cache.shortCacheTime);
     };
 
-    transactionEvent = async (hash) => {
-        return this.cache.getOrSet(["transactionEvent", hash], async () => {
+    transactionEvent = async ({hash, tx}) => {
+        return this.cache.getOrSet(["transactionEvent", hash || tx.hash], async () => {
             process.stdout.write(",");
-            const tx = await this.client.getTxInfo(hash);
-            if (tx.log.length === 1) {
+            const {height, nonce, log} = hash
+              ? await this.client.getTxInfo(hash).then(res => ({height: res.height, nonce: res.callerNonce, log: res.log}))
+              : ({height: tx.block_height, nonce: tx.tx.nonce, log: tx.tx.log})
+            if (log.length === 1) {
                 const topics = ["AddPoll", "Delegation", "RevokeDelegation", "Vote", "RevokeVote"];
-                const topic = topics.find(topic => util.hashTopic(topic) === util.topicHashFromResult(tx.log));
+                const topic = topics.find(topic => util.hashTopic(topic) === util.topicHashFromResult(log));
                 switch (topic) {
                     case "AddPoll":
                         return {
                             topic: topic,
-                            height: tx.height,
-                            nonce: tx.callerNonce,
-                            poll: util.encodeEventAddress(tx.log, 0, "ct_"),
-                            seq_id: util.eventArgument(tx.log, 1)
+                            height: height,
+                            nonce: nonce ,
+                            poll: util.encodeEventAddress(log, 0, "ct_"),
+                            seq_id: util.eventArgument(log, 1)
                         };
                     case "Delegation":
                         return {
                             topic: topic,
-                            height: tx.height,
-                            nonce: tx.callerNonce,
-                            delegator: util.encodeEventAddress(tx.log, 0, "ak_"),
-                            delegatee: util.encodeEventAddress(tx.log, 1, "ak_")
+                            height: height,
+                            nonce: nonce,
+                            delegator: util.encodeEventAddress(log, 0, "ak_"),
+                            delegatee: util.encodeEventAddress(log, 1, "ak_")
                         };
                     case "RevokeDelegation":
                         return {
                             topic: topic,
-                            height: tx.height,
-                            nonce: tx.callerNonce,
-                            delegator: util.encodeEventAddress(tx.log, 0, "ak_"),
+                            height: height,
+                            nonce: nonce,
+                            delegator: util.encodeEventAddress(log, 0, "ak_"),
                         };
                     case "Vote":
                         return {
                             topic: topic,
-                            height: tx.height,
-                            nonce: tx.callerNonce,
-                            poll: util.encodeEventAddress(tx.log, 0, "ct_"),
-                            voter: util.encodeEventAddress(tx.log, 1, "ak_"),
-                            option: util.eventArgument(tx.log, 2)
+                            height: height,
+                            nonce: nonce,
+                            poll: util.encodeEventAddress(log, 0, "ct_"),
+                            voter: util.encodeEventAddress(log, 1, "ak_"),
+                            option: util.eventArgument(log, 2)
                         };
                     case "RevokeVote":
                         return {
                             topic: topic,
-                            height: tx.height,
-                            nonce: tx.callerNonce,
-                            poll: util.encodeEventAddress(tx.log, 0, "ct_"),
-                            voter: util.encodeEventAddress(tx.log, 1, "ak_"),
+                            height: height,
+                            nonce: nonce,
+                            poll: util.encodeEventAddress(log, 0, "ct_"),
+                            voter: util.encodeEventAddress(log, 1, "ak_"),
                         };
 
                     default:
