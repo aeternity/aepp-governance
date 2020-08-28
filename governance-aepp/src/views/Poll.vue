@@ -335,6 +335,9 @@
             this.error = 'Could not verify poll contract correctness, proceed with caution.'
             this.continueFunction = () => {this.error = null}
           }
+        }).catch(() => {
+          this.error = 'Could not verify poll contract correctness, proceed with caution.'
+          this.continueFunction = () => {this.error = null}
         })
 
         this.height = await aeternity.client.height();
