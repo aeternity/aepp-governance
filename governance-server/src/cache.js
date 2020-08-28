@@ -146,7 +146,7 @@ cache.startInvalidator = (aeternity) => {
                     }
                 }
                 if (data.subscription === "Object") {
-                    const event = await aeternity.transactionEvent(data.payload.hash);
+                    const event = await aeternity.transactionEvent({hash: data.payload.hash});
                     if (event) cache.handleContractEvent(event);
                 }
             }

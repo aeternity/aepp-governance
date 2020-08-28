@@ -32,6 +32,8 @@ module.exports = class Aeternity {
         if (!this.verifyConstants && !process.env.CONTRACT_ADDRESS) throw "CONTRACT_ADDRESS is not set";
     }
 
+    contractAddress = process.env.CONTRACT_ADDRESS || this.verifyConstants.registryContract;
+
     init = async () => {
         if (!this.client) {
             this.client = await Universal({
@@ -40,7 +42,7 @@ module.exports = class Aeternity {
                 compilerUrl: process.env.COMPILER_URL || this.verifyConstants.compilerUrl
             });
 
-            this.contract = await this.client.getContractInstance(registryContractInterface, {contractAddress: process.env.CONTRACT_ADDRESS || this.verifyConstants.registryContract});
+            this.contract = await this.client.getContractInstance(registryContractInterface, {contractAddress: this.contractAddress });
             console.log("initialized aeternity sdk");
         }
     };
@@ -93,7 +95,7 @@ module.exports = class Aeternity {
     }
 
     middlewareContractTransactions = (height) => {
-        return this.iterateMdw(`txs/gen/${height}-0?contract=${process.env.CONTRACT_ADDRESS || this.verifyConstants.registryContract}&type=contract_call&limit=1000`);
+        return this.iterateMdw(`txs/gen/${height}-0?contract=${this.contractAddress}&type=contract_call&limit=1000`);
     }
 
     nodeContractTransactions = async (registryCreationHeight, height) => {
@@ -124,7 +126,7 @@ module.exports = class Aeternity {
         return this.cache.getOrSet(["contractTransactionHashes", hash], async () => {
             process.stdout.write(";");
             const txs = (await this.client.getMicroBlockTransactions(hash));
-            return txs.filter(tx => tx.tx.contractId === (process.env.CONTRACT_ADDRESS || this.verifyConstants.registryContract)).map(tx => ({hash: tx.hash}));
+            return txs.filter(tx => tx.tx.contractId === this.contractAddress).map(tx => ({hash: tx.hash}));
         });
     };
 
