@@ -195,8 +195,10 @@ aeternity.polls = async () => {
 
 
 aeternity.verifyPollContract = async (pollAddress) => {
-  const contractCreateBytecode = fetch(`${settings[aeternity.networkId].middlewareUrl}/middleware/contracts/transactions/address/${pollAddress}?limit=1&page=1`).then(async res => {
-    const contractCreateTx = (await res.json()).transactions.filter(tx => tx.tx.type === 'ContractCreateTx')[0];
+  const contractCreateBytecode = fetch(`${settings[aeternity.networkId].middlewareUrl}/txs/backward/and?contract=${pollAddress}&type=contract_create`).then(async res => {
+    res = await res.json();
+    if (res.data.length !== 1) return null;
+    const contractCreateTx = res.data[0].data[0];
     return contractCreateTx ? contractCreateTx.tx.code : null;
   });
 
