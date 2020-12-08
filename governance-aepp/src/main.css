@@ -57,10 +57,10 @@
  * @import "utilities/background-patterns";
  * @import "utilities/skew-transforms";
  */
-
+ 
 body {
   color: #727278;
-  font-family: Roboto, sans-serif;
+  font-family: IBM Plex Sans, Roboto, sans-serif;
   font-size: 0.9375rem;
 }
 
@@ -80,7 +80,7 @@ body {
 .ae-button {
   background-color: #2a9cff;
   color: #fff;
-  font-family: Roboto, sans-serif !important;
+  font-family: IBM Plex Sans, Roboto, sans-serif !important;
   border-radius: 0.3125rem;
 }
 
