@@ -6,7 +6,7 @@
     <BlackHeader>
       Create Poll
     </BlackHeader>
-    <div class="text-gray-500 font-bold px-5 py-4">
+    <div class="text-white px-5 py-4">
       Please fill in all the fields below.
     </div>
     <div v-if="Object.values(this.errors).some(val => !!val)" class="color-red mx-4 p-2 my-2">
@@ -46,7 +46,7 @@
                 placeholder="If this vote is related to a forum post or paper, please add the link here">
       </ae-input>
     </div>
-    <div class="py-2 px-4 flex justify-center">
+    <div class="py-2 px-4 flex justify-center my-12">
       <AeButtonGroup>
         <ae-button face="round" @click="is_listed = true" :fill="is_listed ? 'primary' : 'neutral'">Publicly Listed
         </ae-button>
@@ -55,11 +55,9 @@
       </AeButtonGroup>
     </div>
 
-    <div class="text-gray-500 font-bold px-5 py-4">
-      Poll options
-    </div>
-    <div class="my-2 mx-4 flex items-center rounded bg-gray-700 px-4" :class="{'bg-ae-error': !!errors.optionError}"
-         :key="option.id" v-for="option in options">
+    <div class="mx-4 flex items-center rounded bg-black-300 px-4 mb-6" 
+        :class="{'bg-ae-error': !!errors.optionError, 'new-options': option.text}"
+        :key="option.id" v-for="option in options">
       <div class="w-6 flex justify-center">
         <div v-if="option.text" class="h-6">
           <Checkbox class="mr-2" type="radio" @click.stop.prevent disabled/>
@@ -68,23 +66,20 @@
       </div>
       <label class="w-full">
         <input v-model="option.text" @input="optionInput" type="text" placeholder="Add Option"
-               class="ae-input-option w-full h-full px-2 py-6 outline-none bg-gray-700 text-white"
+               class="ae-input-option w-full h-full px-2 py-3 outline-none bg-black-300 text-white"
                :class="{'bg-ae-error': !!errors.optionError}"/>
       </label>
       <div v-if="option.text">
-        <div class="text-2xl text-gray-500 text-right cursor-pointer hover:text-white" @click="removeOption(option.id)">&times;</div>
+        <img src="../assets/close.svg" class="cursor-pointer hover:text-white" @click="removeOption(option.id)"/>
       </div>
     </div>
 
-    <div class="text-gray-500 font-bold px-5 py-4">
-      Poll ending
-    </div>
     <div class="py-2 px-4 mb-16">
-      <ae-input :error="!!errors.closeHeightError" type="number" v-model="closeHeight" @input="updateDateInputs"
-                label="Close at height">
-      </ae-input>
       <div class="mt-4 flex">
-        <ae-input type="date" class="mr-2" label="Est. close date" v-model="dateString"
+        <ae-input :error="!!errors.closeHeightError" type="number" v-model="closeHeight" @input="updateDateInputs"
+                  label="Close at height" class="mr-rem">
+        </ae-input>
+        <ae-input type="date" class="mr-rem" label="Est. close date" v-model="dateString"
                   @input="updateCloseHeight"/>
         <ae-input type="time" label="Est. close time" v-model="timeString" @input="updateCloseHeight"/>
       </div>
@@ -273,15 +268,22 @@
   };
 </script>
 
-<style scoped type="text/scss">
+<style scoped lang="scss">
   @import '../theme/ae-button.scss';
 
   input.ae-input-option {
-    font-size: 1.0625rem;
-    line-height: 1.5rem;
+    font-size: 1rem;
+    line-height: 1.25rem;
   }
 
   input::placeholder, textarea::placeholder {
-    color: #aeaeae;
+    color: #BABAC0;
+  }
+
+  .new-options,
+  .new-options label,
+  .new-options input,
+  .new-options div {
+    background-color: #000;
   }
 </style>

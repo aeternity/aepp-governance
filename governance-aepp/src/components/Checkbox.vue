@@ -160,21 +160,21 @@ span.ae-check-button.ae-check-button::after {
   top: 0.1875rem;
   width: 0.5rem;
   height: 0.875rem;
-  border: solid #67F7B8;
+  border: solid #00FF9D;
   border-width: 0 0.125rem 0.125rem 0;
   transform: rotate(45deg);
 }
 
 span.ae-check-button.ae-check-button::before {
   border-radius: 0.125rem 0.4375rem 0.125rem 0.4375rem;
-  background: #12121B !important;
-  border: 0.125rem solid #12121B !important;
+  background: #141414 !important;
+  border: 0.125rem solid #141414 !important;
 }
 
 .ae-check.ae-check.ae-check > input[type="radio"]:checked + .ae-check-button:before,
 .ae-check.ae-check.ae-check > input[type="radio"]:disabled + .ae-check-button:before {
-  background: #12121B !important;
-  border-color: #12121B !important;
+  background: #141414 !important;
+  border-color: #141414 !important;
 }
 
 .ae-check.ae-check.ae-check > input[type="radio"]:disabled + .ae-check-button:before {

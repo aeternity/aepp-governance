@@ -74,12 +74,16 @@
     max-height: 100vh;
     padding-bottom: 0;
     overflow-y: auto;
-    background-color: #21222c;
+    background-color: #000;
     -ms-overflow-style: none;
     scrollbar-width: none;
 
     &::-webkit-scrollbar {
       display: none;
+    }
+
+    &.wrapper {
+      background-color: #0f0f0f;
     }
   }
 

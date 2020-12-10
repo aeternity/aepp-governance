@@ -1,1 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="20.619" height="24.432" viewBox="0 0 20.619 24.432"><path d="M11,18.539V31H29.619V18.539L20.2,9Z" transform="translate(-10 -7.568)" fill="none" stroke="#727278" stroke-width="2" fill-rule="evenodd"/></svg>
+<svg id="Box" xmlns="http://www.w3.org/2000/svg" width="24.585" height="24.585" viewBox="0 0 24.585 24.585">
+  <rect id="Stockholm-icons_Home_Box_background" data-name="Stockholm-icons / Home / Box background" width="24.585" height="24.585" fill="none"/>
+  <rect id="bound" width="24.585" height="24.585" fill="none"/>
+  <path id="Combined_Shape" data-name="Combined Shape" d="M14.891,14.342H1.5a1.5,1.5,0,0,1-1.5-1.5V0H16.39V12.841A1.5,1.5,0,0,1,14.891,14.342ZM6.146,3.073a1.024,1.024,0,1,0,0,2.048h4.1a1.024,1.024,0,0,0,0-2.048Z" transform="translate(4.098 7.171)" fill="#fff"/>
+  <rect id="Rectangle_143" data-name="Rectangle 143" width="20.488" height="4.098" rx="1" transform="translate(2.049 3.073)" fill="#fff" opacity="0.44"/>
+</svg>

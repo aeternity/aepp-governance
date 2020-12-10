@@ -7,7 +7,7 @@
       <BlackHeader :show-number-input="true" @submit="showPoll" @input="handleIdInput">
         {{getTabLabelByValue(activeTab)}} Polls
       </BlackHeader>
-      <div class="px-4 space-x-3 sm:space-x-5 font-bold md:font-lg flex text-gray-500 bg-gray-700" id="home-tab-switcher">
+      <div class="px-4 space-x-3 sm:space-x-5 font-bold md:font-lg flex text-gray-500 bg-black-300" id="home-tab-switcher">
         <div v-if="pollOrdering" :class="{active: activeTab === 'hot'}" @click="switchTab('hot')" class="tab">
           <span>{{getTabLabelByValue('hot')}}</span>
         </div>
@@ -261,8 +261,8 @@
   }
 
   .tab.active {
-    color: #67F7B8;
-    border-bottom: 2px solid #67F7B8;
+    color: #00FF9D;
+    border-bottom: 2px solid #00FF9D;
   }
 
   .poll-list {

@@ -6,7 +6,7 @@
                        balance="">
       </AeIdentityLight> voted with this stake in
     </div>
-    <div class="mb-4 bg-black-100 py-3 px-4 relative rounded cursor-pointer" @click="$router.push(`/poll/${id}`)">
+    <div class="mb-4 bg-black-initial py-3 px-4 relative rounded cursor-pointer" @click="$router.push(`/poll/${id}`)">
       <div class="flex items-center vote-id w-full">
         <span class="mb-4 font-normal text-lg text-white">{{data.title}}</span>
       </div>
@@ -20,7 +20,7 @@
         <span v-else-if="typeof data.close_height !== 'number'">never closes</span>
         <span v-else>closes in <span class="highlighted">{{timeDifference | timeDifferenceToString}}</span></span>
       </div>
-      <div class="listing-id absolute text-blue text-base bg-gray-800 px-1 rounded-br rounded-tl">
+      <div class="listing-id absolute text-blue text-base bg-black-100 px-1 rounded-br rounded-tl">
         <img src="../assets/hash.svg" alt="hash" class="inline h-4"/>
         <span class="text-semibold align-middle">{{id}}</span>
       </div>

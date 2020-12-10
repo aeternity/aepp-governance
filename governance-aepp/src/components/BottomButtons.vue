@@ -1,7 +1,7 @@
 <template>
   <div class="flex justify-center w-full z-20">
 
-    <div class="fixed bottom-0 h-16 items-center flex flex-wrap w-full max-w-desktop bg-gray-800 rounded"
+    <div class="fixed bottom-0 h-16 items-center flex flex-wrap w-full max-w-desktop bg-black-100 rounded"
          :class="{'open': view === 'search'}">
       <!-- SEARCH BAR -->
       <div class="w-full flex h-16 px-8 items-center search-bar" v-if="view === 'search'">
@@ -17,14 +17,15 @@
         <!-- LEFT BUTTON> -->
         <div class="flex justify-evenly items-center h-full flex-2">
           <SmallButton 
-            :hoverImg="images.homeImgActive" 
             :img="images.homeImg" @click="() => $route.path !== '/' && $router.push('/')"
+            class="nav-button"
           />
           <SmallButton 
             :img="$route.name === 'account' ? images.accountImgActive : images.accountImg"
-            :hoverImg="images.accountImgActive"
             v-if="account"
             @click="() => $route.path !== `/account/${account}` &&  $router.push(`/account/${account}`)"
+            class="nav-button"
+            :class="{active: $route.name === 'account'}"
           >
           </SmallButton>
         </div>
@@ -36,7 +37,7 @@
             {{ctaText}}
           </button>
           <div
-            class="ae-button round px-8 h-full flex justify-center items-center text-white font-semibold cursor-pointer relative"
+            class="ae-button round px-rem h-full flex justify-center items-center text-white font-semibold cursor-pointer relative"
             @click="clickSearch" v-if="searchBar" :class="{'search-button': view === 'search'}">
             Search
           </div>
@@ -46,11 +47,15 @@
         <div class="flex justify-evenly items-center h-full flex-2">
           <SmallButton 
             :img="$route.name === 'create' ? images.createImgActive : images.createImg" 
-            :hoverImg="images.createImgActive"
             v-if="account"
             @click="() => $route.path !== '/create' && $router.push('/create')"
+            class="nav-button"
+            :class="{active: $route.name === 'create'}"
           />
-          <SmallButton :hoverImg="images.backImgActive" :img="images.backImg" @click="() => $router.go(-1)"/>
+          <SmallButton
+            :img="images.backImg" @click="() => $router.go(-1)"
+            class="nav-button"
+          />
         </div>
       </div>
     </div>
@@ -147,14 +152,14 @@
   }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
   .open {
     height: 9.125rem;
   }
 
   .search-button::before {
     content: "";
-    border: 0.625rem solid #2a9cff;
+    border: 0.625rem solid #1161fe;
     transform: rotate(45deg);
     position: absolute;
     top: -0.625rem;
@@ -164,6 +169,28 @@
   }
 
   button[disabled] {
-    @apply text-gray-500 cursor-not-allowed
+    @apply text-gray-500 cursor-not-allowed;
+  }
+   
+  .ae-button {
+    height: 2.5rem;
+
+    &:hover {
+      background-color: #0F57E5;
+    }
+  }
+
+  .nav-button {
+    height: 2.5rem;
+    width: 2.5rem;
+    border-radius: 50%;
+
+    &:hover {
+      background-color: #000;
+
+      &.active {
+        background-color: rgba(0, 255, 157, 0.1);
+      }
+    }
   }
 </style>

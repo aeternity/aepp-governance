@@ -43,7 +43,7 @@
         </div>
       </div>
     </div>
-    <div class="navigation px-5 pt-5 space-x-3 sm:space-x-5 font-bold md:font-lg flex text-gray-500 bg-gray-700">
+    <div class="navigation px-5 pt-5 space-x-3 sm:space-x-5 font-bold md:font-lg flex text-gray-500 bg-black-300">
       <div class="navigation-item pb-4 cursor-pointer" @click="switchTab('delegations')"
            :class="{'active-tab': activeTab === 'delegations'}">Delegations
       </div>
@@ -283,8 +283,8 @@
 
 <style lang="scss" scoped>
   .active-tab {
-    color: #67f7b8;
-    border-bottom: 0.125rem solid #67f7b8;
+    color: #00FF9D;
+    border-bottom: 0.125rem solid #00FF9D;
   }
 
   .bottom-36 {

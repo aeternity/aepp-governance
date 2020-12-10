@@ -1,1 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22"><g transform="translate(-65 -704.9)"><g transform="translate(65 704.9)"><path d="M11,22A11,11,0,1,1,22,11,11.012,11.012,0,0,1,11,22Zm0-7.857a4.719,4.719,0,0,0-4.678,4.125,8.646,8.646,0,0,0,9.355,0,4.722,4.722,0,0,0-4.653-4.126ZM11,2.358A8.643,8.643,0,0,0,4.332,16.5a7.07,7.07,0,0,1,3.245-3.832,4.712,4.712,0,1,1,6.845,0A7.058,7.058,0,0,1,17.669,16.5,8.643,8.643,0,0,0,11,2.358Zm0,4.714a2.357,2.357,0,0,0-.022,4.714H11a2.357,2.357,0,1,0,0-4.714Z" transform="translate(0 0)" fill="#67f7b8"/></g></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25">
+  <g id="Contact_1" data-name="Contact#1" transform="translate(0 0.219)">
+    <rect id="Stockholm-icons_Communication_Contact_1_background" data-name="Stockholm-icons / Communication / Contact#1 background" width="25" height="25" transform="translate(0 -0.219)" fill="none"/>
+    <rect id="bound" width="25" height="25" transform="translate(0 -0.219)" fill="none"/>
+    <circle id="Combined_Shape" data-name="Combined Shape" cx="10.5" cy="10.5" r="10.5" transform="translate(2 1.781)" fill="#00ff9d" opacity="0.44"/>
+    <path id="Combined_Shape-2" data-name="Combined Shape" d="M9.815,10.244H.414A.383.383,0,0,1,.193,10.1.636.636,0,0,1,0,9.731a4.825,4.825,0,0,1,1.632-3.45A5.311,5.311,0,0,1,5.113,5.122,5.454,5.454,0,0,1,8.637,6.249a4.677,4.677,0,0,1,1.606,3.483.548.548,0,0,1-.115.4A.412.412,0,0,1,9.815,10.244ZM5.123,4.1A2.049,2.049,0,1,1,7.171,2.049,2.051,2.051,0,0,1,5.123,4.1Z" transform="translate(7.17 7.171)" fill="#00ff9d"/>
+  </g>
+</svg>

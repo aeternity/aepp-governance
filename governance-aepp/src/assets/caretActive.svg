@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="20" viewBox="0 0 12 20">
   <g id="Icon_Down" data-name="Icon/Down" transform="translate(12) rotate(90)">
-    <path id="Arrow_Down" data-name="Arrow Down" d="M.479,17.3a1.54,1.54,0,0,0,0,2.233,1.679,1.679,0,0,0,2.314,0l8.727-8.421a1.54,1.54,0,0,0,0-2.233L2.793.462a1.679,1.679,0,0,0-2.314,0,1.54,1.54,0,0,0,0,2.233L8.049,10Z" transform="translate(20) rotate(90)" fill="#2A9CFF"/>
+    <path id="Arrow_Down" data-name="Arrow Down" d="M.479,17.3a1.54,1.54,0,0,0,0,2.233,1.679,1.679,0,0,0,2.314,0l8.727-8.421a1.54,1.54,0,0,0,0-2.233L2.793.462a1.679,1.679,0,0,0-2.314,0,1.54,1.54,0,0,0,0,2.233L8.049,10Z" transform="translate(20) rotate(90)" fill="#1161fe"/>
   </g>
 </svg>
