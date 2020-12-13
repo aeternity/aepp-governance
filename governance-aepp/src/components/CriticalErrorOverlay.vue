@@ -1,6 +1,6 @@
 <template>
   <div class="fixed inset-0 flex items-center justify-center bg-overlay p-6 z-40" v-show="error">
-    <div class="bg-gray-800 max-w-desktop text-white p-5 rounded">
+  <div class="bg-black-100 max-w-desktop text-white p-5 rounded">
       <div class="w-full">
         <h1 class="font-bold pt-4 text-3xl text-center text-primary">Ooops!</h1>
         <p class="text-base pt-4 text-center">

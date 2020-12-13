@@ -3,15 +3,15 @@
   font-weight: bold;
   letter-spacing: unset;
   line-height: 1rem;
-  text-transform: uppercase;
+  text-transform: none;
 }
-
+   
 .ae-button.round[data-v-d0360416] {
-  background: #12121b;
+  background: #000;
   border-radius: 5px;
-  color: #727278;
-  height: 3.5rem;
-  padding: 0 1.5rem;
+  color: #787878;
+  height: 2.5rem;
+  padding: 0 1rem;
 }
 
 .ae-button[data-v-d0360416] {
@@ -50,16 +50,16 @@
 }
 
 .ae-button.flat.primary[data-v-d0360416] {
-  border-color: #67f7b8;
+  border-color: #00FF9D;
   color: #12121b;
 }
-
+   
 .ae-button.color-primary[data-v-d0360416] {
-  color: #67f7b8;
+  color: #00FF9D;
 }
-
+   
 .ae-button.primary[data-v-d0360416] {
-  background: #67f7b8;
+  background: #00FF9D;
   color: #12121b;
 }
 
