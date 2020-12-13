@@ -1,3 +1,4 @@
+import './fonts.scss'
 import './main.css'
 /**
  * This will only include font files

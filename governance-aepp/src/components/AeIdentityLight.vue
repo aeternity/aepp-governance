@@ -134,7 +134,7 @@
     }
 
     .chunk-row {
-      font-family: Roboto, sans-serif;
+      font-family: IBM Plex Sans, Roboto, sans-serif;
       font-size: 1.0625rem;
       line-height: 1.53;
       letter-spacing: 0.19375rem;
@@ -163,7 +163,7 @@
     }
 
     .balance {
-      font-family: Roboto, sans-serif;
+      font-family: IBM Plex Sans, Roboto, sans-serif;
       font-stretch: normal;
       line-height: 0.75rem;
       margin-top: 0.125rem;
@@ -194,7 +194,7 @@
     }
 
     .truncated-address {
-      font-family: Roboto, sans-serif;
+      font-family: IBM Plex Sans, Roboto, sans-serif;
       font-size: 0.6875rem;
     }
 
