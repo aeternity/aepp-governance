@@ -1,0 +1,6 @@
+<svg id="Question" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <rect id="Rectangle_31" data-name="Rectangle 31" width="24" height="24" fill="none"/>
+  <rect id="Rectangle_32" data-name="Rectangle 32" width="24" height="24" fill="none"/>
+  <circle id="Ellipse_3" data-name="Ellipse 3" cx="10" cy="10" r="10" transform="translate(2 2)" fill="#00ff9d" opacity="0.44"/>
+  <path id="Path_44" data-name="Path 44" d="M4.164,12.077a.5.5,0,0,1-.5-.5v-1a.5.5,0,0,1,.5-.5h1a.5.5,0,0,1,.5.5v1a.5.5,0,0,1-.5.5ZM3.255,8.945V7.286h1.26a2.711,2.711,0,0,0,2.75-2.814,2.71,2.71,0,0,0-2.75-2.814,2.681,2.681,0,0,0-2.73,2.814H0A4.434,4.434,0,0,1,4.515,0,4.45,4.45,0,0,1,9.05,4.472,4.45,4.45,0,0,1,4.515,8.945Z" transform="translate(7.336 5.923)" fill="#00ff9d"/>
+</svg>

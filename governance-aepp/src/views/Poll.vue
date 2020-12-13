@@ -4,12 +4,12 @@
       <BiggerLoader/>
     </div>
     <div v-if="pollState.metadata">
-      <AccountHeader class="mb-4" :address="accountAddress" :poll-address="pollAddress"
-                     v-if="accountAddress && !isClosed" :startOpen="false" :canOpen="true"/>
-      <div class="sticky top-0 z-100 py-3 px-3 md:px-5 text-2xl text-primary bg-gray-700 border-b border-gray-900">
-        <h1>
-          <span>Poll</span>
-          <img src="../assets/hash.svg" alt="hash" class="inline h-5 -m-1"/>
+       <AccountHeader class="mb-4" :address="accountAddress" :poll-address="pollAddress"
+                      v-if="accountAddress && !isClosed" :startOpen="false" :canOpen="true"/>
+      <div class="sticky top-0 z-100 py-3 px-3 md:px-5 text-2xl text-primary bg-black-100 border-b border-gray-900">
+         <h1>
+           <span>Poll</span>
+           <img src="../assets/hash.svg" alt="hash" class="inline h-5 -m-1"/>
           <span>{{pollId}}</span>
           <span v-if="isClosed">Closed</span>
         </h1>
@@ -25,7 +25,7 @@
             {{pollState.metadata.link}}
           </a>
           <transition name="fade">
-            <div class="inset-0 absolute m-0 bg-gray-800 text-white" v-if="showCopyNotice">
+          <div class="inset-0 absolute m-0 bg-black-100 text-white" v-if="showCopyNotice">
               Copied link to clipboard
             </div>
           </transition>
@@ -61,8 +61,8 @@
           Closed at block {{pollState.close_height}}
         </div>
       </div>
-      <!-- POLL OPTIONS -->
-      <div id="poll-options" class="poll-options p-3 md:p-5 bg-gray-900">
+       <!-- POLL OPTIONS -->
+      <div id="poll-options" class="poll-options p-3 md:p-5 bg-black-300">
         <div v-if="pollState.vote_options">
           <div :key="id" v-for="[id, title] in pollState.vote_options">
             <HintBubble v-if="delegateeVote && delegateeVote.option === id">
@@ -371,7 +371,7 @@
       position: absolute;
       border-left: 1.5rem solid transparent;
       border-right: 1.5rem solid transparent;
-      border-top: 0.9375rem solid #21222C;
+      border-top: 0.9375rem solid #0f0f0f;
       bottom: -0.875rem;
       left: 50%;
       transform: translateX(-50%);

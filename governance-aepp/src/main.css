@@ -59,7 +59,7 @@
  */
 
 body {
-  color: #727278;
+  color: #787878;
   font-family: IBM Plex Sans, Roboto, sans-serif;
   font-size: 0.9375rem;
 }
@@ -74,11 +74,11 @@ body {
 }
 
 .bg-primary {
-  background-color: #67f7b8;
+  background-color: #00FF9D;
 }
-
+   
 .ae-button {
-  background-color: #2a9cff;
+  background-color: #1161fe;
   color: #fff;
   font-family: IBM Plex Sans, Roboto, sans-serif !important;
   border-radius: 0.3125rem;
@@ -89,7 +89,7 @@ body {
 }
 
 .text-primary {
-  color: #2a9cff;
+  color: #1161fe;
 }
 
 .h1 {
@@ -114,24 +114,24 @@ body {
   justify-content: center;
   align-items: flex-start;
   padding-top: 9.375rem;
-  background-color: #21222c;
+  background-color: #0f0f0f;
   overflow: hidden;
-}
-
+ }
+ 
 .label {
   font-size: 0.8125rem;
   line-height: 1.23;
-  color: #727278;
+  color: #787878;
 }
-
+ 
 .ae-card {
   border-radius: 0.3125rem;
   box-shadow: 0 0.0625rem 0.3125rem 0 rgba(0, 0, 0, 0.15);
-  background-color: #21222c;
-}
-
+  background-color: #000;
+ }
+ 
 .border-primary {
-  border-color: #2a9cff;
+  border-color: #1161fe;
 }
 
 .ae-transition-300 {
@@ -163,7 +163,7 @@ body {
 }
 
 .ae-text {
-  color: #2a9cff;
+  color: #1161fe;
 }
 
 ::-webkit-scrollbar {

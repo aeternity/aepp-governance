@@ -11,7 +11,7 @@
       <BlackHeader>
         <div class="w-full flex flex-wrap justify-between items-center">
           <span>Voter Account</span>
-          <span class="copy bg-gray-700 text-white text-xs cursor-pointer" @click="copyToClipboard" >
+          <span class="copy bg-black-100 text-white text-xs cursor-pointer" @click="copyToClipboard" >
             Copy
             <img src="../assets/copy.svg" class="inline w-5" alt="copy"/>
           </span>
@@ -159,7 +159,7 @@
 
 <style lang="scss" scoped>
   .can-open {
-    background-color: #272831;
+    background-color: #0f0f0f;
     border-bottom: none;
     padding: 0.625rem 1.25rem;
     margin: 0;

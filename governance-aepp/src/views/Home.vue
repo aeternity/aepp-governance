@@ -4,13 +4,13 @@
       <BiggerLoader/>
     </div>
     <div class="sticky w-full top-0 max-w-desktop z-20">
-      <BlackHeader :show-number-input="true" @submit="showPoll" @input="handleIdInput">
-        {{getTabLabelByValue(activeTab)}} Polls
-      </BlackHeader>
-      <div class="px-4 space-x-3 sm:space-x-5 font-bold md:font-lg flex text-gray-500 bg-gray-700" id="home-tab-switcher">
-        <div v-if="pollOrdering" :class="{active: activeTab === 'hot'}" @click="switchTab('hot')" class="tab">
-          <span>{{getTabLabelByValue('hot')}}</span>
-        </div>
+        <BlackHeader :show-number-input="true" @submit="showPoll" @input="handleIdInput">
+         {{getTabLabelByValue(activeTab)}} Polls
+       </BlackHeader>
+      <div class="px-4 space-x-3 sm:space-x-5 font-bold md:font-lg flex text-gray-500 bg-black-300" id="home-tab-switcher">
+         <div v-if="pollOrdering" :class="{active: activeTab === 'hot'}" @click="switchTab('hot')" class="tab">
+           <span>{{getTabLabelByValue('hot')}}</span>
+         </div>
         <div :class="{active: activeTab === 'closing'}" @click="switchTab('closing')" class="tab">
           <span>{{getTabLabelByValue('closing')}}</span>
         </div>
@@ -259,10 +259,10 @@
     padding: 0.9375rem 0;
     white-space: nowrap;
   }
-
-  .tab.active {
-    color: #67F7B8;
-    border-bottom: 2px solid #67F7B8;
+  
+ .tab.active {
+    color: #00FF9D;
+    border-bottom: 2px solid #00FF9D;
   }
 
   .poll-list {

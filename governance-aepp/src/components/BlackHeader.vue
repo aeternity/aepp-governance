@@ -1,32 +1,42 @@
 <template>
-  <div class="black-header py-1 px-3 sm:px-4 w-full text-2xl flex justify-between items-center bg-gray-800 text-blue font-medium">
-    <slot/>
-    <div class="flex items-center justify-end">
-      <div ref="inputContainer" class="relative rounded hide-input flex items-center pr-3 pb-1"
+  <div class="black-header py-1 px-3 sm:px-4 w-full text-xl flex justify-between items-center bg-black-200 text-blue font-medium">
+     <slot/>
+     <div class="flex items-center justify-end">
+       <div ref="inputContainer" class="relative rounded hide-input flex items-center pr-3 pb-1"
            v-if="showNumberInput">
         <img src="../assets/hash.svg" class="h-6 pl-4 pt-1 cursor-pointer" @click="showInput" alt="enter id">
-        <form @submit.prevent="submit">
-          <input v-model="id" ref="input" type="number" @input="$emit('input', id)"
-                 class="text-gray-600 w-full text-2xl outline-none bg-transparent leading-none" @blur="onBlur">
-        </form>
-      </div>
-      <div class="w-6 text-2xl h-6 justify-center flex items-center ml-2 cursor-pointer"
-           @click.stop.prevent="toggleHelp()" id="question-mark-icon">
-        <img src="../assets/help.svg" alt="help">
-      </div>
-    </div>
+         <form @submit.prevent="submit">
+           <input v-model="id" ref="input" type="number" @input="$emit('input', id)"
+                 class="text-gray-600 w-full text-xl outline-none bg-transparent leading-none" @blur="onBlur">
+         </form>
+       </div>
+      <div class="w-6 text-xl h-6 justify-center flex items-center ml-2 cursor-pointer"
+            @click.stop.prevent="toggleHelp()" id="question-mark-icon">
+          <SmallButton 
+            :img="helpIcon" 
+            :hoverImg="helpIconActive"
+          />
+       </div>
+     </div>
 
   </div>
 </template>
 
 <script>
-  export default {
-    name: "BlackHeader",
+import SmallButton from "./SmallButton";
+import helpIcon from "../assets/help.svg";
+import helpIconActive from "../assets/helpActive.svg";
+
+export default {
+  name: "BlackHeader",
+  components: {SmallButton},
     data() {
       return {
         extended: false,
         id: null,
-        activeTimeout: 0
+      activeTimeout: 0,
+      helpIconActive,
+      helpIcon
       };
     },
     props: {
@@ -126,7 +136,7 @@
 
   @keyframes background-frames {
     from {
-      background-color: #272831;
+    background-color: #0f0f0f;
       padding-right: 0;
     }
     40% {

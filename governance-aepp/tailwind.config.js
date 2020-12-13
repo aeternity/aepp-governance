@@ -17,29 +17,32 @@ module.exports = {
       current: 'currentColor',
       black: '#000',
       white: '#fff',
-      green: '#67f7b8',
-      blue: '#2a9cff',
-      red: '#ff4952',
-
-      secondary: '#67f7b8',
-      primary: '#2a9cff',
-
+      green: '#00ff9d',
+      blue: '#1161fe',
+      red: '#ff4746',
+  
+      secondary: '#00ff9d',
+      primary: '#1161fe',
+  
       gray: {
         100: '#f7f7fc',
         200: '#d2d2d4',
         300: '#babac0',
         400: '#aeaeae',
-        500: '#727278',
+        500: '#787878',
         600: '#707070',
         700: '#272831',
         800: '#21222c',
         900: '#12121b',
       },
       black: {
-        100: '#292B35'
-      }
-    },
-    spacing: {
+        initial: '#000',
+        100: '#0f0f0f',
+        200: '#090909',
+        300: '#141414',
+        }
+      },
+      spacing: {
       px: '1px',
       rem: '1rem',
       '0': '0',

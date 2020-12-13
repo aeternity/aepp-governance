@@ -98,38 +98,45 @@ export default {
   overflow: hidden;
   transition: all $base-transition-time;
   border-bottom: 2px solid transparent;
-
+  border-top: 1px solid #141414;
+  border-bottom: 1px solid #141414;
+ 
   &.focus {
-    border-bottom: 2px solid #2a9cff;
-  }
+    border-top: 1px solid #1161fe;
+    border-bottom: 1px solid #1161fe;
 
-  &.focus .ae-input-label {
-    color: #fff;
-  }
-
-  &.error {
-    border-bottom: 2px solid #ff4952;
-    caret-color: #ff4952;
-  }
-
-  &.error .ae-input-label {
-    color: #ff4952;
-  }
-
-  .ae-input-label:after,
-  .ae-input-label:after {
-    content: '*';
-    color: #fff;
-  }
-}
-
+    .ae-input-box {
+      background: #000;
+    }
+   }
+ 
+   &.focus .ae-input-label {
+    color: #babac0;
+   }
+ 
+   &.error {
+    border-bottom: 2px solid #ff4746;
+    caret-color: #ff4746;
+   }
+ 
+   &.error .ae-input-label {
+    color: #ff4746;
+   }
+ 
+   .ae-input-label:after,
+   .ae-input-label:after {
+     content: '*';
+    color: #ff4746;
+   }
+ }
+ 
 .ae-input-box {
   display: flex;
   flex-direction: column;
-  background: #12121b;
-  min-height: 4rem;
+  background: #141414;
+  height: 3.75rem;
 }
-
+ 
 .ae-input-header {
   position: relative;
   display: flex;
@@ -143,17 +150,28 @@ export default {
 
 .ae-input-label {
   @extend %face-sans-xs;
-
-  color: #727278;
-  font-style: italic;
-}
-
-.ae-input {
+ 
+  color: #787878;
+ }
+ 
+ .ae-input {
   @extend %face-sans-base;
-  @include placeholder-color(#727278);
 
+  &::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+  }
+  
+  &::placeholder {
+    color: #BABAC0;
+    opacity: 1; /* Firefox */
+  }
+
+  &:-ms-input-placeholder {
+    color: #BABAC0;
+  }
+ 
   align-self: center;
-  color: #aeaeae;
+  color: #fff;
   justify-self: center;
   flex: 0 1 100%;
   width: 100%;
@@ -161,9 +179,21 @@ export default {
   background: transparent;
   border: none;
   outline: none;
+  font-size: 0.875rem;
+ 
+   &:only-child {
+     flex: 1 0;
+   }
 
-  &:only-child {
-    flex: 1 0;
+  &:focus {
+    &::placeholder {
+      color: #fff;
+      opacity: 1; /* Firefox */
+    }
+
+    &:-ms-input-placeholder {
+      color: #fff;
+    }
   }
 }
 
