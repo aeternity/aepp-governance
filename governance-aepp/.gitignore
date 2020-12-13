@@ -6,3 +6,4 @@ package-lock.json
 dist/
 tailwind.css
 deployment
+.DS_Store
