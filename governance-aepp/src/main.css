@@ -178,3 +178,8 @@ textarea:focus, input:focus {
 .justify-evenly {
   justify-content: space-evenly;
 }
+
+/*Overrides loader color*/
+.ae-loader.ae-loader[data-v-15556d70] {
+  border: 0.2em solid #00ff9d;
+}
