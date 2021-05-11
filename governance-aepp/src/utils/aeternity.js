@@ -7,10 +7,6 @@ import settings from '../data/settings';
 import pollContractSource from '../assets/contracts/Poll.aes';
 import { EventBus } from './eventBus';
 
-const TESTNET_URL = 'https://testnet.aeternity.io';
-const MAINNET_URL = 'https://mainnet.aeternity.io';
-const COMPILER_URL = 'https://compiler.aepps.com';
-
 const aeternity = {
   rpcClient: null,
   client: null,
@@ -59,12 +55,12 @@ aeternity.initStaticClient = async () => {
   // MAINNET
   */
   return Universal({
-    compilerUrl: COMPILER_URL,
+    compilerUrl: settings.ae_mainnet.compilerUrl,
     nodes: [
       {
         name: 'mainnet',
         instance: await Node({
-          url: MAINNET_URL,
+          url: settings.ae_mainnet.nodeUrl,
         }),
       }],
   });
@@ -96,8 +92,8 @@ aeternity.isMainnet = () => {
 aeternity.initClient = async () => {
   if (process && process.env && process.env.PRIVATE_KEY && process.env.PUBLIC_KEY) {
     aeternity.client = await Universal({
-      nodes: [{name: 'testnet', instance: await Node({url: TESTNET_URL})}],
-      compilerUrl: COMPILER_URL,
+      nodes: [{name: 'testnet', instance: await Node({url: settings.ae_uat.nodeUrl})}],
+      compilerUrl: settings.ae_uat.compilerUrl,
       accounts: [
         MemoryAccount({keypair: {secretKey: process.env.PRIVATE_KEY, publicKey: process.env.PUBLIC_KEY}}),
       ],
@@ -150,10 +146,10 @@ aeternity.initWalletSearch = async (successCallback) => {
   aeternity.rpcClient = await RpcAepp({
     name: 'AEPP',
     nodes: [
-      {name: 'ae_mainnet', instance: await Node({url: MAINNET_URL})},
-      {name: 'ae_uat', instance: await Node({url: TESTNET_URL})}
+      {name: 'ae_mainnet', instance: await Node({url: settings.ae_mainnet.nodeUrl})},
+      //{name: 'ae_uat', instance: await Node({url: settings.ae_uat.nodeUrl})}
     ],
-    compilerUrl: COMPILER_URL,
+    compilerUrl: settings.ae_mainnet.compilerUrl,
     onNetworkChange (params) {
       this.selectNode(params.networkId); // params.networkId needs to be defined as node in RpcAepp
       aeternity.initProvider();
