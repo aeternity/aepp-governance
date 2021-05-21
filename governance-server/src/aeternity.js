@@ -1,5 +1,5 @@
 const fs = require('fs');
-const Universal = require('@aeternity/aepp-sdk').Universal;
+const {Universal, Node, MemoryAccount, Crypto} = require('@aeternity/aepp-sdk');
 const axios = require('axios');
 
 const util = require("./util");
@@ -9,13 +9,15 @@ const {totalSupplyAtHeight} = require("./coinbase");
 const registryContractInterface = fs.readFileSync(__dirname + "/../etc/RegistryInterface.aes", "utf-8");
 const pollContractInterface = fs.readFileSync(__dirname + "/../etc/PollInterface.aes", "utf-8");
 const pollContractSource = fs.readFileSync(__dirname + "/../etc/Poll.aes", "utf-8");
+const pollIrisContractSource = fs.readFileSync(__dirname + "/../etc/Poll_Iris.aes", "utf-8");
 
 const compilers = [
-    {url: 'https://v400.compiler.aeternity.art', version: 'v4.0.0'},
-    {url: 'https://v410.compiler.aeternity.art', version: 'v4.1.0'},
-    {url: 'https://v420.compiler.aeternity.art', version: 'v4.2.0'},
-    {url: 'https://v421.compiler.aeternity.art', version: 'v4.2.1'},
-    {url: 'https://v430.compiler.aeternity.art', version: 'v4.3.0'}
+    {url: 'https://v400.compiler.aeternity.art', version: 'v4.0.0', pragma: 4},
+    {url: 'https://v410.compiler.aeternity.art', version: 'v4.1.0', pragma: 4},
+    {url: 'https://v420.compiler.aeternity.art', version: 'v4.2.0', pragma: 4},
+    {url: 'https://v421.compiler.aeternity.art', version: 'v4.2.1', pragma: 4},
+    {url: 'https://v430.compiler.aeternity.art', version: 'v4.3.0', pragma: 4},
+    {url: 'https://v500.compiler.aeternity.art', version: 'v5.0.0', pragma: 5},
 ];
 
 module.exports = class Aeternity {
@@ -37,12 +39,21 @@ module.exports = class Aeternity {
     init = async () => {
         if (!this.client) {
             this.client = await Universal({
-                url: process.env.NODE_URL || this.verifyConstants.nodeUrl,
-                internalUrl: process.env.NODE_URL || this.verifyConstants.nodeUrl,
-                compilerUrl: process.env.COMPILER_URL || this.verifyConstants.compilerUrl
+                compilerUrl: process.env.COMPILER_URL || this.verifyConstants.compilerUrl,
+                nodes: [{
+                    name: 'node',
+                    instance: await Node({
+                        url: process.env.NODE_URL || this.verifyConstants.nodeUrl,
+                    }),
+                }],
+                accounts: [
+                    MemoryAccount({
+                        keypair: Crypto.generateKeyPair()
+                    }),
+                ],
             });
 
-            this.contract = await this.client.getContractInstance(registryContractInterface, {contractAddress: this.contractAddress });
+            this.contract = await this.client.getContractInstance(registryContractInterface, {contractAddress: this.contractAddress});
             console.log("initialized aeternity sdk");
         }
     };
@@ -54,26 +65,32 @@ module.exports = class Aeternity {
     verifyPollContract = async (pollAddress) => {
         const result = async () => {
             const contractCreateBytecode = await axios.get(`${process.env.MIDDLEWARE_URL}/txs/backward/and?contract=${pollAddress}&type=contract_create`).then(async res => {
-                if(res.data.length !== 1) return null;
-                const contractCreateTx = res.data[0].data[0];
+                if(!res.data) return null;
+                const contractCreateTx = res.data.data[0];
                 return contractCreateTx ? contractCreateTx.tx.code : null;
             });
 
-            const compilersResult = await Promise.all(compilers.map(compiler => {
-                return axios.post(`${compiler.url}/compile`, {
-                    code: pollContractSource,
-                    options: {backend: 'fate'}
-                }).then(async res => {
-                    const bytecode = res.data.bytecode;
-                    return {
-                        bytecode: bytecode,
-                        matches: bytecode === contractCreateBytecode,
-                        version: compiler.version
-                    }
-                });
-            }));
+            const testCompilers = async (compilers, source) => {
+                return Promise.all(compilers.map(compiler => {
+                    return axios.post(`${compiler.url}/compile`, {
+                        code: source,
+                        options: {backend: 'fate'}
+                    }).then(async res => {
+                        const bytecode = res.data.bytecode;
+                        return {
+                            bytecode: bytecode,
+                            contractCreateBytecode: contractCreateBytecode,
+                            matches: bytecode === contractCreateBytecode,
+                            version: compiler.version
+                        }
+                    });
+                }));
+            };
 
-            return compilersResult.find(test => test.matches) || false;
+            const compilers4Result = await testCompilers(compilers.filter(c => c.pragma === 4), pollContractSource);
+            const compilers5Result = await testCompilers(compilers.filter(c => c.pragma === 5), pollIrisContractSource);
+
+            return compilers4Result.concat(compilers5Result).find(test => test.matches) || false;
         };
 
         return this.cache.getOrSet(["verifyPollContract", pollAddress], result, this.cache.longCacheTime);

@@ -1,10 +1,11 @@
-import {Node, Universal, MemoryAccount, RpcAepp} from '@aeternity/aepp-sdk/es';
+import {Node, Universal, MemoryAccount, RpcAepp, Crypto} from '@aeternity/aepp-sdk/es';
 import BrowserWindowMessageConnection from "@aeternity/aepp-sdk/es/utils/aepp-wallet-communication/connection/browser-window-message";
 import Detector from "@aeternity/aepp-sdk/es/utils/aepp-wallet-communication/wallet-detector";
 
 import registryContractSource from '../assets/contracts/RegistryInterface.aes';
 import settings from '../data/settings';
 import pollContractSource from '../assets/contracts/Poll.aes';
+import pollIrisContractSource from '../assets/contracts/Poll_Iris.aes';
 import { EventBus } from './eventBus';
 
 const aeternity = {
@@ -63,9 +64,10 @@ aeternity.initStaticClient = async () => {
           url: settings.ae_mainnet.nodeUrl,
         }),
       }],
+    accounts: [
+      MemoryAccount({keypair: Crypto.generateKeyPair()}),
+    ],
   });
-
-
 };
 
 /**
@@ -139,6 +141,11 @@ aeternity.scanForWallets = async (successCallback) => {
   detector.scan(handleWallets);
 }
 
+aeternity.isIrisCompiler = () => {
+  const compilerVersion = aeternity.client.compilerVersion && parseInt(aeternity.client.compilerVersion.substr(0, 1));
+  return compilerVersion >= 5;
+}
+
 aeternity.initWalletSearch = async (successCallback) => {
   // Open iframe with Wallet if run in top window
   // window !== window.parent || await aeternity.getReverseWindow();
@@ -147,7 +154,7 @@ aeternity.initWalletSearch = async (successCallback) => {
     name: 'AEPP',
     nodes: [
       {name: 'ae_mainnet', instance: await Node({url: settings.ae_mainnet.nodeUrl})},
-      //{name: 'ae_uat', instance: await Node({url: settings.ae_uat.nodeUrl})}
+      {name: 'ae_uat', instance: await Node({url: settings.ae_uat.nodeUrl})}
     ],
     compilerUrl: settings.ae_mainnet.compilerUrl,
     onNetworkChange (params) {
@@ -198,23 +205,28 @@ aeternity.verifyPollContract = async (pollAddress) => {
     return contractCreateTx ? contractCreateTx.tx.code : null;
   });
 
-  const compilersResult = await Promise.all(settings.compilers.map(async compiler => {
-    const compilerBytecode = await fetch(`${compiler.url}/compile`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        code: pollContractSource,
-        options: { 'backend': 'fate' },
-      }),
-    }).then(async res => (await res.json()).bytecode);
+  const testCompilers = async (compilers, source) => {
+    return Promise.all(compilers.map(async compiler => {
+      const compilerBytecode = await fetch(`${compiler.url}/compile`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: source,
+          options: { 'backend': 'fate' },
+        }),
+      }).then(async res => (await res.json()).bytecode);
 
-    return {
-      bytecode: compilerBytecode,
-      matches: compilerBytecode === (await contractCreateBytecode),
-      version: compiler.version,
-    };
-  }));
+      return {
+        bytecode: compilerBytecode,
+        matches: compilerBytecode === (await contractCreateBytecode),
+        version: compiler.version,
+      };
+    }));
+  }
 
-  return compilersResult.find(test => test.matches);
+  const compilers4Result = await testCompilers(settings.compilers.filter(c => c.pragma === 4), pollContractSource)
+  const compilers5Result = await testCompilers(settings.compilers.filter(c => c.pragma === 5), pollIrisContractSource)
+
+  return compilers4Result.concat(compilers5Result).find(test => test.matches);
 };
 export default aeternity;
