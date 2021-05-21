@@ -103,6 +103,7 @@
 
   import aeternity from "../utils/aeternity";
   import pollContractSource from '../assets/contracts/Poll.aes';
+  import pollIrisContractSource from '../assets/contracts/Poll_Iris.aes';
   import BiggerLoader from '../components/BiggerLoader';
   import BottomButtons from "../components/BottomButtons";
   import BlackHeader from "../components/BlackHeader";
@@ -222,7 +223,9 @@
             }).reduce((acc, option) => Object.assign(acc, {[option.id]: option.text}), {});
 
           try {
-            const pollContract = await aeternity.client.getContractInstance(pollContractSource);
+
+            const source = aeternity.isIrisCompiler() ? pollIrisContractSource : pollContractSource;
+            const pollContract = await aeternity.client.getContractInstance(source);
             const init = await pollContract.methods.init(this.createMetadata, options, close_height);
             const addPoll = await aeternity.contract.methods.add_poll(init.address, this.is_listed);
             this.$router.push(`/poll/${addPoll.decodedResult}`);

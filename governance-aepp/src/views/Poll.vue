@@ -335,7 +335,8 @@
             this.error = 'Could not verify poll contract correctness, proceed with caution.'
             this.continueFunction = () => {this.error = null}
           }
-        }).catch(() => {
+        }).catch((e) => {
+          console.error(e);
           this.error = 'Could not verify poll contract correctness, proceed with caution.'
           this.continueFunction = () => {this.error = null}
         })

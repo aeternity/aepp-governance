@@ -42,7 +42,7 @@ module.exports = class Logic {
                     }
                 });
 
-            const pollsData = await polls.asyncMap(async ([id, data]) => {
+            const allPollsData = await polls.asyncMap(async ([id, data]) => {
                 const state = await this.cachedPollState(data.poll);
                 const verified = await this.aeternity.verifyPollContract(data.poll).catch(e => {
                     console.error("verifyPollContract", e);
@@ -59,6 +59,8 @@ module.exports = class Logic {
                     delegationCount: state.stakesAtHeight.reduce((acc, cur) => acc + cur.delegators.length, 0)
                 }
             });
+
+            const pollsData = allPollsData.filter(poll => !!poll.verified);
 
             const maxVotes = Math.max(...pollsData.map(poll => poll.voteCount), 1);
             const maxDelegations = Math.max(...pollsData.map(poll => poll.delegationCount), 1);
