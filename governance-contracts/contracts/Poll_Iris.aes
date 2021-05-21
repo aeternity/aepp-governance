@@ -91,4 +91,4 @@ contract Poll =
 
   entrypoint voted_option(voter : address) : option(int) = Map.lookup(voter, state.votes)
 
-  entrypoint version() : int = 1
+  entrypoint version() : int = 2
