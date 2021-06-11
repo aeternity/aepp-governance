@@ -15,12 +15,17 @@ const aeternity = {
   static: true,
 };
 
+const tempCallOptions = { gas: 100000000000 };
+aeternity.tempCallOptions = tempCallOptions;
+
 aeternity.initProvider = async (changedClient = false) => {
   try {
     const networkId = (await aeternity.client.getNodeInfo()).nodeNetworkId;
     const changedNetwork = aeternity.networkId !== networkId;
     aeternity.networkId = networkId
     aeternity.contract = await aeternity.client.getContractInstance(registryContractSource, { contractAddress: settings[aeternity.networkId].contractAddress });
+    aeternity.client.api.protectedDryRunTxs = aeternity.client.api.dryRunTxs;
+
     if (changedClient || changedNetwork) {
       EventBus.$emit('networkChange');
       EventBus.$emit('dataChange');
@@ -179,9 +184,9 @@ aeternity.delegation = async (address) => {
 };
 
 aeternity.delegations = async (address) => {
-  const delegationsResult = await aeternity.contract.methods.delegators(address);
+  const delegationsResult = await aeternity.contract.methods.delegators(address, tempCallOptions);
   return Promise.all(delegationsResult.decodedResult.map(async ([delegator, delegatee]) => {
-    const delegateeDelegations = (await aeternity.contract.methods.delegators(delegator)).decodedResult;
+    const delegateeDelegations = (await aeternity.contract.methods.delegators(delegator, tempCallOptions)).decodedResult;
     return {
       delegator: delegator,
       delegatee: delegatee,
@@ -192,7 +197,7 @@ aeternity.delegations = async (address) => {
 };
 
 aeternity.polls = async () => {
-  const polls = await aeternity.contract.methods.polls();
+  const polls = await aeternity.contract.methods.polls(tempCallOptions);
   return polls.decodedResult;
 };
 

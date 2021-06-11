@@ -18,7 +18,10 @@ const compilers = [
     {url: 'https://v421.compiler.aeternity.art', version: 'v4.2.1', pragma: 4},
     {url: 'https://v430.compiler.aeternity.art', version: 'v4.3.0', pragma: 4},
     {url: 'https://v500.compiler.aeternity.art', version: 'v5.0.0', pragma: 5},
+    {url: 'https://v600.compiler.aeternity.art', version: 'v6.0.0', pragma: 6},
 ];
+
+const tempCallOptions = { gas: 100000000000 };
 
 module.exports = class Aeternity {
     cache;
@@ -54,6 +57,8 @@ module.exports = class Aeternity {
             });
 
             this.contract = await this.client.getContractInstance(registryContractInterface, {contractAddress: this.contractAddress});
+            this.client.api.protectedDryRunTxs = this.client.api.dryRunTxs;
+
             console.log("initialized aeternity sdk");
         }
     };
@@ -64,33 +69,38 @@ module.exports = class Aeternity {
 
     verifyPollContract = async (pollAddress) => {
         const result = async () => {
-            const contractCreateBytecode = await axios.get(`${process.env.MIDDLEWARE_URL}/txs/backward/and?contract=${pollAddress}&type=contract_create`).then(async res => {
-                if(!res.data) return null;
-                const contractCreateTx = res.data.data[0];
-                return contractCreateTx ? contractCreateTx.tx.code : null;
-            });
+            try {
+                const contractCreateBytecode = await axios.get(`${process.env.MIDDLEWARE_URL}/txs/backward/and?contract=${pollAddress}&type=contract_create`).then(async res => {
+                    if (!res.data) return null;
+                    const contractCreateTx = res.data.data[0];
+                    return contractCreateTx ? contractCreateTx.tx.code : null;
+                });
 
-            const testCompilers = async (compilers, source) => {
-                return Promise.all(compilers.map(compiler => {
-                    return axios.post(`${compiler.url}/compile`, {
-                        code: source,
-                        options: {backend: 'fate'}
-                    }).then(async res => {
-                        const bytecode = res.data.bytecode;
-                        return {
-                            bytecode: bytecode,
-                            contractCreateBytecode: contractCreateBytecode,
-                            matches: bytecode === contractCreateBytecode,
-                            version: compiler.version
-                        }
-                    });
-                }));
-            };
+                const testCompilers = async (compilers, source) => {
+                    return Promise.all(compilers.map(compiler => {
+                        return axios.post(`${compiler.url}/compile`, {
+                            code: source,
+                            options: {backend: 'fate'}
+                        }).then(async res => {
+                            const bytecode = res.data.bytecode;
+                            return {
+                                bytecode: bytecode,
+                                contractCreateBytecode: contractCreateBytecode,
+                                matches: bytecode === contractCreateBytecode,
+                                version: compiler.version
+                            }
+                        });
+                    }));
+                };
 
-            const compilers4Result = await testCompilers(compilers.filter(c => c.pragma === 4), pollContractSource);
-            const compilers5Result = await testCompilers(compilers.filter(c => c.pragma === 5), pollIrisContractSource);
+                const compilers4Result = await testCompilers(compilers.filter(c => c.pragma === 4), pollContractSource);
+                const compilers5Result = await testCompilers(compilers.filter(c => c.pragma >= 5), pollIrisContractSource);
 
-            return compilers4Result.concat(compilers5Result).find(test => test.matches) || false;
+                return compilers4Result.concat(compilers5Result).find(test => test.matches) || false;
+            } catch (e) {
+                console.error("verifyPollContract", e);
+                return false;
+            }
         };
 
         return this.cache.getOrSet(["verifyPollContract", pollAddress], result, this.cache.longCacheTime);
@@ -148,7 +158,7 @@ module.exports = class Aeternity {
     };
 
     polls = async () => {
-        return this.cache.getOrSet(["polls"], async () => (await this.contract.methods.polls()).decodedResult, this.cache.shortCacheTime);
+        return this.cache.getOrSet(["polls"], async () => (await this.contract.methods.polls(tempCallOptions)).decodedResult, this.cache.shortCacheTime);
     };
 
     pollState = async (address) => {
@@ -158,7 +168,7 @@ module.exports = class Aeternity {
             return contract;
         });
 
-        const pollState = await pollContract.methods.get_state();
+        const pollState = await pollContract.methods.get_state(tempCallOptions);
         return pollState.decodedResult;
     };
 
@@ -186,7 +196,7 @@ module.exports = class Aeternity {
                 return delegationLogic.calculateDelegations(delegationEvents);
             }, this.cache.longCacheTime);
         } else {
-            return this.cache.getOrSet(["delegations", closingHeightOrUndefined], async () => (await this.contract.methods.delegations()).decodedResult, this.cache.shortCacheTime);
+            return this.cache.getOrSet(["delegations", closingHeightOrUndefined], async () => (await this.contract.methods.delegations(tempCallOptions)).decodedResult, this.cache.shortCacheTime);
         }
     };
 

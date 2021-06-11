@@ -1,7 +1,9 @@
-contract Poll =
+@compiler >= 6
+
+contract interface Poll =
   entrypoint title : () => string
 
-contract Registry =
+main contract Registry =
   record poll_data = { poll : Poll, is_listed : bool, title : string, close_height : option(int) }
 
   type polls = map(int, poll_data)

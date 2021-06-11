@@ -304,7 +304,7 @@
 
         const fetchPollState = (async () => {
           this.pollContract = await aeternity.client.getContractInstance(pollContractSource, {contractAddress: await fetchPollAddress});
-          this.pollState = (await this.pollContract.methods.get_state()).decodedResult;
+          this.pollState = (await this.pollContract.methods.get_state(aeternity.tempCallOptions)).decodedResult;
           this.isClosed = this.pollState.close_height <= parseInt(await aeternity.client.height());
           try {
             this.closeBlock = this.isClosed ? await aeternity.client.getGeneration(this.pollState.close_height) : null;
