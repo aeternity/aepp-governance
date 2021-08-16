@@ -96,9 +96,13 @@ module.exports = class Aeternity {
                 };
 
                 const compilers4Result = await testCompilers(compilers.filter(c => c.pragma === 4), pollContractSource);
-                const compilers5Result = await testCompilers(compilers.filter(c => c.pragma >= 5), pollIrisContractSource);
+                const compilers5Result = await testCompilers(compilers.filter(c => c.pragma === 5), pollIrisContractSource);
+                const compilers6Result = await testCompilers(compilers.filter(c => c.pragma === 6), pollIrisContractSource);
 
-                return compilers4Result.concat(compilers5Result).find(test => test.matches) || false;
+                return compilers4Result
+                  .concat(compilers5Result)
+                  .concat(compilers6Result)
+                  .find(test => test.matches) || false;
             } catch (e) {
                 console.error("verifyPollContract", e);
                 return false;
