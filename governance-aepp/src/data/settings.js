@@ -7,6 +7,8 @@ export default {
     { url: 'https://v430.compiler.aeternity.art', version: 'v4.3.0', pragma: 4 },
     { url: 'https://v500.compiler.aeternity.art', version: 'v5.0.0', pragma: 5 },
     { url: 'https://v600.compiler.aeternity.art', version: 'v6.0.0', pragma: 6 },
+    { url: 'https://v601.compiler.aeternity.art', version: 'v6.0.1', pragma: 6 },
+    { url: 'https://v602.compiler.aeternity.art', version: 'v6.0.2', pragma: 6 },
   ],
 
   ae_uat: {
