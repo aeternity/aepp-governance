@@ -1,5 +1,5 @@
 const fs = require('fs');
-const {Universal, Node, MemoryAccount, Crypto} = require('@aeternity/aepp-sdk');
+const {Universal, Node} = require('@aeternity/aepp-sdk');
 const axios = require('axios');
 
 const util = require("./util");
@@ -51,11 +51,6 @@ module.exports = class Aeternity {
                         url: process.env.NODE_URL || this.verifyConstants.nodeUrl,
                     }),
                 }],
-                accounts: [
-                    MemoryAccount({
-                        keypair: Crypto.generateKeyPair()
-                    }),
-                ],
             });
 
             this.contract = await this.client.getContractInstance(registryContractInterface, {contractAddress: this.contractAddress});
