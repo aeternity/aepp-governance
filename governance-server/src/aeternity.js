@@ -124,7 +124,7 @@ module.exports = class Aeternity {
     }
 
     middlewareContractTransactions = (height) => {
-        return this.iterateMdw(`txs/gen/${height}-0?contract=${this.contractAddress}&type=contract_call&limit=1000`);
+        return this.iterateMdw(`txs/gen/${height}-0?contract=${this.contractAddress}&type=contract_call&limit=100`);
     }
 
     nodeContractTransactions = async (registryCreationHeight, height) => {
