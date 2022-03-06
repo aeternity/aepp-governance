@@ -16,11 +16,7 @@
 
 <script>
 
-  import "@aeternity/aepp-components/dist/ae-button/ae-button.css"
-  import AeButton from "@aeternity/aepp-components/dist/ae-button/"
-
-  import "@aeternity/aepp-components/dist/ae-card/ae-card.css"
-  import AeCard from "@aeternity/aepp-components/dist/ae-card/"
+  import {AeButton, AeCard} from "@aeternity/aepp-components"
 
   export default {
     name: 'CriticalErrorOverlay',

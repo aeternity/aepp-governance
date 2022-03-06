@@ -28,8 +28,7 @@
 
 <script>
 
-  import "@aeternity/aepp-components/dist/aeLoader/aeLoader.css"
-  import AeLoader from "@aeternity/aepp-components/dist/aeLoader/"
+  import {AeLoader} from "@aeternity/aepp-components"
 
 
   import Backend from "../utils/backend";
