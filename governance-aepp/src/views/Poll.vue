@@ -153,8 +153,7 @@
 
 <script>
 
-  import "@aeternity/aepp-components/dist/ae-check/ae-check.css"
-  import AeCheck from "@aeternity/aepp-components/dist/ae-check/"
+  import {AeCheck} from "@aeternity/aepp-components"
 
   import aeternity from "../utils/aeternity";
   import pollContractSource from '../assets/contracts/PollInterface.aes';

@@ -1,13 +1,11 @@
-FROM node:12-alpine as build
+FROM node:14 as build
 
-RUN apk add --no-cache git
-RUN adduser --disabled-password --gecos "" app
+RUN apt-get update && apt-get install -y git python3 build-essential
 
 WORKDIR /app
-RUN chown -R app:app /app
-USER app
 
 COPY package.json /app
+COPY package-lock.json /app
 RUN npm install
 
 COPY . /app
