@@ -3,7 +3,7 @@ name: Governance Server Staging Pipeline
 on:
   pull_request:
     paths:
-      - 'server/**'
+      - 'governance-server/**'
     branches: [ master ]
     types: [ opened, synchronize, closed ]
 

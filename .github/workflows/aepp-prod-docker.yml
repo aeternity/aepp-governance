@@ -3,7 +3,7 @@ name: Production Aepp Governance Pipeline
 on:
   push:
     paths:
-      - 'aepp/**'
+      - 'governance-aepp/**'
     branches:
       - master
     release:

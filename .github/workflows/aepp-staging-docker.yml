@@ -3,7 +3,7 @@ name: Aepp Governance Staging Pipeline
 on:
   pull_request:
     paths:
-      - 'aepp/**'
+      - 'governance-aepp/**'
     branches: [ master ]
     types: [ opened, synchronize, closed ]
 
