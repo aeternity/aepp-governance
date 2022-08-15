@@ -22,6 +22,7 @@ const compilers = [
     {url: 'https://v601.compiler.aeternity.art', version: 'v6.0.1', pragma: 6},
     {url: 'https://v602.compiler.aeternity.art', version: 'v6.0.2', pragma: 6},
     {url: 'https://v610.compiler.aeternity.art', version: 'v6.1.0', pragma: 6},
+    {url: 'https://v701.compiler.aeternity.art', version: 'v7.0.1', pragma: 7},
 ];
 
 const tempCallOptions = { gas: 100000000000 };
@@ -68,7 +69,7 @@ module.exports = class Aeternity {
     verifyPollContract = async (pollAddress) => {
         const result = async () => {
             try {
-                const contractCreateBytecode = await axios.get(`${process.env.MIDDLEWARE_URL}/txs/backward/and?contract=${pollAddress}&type=contract_create`).then(async res => {
+                const contractCreateBytecode = await axios.get(`${process.env.MIDDLEWARE_URL}/v2/txs?contract=${pollAddress}&type=contract_create`).then(async res => {
                     if (!res.data) return null;
                     const contractCreateTx = res.data.data[0];
                     return contractCreateTx ? contractCreateTx.tx.code : null;
@@ -94,10 +95,12 @@ module.exports = class Aeternity {
                 const compilers4Result = await testCompilers(compilers.filter(c => c.pragma === 4), pollContractSource);
                 const compilers5Result = await testCompilers(compilers.filter(c => c.pragma === 5), pollIrisContractSource);
                 const compilers6Result = await testCompilers(compilers.filter(c => c.pragma === 6), pollIrisContractSource);
+                const compilers7Result = await testCompilers(compilers.filter(c => c.pragma === 7), pollIrisContractSource);
 
                 return compilers4Result
                   .concat(compilers5Result)
                   .concat(compilers6Result)
+                  .concat(compilers7Result)
                   .find(test => test.matches) || false;
             } catch (e) {
                 console.error("verifyPollContract", e);

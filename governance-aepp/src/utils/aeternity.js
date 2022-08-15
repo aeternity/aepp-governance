@@ -200,7 +200,7 @@ aeternity.polls = async () => {
 
 
 aeternity.verifyPollContract = async (pollAddress) => {
-  const contractCreateBytecode = fetch(`${settings[aeternity.networkId].middlewareUrl}/txs/backward/and?contract=${pollAddress}&type=contract_create`).then(async res => {
+  const contractCreateBytecode = fetch(`${settings[aeternity.networkId].middlewareUrl}/v2/txs?contract=${pollAddress}&type=contract_create`).then(async res => {
     res = await res.json();
     if (res.data.length !== 1) return null;
     const contractCreateTx = res.data[0];
@@ -229,10 +229,12 @@ aeternity.verifyPollContract = async (pollAddress) => {
   const compilers4Result = await testCompilers(settings.compilers.filter(c => c.pragma === 4), pollContractSource)
   const compilers5Result = await testCompilers(settings.compilers.filter(c => c.pragma === 5), pollIrisContractSource)
   const compilers6Result = await testCompilers(settings.compilers.filter(c => c.pragma === 6), pollIrisContractSource)
+  const compilers7Result = await testCompilers(settings.compilers.filter(c => c.pragma === 7), pollIrisContractSource)
 
   return compilers4Result
     .concat(compilers5Result)
     .concat(compilers6Result)
+    .concat(compilers7Result)
     .find(test => test.matches);
 };
 export default aeternity;
