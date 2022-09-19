@@ -9,6 +9,8 @@ logic = null;
 
 const GIT_REV = null;
 
+BigInt.prototype.toJSON = function () { return Number(this) }
+
 const app = express();
 app.use(bodyParser.json());
 process.on('unhandledRejection', (reason, p) => console.log('Unhandled Rejection at: Promise', p, 'reason:', reason));

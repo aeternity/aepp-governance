@@ -8,7 +8,7 @@ mock.getOrSet = async (keys, asyncFetchData, expire = null) => {
     if (value) return JSON.parse(value);
 
     const data = await asyncFetchData();
-    mock.set(keys, data, expire);
+    await mock.set(keys, data, expire);
     return data;
 };
 

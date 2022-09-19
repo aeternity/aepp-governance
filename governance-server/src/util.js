@@ -42,7 +42,9 @@ util.eventArgument = (log, index) => log[0].topics[index + 1];
 
 util.encodeEventAddress = (log, index, prefix) => `${prefix}${Crypto.encodeBase58Check(new BN(util.eventArgument(log, index)).toBuffer('be', 32))}`;
 
-util.range = (start, end) => (new Array(end - start + 1)).fill(undefined).map((_, i) => i + start);
+util.range = (start, end) => {
+    return (new Array(BigInt(end) - BigInt(start) + 1n)).fill(undefined).map((_, i) => i + start);
+}
 
 util.steppedRanges = (start, end, step) => {
     const firstBatchStartStep = Math.ceil(start / step);

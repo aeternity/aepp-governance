@@ -1,13 +1,13 @@
 const fs = require('fs');
-const {Universal, Node} = require('@aeternity/aepp-sdk');
+const {AeSdk, Node} = require('@aeternity/aepp-sdk');
 const axios = require('axios');
 
 const util = require("./util");
 const delegationLogic = require("./delegation_logic");
 const {totalSupplyAtHeight} = require("./coinbase");
 
-const registryContractInterface = fs.readFileSync(__dirname + "/../etc/RegistryInterface.aes", "utf-8");
-const pollContractInterface = fs.readFileSync(__dirname + "/../etc/PollInterface.aes", "utf-8");
+const registryWithEventsAci = require("../etc/RegistryWithEventsACI.json");
+const pollAci = require("../etc/PollACI.json");
 const pollContractSource = fs.readFileSync(__dirname + "/../etc/Poll.aes", "utf-8");
 const pollIrisContractSource = fs.readFileSync(__dirname + "/../etc/Poll_Iris.aes", "utf-8");
 
@@ -47,18 +47,15 @@ module.exports = class Aeternity {
 
     init = async () => {
         if (!this.client) {
-            this.client = await Universal({
-                compilerUrl: process.env.COMPILER_URL || this.verifyConstants.compilerUrl,
-                nodes: [{
-                    name: 'node',
-                    instance: await Node({
-                        url: process.env.NODE_URL || this.verifyConstants.nodeUrl,
-                    }),
+            this.client = new AeSdk({
+                compilerUrl: process.env.COMPILER_URL || this.verifyConstants.compilerUrl, nodes: [{
+                    name: 'node', instance: new Node(process.env.NODE_URL || this.verifyConstants.nodeUrl),
                 }],
             });
 
-            this.contract = await this.client.getContractInstance(registryContractInterface, {contractAddress: this.contractAddress});
-            this.client.api.protectedDryRunTxs = this.client.api.dryRunTxs;
+            this.contract = await this.client.getContractInstance({
+                aci: registryWithEventsAci, contractAddress: this.contractAddress
+            });
 
             console.log("initialized aeternity sdk");
         }
@@ -165,18 +162,26 @@ module.exports = class Aeternity {
     };
 
     polls = async () => {
-        return this.cache.getOrSet(["polls"], async () => (await this.contract.methods.polls(tempCallOptions)).decodedResult, this.cache.shortCacheTime);
+        return this.cache.getOrSet(["polls"], async () => {
+            const polls = (await this.contract.methods.polls(tempCallOptions)).decodedResult
+            return Array.from(polls.entries());
+        }, this.cache.shortCacheTime);
     };
 
     pollState = async (address) => {
         const pollAddress = address.replace("ak_", "ct_");
-        const pollContract = this.pollContracts[pollAddress] ? this.pollContracts[pollAddress] : await this.client.getContractInstance(pollContractInterface, {contractAddress: pollAddress}).then(contract => {
+        const pollContract = this.pollContracts[pollAddress] ? this.pollContracts[pollAddress] : await this.client.getContractInstance({
+            aci: pollAci,
+            contractAddress: pollAddress
+        }).then(contract => {
             this.pollContracts[pollAddress] = contract;
             return contract;
         });
 
-        const pollState = await pollContract.methods.get_state(tempCallOptions);
-        return pollState.decodedResult;
+        const pollState = (await pollContract.methods.get_state(tempCallOptions)).decodedResult;
+        pollState.votes = Object.fromEntries(pollState.votes.entries());
+        pollState.vote_options = Object.fromEntries(pollState.vote_options.entries());
+        return pollState;
     };
 
     delegators = async (address, height) => {
@@ -203,7 +208,10 @@ module.exports = class Aeternity {
                 return delegationLogic.calculateDelegations(delegationEvents);
             }, this.cache.longCacheTime);
         } else {
-            return this.cache.getOrSet(["delegations", closingHeightOrUndefined], async () => (await this.contract.methods.delegations(tempCallOptions)).decodedResult, this.cache.shortCacheTime);
+            return this.cache.getOrSet(["delegations", closingHeightOrUndefined], async () => {
+                const delegations = (await this.contract.methods.delegations(tempCallOptions)).decodedResult;
+                return Array.from(delegations.entries());
+            }, this.cache.shortCacheTime);
         }
     };
 
@@ -226,51 +234,53 @@ module.exports = class Aeternity {
         return this.cache.getOrSet(["transactionEvent", hash || tx.hash], async () => {
             process.stdout.write(",");
             const {height, nonce, log} = hash
-              ? await this.client.getTxInfo(hash).then(res => ({height: res.height, nonce: res.callerNonce, log: res.log}))
+              ? await this.client.getTransactionInfoByHash(hash).then(res => ({height: res.height, nonce: res.callerNonce, log: res.log}))
               : ({height: tx.block_height, nonce: tx.tx.nonce, log: tx.tx.log})
             if (log.length === 1) {
                 const topics = ["AddPoll", "Delegation", "RevokeDelegation", "Vote", "RevokeVote"];
                 const topic = topics.find(topic => util.hashTopic(topic) === util.topicHashFromResult(log));
+                const decodedUsingContract = this.contract.decodeEvents(log)[0].args
+
                 switch (topic) {
                     case "AddPoll":
                         return {
                             topic: topic,
                             height: height,
-                            nonce: nonce ,
-                            poll: util.encodeEventAddress(log, 0, "ct_"),
-                            seq_id: util.eventArgument(log, 1)
+                            nonce: nonce,
+                            poll: decodedUsingContract[0],
+                            seq_id: decodedUsingContract[1]
                         };
                     case "Delegation":
                         return {
                             topic: topic,
                             height: height,
                             nonce: nonce,
-                            delegator: util.encodeEventAddress(log, 0, "ak_"),
-                            delegatee: util.encodeEventAddress(log, 1, "ak_")
+                            delegator: decodedUsingContract[0],
+                            delegatee: decodedUsingContract[1],
                         };
                     case "RevokeDelegation":
                         return {
                             topic: topic,
                             height: height,
                             nonce: nonce,
-                            delegator: util.encodeEventAddress(log, 0, "ak_"),
+                            delegator: decodedUsingContract[0],
                         };
                     case "Vote":
                         return {
                             topic: topic,
                             height: height,
                             nonce: nonce,
-                            poll: util.encodeEventAddress(log, 0, "ct_"),
-                            voter: util.encodeEventAddress(log, 1, "ak_"),
-                            option: util.eventArgument(log, 2)
+                            poll: decodedUsingContract[0],
+                            voter: decodedUsingContract[1],
+                            option: decodedUsingContract[2],
                         };
                     case "RevokeVote":
                         return {
                             topic: topic,
                             height: height,
                             nonce: nonce,
-                            poll: util.encodeEventAddress(log, 0, "ct_"),
-                            voter: util.encodeEventAddress(log, 1, "ak_"),
+                            poll: decodedUsingContract[0],
+                            voter: decodedUsingContract[1],
                         };
 
                     default:
