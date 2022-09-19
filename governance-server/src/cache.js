@@ -1,18 +1,13 @@
 const redis = require("redis");
-const {promisify} = require('util');
 const delegationLogic = require('./delegation_logic');
 
 if (!process.env.WEBSOCKET_URL) throw "WEBSOCKET_URL is not set";
 if (!process.env.REDIS_URL) throw "REDIS_URL is not set";
 
-const client = redis.createClient(process.env.REDIS_URL);
-const get = promisify(client.get).bind(client);
-const set = promisify(client.set).bind(client);
-const del = promisify(client.del).bind(client);
-const keys = promisify(client.keys).bind(client);
+const client = redis.createClient({url: process.env.REDIS_URL});
 const WebSocketClient = require('websocket').client;
-var AsyncLock = require('async-lock');
-var lock = new AsyncLock();
+let AsyncLock = require('async-lock');
+let lock = new AsyncLock();
 
 const cache = {};
 cache.wsconnection = null;
@@ -23,6 +18,7 @@ cache.keepHotInterval = process.env.KEEP_HOT_INTERVAL || 60 * 1000;
 cache.networkKey = "";
 
 cache.init = async (aeternity) => {
+    await client.connect();
     cache.networkKey = await aeternity.networkId();
     console.log("networkKey", cache.networkKey);
     cache.startInvalidator(aeternity);
@@ -33,12 +29,12 @@ const buildKey = (keys) => [cache.networkKey, ...keys].join(":");
 
 cache.getOrSet = async (keys, asyncFetchData, expire = null) => {
     const key = buildKey(keys);
-    const value = await get(key);
+    const value = await client.get(key);
     if (value) return JSON.parse(value);
 
     const startLock = new Date().getTime();
     return lock.acquire(key, async () => {
-        const lockedValue = await get(key);
+        const lockedValue = await client.get(key);
         if (lockedValue) {
             console.log("\n   lock.acquire", key, new Date().getTime() - startLock, "ms");
             return JSON.parse(lockedValue);
@@ -57,23 +53,23 @@ cache.set = async (keys, data, expire = null) => {
     const key = buildKey(keys);
 
     if (expire) {
-        await set(key, JSON.stringify(data), "EX", expire);
+        await client.set(key, JSON.stringify(data), "EX", expire);
     } else {
-        await set(key, JSON.stringify(data));
+        await client.set(key, JSON.stringify(data));
     }
 };
 
 cache.delByPrefix = async (prefixes) => {
     const prefix = buildKey(prefixes);
     console.log("      cache keys", prefix + "*");
-    const rows = await keys(prefix + "*");
+    const rows = await client.keys(prefix + "*");
     if (rows.length) console.log("      cache delByPrefix", rows);
-    await Promise.all(rows.map(key => del(key)));
+    await Promise.all(rows.map(key => client.del(key)));
 };
 
 cache.del = async (keys) => {
     const key = buildKey(keys);
-    await del(key);
+    await client.del(key);
 };
 
 const addPollInvalidationListeners = async (aeternity) => {
