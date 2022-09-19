@@ -31,6 +31,7 @@ module.exports = class Aeternity {
     cache;
     client;
     pollContracts = {};
+    contractAddress;
 
     constructor(verifyConstants = null) {
         this.verifyConstants = verifyConstants;
@@ -39,9 +40,10 @@ module.exports = class Aeternity {
         if (!this.verifyConstants && !process.env.NODE_URL) throw "NODE_URL is not set";
         if (!this.verifyConstants && !process.env.COMPILER_URL) throw "COMPILER_URL is not set";
         if (!this.verifyConstants && !process.env.CONTRACT_ADDRESS) throw "CONTRACT_ADDRESS is not set";
+
+        this.contractAddress = process.env.CONTRACT_ADDRESS || this.verifyConstants.registryContract;
     }
 
-    contractAddress = process.env.CONTRACT_ADDRESS || this.verifyConstants.registryContract;
 
     init = async () => {
         if (!this.client) {

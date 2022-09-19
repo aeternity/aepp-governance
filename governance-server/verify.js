@@ -20,7 +20,7 @@ const findPollAddress = (arg, polls) => {
 const verify = async () => {
 
     const verifyConstants = {
-        nodeUrl: "https://mainnet.aeternal.io/",
+        nodeUrl: "https://mainnet.aeternity.io/",
         compilerUrl: "https://compiler.aepps.com",
         registryContract: "ct_ouZib4wT9cNwgRA1pxgA63XEUd8eQRrG8PcePDEYogBc1VYTq"
     };
