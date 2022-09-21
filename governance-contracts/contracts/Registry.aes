@@ -21,13 +21,13 @@
 include "List.aes"
 include "Pair.aes"
 
-contract Poll =
+contract interface Poll =
   entrypoint title : () => string
   entrypoint close_height : () => option(int)
 
 // ACTUAL CONTRACT
 
-contract Registry =
+main contract Registry =
 
   record poll_data =
     { poll : Poll

@@ -2,17 +2,16 @@
   "name": "governance-contracts",
   "version": "1.0.0",
   "scripts": {
-    "test": "aeproject test",
+    "test": "mocha ./test/**/*.js --timeout 0 --exit",
     "node": "aeproject node"
   },
   "license": "ISC",
   "dependencies": {
-    "@aeternity/aepp-sdk": "6.1.2",
-    "aeproject-lib": "2.0.1",
-    "blake2b": "^2.1.3",
-    "bn.js": "^5.0.0"
+    "@aeternity/aepp-sdk": "^12.1.3"
   },
   "devDependencies": {
-    "aeproject": "2.0.1"
+    "@aeternity/aeproject": "^4.1.1",
+    "chai": "^4.3.6",
+    "mocha": "^9.2.2"
   }
 }

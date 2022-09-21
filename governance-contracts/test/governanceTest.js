@@ -15,66 +15,32 @@
  *  PERFORMANCE OF THIS SOFTWARE.
  */
 
-import {encodeBase58Check, encodeUnsigned, hash} from "@aeternity/aepp-sdk/es/utils/crypto";
+const {assert} = require('chai');
+const {utils, wallets} = require('@aeternity/aeproject');
 
-const Universal = require('@aeternity/aepp-sdk').Universal;
-const Bytes = require('@aeternity/aepp-sdk/es/utils/bytes');
-const Crypto = require('@aeternity/aepp-sdk').Crypto;
-const blake2b = require('blake2b');
-const BN = require('bn.js');
+const registrySource = utils.getContractContent('./contracts/Registry.aes');
+const pollSource = utils.getContractContent('./contracts/Poll_Iris.aes');
 
+const hexToUint8 = (hex) => Uint8Array.from(Buffer.from(hex, 'hex'));
+const uint8ToHex = (uint8) => Buffer.from(uint8).toString('hex');
 
-const registrySource = utils.readFileRelative('./contracts/Registry.aes', 'utf-8');
-const pollSource = utils.readFileRelative('./contracts/Poll.aes', 'utf-8');
-
-const config = {
-    host: 'http://localhost:3001/',
-    internalHost: 'http://localhost:3001/internal/',
-    compilerUrl: 'http://localhost:3080'
-};
 
 describe('Governance Contracts', () => {
-
-    let ownerKeypair, ownerClient, secondKeypair, secondClient, thirdKeypair;
+    let aeSdk;
     let registryContract, pollContract;
 
     before(async () => {
-        ownerKeypair = wallets[0];
-        secondKeypair = wallets[1];
-        thirdKeypair = wallets[2];
-        ownerClient = await Universal({
-            url: config.host,
-            internalUrl: config.internalHost,
-            keypair: ownerKeypair,
-            nativeMode: true,
-            networkId: 'ae_devnet',
-            compilerUrl: config.compilerUrl
-        });
-
-        secondClient = await Universal({
-            url: config.host,
-            internalUrl: config.internalHost,
-            keypair: secondKeypair,
-            nativeMode: true,
-            networkId: 'ae_devnet',
-            compilerUrl: config.compilerUrl
-        });
+        aeSdk = await utils.getSdk();
     });
 
-    const hashTopic = topic => blake2b(32).update(Buffer.from(topic)).digest('hex');
-    const topicHashFromResult = result => Bytes.toBytes(result.result.log[0].topics[0], true).toString('hex');
-
-    const eventArgument = (result, index) => result.result.log[0].topics[index + 1];
-    const encodeEventAddress = (result, index, prefix) => `${prefix}${Crypto.encodeBase58Check(new BN(result.result.log[0].topics[index + 1]).toBuffer('be', 32))}`;
-
     it('Deploying Governance', async () => {
-        registryContract = await ownerClient.getContractInstance(registrySource);
+        registryContract = await aeSdk.getContractInstance({source: registrySource});
         const init = await registryContract.methods.init();
         assert.equal(init.result.returnType, 'ok');
     });
 
     it('Add Poll', async () => {
-        pollContract = await ownerClient.getContractInstance(pollSource);
+        pollContract = await aeSdk.getContractInstance({source: pollSource});
         const vote_options = {0: "Yes, test more", 1: "No, test less", 2: "Who cares?"};
         const close_height = undefined;
 
@@ -86,7 +52,7 @@ describe('Governance Contracts', () => {
         };
 
         const init1 = await pollContract.methods.init(metadata1, vote_options, close_height).catch(e => e);
-        assert.include(init1.decodedError, 'TITLE_STRING_TO_LONG');
+        assert.include(init1.message, 'TITLE_STRING_TO_LONG');
 
         const metadata2 = {
             title: "Test",
@@ -96,7 +62,7 @@ describe('Governance Contracts', () => {
         };
 
         const init2 = await pollContract.methods.init(metadata2, vote_options, close_height).catch(e => e);
-        assert.include(init2.decodedError, 'DESCRIPTION_STRING_TO_LONG');
+        assert.include(init2.message, 'DESCRIPTION_STRING_TO_LONG');
 
 
         const metadata = {
@@ -110,29 +76,32 @@ describe('Governance Contracts', () => {
         assert.equal(init.result.returnType, 'ok');
 
         let addPoll = await registryContract.methods.add_poll(init.address, true);
-        assert.equal(topicHashFromResult(addPoll), hashTopic('AddPoll'));
-        assert.equal(encodeEventAddress(addPoll, 0, "ct_"), init.address);
-        assert.equal(eventArgument(addPoll, 1), addPoll.decodedResult);
+        assert.equal(addPoll.decodedEvents[0].name, 'AddPoll');
+        assert.equal(addPoll.decodedEvents[0].args[0], init.address);
+        assert.equal(addPoll.decodedEvents[0].args[1], addPoll.decodedResult);
         assert.equal(addPoll.decodedResult, 0);
     });
 
     it('Get Polls', async () => {
         const polls = await registryContract.methods.polls();
-        assert.equal(polls.decodedResult[0][1].title, 'Testing');
-        assert.equal(polls.decodedResult[0][1].is_listed, true);
-        assert.equal(polls.decodedResult[0][1].poll, pollContract.deployInfo.address);
-        assert.equal(polls.decodedResult[0][1].close_height, undefined);
+        assert.equal(polls.decodedResult.get(0n).title, 'Testing');
+        assert.equal(polls.decodedResult.get(0n).is_listed, true);
+        assert.equal(polls.decodedResult.get(0n).poll, pollContract.deployInfo.address);
+        assert.equal(polls.decodedResult.get(0n).close_height, undefined);
     });
 
     it('Get Poll', async () => {
         const polls = await registryContract.methods.polls();
-        pollContract = await ownerClient.getContractInstance(pollSource, {contractAddress: polls.decodedResult[0][1].poll});
+        pollContract = await aeSdk.getContractInstance({
+            source: pollSource,
+            contractAddress: polls.decodedResult.get(0n).poll
+        });
         let pollState = await pollContract.methods.get_state();
         assert.equal(pollState.decodedResult.metadata.title, 'Testing');
-        assert.equal(pollState.decodedResult.metadata.spec_ref, 'd4f02eaafd1a9e9de7d10972ca8e47fa7a985825c3c9c1e249c72683cb3e4f19');
+        assert.equal(uint8ToHex(pollState.decodedResult.metadata.spec_ref), 'd4f02eaafd1a9e9de7d10972ca8e47fa7a985825c3c9c1e249c72683cb3e4f19');
         assert.equal(pollState.decodedResult.close_height, undefined);
-        assert.equal(pollState.decodedResult.author, ownerKeypair.publicKey);
-        assert.deepEqual(pollState.decodedResult.vote_options, [[0, 'Yes, test more'], [1, 'No, test less'], [2, 'Who cares?']]);
+        assert.equal(pollState.decodedResult.author, wallets[0].publicKey);
+        assert.deepEqual(pollState.decodedResult.vote_options, new Map([[0n, 'Yes, test more'], [1n, 'No, test less'], [2n, 'Who cares?']]));
 
         let title = await pollContract.methods.title();
         assert.equal(title.decodedResult, 'Testing');
@@ -142,28 +111,36 @@ describe('Governance Contracts', () => {
             description: 'This Poll is created for Testing purposes only',
             link: 'https://aeternity.com/',
             title: 'Testing',
-            spec_ref: "d4f02eaafd1a9e9de7d10972ca8e47fa7a985825c3c9c1e249c72683cb3e4f19"
+            spec_ref: hexToUint8("d4f02eaafd1a9e9de7d10972ca8e47fa7a985825c3c9c1e249c72683cb3e4f19")
         });
 
         let votes = await pollContract.methods.votes();
-        assert.deepEqual(votes.decodedResult, []);
+        assert.deepEqual(votes.decodedResult, new Map());
     });
 
     it('Add Vote', async () => {
-        pollContract = await ownerClient.getContractInstance(pollSource, {contractAddress: pollContract.deployInfo.address});
+        pollContract = await aeSdk.getContractInstance({
+            source: pollSource,
+            contractAddress: pollContract.deployInfo.address
+        });
         let vote = await pollContract.methods.vote(2);
-        assert.equal(topicHashFromResult(vote), hashTopic('Vote'));
-        assert.equal(encodeEventAddress(vote, 0, "ct_"), pollContract.deployInfo.address);
-        assert.equal(encodeEventAddress(vote, 1, "ak_"), ownerKeypair.publicKey);
-        assert.equal(eventArgument(vote, 2), 2);
+
         assert.equal(vote.result.returnType, 'ok');
+        assert.equal(vote.decodedEvents[0].name, 'Vote');
+        assert.equal(vote.decodedEvents[0].args[0], pollContract.deployInfo.address.replace('ct_', 'ak_'));
+        assert.equal(vote.decodedEvents[0].args[1], wallets[0].publicKey);
+        assert.equal(vote.decodedEvents[0].args[2], 2n);
+        assert.equal(vote.decodedResult, 0);
 
         let pollState = await pollContract.methods.get_state();
-        assert.deepEqual(pollState.decodedResult.votes, [['ak_fUq2NesPXcYZ1CcqBcGC3StpdnQw3iVxMA3YSeCNAwfN4myQk', 2]]);
+        assert.deepEqual(pollState.decodedResult.votes, new Map([['ak_fUq2NesPXcYZ1CcqBcGC3StpdnQw3iVxMA3YSeCNAwfN4myQk', 2n]]));
     });
 
     it('Add Vote; Failing, poll already closed', async () => {
-        const otherPollContract = await secondClient.getContractInstance(pollSource);
+        const otherPollContract = await aeSdk.getContractInstance({
+            source: pollSource,
+            onAccount: await utils.getDefaultAccounts()[1]
+        });
 
         const metadata = {
             title: "Testing",
@@ -172,76 +149,86 @@ describe('Governance Contracts', () => {
             spec_ref: "d4f02eaafd1a9e9de7d10972ca8e47fa7a985825c3c9c1e249c72683cb3e4f19"
         };
         const vote_options = {0: "Only Option"};
-        const close_height = await ownerClient.height();
+        const close_height = await aeSdk.height();
 
         const init = await otherPollContract.methods.init(metadata, vote_options, close_height);
         assert.equal(init.result.returnType, 'ok');
 
         let voteError = await otherPollContract.methods.vote(0).catch(e => e);
-        assert.include(voteError.decodedError, 'POLL_ALREADY_CLOSED');
+        assert.include(voteError.message, 'POLL_ALREADY_CLOSED');
     });
 
     it('Revoke Vote', async () => {
         let revokeVote = await pollContract.methods.revoke_vote();
-        assert.equal(topicHashFromResult(revokeVote), hashTopic('RevokeVote'));
-        assert.equal(encodeEventAddress(revokeVote, 0, "ct_"), pollContract.deployInfo.address);
-        assert.equal(encodeEventAddress(revokeVote, 1, "ak_"), ownerKeypair.publicKey);
         assert.equal(revokeVote.result.returnType, 'ok');
+        assert.equal(revokeVote.decodedEvents[0].name, 'RevokeVote');
+        assert.equal(revokeVote.decodedEvents[0].args[0], pollContract.deployInfo.address.replace('ct_', 'ak_'));
+        assert.equal(revokeVote.decodedEvents[0].args[1], wallets[0].publicKey);
+        assert.equal(revokeVote.decodedResult, 0);
+
 
         let pollState = await pollContract.methods.get_state();
-        assert.deepEqual(pollState.decodedResult.votes, []);
+        assert.deepEqual(pollState.decodedResult.votes, new Map());
     });
 
     it('Add Vote; Failing, option not known', async () => {
-        pollContract = await ownerClient.getContractInstance(pollSource, {contractAddress: pollContract.deployInfo.address});
+        pollContract = await aeSdk.getContractInstance({
+            source: pollSource,
+            contractAddress: pollContract.deployInfo.address
+        });
         let voteError = await pollContract.methods.vote(3).catch(e => e);
-        assert.include(voteError.decodedError, 'VOTE_OPTION_NOT_KNOWN');
+        assert.include(voteError.message, 'VOTE_OPTION_NOT_KNOWN');
     });
 
     it('Add Delegation', async () => {
-        let addDelegation1 = await registryContract.methods.delegate(secondKeypair.publicKey);
-        assert.equal(topicHashFromResult(addDelegation1), hashTopic('Delegation'));
-        assert.equal(encodeEventAddress(addDelegation1, 0, "ak_"), ownerKeypair.publicKey);
-        assert.equal(encodeEventAddress(addDelegation1, 1, "ak_"), secondKeypair.publicKey);
+        let addDelegation1 = await registryContract.methods.delegate(wallets[1].publicKey);
 
         assert.equal(addDelegation1.result.returnType, 'ok');
+        assert.equal(addDelegation1.decodedEvents[0].name, 'Delegation');
+        assert.equal(addDelegation1.decodedEvents[0].args[0], wallets[0].publicKey);
+        assert.equal(addDelegation1.decodedEvents[0].args[1], wallets[1].publicKey);
 
-        let addDelegationError = await registryContract.methods.delegate(ownerKeypair.publicKey).catch(e => e);
-        assert.include(addDelegationError.decodedError, 'CALLER_IS_DELEGATEE_DISALLOWED');
+        let addDelegationError = await registryContract.methods.delegate(wallets[0].publicKey).catch(e => e);
+        assert.include(addDelegationError.message, 'CALLER_IS_DELEGATEE_DISALLOWED');
 
         let delegations = await registryContract.methods.delegations();
-        assert.deepEqual(delegations.decodedResult, [[ownerKeypair.publicKey, secondKeypair.publicKey]]);
+        assert.deepEqual(delegations.decodedResult, new Map([[wallets[0].publicKey, wallets[1].publicKey]]));
 
-        let delegationsFrom = await registryContract.methods.delegatee(ownerKeypair.publicKey);
-        assert.equal(delegationsFrom.decodedResult, secondKeypair.publicKey);
+        let delegationsFrom = await registryContract.methods.delegatee(wallets[0].publicKey);
+        assert.equal(delegationsFrom.decodedResult, wallets[1].publicKey);
 
-        let delegationsFor1 = await registryContract.methods.delegators(ownerKeypair.publicKey, []);
-        assert.deepEqual(delegationsFor1.decodedResult, []);
+        let delegationsFor1 = await registryContract.methods.delegators(wallets[0].publicKey, []);
+        assert.deepEqual(delegationsFor1.decodedResult, new Map());
 
-        let delegationsFor2 = await registryContract.methods.delegators(secondKeypair.publicKey, []);
-        assert.deepEqual(delegationsFor2.decodedResult, [[ownerKeypair.publicKey, secondKeypair.publicKey]]);
+        let delegationsFor2 = await registryContract.methods.delegators(wallets[1].publicKey, []);
+        assert.deepEqual(delegationsFor2.decodedResult, new Map([[wallets[0].publicKey, wallets[1].publicKey]]));
     });
 
     it('Revoke Delegation', async () => {
         let revokeDelegation = await registryContract.methods.revoke_delegation();
-        assert.equal(topicHashFromResult(revokeDelegation), hashTopic('RevokeDelegation'));
-        assert.equal(encodeEventAddress(revokeDelegation, 0, "ak_"), ownerKeypair.publicKey);
+
         assert.equal(revokeDelegation.result.returnType, 'ok');
+        assert.equal(revokeDelegation.decodedEvents[0].name, 'RevokeDelegation');
+        assert.equal(revokeDelegation.decodedEvents[0].args[0], wallets[0].publicKey);
 
         let delegations = await registryContract.methods.delegations();
-        assert.deepEqual(delegations.decodedResult, []);
+        assert.deepEqual(delegations.decodedResult, new Map());
     });
 
     it('Get Delegators', async () => {
-        let addDelegation1 = await registryContract.methods.delegate(thirdKeypair.publicKey);
+        let addDelegation1 = await registryContract.methods.delegate(wallets[2].publicKey);
         assert.equal(addDelegation1.result.returnType, 'ok');
 
-        const secondClientRegistryContract = await secondClient.getContractInstance(registrySource, {contractAddress: registryContract.deployInfo.address});
-        let addDelegation2 = await secondClientRegistryContract.methods.delegate(thirdKeypair.publicKey);
+        const secondClientRegistryContract = await aeSdk.getContractInstance({
+            source: registrySource,
+            contractAddress: registryContract.deployInfo.address,
+            onAccount: await utils.getDefaultAccounts()[1]
+        });
+        let addDelegation2 = await secondClientRegistryContract.methods.delegate(wallets[2].publicKey);
         assert.equal(addDelegation2.result.returnType, 'ok');
 
-        let delegationsFor = await registryContract.methods.delegators(thirdKeypair.publicKey, []);
-        assert.deepEqual(delegationsFor.decodedResult, [[ownerKeypair.publicKey, thirdKeypair.publicKey], [secondKeypair.publicKey, thirdKeypair.publicKey]]);
+        let delegationsFor = await registryContract.methods.delegators(wallets[2].publicKey, []);
+        assert.deepEqual(delegationsFor.decodedResult, new Map([[wallets[0].publicKey, wallets[2].publicKey], [wallets[1].publicKey, wallets[2].publicKey]]));
 
         let revokeDelegation1 = await registryContract.methods.revoke_delegation();
         assert.equal(revokeDelegation1.result.returnType, 'ok');
@@ -252,9 +239,9 @@ describe('Governance Contracts', () => {
 
     it('Get Version', async () => {
         let pollVersion = await pollContract.methods.version();
-        assert.equal(pollVersion.decodedResult, 1);
+        assert.equal(pollVersion.decodedResult, 2n);
 
         let registryVersion = await registryContract.methods.version();
-        assert.equal(registryVersion.decodedResult, 1);
+        assert.equal(registryVersion.decodedResult, 1n);
     })
 });
