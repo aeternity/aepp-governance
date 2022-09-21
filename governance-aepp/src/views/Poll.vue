@@ -285,7 +285,7 @@
         this.pollId = this.$route.params.id;
 
         this.votersForOption = {};
-        var fetchBalance = Promise.resolve();
+        let fetchBalance = Promise.resolve();
         if (!aeternity.static) {
           this.accountAddress = await aeternity.client.address();
           fetchBalance = aeternity.client.getBalance(this.accountAddress).then(balance => {
