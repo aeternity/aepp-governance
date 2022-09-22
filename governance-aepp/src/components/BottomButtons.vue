@@ -16,8 +16,8 @@
         <!-- LEFT BUTTON> -->
         <div class="flex justify-evenly items-center h-full flex-2">
           <SmallButton :img="images.homeImg" @click="() => $route.path !== '/' && $router.push('/')"/>
-          <SmallButton :img="images.accountImg" v-if="account"
-                       @click="() => $route.path !== `/account/${account}` &&  $router.push(`/account/${account}`)">
+          <SmallButton :img="images.accountImg" v-if="address"
+                       @click="() => $route.path !== `/account/${address}` &&  $router.push(`/account/${address}`)">
           </SmallButton>
         </div>
         <!-- CENTER SECTION -->
@@ -36,7 +36,7 @@
 
         <!-- RIGHT BUTTONS -->
         <div class="flex justify-evenly items-center h-full flex-2">
-          <SmallButton :img="images.createImg" v-if="account"
+          <SmallButton :img="images.createImg" v-if="address"
                        @click="() => $route.path !== '/create' && $router.push('/create')"/>
           <SmallButton :img="images.backImg" @click="() => $router.go(-1)"/>
         </div>
@@ -52,8 +52,8 @@
   import accountImg from '../assets/account.svg';
   import homeImg from '../assets/home.svg';
   import backImg from '../assets/back.svg';
-  import aeternity from "../utils/aeternity";
-  import { EventBus } from '../utils/eventBus';
+  import {wallet} from "@/utils/wallet";
+  import {toRefs} from "vue";
 
   export default {
     name: "BottomButtons",
@@ -62,9 +62,12 @@
       return {
         view: 'buttons',
         images: {searchImg, createImg, accountImg, homeImg, backImg},
-        account: null,
         searchString: ''
       }
+    },
+    setup() {
+      const {address} = toRefs(wallet)
+      return {address}
     },
     props: {
       home: {
@@ -114,18 +117,13 @@
         if (this.view === 'buttons') this.view = 'search';
         else if (this.view === 'search') this.view = 'buttons';
       },
-      async loadData()  {
-        if (!aeternity.static) {
-          this.account = await aeternity.client.address()
-        }
-      }
     },
     created() {
-      EventBus.$on('dataChange', this.loadData)
+      this.eventBus.$on('dataChange', this.loadData)
       this.loadData()
     },
-    beforeDestroy() {
-      EventBus.$off('dataChange', this.loadData)
+    beforeUnmount() {
+      this.eventBus.$off('dataChange', this.loadData)
     }
   }
 </script>

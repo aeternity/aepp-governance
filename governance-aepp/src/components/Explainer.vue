@@ -15,10 +15,10 @@
 
 <script>
   import ExplainerItem from "./ExplainerItem";
-  import help from '../data/help.json'
+  import help from '../assets/help.json'
 
   export default {
-    name: "Explainer",
+    name: "ExplainerComponent",
     components: {ExplainerItem},
     data() {
       return {

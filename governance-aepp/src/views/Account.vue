@@ -94,7 +94,7 @@
 </template>
 
 <script>
-  import aeternity from "../utils/aeternity";
+import {sdk, wallet} from "@/utils/wallet";
   import * as Crypto from '@aeternity/aepp-sdk/es/utils/crypto';
   import BiggerLoader from '../components/BiggerLoader'
   import AeIdentityLight from '../components/AeIdentityLight'
@@ -105,10 +105,11 @@
   import AccountHeader from "../components/AccountHeader";
   import CriticalErrorOverlay from "../components/CriticalErrorOverlay";
   import AeInput from '../components/AeInput'
-  import { EventBus } from '../utils/eventBus';
+  import contract from "@/utils/contract";
+  import {toRefs} from "vue";
 
   export default {
-    name: 'Home',
+    name: 'AccountPage',
     components: {
       CriticalErrorOverlay,
       AccountHeader,
@@ -133,6 +134,11 @@
         searchError: null,
         availableTabs: ["delegations", "votes", "polls"]
       }
+    },
+    setup() {
+      const { networkId,isStatic, address} = toRefs(wallet)
+
+      return {networkId, isStatic, accountAddress: address}
     },
     computed: {},
     beforeRouteUpdate(to, from, next) {
@@ -176,8 +182,8 @@
         if (this.delegatee.includes('ak_')) {
           this.showLoading = true;
           try {
-            await aeternity.contract.methods.delegate(this.delegatee);
-            await new Backend(aeternity.networkId).contractEvent("Delegation").catch(console.error);
+            await contract.registry.methods.delegate(this.delegatee);
+            await new Backend(this.networkId).contractEvent("Delegation").catch(console.error);
             await this.loadData();
           } catch (e) {
             console.error(e);
@@ -190,8 +196,8 @@
       async revokeDelegation() {
         this.showLoading = true;
         try {
-          await aeternity.contract.methods.revoke_delegation();
-          await new Backend(aeternity.networkId).contractEvent("RevokeDelegation").catch(console.error);
+          await contract.registry.methods.revoke_delegation();
+          await new Backend(this.networkId).contractEvent("RevokeDelegation").catch(console.error);
           await this.loadData();
         } catch (e) {
           console.error(e);
@@ -213,29 +219,29 @@
         this.resetData();
 
         this.address = this.$route.params.account;
-        if(!aeternity.static) this.isOwnAccount = this.address === (await aeternity.client.address());
+        if(!this.isStatic) this.isOwnAccount = this.address === this.accountAddress;
 
-        const fetchBalance = aeternity.client.getBalance(this.address).then(balance => {
+        const fetchBalance = sdk.getBalance(this.address).then(balance => {
           this.balance = balance
         });
-        const fetchDelegation = aeternity.delegation(this.address).catch(e => {
+        const fetchDelegation = contract.delegation(this.address).catch(e => {
           console.error(e);
           this.error = 'Could not fetch delegation.'
         });
-        const fetchDelegations = aeternity.delegations(this.address).catch(e => {
+        const fetchDelegations = contract.delegations(this.address).catch(e => {
           console.error(e);
           this.error = 'Could not fetch delegations.'
         });
 
 
-        const fetchDelegatedPower = new Backend(aeternity.networkId).delegatedPower(this.address).then(async delegatedPower => {
+        const fetchDelegatedPower = new Backend(this.networkId).delegatedPower(this.address).then(async delegatedPower => {
           await fetchBalance;
           if (delegatedPower === null) return;
           this.delegatedPower = delegatedPower.delegatedPower;
           this.totalStake = new BigNumber(this.balance).plus(this.delegatedPower);
         }).catch(console.error);
 
-        const fetchAccountPollVoterAuthor = new Backend(aeternity.networkId).accountPollVoterAuthor(this.address).then(data => {
+        const fetchAccountPollVoterAuthor = new Backend(this.networkId).accountPollVoterAuthor(this.address).then(data => {
           if (data === null) return;
           this.votedInPolls = data.votedInPolls.filter(poll => poll[1].is_listed);
           this.votedInPolls = this.votedInPolls.concat(data.delegateeVotes.filter(poll => {
@@ -252,18 +258,18 @@
         this.showLoading = false;
       },
       async goToOwnAccountPage() {
-        await this.$router.push(`/account/${(await aeternity.client.address())}`)
+        await this.$router.push(`/account/${this.accountAddress}`)
       }
     },
     async mounted() {
-      EventBus.$on('dataChange', this.goToOwnAccountPage)
+      this.eventBus.$on('dataChange', this.goToOwnAccountPage)
       await this.loadData();
       this.activeTab = this.$route.query.tab ? this.$route.query.tab : "delegations";
       document.addEventListener('touchstart', this.touchStartEvent, false);
       document.addEventListener('touchend', this.touchEndEvent, false);
     },
-    beforeDestroy() {
-      EventBus.$off('dataChange', this.goToOwnAccountPage)
+    beforeUnmount() {
+      this.eventBus.$off('dataChange', this.goToOwnAccountPage)
       document.removeEventListener('touchstart', this.touchStartEvent, false);
       document.removeEventListener('touchend', this.touchEndEvent, false);
     }

@@ -20,7 +20,7 @@
         focus = false
         }"
         @input="propagateEventValue"
-        v-if="!$slots.default && !$scopedSlots.default"
+        v-if="!$slots.default"
         v-bind="$attrs"
       />
       <!--
