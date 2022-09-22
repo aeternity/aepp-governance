@@ -65,12 +65,11 @@
 
 <script>
   import AeIdentityLight from "./AeIdentityLight";
-  import aeternity from "../utils/aeternity";
+  import {sdk, wallet} from "@/utils/wallet";
   import Backend from "../utils/backend";
   import BigNumber from "bignumber.js";
   import copy from 'copy-to-clipboard';
-  import { EventBus } from '../utils/eventBus';
-  import Util from '../utils/util';
+  import {toRefs} from "vue";
 
   export default {
     name: "AccountHeader",
@@ -104,11 +103,15 @@
         open: true
       }
     },
+    setup() {
+      const {address, walletStatus, activeWallet, networkId, isStatic} = toRefs(wallet)
+      return {walletAddress: address, walletStatus, activeWallet, networkId, isStatic}
+    },
     methods: {
       async loadData() {
-        if(!aeternity.static) this.isOwnAccount = (await aeternity.client.address()) === this.address;
-        this.balance = await aeternity.client.getBalance(this.address);
-        await new Backend(aeternity.networkId).delegatedPower(this.address, this.pollAddress).then(delegatedPower => {
+        if(!this.isStatic) this.isOwnAccount = this.walletAddress === this.address;
+        this.balance = await sdk.client.getBalance(this.address);
+        await new Backend(this.networkId).delegatedPower(this.address, this.pollAddress).then(delegatedPower => {
           if(delegatedPower === null) {
             this.totalStake = new BigNumber(this.balance);
           } else {
@@ -134,12 +137,12 @@
       }
     },
     created() {
-      EventBus.$on('dataChange', this.loadData)
+      this.eventBus.$on('dataChange', this.loadData)
       this.loadData();
       this.open = this.startOpen;
     },
-    beforeDestroy() {
-      EventBus.$off('dataChange', this.loadData)
+    beforeUnmount() {
+      this.eventBus.$off('dataChange', this.loadData)
     }
   }
 </script>

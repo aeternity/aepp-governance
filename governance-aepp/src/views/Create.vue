@@ -101,8 +101,6 @@
   import "@aeternity/aepp-components/dist/ae-button-group/ae-button-group.css"
   import AeButtonGroup from "@aeternity/aepp-components/dist/ae-button-group/"
 
-  import aeternity from "../utils/aeternity";
-  import pollContractSource from '../assets/contracts/Poll.aes';
   import pollIrisContractSource from '../assets/contracts/Poll_Iris.aes';
   import BiggerLoader from '../components/BiggerLoader';
   import BottomButtons from "../components/BottomButtons";
@@ -111,9 +109,11 @@
   import CriticalErrorOverlay from "../components/CriticalErrorOverlay";
   import AeInput from "../components/AeInput";
   import HintBubble from "../components/HintBubble";
+  import {sdk} from "@/utils/wallet";
+  import contract from "@/utils/contract";
 
   export default {
-    name: 'Home',
+    name: 'CreatePage',
     components: {
       CriticalErrorOverlay,
       HintBubble,
@@ -224,10 +224,10 @@
 
           try {
 
-            const source = aeternity.isIrisCompiler() ? pollIrisContractSource : pollContractSource;
-            const pollContract = await aeternity.client.getContractInstance(source);
+            const source = pollIrisContractSource;
+            const pollContract = await sdk.getContractInstance(source);
             const init = await pollContract.methods.init(this.createMetadata, options, close_height);
-            const addPoll = await aeternity.contract.methods.add_poll(init.address, this.is_listed);
+            const addPoll = await contract.registry.methods.add_poll(init.address, this.is_listed);
             this.$router.push(`/poll/${addPoll.decodedResult}`);
           } catch (e) {
             this.showLoading = false;
@@ -256,8 +256,7 @@
       }
     },
     async created() {
-      await aeternity.initClient();
-      this.height = await aeternity.client.height();
+      this.height = await sdk.getHeight();
       this.heightTimestamp = Date.now();
       this.closeHeight = 20 * 24 * 30 + this.height;
       this.updateDateInputs();

@@ -156,7 +156,7 @@
   import "@aeternity/aepp-components/dist/ae-check/ae-check.css"
   import AeCheck from "@aeternity/aepp-components/dist/ae-check/"
 
-  import aeternity from "../utils/aeternity";
+  import {sdk, wallet} from "@/utils/wallet";
   import pollContractSource from '../assets/contracts/PollInterface.aes';
   import Backend from "../utils/backend";
   import BiggerLoader from '../components/BiggerLoader';
@@ -168,10 +168,11 @@
   import AccountTreeLine from "../components/AccountTreeLine";
   import copy from 'copy-to-clipboard';
   import HintBubble from "../components/HintBubble";
-  import { EventBus } from '../utils/eventBus';
+  import contract from "@/utils/contract";
+  import {toRefs} from "vue";
 
   export default {
-    name: 'Home',
+    name: 'PollPage',
     components: {
       HintBubble,
       AccountTreeLine,
@@ -180,8 +181,6 @@
     },
     data() {
       return {
-        accountAddress: null,
-        balance: null,
         showLoading: true,
         pollId: null,
         delegateeVote: {},
@@ -202,6 +201,11 @@
         }
       };
     },
+    setup() {
+      const {address, balance} = toRefs(wallet)
+
+      return {accountAddress: address, balance}
+    },
     computed: {
       timeDifference() {
         return (this.pollState.close_height - this.height) * 3 * 60 * 1000;
@@ -209,7 +213,7 @@
     },
     methods: {
       openLink(mode, url) {
-        var target = url ? url : this.pollState.metadata.link;
+        let target = url ? url : this.pollState.metadata.link;
 
         if (window.parent === window) {
           // No Iframe
@@ -286,14 +290,7 @@
 
         this.votersForOption = {};
         let fetchBalance = Promise.resolve();
-        if (!aeternity.static) {
-          this.accountAddress = await aeternity.client.address();
-          fetchBalance = aeternity.client.getBalance(this.accountAddress).then(balance => {
-            this.balance = balance
-          });
-        }
-
-        const fetchPollAddress = aeternity.contract.methods.poll(this.pollId).then(poll => {
+        const fetchPollAddress = contract.registry.methods.poll(this.pollId).then(poll => {
           this.pollAddress = poll.decodedResult.poll;
           return this.pollAddress;
         }).catch(e => {
@@ -303,11 +300,11 @@
         });
 
         const fetchPollState = (async () => {
-          this.pollContract = await aeternity.client.getContractInstance(pollContractSource, {contractAddress: await fetchPollAddress});
-          this.pollState = (await this.pollContract.methods.get_state(aeternity.tempCallOptions)).decodedResult;
-          this.isClosed = this.pollState.close_height <= parseInt(await aeternity.client.height());
+          this.pollContract = await sdk.client.getContractInstance({source: pollContractSource, contractAddress: await fetchPollAddress});
+          this.pollState = (await this.pollContract.methods.get_state()).decodedResult;
+          this.isClosed = this.pollState.close_height <= parseInt(await sdk.getHeight());
           try {
-            this.closeBlock = this.isClosed ? await aeternity.client.getGeneration(this.pollState.close_height) : null;
+            this.closeBlock = this.isClosed ? await sdk.getGeneration(this.pollState.close_height) : null;
           } catch (e) {
             // The base-aepp SDK does not support this function yet
           }
@@ -319,7 +316,7 @@
           this.continueFunction = () => this.$router.push('/');
         });
 
-        const fetchVotesState = new Backend(aeternity.networkId).votesState(await fetchPollAddress).then(votesState => {
+        const fetchVotesState = new Backend(this.networkId).votesState(await fetchPollAddress).then(votesState => {
           if (votesState === null) return;
           this.pollVotesState = votesState;
           this.delegateeVote = this.pollVotesState.stakesForOption
@@ -330,7 +327,7 @@
 
         await Promise.all([fetchBalance, fetchPollAddress, fetchPollState, fetchVotesState]);
 
-        aeternity.verifyPollContract(await fetchPollAddress).then(verifiedPoll => {
+        contract.verifyPollContract(await fetchPollAddress).then(verifiedPoll => {
           if (!verifiedPoll) {
             this.error = 'Could not verify poll contract correctness, proceed with caution.'
             this.continueFunction = () => {this.error = null}
@@ -341,13 +338,13 @@
           this.continueFunction = () => {this.error = null}
         })
 
-        this.height = await aeternity.client.height();
+        this.height = await sdk.getHeight();
 
         this.showLoading = false;
       }
     },
     async mounted() {
-      EventBus.$on('dataChange', this.loadData)
+      this.eventBus.$on('dataChange', this.loadData)
       try {
         await this.loadData();
       } catch (e) {
@@ -359,8 +356,8 @@
         this.showLoading = false;
       }
     },
-    beforeDestroy() {
-      EventBus.$off('dataChange', this.loadData)
+    beforeUnmount() {
+      this.eventBus.$off('dataChange', this.loadData)
     }
   };
 </script>

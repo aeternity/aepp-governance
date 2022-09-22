@@ -1,4 +1,4 @@
-FROM node:12-alpine as build
+FROM node:14-alpine as build
 
 RUN apk add --no-cache git
 RUN adduser --disabled-password --gecos "" app

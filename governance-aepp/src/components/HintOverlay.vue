@@ -49,7 +49,7 @@
       window.addEventListener('resize', this.updateElementPosition, false);
 
     },
-    beforeDestroy() {
+    beforeUnmount() {
       clearInterval(this.interval);
       window.removeEventListener('resize', this.updateElementPosition, false);
     }

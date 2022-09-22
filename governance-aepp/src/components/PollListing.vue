@@ -33,8 +33,9 @@
 
 
   import Backend from "../utils/backend";
-  import aeternity from "../utils/aeternity";
   import AeIdentityLight from './AeIdentityLight'
+  import {sdk, wallet} from "@/utils/wallet";
+  import {toRefs} from "vue";
 
   export default {
     components: {AeLoader, AeIdentityLight},
@@ -45,6 +46,10 @@
         voteCount: null,
         height: 0
       };
+    },
+    setup() {
+      const {networkId} = toRefs(wallet)
+      return {networkId}
     },
     props: {
       id: {
@@ -67,7 +72,7 @@
       }
     },
     async mounted() {
-      new Backend(aeternity.networkId).pollOverview(this.data.poll).then(overview => {
+      new Backend(this.networkId).pollOverview(this.data.poll).then(overview => {
         if(overview !== null) {
           this.percentOfTotalSupply = overview.percentOfTotalSupply;
           this.voteCount = overview.voteCount;
@@ -77,7 +82,7 @@
         console.error(e);
         this.loading = false;
       });
-      this.height = await aeternity.client.height()
+      this.height = await sdk.getHeight()
     }
   };
 </script>

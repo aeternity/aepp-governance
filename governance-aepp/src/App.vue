@@ -4,7 +4,7 @@
     <HintOverlay></HintOverlay>
     <div class="content min-h-screen max-w-desktop z-10">
       <div class="min-h-screen wrapper" ref="wrapper">
-        <router-view v-if="foundWallet" :resetView="resetView"></router-view>
+        <router-view v-if="walletStatus === 'connected'" :resetView="resetView"></router-view>
         <div class="inset-0 flex justify-center flex-col items-center z-50" v-else>
           <BiggerLoader></BiggerLoader>
           <h2 class="mt-2 font-bold">Looking for a wallet. Check for popups.</h2>
@@ -24,72 +24,60 @@
 
 <script>
 
-  import '@aeternity/aepp-components/dist/ae-button/ae-button.css';
-  import AeButton from '@aeternity/aepp-components/dist/ae-button/';
+import CriticalErrorOverlay from './components/CriticalErrorOverlay';
+import Explainer from './components/Explainer';
+import {wallet} from './utils/wallet';
+import BiggerLoader from './components/BiggerLoader';
+import HintOverlay from './components/HintOverlay';
+import {toRefs} from "vue";
+import {initWallet} from './utils/wallet'
 
-  import CriticalErrorOverlay from './components/CriticalErrorOverlay';
-  import Explainer from './components/Explainer';
-  import aeternity from './utils/aeternity.js';
-  import BiggerLoader from './components/BiggerLoader';
-  import HintOverlay from './components/HintOverlay';
-  import { EventBus } from './utils/eventBus';
-
-  export default {
-    name: 'app',
-    components: { BiggerLoader, CriticalErrorOverlay, AeButton, Explainer, HintOverlay },
-    data() {
-      return {
-        error: null,
-        errorCTA: null,
-        foundWallet: false,
-        ignoreErrors: (window.location.host.includes('localhost') || window.location.host.includes('0.0.0.0')),
-        errorClick: () => {
-        },
-      };
-    },
-    methods: {
-      resetView() {
-        this.$refs.wrapper.scrollTo(0, 0);
+export default {
+  name: 'App',
+  components: {BiggerLoader, CriticalErrorOverlay, Explainer, HintOverlay},
+  data() {
+    return {
+      error: null,
+      errorCTA: null,
+      foundWallet: false,
+      ignoreErrors: (window.location.host.includes('localhost') || window.location.host.includes('0.0.0.0')),
+      errorClick: () => {
       },
+    };
+  },
+  setup() {
+    const {walletStatus} = toRefs(wallet)
+    return {walletStatus}
+  },
+  methods: {
+    resetView() {
+      this.$refs.wrapper.scrollTo(0, 0);
     },
-    async created() {
-      try {
-        // Bypass check if there is already an active wallet
-        if (aeternity.hasActiveWallet())
-          return this.foundWallet = true;
-
-        aeternity.initClient().then(() => {
-          this.foundWallet = true;
-        });
-        aeternity.initWalletSearch(() => {
-          this.foundWallet = true;
-        });
-      } catch (e) {
-        console.error('Initializing Wallet Error', e);
-      }
-
-    },
-  };
+  },
+  mounted: async () => {
+    await initWallet()
+  },
+};
 </script>
 
 <style scoped>
-  .min-h-screen {
-    min-height: 100vh;
-    max-height: 100vh;
-    padding-bottom: 0;
-    overflow-y: auto;
-    background-color: #f8f8f8;
+.min-h-screen {
+  min-height: 100vh;
+  max-height: 100vh;
+  padding-bottom: 0;
+  overflow-y: auto;
+  background-color: #f8f8f8;
+}
+
+@media (min-width: 700px) {
+  #app {
+    position: relative;
+    display: flex;
+    justify-content: center;
   }
 
-  @media (min-width: 700px) {
-    #app {
-      position: relative;
-      display: flex;
-      justify-content: center;
-    }
-
-    .content {
-      box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.15);
-    }
+  .content {
+    box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.15);
   }
+}
 </style>
