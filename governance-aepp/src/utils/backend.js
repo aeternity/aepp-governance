@@ -1,4 +1,4 @@
-import settings from "../data/settings";
+import settings from "./settings";
 
 const wrapTry = async (f) => {
   try {

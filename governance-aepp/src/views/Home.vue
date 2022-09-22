@@ -45,7 +45,7 @@
 </template>
 
 <script>
-  import aeternity from '../utils/aeternity';
+  import {wallet} from '@/utils/wallet';
   import Backend from '../utils/backend';
   import BiggerLoader from '../components/BiggerLoader';
   import PollListing from '../components/PollListing';
@@ -53,18 +53,17 @@
   import BlackHeader from '../components/BlackHeader';
   import CriticalErrorOverlay from '../components/CriticalErrorOverlay';
   import BigNumber from 'bignumber.js';
-  import { EventBus } from '../utils/eventBus';
-  import Util from '../utils/util'
+  import {toAe} from "@aeternity/aepp-sdk";
+  import contract from "@/utils/contract";
+  import {toRefs} from "vue";
 
   export default {
-    name: 'Home',
+    name: 'HomePage',
     components: { BlackHeader, BottomButtons, PollListing, BiggerLoader, CriticalErrorOverlay },
     data() {
       return {
         error: null,
         showLoading: true,
-        address: null,
-        balance: null,
         activeTab: null,
         availableTabs: ['hot', 'closing', 'stake', 'new', 'closed'],
         pollOverview: [],
@@ -80,6 +79,10 @@
           y: null,
         },
       };
+    },
+    setup() {
+      const {address, balance} = toRefs(wallet)
+      return {address, balance}
     },
     watch: {
       '$route.query.tab'() {
@@ -165,24 +168,19 @@
         this.switchTab(this.availableTabs[(currentIndex + direction) % this.availableTabs.length]);
       },
       async loadData() {
-        if(!aeternity.static) {
-          this.address = await aeternity.client.address();
-          this.balance = await aeternity.client.getBalance(this.address);
-
-          if (!aeternity.isMainnet() && Util.atomsToAe(this.balance) <= 5) {
-            await fetch(`https://testnet.faucet.aepps.com/account/${this.address}`,
-              {
-                headers: { 'content-type': 'application/x-www-form-urlencoded' },
-                method: 'POST',
-              }).catch(console.error);
-          }
+        if (this.address && this.networkId ==='ae_uat' && this.balance && toAe(this.balance) <= 5) {
+          await fetch(`https://testnet.faucet.aepps.com/account/${this.address}`,
+            {
+              headers: { 'content-type': 'application/x-www-form-urlencoded' },
+              method: 'POST',
+            }).catch(console.error);
         }
 
-        const fetchPolls = aeternity.polls().catch(e => {
+        const fetchPolls = contract.polls().catch(e => {
           console.error(e);
           this.error = 'Could not fetch polls.';
         });
-        const fetchOrdering = new Backend(aeternity.networkId).pollOrdering(false).catch(console.error);
+        const fetchOrdering = new Backend(this.networkId).pollOrdering(false).catch(console.error);
         const [allPolls, pollOrdering] = await Promise.all([fetchPolls, fetchOrdering]);
 
         this.pollOrdering = pollOrdering;
@@ -211,17 +209,17 @@
     },
 
     async mounted() {
-      EventBus.$on('dataChange', this.loadData);
+      this.eventBus.$on('dataChange', this.loadData);
 
       await this.loadData();
     },
     created() {
       this.activeTab = this.$route.query.tab ? this.$route.query.tab : null;
     },
-    beforeDestroy() {
+    beforeUnmount() {
       document.removeEventListener('touchstart', this.touchStartEvent, false);
       document.removeEventListener('touchend', this.touchEndEvent, false);
-      EventBus.$off('dataChange', this.loadData);
+      this.eventBus.$off('dataChange', this.loadData);
     },
   };
 </script>

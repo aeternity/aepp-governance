@@ -1,17 +1,35 @@
-# Governance Aepp Vue.JS Frontend
+# Boilerplate Aepp Vue.JS Frontend
 
-## Setup
+This boilerplate is designed to allow everyone an easy start when building an aepp on 
+top of the aeternity eco system. It contains three critical parts:
+- A custom build pipeline
+- Easy wallet discovery
+- The [aeternity js-sdk](https://github.com/aeternity/aepp-sdk-js)
 
-Clone this repository by running
-```
-git clone git@github.com:aeternity/aepp-governance.git
-```
+## Get started
+
+Clone repo via git or use the template button above.
+
 Install the dependencies
 ```
-cd aepp-governance/governance-aepp && npm install
+npm install
 ```
 
-Once the setup is completed you can simply run
+For development purposes (hot-reloading)
 ```
-npm run dev
+npm run serve
 ```
+
+To build the bundle for production
+```
+npm run build
+```
+
+For running the integration tests
+```
+npm run lint
+```
+
+## Prerequisites
+
+node: '^12.22.0 || ^14.17.0 || >=16.0.0' 

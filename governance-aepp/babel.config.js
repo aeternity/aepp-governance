@@ -1,17 +1,5 @@
 module.exports = {
-  presets: [[
-    //'@vue/app',
-    '@babel/preset-env',
-    {
-      debug: false,
-      useBuiltIns: 'usage',
-      corejs: 3
-    }
-  ]],
-  plugins: [
-    '@babel/plugin-proposal-object-rest-spread',
-    '@babel/plugin-transform-modules-commonjs',
-    '@babel/plugin-proposal-class-properties',
-    '@babel/plugin-transform-block-scoping'
+  presets: [
+    '@vue/cli-plugin-babel/preset'
   ]
-};
+}
