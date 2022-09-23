@@ -30,7 +30,6 @@
 </template>
 <script>
 import AeIdenticon from '@aeternity/aepp-components/src/components/ae-identicon/ae-identicon.vue'
-import {toAe} from "@aeternity/aepp-sdk";
 
     /**
      * Displays an Identity with an avatar blockie, the address and an amount of ether

@@ -1,5 +1,7 @@
-import {createRouter, createWebHistory} from 'vue-router'
+import Vue from 'vue'
+import VueRouter from 'vue-router'
 
+Vue.use(VueRouter)
 
 // route level code-splitting
 // this generates a separate chunk (...[hash].js) for this route
@@ -33,8 +35,9 @@ const routes = [
   }
 ];
 
-const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+const router = new VueRouter({
+  mode: 'history',
+  base: process.env.BASE_URL,
   routes
 })
 
@@ -44,3 +47,4 @@ router.beforeEach((to, from, next) => {
 });
 
 export default router
+
