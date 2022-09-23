@@ -4,11 +4,7 @@
     <HintOverlay></HintOverlay>
     <div class="content min-h-screen max-w-desktop z-10">
       <div class="min-h-screen wrapper" ref="wrapper">
-        <router-view v-if="walletStatus === 'connected'" :resetView="resetView"></router-view>
-        <div class="inset-0 flex justify-center flex-col items-center z-50" v-else>
-          <BiggerLoader></BiggerLoader>
-          <h2 class="mt-2 font-bold">Looking for a wallet. Check for popups.</h2>
-        </div>
+        <router-view :resetView="resetView"></router-view>
         <div class="mb-24">
           <!-- BOTTOM SPACER -->
         </div>
@@ -45,18 +41,12 @@ export default {
       },
     };
   },
-  setup() {
-    const {walletStatus} = toRefs(wallet)
-    return {walletStatus}
-  },
   methods: {
     resetView() {
       this.$refs.wrapper.scrollTo(0, 0);
     },
   },
-  mounted: async () => {
-    await initWallet()
-  },
+
 };
 </script>
 
