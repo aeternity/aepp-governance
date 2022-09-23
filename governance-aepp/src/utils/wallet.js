@@ -6,9 +6,9 @@ import settings from './settings';
 import {reactive, toRefs} from 'vue'
 
 const nodes = [{
-  name: 'ae_uat', instance: new Node('https://testnet.aeternity.io')
-}, {
   name: 'ae_mainnet', instance: new Node('https://mainnet.aeternity.io'),
+}, {
+  name: 'ae_uat', instance: new Node('https://testnet.aeternity.io')
 }]
 
 export let sdk = null

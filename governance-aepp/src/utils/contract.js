@@ -1,38 +1,53 @@
 import settings from './settings';
+import registryInterface from '../assets/contracts/RegistryInterface.aes';
 import pollContractSource from '../assets/contracts/Poll.aes';
 import pollIrisContractSource from '../assets/contracts/Poll_Iris.aes';
+import {toRefs} from "vue";
+import {sdk, wallet} from "@/utils/wallet";
 
-const contract = {};
+const contract = {
+  registry: null
+};
 
-// TODO fix sdk connection
-// TODO expose initialized registry contract
 // TODO adjust ACI usage
 
+contract.init = async () => {
+  if (!contract.registry) {
+    const {networkId} = toRefs(wallet)
+
+    contract.registry = await sdk.getContractInstance({
+      source: registryInterface,
+      contractAddress: settings[networkId.value].contractAddress
+    })
+  }
+}
+
 contract.delegation = async (address) => {
-  return (await aeternity.contract.methods.delegatee(address)).decodedResult;
+  return (await contract.registry.methods.delegatee(address)).decodedResult;
 };
 
 contract.delegations = async (address) => {
-  const delegationsResult = await aeternity.contract.methods.delegators(address, tempCallOptions);
+  const delegationsResult = await contract.registry.methods.delegators(address);
   return Promise.all(delegationsResult.decodedResult.map(async ([delegator, delegatee]) => {
-    const delegateeDelegations = (await aeternity.contract.methods.delegators(delegator, tempCallOptions)).decodedResult;
+    const delegateeDelegations = (await contract.registry.methods.delegators(delegator)).decodedResult;
     return {
       delegator: delegator,
       delegatee: delegatee,
-      delegatorAmount: await aeternity.client.balance(delegator).catch(() => '0'),
+      delegatorAmount: await sdk.getBalance(delegator),
       includesIndirectDelegations: delegateeDelegations.length !== 0,
     };
   }));
 };
 
 contract.polls = async () => {
-  const polls = await aeternity.contract.methods.polls(tempCallOptions);
-  return polls.decodedResult;
+  await contract.init();
+  const polls = await contract.registry.methods.polls();
+  return Array.from(polls.decodedResult.entries());
 };
 
-
 contract.verifyPollContract = async (pollAddress) => {
-  const contractCreateBytecode = fetch(`${settings[aeternity.networkId].middlewareUrl}/v2/txs?contract=${pollAddress}&type=contract_create`).then(async res => {
+  const {networkId} = toRefs(wallet)
+  const contractCreateBytecode = fetch(`${settings[networkId.value].middlewareUrl}/v2/txs?contract=${pollAddress}&type=contract_create`).then(async res => {
     res = await res.json();
     if (res.data.length !== 1) return null;
     const contractCreateTx = res.data[0];
@@ -43,10 +58,10 @@ contract.verifyPollContract = async (pollAddress) => {
     return Promise.all(compilers.map(async compiler => {
       const compilerBytecode = await fetch(`${compiler.url}/compile`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
           code: source,
-          options: { 'backend': 'fate' },
+          options: {'backend': 'fate'},
         }),
       }).then(async res => (await res.json()).bytecode);
 

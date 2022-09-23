@@ -137,12 +137,12 @@
       }
     },
     created() {
-      this.eventBus.$on('dataChange', this.loadData)
+      this.eventBus.on('dataChange', this.loadData)
       this.loadData();
       this.open = this.startOpen;
     },
     beforeUnmount() {
-      this.eventBus.$off('dataChange', this.loadData)
+      this.eventBus.off('dataChange', this.loadData)
     }
   }
 </script>

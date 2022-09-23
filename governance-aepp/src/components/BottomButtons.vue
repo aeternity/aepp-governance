@@ -118,13 +118,6 @@
         else if (this.view === 'search') this.view = 'buttons';
       },
     },
-    created() {
-      this.eventBus.$on('dataChange', this.loadData)
-      this.loadData()
-    },
-    beforeUnmount() {
-      this.eventBus.$off('dataChange', this.loadData)
-    }
   }
 </script>
 

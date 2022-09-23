@@ -262,14 +262,14 @@ import {sdk, wallet} from "@/utils/wallet";
       }
     },
     async mounted() {
-      this.eventBus.$on('dataChange', this.goToOwnAccountPage)
+      this.eventBus.on('dataChange', this.goToOwnAccountPage)
       await this.loadData();
       this.activeTab = this.$route.query.tab ? this.$route.query.tab : "delegations";
       document.addEventListener('touchstart', this.touchStartEvent, false);
       document.addEventListener('touchend', this.touchEndEvent, false);
     },
     beforeUnmount() {
-      this.eventBus.$off('dataChange', this.goToOwnAccountPage)
+      this.eventBus.off('dataChange', this.goToOwnAccountPage)
       document.removeEventListener('touchstart', this.touchStartEvent, false);
       document.removeEventListener('touchend', this.touchEndEvent, false);
     }

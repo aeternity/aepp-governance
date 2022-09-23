@@ -45,7 +45,7 @@
 </template>
 
 <script>
-  import {wallet} from '@/utils/wallet';
+import {initWallet, sdk, wallet} from '@/utils/wallet';
   import Backend from '../utils/backend';
   import BiggerLoader from '../components/BiggerLoader';
   import PollListing from '../components/PollListing';
@@ -81,8 +81,8 @@
       };
     },
     setup() {
-      const {address, balance} = toRefs(wallet)
-      return {address, balance}
+      const {address, balance, networkId} = toRefs(wallet)
+      return {address, balance, networkId}
     },
     watch: {
       '$route.query.tab'() {
@@ -187,7 +187,7 @@
         this.allPolls = allPolls.filter(([_, data]) => data.title.length <= 50);
 
         if (this.allPolls) {
-          let height = await aeternity.client.height()
+          let height = await sdk.getHeight()
           this.closedPolls = this.allPolls.filter(([_, data]) => data.is_listed).filter(poll => typeof poll[1].close_height === 'number' && poll[1].close_height <= height);
           this.activePolls = this.allPolls.filter(([_, data]) => data.is_listed).filter(poll => typeof poll[1].close_height !== 'number' || poll[1].close_height > height);
         }
@@ -209,7 +209,11 @@
     },
 
     async mounted() {
-      this.eventBus.$on('dataChange', this.loadData);
+      console.log("mounted")
+      console.log("")
+      this.eventBus.on('dataChange', this.loadData);
+      await initWallet()
+      await contract.init()
 
       await this.loadData();
     },
@@ -219,7 +223,7 @@
     beforeUnmount() {
       document.removeEventListener('touchstart', this.touchStartEvent, false);
       document.removeEventListener('touchend', this.touchEndEvent, false);
-      this.eventBus.$off('dataChange', this.loadData);
+      this.eventBus.off('dataChange', this.loadData);
     },
   };
 </script>

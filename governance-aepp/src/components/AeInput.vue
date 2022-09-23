@@ -40,7 +40,8 @@
   </div>
 </template>
 <script>
-import { events } from '@aeternity/aepp-components/src/mixins';
+
+import events from "@/utils/events";
 
 export default {
   name: 'ae-input',
@@ -83,10 +84,10 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-@import '~@aeternity/aepp-components/src/styles/globals/mixins';
-@import '~@aeternity/aepp-components/src/styles/variables/animations';
-@import '~@aeternity/aepp-components/src/styles/variables/colors';
-@import '~@aeternity/aepp-components/src/styles/placeholders/typography';
+@import '@/styles/mixins.scss';
+@import '@/styles/animations.scss';
+@import '@/styles/colors.scss';
+@import '@/styles/typography.scss';
 
 .ae-input-container {
   user-select: none;
