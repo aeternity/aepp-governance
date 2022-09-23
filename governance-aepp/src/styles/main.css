@@ -9,7 +9,7 @@
  *
  * @import "tailwindcss/base";
  */
-@import "tailwindcss/base";
+@import "../../node_modules/tailwindcss/base.css";
 /**
  * This injects any component classes registered by plugins.
  *
@@ -17,7 +17,7 @@
  *
  * @import "tailwindcss/components";
  */
-@import "tailwindcss/components";
+@import "../../node_modules/tailwindcss/components.css";
 /**
  * Here you would add any of your custom component classes; stuff that you'd
  * want loaded *before* the utilities so that the utilities could still
@@ -41,7 +41,7 @@
  *
  * @import "tailwindcss/utilities";
  */
-@import "tailwindcss/utilities";
+@import "../../node_modules/tailwindcss/utilities.css";
 
 /**
  * Here you would add any custom utilities you need that don't come out of the

@@ -152,10 +152,6 @@
 </template>
 
 <script>
-
-  import "@aeternity/aepp-components/dist/ae-check/ae-check.css"
-  import AeCheck from "@aeternity/aepp-components/dist/ae-check/"
-
   import {sdk, wallet} from "@/utils/wallet";
   import pollContractSource from '../assets/contracts/PollInterface.aes';
   import Backend from "../utils/backend";
@@ -170,6 +166,7 @@
   import HintBubble from "../components/HintBubble";
   import contract from "@/utils/contract";
   import {toRefs} from "vue";
+  import AeCheck from "@/components/aepp/AeCheck";
 
   export default {
     name: 'PollPage',
@@ -344,7 +341,7 @@
       }
     },
     async mounted() {
-      this.eventBus.$on('dataChange', this.loadData)
+      this.eventBus.on('dataChange', this.loadData)
       try {
         await this.loadData();
       } catch (e) {
@@ -357,7 +354,7 @@
       }
     },
     beforeUnmount() {
-      this.eventBus.$off('dataChange', this.loadData)
+      this.eventBus.off('dataChange', this.loadData)
     }
   };
 </script>

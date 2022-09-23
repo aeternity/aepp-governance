@@ -8,8 +8,8 @@ module.exports = {
     config.module
       .rule('aes')
       .test(/\.aes$/)
-      .use('file-loader')
-      .loader('file-loader')
+      .use('raw-loader')
+      .loader('raw-loader')
       .end()
   }
 

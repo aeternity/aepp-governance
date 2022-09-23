@@ -27,15 +27,11 @@
 </template>
 
 <script>
-
-  import "@aeternity/aepp-components/dist/aeLoader/aeLoader.css"
-  import AeLoader from "@aeternity/aepp-components/dist/aeLoader/"
-
-
   import Backend from "../utils/backend";
   import AeIdentityLight from './AeIdentityLight'
   import {sdk, wallet} from "@/utils/wallet";
   import {toRefs} from "vue";
+  import AeLoader from "@/components/aepp/AeLoader";
 
   export default {
     components: {AeLoader, AeIdentityLight},

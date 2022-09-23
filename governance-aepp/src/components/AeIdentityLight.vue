@@ -29,8 +29,8 @@
   </div>
 </template>
 <script>
-import AeIdenticon from '@aeternity/aepp-components/src/components/ae-identicon/ae-identicon.vue'
-import {toAe} from "@aeternity/aepp-sdk";
+
+import AeIdenticon from "@/components/aepp/AeIdenticon";
 
     /**
      * Displays an Identity with an avatar blockie, the address and an amount of ether
@@ -104,7 +104,7 @@ import {toAe} from "@aeternity/aepp-sdk";
     }
 </script>
 <style lang="scss" scoped>
-  @import '~@aeternity/aepp-components/src/styles/fallback/variables';
+  @import '@/styles/variables.scss';
 
   .ae-identity-light._invert {
     color: $white;
