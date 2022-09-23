@@ -114,8 +114,8 @@ import {initWallet, sdk, wallet} from '@/utils/wallet';
 
         switch (this.activeTab) {
           case 'hot':
-            this.polls = this.activePolls.filter(([id, _]) => this.pollOrdering.ordering.includes(id)).sort((a, b) => {
-              return this.pollOrdering.ordering.indexOf(a[0]) - this.pollOrdering.ordering.indexOf(b[0]);
+            this.polls = this.activePolls.filter(([id, _]) => this.pollOrdering.ordering.includes(Number(id))).sort((a, b) => {
+              return this.pollOrdering.ordering.indexOf(Number(a[0])) - this.pollOrdering.ordering.indexOf(Number(b[0]));
             });
             break;
           case 'stake':
@@ -124,19 +124,19 @@ import {initWallet, sdk, wallet} from '@/utils/wallet';
               return new BigNumber(b.totalStake).comparedTo(a.totalStake);
             }).map(poll => poll.id);
             this.polls = this.activePolls.sort((a, b) => {
-              return stakeOrdering.indexOf(a[0]) - stakeOrdering.indexOf(b[0]);
+              return stakeOrdering.indexOf(Number(a[0])) - stakeOrdering.indexOf(Number(b[0]));
             });
             break;
           case 'closing':
             this.polls = this.activePolls.filter(([_, data]) => data.close_height).sort((a, b) => {
-              return (a[1].close_height || b[1].close_height) ? (!a[1].close_height ? 1 : !b[1].close_height ? 1 : a[1].close_height - b[1].close_height) : 0;
+              return (a[1].close_height || b[1].close_height) ? (!a[1].close_height ? 1 : !b[1].close_height ? 1 : Number(a[1].close_height) - Number(b[1].close_height)) : 0;
             });
             break;
           case 'new':
-            this.polls = this.activePolls.sort((a, b) => b[0] - a[0]);
+            this.polls = this.activePolls.sort((a, b) => Number(b[0]) - Number(a[0]));
             break;
           case 'closed':
-            this.polls = this.closedPolls.sort((a, b) => b[1].close_height - a[1].close_height);
+            this.polls = this.closedPolls.sort((a, b) => Number(b[1].close_height) - Number(a[1].close_height));
             break;
         }
       },
@@ -187,9 +187,10 @@ import {initWallet, sdk, wallet} from '@/utils/wallet';
         this.allPolls = allPolls.filter(([_, data]) => data.title.length <= 50);
 
         if (this.allPolls) {
-          let height = await sdk.getHeight()
-          this.closedPolls = this.allPolls.filter(([_, data]) => data.is_listed).filter(poll => typeof poll[1].close_height === 'number' && poll[1].close_height <= height);
-          this.activePolls = this.allPolls.filter(([_, data]) => data.is_listed).filter(poll => typeof poll[1].close_height !== 'number' || poll[1].close_height > height);
+          let height = BigInt(await sdk.getHeight())
+
+          this.closedPolls = this.allPolls.filter(([_, poll]) => poll.is_listed).filter(([_, poll]) => poll.close_height && poll.close_height <= height);
+          this.activePolls = this.allPolls.filter(([_, poll]) => poll.is_listed).filter(([_, poll]) => !poll.close_height || poll.close_height > height);
         }
 
         // Only overwrite if active tab is not set yet
@@ -209,8 +210,6 @@ import {initWallet, sdk, wallet} from '@/utils/wallet';
     },
 
     async mounted() {
-      console.log("mounted")
-      console.log("")
       this.eventBus.on('dataChange', this.loadData);
       await initWallet()
       await contract.init()
