@@ -24,7 +24,7 @@
           />
         </div>
         <div class="text-sm font-bold font-mono ml-auto" v-if="balance !== null">
-          {{balance | toAE}}
+          {{toAE(balance)}}
         </div>
         <div class="w-5" v-if="canOpen"></div>
       </div>
@@ -35,7 +35,7 @@
           Delegators votes can overwrite delegation
         </div>
         <div class="text-sm font-bold font-mono ml-auto text-right">
-          {{delegatedPower | toAE}}
+          {{toAE(delegatedPower)}}
         </div>
         <div class="w-5" v-if="canOpen"></div>
       </div>
@@ -51,7 +51,7 @@
           Estimated voting power
         </div>
         <div class="text-sm font-bold font-mono ml-auto leading-tight mt-1" v-if="totalStake">
-          {{totalStake | toAE}}
+          {{toAE(totalStake)}}
         </div>
         <div class="w-5 flex justify-center items-center ml-2 ae-transition-300" v-if="canOpen" @click="open = !open"
              :class="{'rotate-90': open}">
@@ -70,6 +70,7 @@
   import BigNumber from "bignumber.js";
   import copy from 'copy-to-clipboard';
   import {toRefs} from "vue";
+  import {toAE} from "@/utils/filters";
 
   export default {
     name: "AccountHeader",
@@ -108,9 +109,10 @@
       return {walletAddress: address, walletStatus, activeWallet, networkId, isStatic}
     },
     methods: {
+      toAE: toAE,
       async loadData() {
         if(!this.isStatic) this.isOwnAccount = this.walletAddress === this.address;
-        this.balance = await sdk.client.getBalance(this.address);
+        this.balance = await sdk.getBalance(this.address);
         await new Backend(this.networkId).delegatedPower(this.address, this.pollAddress).then(delegatedPower => {
           if(delegatedPower === null) {
             this.totalStake = new BigNumber(this.balance);

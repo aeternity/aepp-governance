@@ -4,7 +4,13 @@
     <HintOverlay></HintOverlay>
     <div class="content min-h-screen max-w-desktop z-10">
       <div class="min-h-screen wrapper" ref="wrapper">
-        <router-view :resetView="resetView"></router-view>
+        <router-view v-if="isConnected" :resetView="resetView"></router-view>
+        <template v-else>
+          <div class="inset-0 flex justify-center flex-col items-center z-50">
+            <BiggerLoader></BiggerLoader>
+            <h2 class="mt-2 font-bold">Looking for a wallet. Check for popups.</h2>
+          </div>
+        </template>
         <div class="mb-24">
           <!-- BOTTOM SPACER -->
         </div>
@@ -27,6 +33,7 @@ import BiggerLoader from './components/BiggerLoader';
 import HintOverlay from './components/HintOverlay';
 import {toRefs} from "vue";
 import {initWallet} from './utils/wallet'
+import contract from "@/utils/contract";
 
 export default {
   name: 'App',
@@ -36,10 +43,26 @@ export default {
       error: null,
       errorCTA: null,
       foundWallet: false,
+      isConnected: false,
       ignoreErrors: (window.location.host.includes('localhost') || window.location.host.includes('0.0.0.0')),
       errorClick: () => {
       },
     };
+  },
+  setup() {
+    const {walletStatus} = toRefs(wallet)
+    return {walletStatus}
+  },
+  watch: {
+    async walletStatus(status) {
+      if (status === 'connected' && !this.isConnected) {
+        await contract.init();
+        this.isConnected = true
+      }
+    }
+  },
+  mounted: async () => {
+    await initWallet()
   },
   methods: {
     resetView() {

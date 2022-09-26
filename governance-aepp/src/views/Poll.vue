@@ -54,16 +54,16 @@
 
       <div class="text-center w-full mt-2 text-gray-500 text-sm">
         <div class="inline-block" v-if="pollVotesState && pollVotesState.totalStake">
-          Stake: {{pollVotesState.totalStake | toAE(0)}} ({{pollVotesState.percentOfTotalSupply | formatPercent(2)}})
+          Stake: {{toAE(pollVotesState.totalStake)}} ({{formatPercent(pollVotesState.percentOfTotalSupply, 2)}})
         </div>
         <div v-if="typeof pollState.close_height !== 'number'" class="inline-block">
           - Closes never
         </div>
         <div v-else-if="!isClosed">
-          Closes in ~{{timeDifference | timeDifferenceToString}} (Block {{pollState.close_height}})
+          Closes in ~{{timeDifferenceString}} (Block {{pollState.close_height}})
         </div>
         <div v-else-if="isClosed && closeBlock">
-          Closed on {{closeBlock.keyBlock.time | timeStampToString}} (Block {{pollState.close_height}})
+          Closed on {{closeBlockTimeString}} (Block {{pollState.close_height}})
         </div>
         <div v-else-if="isClosed && !closeBlock">
           Closed at block {{pollState.close_height}}
@@ -92,8 +92,8 @@
                 <!-- TODO find better solution than this -->
                 <div class="mr-auto ml-2" style="margin-top: 4px">
               <span
-                class="font-bold" v-if="pollVotesState">{{pollVotesState.stakesForOption[id].percentageOfTotal | formatPercent}}</span>
-                  <span>{{title}}</span>
+                class="font-bold" v-if="pollVotesState">{{formatPercent(pollVotesState.stakesForOption[id].percentageOfTotal)}}</span>
+                  <span>&nbsp;{{title}}</span>
                 </div>
                 <div class="min-w-3" style="margin-top: 4px" v-if="pollVotesState">
                   <img src="../assets/back_gray.svg" class="ae-transition-300" alt="show poll state"
@@ -107,8 +107,8 @@
             </div>
             <div class="text-gray-500 text-sm mx-4" v-show="votersForOption.id != null && votersForOption.id === id">
               <div class="text-gray-500 text-sm my-1 mx-2" v-if="pollVotesState">
-                {{pollVotesState.stakesForOption[id].percentageOfTotal | formatPercent(2)}}
-                ({{pollVotesState.stakesForOption[id].optionStake | toAE}}) -
+                {{formatPercent(pollVotesState.stakesForOption[id].percentageOfTotal, 2)}}
+                ({{toAE(pollVotesState.stakesForOption[id].optionStake)}}) -
                 {{pollVotesState.stakesForOption[id].votes.length}} Votes -
                 {{pollVotesState.stakesForOption[id].delegatorsCount}} Delegators
               </div>
@@ -167,6 +167,7 @@
   import contract from "@/utils/contract";
   import {toRefs} from "vue";
   import AeCheck from "@/components/aepp/AeCheck";
+  import {formatPercent, timeDifferenceToString, timeStampToString, toAE} from "@/utils/filters";
 
   export default {
     name: 'PollPage',
@@ -199,16 +200,24 @@
       };
     },
     setup() {
-      const {address, balance} = toRefs(wallet)
+      const {address, balance, networkId} = toRefs(wallet)
 
-      return {accountAddress: address, balance}
+      return {accountAddress: address, balance, networkId}
     },
     computed: {
       timeDifference() {
         return (this.pollState.close_height - this.height) * 3 * 60 * 1000;
+      },
+      timeDifferenceString() {
+        return timeDifferenceToString(this.timeDifference)
+      },
+      closeBlockTimeString() {
+        return timeStampToString(this.closeBlock.keyBlock.time)
       }
     },
     methods: {
+      formatPercent: formatPercent,
+      toAE: toAE,
       openLink(mode, url) {
         let target = url ? url : this.pollState.metadata.link;
 
@@ -297,7 +306,7 @@
         });
 
         const fetchPollState = (async () => {
-          this.pollContract = await sdk.client.getContractInstance({source: pollContractSource, contractAddress: await fetchPollAddress});
+          this.pollContract = await sdk.getContractInstance({source: pollContractSource, contractAddress: await fetchPollAddress});
           this.pollState = (await this.pollContract.methods.get_state()).decodedResult;
           this.isClosed = this.pollState.close_height <= parseInt(await sdk.getHeight());
           try {
@@ -305,7 +314,7 @@
           } catch (e) {
             // The base-aepp SDK does not support this function yet
           }
-          const accountVote = this.pollState.votes.find(([voter, _]) => voter === this.accountAddress);
+          const accountVote = Array.from(this.pollState.votes.entries()).find(([voter, _]) => voter === this.accountAddress);
           this.voteOption = accountVote ? accountVote[1] : null;
         })().catch(e => {
           console.error(e);

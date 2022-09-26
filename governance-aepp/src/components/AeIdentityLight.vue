@@ -5,7 +5,7 @@
       <span :class="['identity-name-position', collapsedModifier]">
         <span role="heading" :class="['identity-name', collapsedModifier]">{{ name }}</span>
         <small class="truncated-address cursor-pointer" v-if="collapsed" @click="$emit('click')">
-           {{ shorten(address) }} •••
+           {{ shortAddress }} •••
         </small>
       </span>
       <div class="balances">
@@ -31,6 +31,7 @@
 <script>
 
 import AeIdenticon from "@/components/aepp/AeIdenticon";
+import {shorten, toAE} from "@/utils/filters";
 
     /**
      * Displays an Identity with an avatar blockie, the address and an amount of ether
@@ -77,6 +78,9 @@ import AeIdenticon from "@/components/aepp/AeIdenticon";
                 default: false,
             },
         },
+        methods:  {
+          toAE: toAE
+        },
         computed: {
             classObject() {
                 return [
@@ -97,9 +101,9 @@ import AeIdenticon from "@/components/aepp/AeIdenticon";
             collapsedModifier() {
                 return this.collapsed ? '_collapsed' : ''
             },
-        },
-        filters: {
-            shorten: value => value.substr(0, 12),
+            shortAddress() {
+              return shorten(this.address)
+            }
         },
     }
 </script>

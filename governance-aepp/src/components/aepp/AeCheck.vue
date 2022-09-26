@@ -33,7 +33,7 @@ export default {
     /**
      * value of component
      */
-    value: { type: [String, Number, Boolean], default: undefined },
+    value: { type: [String, Number, Boolean, BigInt], default: undefined },
     checked: { type: [Array, String, Number, Boolean], default: false },
     /**
      * Define the type of the input
