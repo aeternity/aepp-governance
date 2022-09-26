@@ -65,7 +65,7 @@
     <div v-if="activeTab === 'votes'" id="account-tab-votes">
       <div v-if="votedInPolls.length" class="mt-1">
         <div class="my-2" v-for="[id, data] in votedInPolls" :key="id">
-          <PollListing :id="id" :data="data" :showVote="true" class="mx-4"/>
+          <PollListing :id="Number(id)" :data="data" :showVote="true" class="mx-4"/>
         </div>
       </div>
       <div v-else class="text-gray-500 text-xl text-center my-8">
@@ -75,7 +75,7 @@
     <div v-if="activeTab === 'polls'" id="account-tab-polls">
       <div v-if="authorOfPolls.length" class="mt-1">
         <div class="my-2" v-for="[id, data] in authorOfPolls" :key="id">
-          <PollListing :id="id" :data="data" class="mx-4"/>
+          <PollListing :id="Number(id)" :data="data" class="mx-4"/>
         </div>
       </div>
       <div v-else class="text-gray-500 text-xl text-center py-4 my-4">

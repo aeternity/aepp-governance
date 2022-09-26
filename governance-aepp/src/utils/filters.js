@@ -1,14 +1,3 @@
-import BlockchainUtil from "./util";
-
-export function toAE(num, decimalPlaces) {
-  if (num) {
-    if(typeof decimalPlaces === 'undefined') decimalPlaces = 2;
-    return BlockchainUtil.atomsToAe(num).toFixed(decimalPlaces) + " AE";
-  } else {
-    return "";
-  }
-}
-
 export function formatPercent(num, decimalPlaces) {
   if (num) {
     if(typeof decimalPlaces === 'undefined') decimalPlaces = 0;

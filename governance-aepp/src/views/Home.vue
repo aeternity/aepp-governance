@@ -29,7 +29,7 @@
       <transition name="fade">
         <div v-show="polls" class="mx-4 mt-6" :key="activeTab">
           <div class="my-2" :key="id" v-for="[id, data] in polls">
-            <PollListing :id="id" :data="data"/>
+            <PollListing :id="Number(id)" :data="data"/>
           </div>
         </div>
       </transition>
