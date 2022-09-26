@@ -8,20 +8,20 @@
         {{activeTab}} Polls
       </BlackHeader>
       <div class="flex bg-gray-ae text-gray-200" id="home-tab-switcher">
-        <div v-if="pollOrdering" :class="{active: activeTab === 'hot'}" @click="switchTab('hot')" class="tab">
-          <span>HOT</span>
+        <div v-if="pollOrdering" :class="{active: activeTab === 'hot'}" @click="switchTab('hot')" class="tab flex-1 text-center pb-2 relative">
+          <span class="cursor-pointer inline-block">HOT</span>
         </div>
-        <div :class="{active: activeTab === 'closing'}" @click="switchTab('closing')" class="tab">
-          <span>CLOSING</span>
+        <div :class="{active: activeTab === 'closing'}" @click="switchTab('closing')" class="tab flex-1 text-center pb-2 relative">
+          <span class="cursor-pointer inline-block">CLOSING</span>
         </div>
-        <div v-if="pollOrdering" :class="{active: activeTab === 'stake'}" @click="switchTab('stake')" class="tab">
-          <span>STAKE</span>
+        <div v-if="pollOrdering" :class="{active: activeTab === 'stake'}" @click="switchTab('stake')" class="tab flex-1 text-center pb-2 relative">
+          <span class="cursor-pointer inline-block">STAKE</span>
         </div>
-        <div :class="{active: activeTab === 'new'}" @click="switchTab('new')" class="tab">
-          <span>NEW</span>
+        <div :class="{active: activeTab === 'new'}" @click="switchTab('new')" class="tab flex-1 text-center pb-2 relative">
+          <span class="cursor-pointer inline-block">NEW</span>
         </div>
-        <div :class="{active: activeTab === 'closed'}" @click="switchTab('closed')" class="tab">
-          <span>CLOSED</span>
+        <div :class="{active: activeTab === 'closed'}" @click="switchTab('closed')" class="tab flex-1 text-center pb-2 relative">
+          <span class="cursor-pointer inline-block">CLOSED</span>
         </div>
       </div>
     </div>
@@ -227,22 +227,17 @@ import {initWallet, sdk, wallet} from '@/utils/wallet';
   };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
   .bg-gray-ae {
     background-color: #333333;
   }
 
   .tab {
-    @apply flex-1 text-center pb-2 relative;
     font-size: .825rem;
   }
 
   .tab.active {
     font-weight: bold;
-  }
-
-  .tab span {
-    @apply cursor-pointer inline-block;
   }
 
   .tab.active::after {
