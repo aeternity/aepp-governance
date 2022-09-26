@@ -159,6 +159,8 @@
   }
 
   button[disabled] {
-    @apply text-gray-500 cursor-not-allowed
+    /* workaround for @apply text-gray-500 cursor-not-allowed*/
+    color: #a0aec0;
+    cursor: not-allowed;
   }
 </style>
