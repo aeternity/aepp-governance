@@ -28,7 +28,7 @@ contract.delegation = async (address) => {
 
 contract.delegations = async (address) => {
   const delegationsResult = await contract.registry.methods.delegators(address);
-  return Promise.all(delegationsResult.decodedResult.map(async ([delegator, delegatee]) => {
+  return Promise.all(Array.from(delegationsResult.decodedResult.entries()).map(async ([delegator, delegatee]) => {
     const delegateeDelegations = (await contract.registry.methods.delegators(delegator)).decodedResult;
     return {
       delegator: delegator,
