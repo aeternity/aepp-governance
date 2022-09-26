@@ -211,8 +211,6 @@ import {initWallet, sdk, wallet} from '@/utils/wallet';
 
     async mounted() {
       this.eventBus.on('dataChange', this.loadData);
-      await initWallet()
-      await contract.init()
 
       await this.loadData();
     },

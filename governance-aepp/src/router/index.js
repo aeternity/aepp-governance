@@ -7,11 +7,6 @@ import {createRouter, createWebHistory} from 'vue-router'
 const routes = [
   {
     path: '/',
-    name: 'walletcheck',
-    component: () => import(/* webpackChunkName: "home" */ '../views/WalletCheck.vue'),
-    meta: {title: 'WalletCheck'}
-  }, {
-    path: '/home',
     name: 'home',
     component: () => import(/* webpackChunkName: "home" */ '../views/Home.vue'),
     meta: {title: 'Home'}
