@@ -16,11 +16,11 @@
         <img src="../assets/check_circle-24px.svg" class="mb-1"> <span class="pl-1 leading-none text-gray-600">{{data.vote}}</span>
       </div>
       <div class="text-gray-500 text-sm mt-1">
-        <span v-if="percentOfTotalSupply">{{percentOfTotalSupply | formatPercent(2)}} stake - </span>
+        <span v-if="percentOfTotalSupply">{{percentOfTotalSupply}} stake - </span>
         <span v-else-if="loading"><ae-loader/> stake - </span>
-        <span v-if="isClosed">closed at {{data.close_height}} (~{{Math.abs(timeDifference) | timeDifferenceToString}} ago)</span>
-        <span v-else-if="typeof data.close_height !== 'number'">never closes</span>
-        <span v-else>closes in {{timeDifference | timeDifferenceToString}}</span>
+        <span v-if="isClosed">closed at {{data.close_height}} (~{{absTimeDifferenceString}} ago)</span>
+        <span v-else-if="typeof data.close_height !== 'bigint'">never closes</span>
+        <span v-else>closes in {{timeDifferenceString}}</span>
       </div>
     </div>
   </div>
@@ -32,6 +32,7 @@
   import {sdk, wallet} from "@/utils/wallet";
   import {toRefs} from "vue";
   import AeLoader from "@/components/aepp/AeLoader";
+  import {formatPercent, timeDifferenceToString} from "@/utils/filters";
 
   export default {
     components: {AeLoader, AeIdentityLight},
@@ -61,16 +62,22 @@
     },
     computed: {
       isClosed() {
-        return this.data.close_height < this.height
+        return Number(this.data.close_height) < this.height
       },
       timeDifference() {
-        return (this.data.close_height - this.height) * 3 * 60 * 1000;
+        return (Number(this.data.close_height) - this.height) * 3 * 60 * 1000;
+      },
+      timeDifferenceString() {
+        return timeDifferenceToString(this.timeDifference)
+      },
+      absTimeDifferenceString() {
+        return timeDifferenceToString(Math.abs(this.timeDifference))
       }
     },
     async mounted() {
       new Backend(this.networkId).pollOverview(this.data.poll).then(overview => {
         if(overview !== null) {
-          this.percentOfTotalSupply = overview.percentOfTotalSupply;
+          this.percentOfTotalSupply = overview.percentOfTotalSupply ? formatPercent(overview.percentOfTotalSupply, 2): null;
           this.voteCount = overview.voteCount;
         }
         this.loading = false;
