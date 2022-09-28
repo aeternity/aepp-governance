@@ -85,7 +85,6 @@ export default {
     },
 
     propagateEventValue(event) {
-      console.log('update:modelValue', event.target.value)
       this.$emit('update:modelValue', event.target.value);
     },
   }
