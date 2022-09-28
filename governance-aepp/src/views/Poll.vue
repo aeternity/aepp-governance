@@ -317,7 +317,6 @@
           }
           const accountVote = Array.from(this.pollState.votes.entries()).find(([voter, _]) => voter === this.accountAddress);
           this.voteOption = accountVote ? Number(accountVote[1]) : null;
-          console.log(this.pollState.vote_options, this.voteOption);
         })().catch(e => {
           console.error(e);
           this.error = 'Could not fetch poll state.';

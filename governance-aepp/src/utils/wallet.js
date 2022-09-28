@@ -17,7 +17,7 @@ export const wallet = reactive({
   activeWallet: null, address: null, balance: null, walletStatus: null, isStatic: false, networkId: null,
 })
 
-export const initWallet = async () => {
+export const initWallet = async (eventBus) => {
   const {walletStatus, isStatic, networkId} = toRefs(wallet)
 
   walletStatus.value = 'connecting'
@@ -28,9 +28,11 @@ export const initWallet = async () => {
       name: 'AEPP', nodes, compilerUrl: settings.compilerUrl, onNetworkChange: async (network) => {
         console.info('onNetworkChange:', network)
         await aeConnectToNode(network.networkId)
+        if (eventBus) eventBus.emit('dataChange');
       }, onAddressChange: async (addresses) => {
         console.info('onAddressChange:', addresses)
         await aeConnectToNode(networkId.value)
+        if (eventBus) eventBus.emit('dataChange');
       },
     })
 

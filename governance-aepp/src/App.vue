@@ -50,10 +50,13 @@ export default {
     };
   },
   setup() {
-    const {walletStatus} = toRefs(wallet)
-    return {walletStatus}
+    const {walletStatus, networkId} = toRefs(wallet)
+    return {walletStatus, networkId}
   },
   watch: {
+    networkId() {
+      this.isConnected = false;
+    },
     async walletStatus(status) {
       if (status === 'connected' && !this.isConnected) {
         await contract.init();
@@ -61,8 +64,8 @@ export default {
       }
     }
   },
-  mounted: async () => {
-    await initWallet()
+  async mounted() {
+    await initWallet(this.eventBus)
   },
   methods: {
     resetView() {

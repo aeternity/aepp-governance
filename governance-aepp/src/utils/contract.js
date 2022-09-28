@@ -12,14 +12,12 @@ const contract = {
 // TODO adjust ACI usage
 
 contract.init = async () => {
-  if (!contract.registry) {
-    const {networkId} = toRefs(wallet)
+  const {networkId} = toRefs(wallet)
 
-    contract.registry = await sdk.getContractInstance({
-      source: registryInterface,
-      contractAddress: settings[networkId.value].contractAddress
-    })
-  }
+  contract.registry = await sdk.getContractInstance({
+    source: registryInterface,
+    contractAddress: settings[networkId.value].contractAddress
+  })
 }
 
 contract.delegation = async (address) => {
