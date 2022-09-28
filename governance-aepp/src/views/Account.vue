@@ -12,7 +12,7 @@
         <ae-identity-light
           :collapsed="true"
           :balance="''"
-          @click="$router.push(`/account/${delegation}`)"
+          @click="switchAccount(delegation)"
           :address="delegation"
         />
         <div v-if="isOwnAccount" class="flex ml-auto">
@@ -45,6 +45,7 @@
     </div>
 
     <div v-if="activeTab === 'delegations'" id="account-tab-delegations">
+      <span v-if="activeTab === 'delegations'" hidden>{{activeTab}}</span>
       <div v-if="delegations.length">
         <div v-for="{delegator, delegatorAmount, includesIndirectDelegations} in delegations"
              :key="delegator" class="ae-card py-4 mx-4 my-2">
@@ -52,7 +53,7 @@
             :collapsed="true"
             :balance="delegatorAmount"
             :address="delegator"
-            @click="$router.push(`/account/${delegator}`)"
+            @click="switchAccount(delegator)"
             class="mx-4"
           />
           <div v-if="includesIndirectDelegations" class="mx-4 mt-1 text-xs">(includes more indirect delegations)</div>
@@ -63,6 +64,7 @@
       </div>
     </div>
     <div v-if="activeTab === 'votes'" id="account-tab-votes">
+      <span v-if="activeTab === 'votes'" hidden>{{activeTab}}</span>
       <div v-if="votedInPolls.length" class="mt-1">
         <div class="my-2" v-for="[id, data] in votedInPolls" :key="id">
           <PollListing :id="Number(id)" :data="data" :showVote="true" class="mx-4"/>
@@ -73,6 +75,7 @@
       </div>
     </div>
     <div v-if="activeTab === 'polls'" id="account-tab-polls">
+      <span v-if="activeTab === 'polls'" hidden>{{activeTab}}</span>
       <div v-if="authorOfPolls.length" class="mt-1">
         <div class="my-2" v-for="[id, data] in authorOfPolls" :key="id">
           <PollListing :id="Number(id)" :data="data" class="mx-4"/>
@@ -84,7 +87,7 @@
     </div>
     <BottomButtons htmlId="account-nav-buttons" :search-bar="true" :search-button="true" @searchSubmit="handleSearch"
                    :key="`bottomButtons${address}`"/>
-    <div class="fixed flex bottom-36 px-8 w-full" v-if="searchError">
+    <div class="fixed bottom-36 px-8 w-full max-w-desktop" v-if="searchError" @click.once="searchError = null">
       <div class="flex-1 rounded-full bg-gray-500 text-white px-4 py-2 ae-error-field">
         {{searchError}}
       </div>
@@ -108,7 +111,7 @@ import {sdk, wallet} from "@/utils/wallet";
   import contract from "@/utils/contract";
   import {toRefs} from "vue";
 
-  export default {
+export default {
     name: 'AccountPage',
     components: {
       CriticalErrorOverlay,
@@ -136,25 +139,28 @@ import {sdk, wallet} from "@/utils/wallet";
       }
     },
     setup() {
-      const { networkId,isStatic, address} = toRefs(wallet)
-
+      const {networkId, isStatic, address} = toRefs(wallet)
       return {networkId, isStatic, accountAddress: address}
     },
     computed: {},
-    beforeRouteUpdate(to, from, next) {
-      next();
-      if (this.address !== this.$route.params.account) this.loadData();
-      else this.activeTab = this.$route.query.tab ? this.$route.query.tab : 'delegations'
+    watch: {
+      $route(to){
+        if (this.address !== to.params.account) this.loadData();
+        else this.activeTab = to.query.tab ? to.query.tab : 'delegations'
+      }
     },
     methods: {
       handleSearch(searchText) {
-        this.searchError = '';
+        this.searchError = null;
         if (!searchText) return this.searchError = 'Please enter an address';
         if (Crypto.isAddressValid(searchText)) {
-          this.$router.push(`/account/${searchText}`)
+          this.switchAccount(searchText)
         } else {
           this.searchError = 'The address is not valid'
         }
+      },
+      switchAccount(account) {
+        if (account) this.$router.push({name: 'account', params: {account}});
       },
       switchTab(newTab) {
         if (this.activeTab !== newTab) this.$router.push({query: {tab: newTab}})
@@ -258,7 +264,7 @@ import {sdk, wallet} from "@/utils/wallet";
         this.showLoading = false;
       },
       async goToOwnAccountPage() {
-        await this.$router.push(`/account/${this.accountAddress}`)
+        await this.switchAccount(this.accountAddress)
       }
     },
     async mounted() {

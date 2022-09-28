@@ -8,7 +8,7 @@
           <input v-model="searchString" type="search" placeholder="Search..."
                  class="rounded-full flex-1 bg-white h-full flex justify-center items-center px-4 w-full search-bar"/>
         </label>
-        <SmallButton :img="images.searchImg" v-if="searchButton"
+        <SmallButton :img="images.searchImg" v-if="searchButton" class="ml-2"
                      @click="$emit('searchSubmit', searchString)"/>
       </div>
       <!-- BUTTONS -->
