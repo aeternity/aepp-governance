@@ -45,7 +45,7 @@
 </template>
 
 <script>
-import {initWallet, sdk, wallet} from '@/utils/wallet';
+  import {sdk, wallet} from '@/utils/wallet';
   import Backend from '../utils/backend';
   import BiggerLoader from '../components/BiggerLoader';
   import PollListing from '../components/PollListing';
