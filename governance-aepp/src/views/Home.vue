@@ -4,7 +4,7 @@
       <BiggerLoader/>
     </div>
     <div class="fixed w-full top-0 max-w-desktop">
-      <BlackHeader :show-number-input="true" @submit="showPoll" @input="handleIdInput">
+      <BlackHeader :show-number-input="true" @submit.self="showPoll" @input="handleIdInput">
         {{activeTab}} Polls
       </BlackHeader>
       <div class="flex bg-gray-ae text-gray-200" id="home-tab-switcher">
@@ -101,7 +101,7 @@ import {initWallet, sdk, wallet} from '@/utils/wallet';
         }
       },
       showPoll(id) {
-        if (this.allPolls.find(poll => poll[0] === parseInt(id)))
+        if (this.allPolls.find(poll => poll[0] === BigInt(id)))
           this.$router.push(`/poll/${id}`);
         else
           this.error = `Could not find poll with id "${id}".`;
