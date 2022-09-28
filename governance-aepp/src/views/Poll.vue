@@ -87,8 +87,8 @@
             </HintBubble>
             <div class="m-4 ae-card cursor-pointer" @click="showVoters(id)">
               <div class="flex justify-between items-center w-full py-4 px-3">
-                <ae-check class="mr-1" v-model="voteOption" :value="id" type="radio" @click.stop.prevent
-                          @change="vote(id)" :disabled="isClosed || !accountAddress"/>
+                <ae-check class="mr-1" :checked="voteOption" :value="id" type="radio"
+                          @change.self="vote(id)" :disabled="isClosed || !accountAddress"/>
                 <!-- TODO find better solution than this -->
                 <div class="mr-auto ml-2" style="margin-top: 4px">
               <span
@@ -244,7 +244,7 @@
         this.showLoading = true;
         this.voteOption = id;
         try {
-          await this.pollContract.methods.vote(this.voteOption);
+          await this.pollContract.methods.vote(this.voteOption,{omitUnknown: true});
         } catch (e) {
           console.error(e);
           this.error = 'Could not process your vote. Please try again.';
@@ -261,7 +261,7 @@
       async revokeVote() {
         this.showLoading = true;
         try {
-          await this.pollContract.methods.revoke_vote();
+          await this.pollContract.methods.revoke_vote({omitUnknown: true});
           await this.loadData();
         } catch (e) {
           console.error(e);
@@ -308,6 +308,7 @@
         const fetchPollState = (async () => {
           this.pollContract = await sdk.getContractInstance({source: pollContractSource, contractAddress: await fetchPollAddress});
           this.pollState = (await this.pollContract.methods.get_state()).decodedResult;
+          this.pollState.vote_options = Array.from(this.pollState.vote_options.entries()).map(([id, value]) => [Number(id), value]);
           this.isClosed = this.pollState.close_height <= parseInt(await sdk.getHeight());
           try {
             this.closeBlock = this.isClosed ? await sdk.getGeneration(this.pollState.close_height) : null;
@@ -315,7 +316,8 @@
             // The base-aepp SDK does not support this function yet
           }
           const accountVote = Array.from(this.pollState.votes.entries()).find(([voter, _]) => voter === this.accountAddress);
-          this.voteOption = accountVote ? accountVote[1] : null;
+          this.voteOption = accountVote ? Number(accountVote[1]) : null;
+          console.log(this.pollState.vote_options, this.voteOption);
         })().catch(e => {
           console.error(e);
           this.error = 'Could not fetch poll state.';
