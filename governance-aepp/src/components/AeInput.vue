@@ -13,7 +13,7 @@
         class="ae-input"
         :class="{ aemount }"
         :id="id"
-        :value="value"
+        :value="modelValue"
         @focus="focus = true"
         @blur="(event) => {
         propagateEvent(event);
@@ -41,14 +41,12 @@
 </template>
 <script>
 
-import events from "@/utils/events";
-
 export default {
   name: 'ae-input',
-  mixins: [events],
   data() {
     return { focus: false };
   },
+  emits: ['update:modelValue', 'blur'],
   props: {
     /**
      * ID of the component/input
@@ -58,7 +56,7 @@ export default {
     /**
      * Actual input element value
      */
-    value: [String, Number],
+    modelValue: [String, Number],
 
     /**
      * Property to define label of input, used to set
@@ -81,6 +79,16 @@ export default {
      */
     error: Boolean,
   },
+  methods: {
+    propagateEvent(event) {
+      this.$emit(event.type, event);
+    },
+
+    propagateEventValue(event) {
+      console.log('update:modelValue', event.target.value)
+      this.$emit('update:modelValue', event.target.value);
+    },
+  }
 };
 </script>
 <style lang="scss" scoped>

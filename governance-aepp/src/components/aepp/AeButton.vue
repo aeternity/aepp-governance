@@ -12,9 +12,6 @@
   </button>
 </template>
 <script>
-// src/mixins/events/index.js
-
-import events from "@/utils/events";
 
 /**
  * Button component that provides
@@ -22,7 +19,7 @@ import events from "@/utils/events";
  */
 export default {
   name: 'ae-button',
-  mixins: [events],
+  emits: ['click'],
   props: {
     /**
      * Fill property changes the color state of the button
@@ -74,6 +71,11 @@ export default {
      */
     extend: Boolean,
   },
+  methods: {
+    propagateEvent(event) {
+      this.$emit(event.type, event);
+    },
+  }
 };
 </script>
 <style lang="scss" scoped>

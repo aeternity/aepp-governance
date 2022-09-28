@@ -26,12 +26,10 @@
       </ul>
     </div>
     <div class="py-2 px-4">
-      <ae-input :error="!!errors.titleError" v-model="createMetadata.title" label="Title">
-      </ae-input>
+      <ae-input :error="!!errors.titleError" v-model="createMetadata.title" label="Title" />
     </div>
     <div class="py-2 px-4">
-      <ae-input :error="!!errors.descriptionError" v-model="createMetadata.description" label="Description">
-      </ae-input>
+      <ae-input :error="!!errors.descriptionError" v-model="createMetadata.description" label="Description" />
     </div>
     <div class="mt-2">
       <HintBubble v-if="showForumHint">
@@ -40,8 +38,7 @@
       </HintBubble>
     </div>
     <div class="pb-2 px-4">
-      <ae-input :error="!!errors.linkError" v-model="createMetadata.link" label="Link" @blur="linkBlurHandler">
-      </ae-input>
+      <ae-input :error="!!errors.linkError" v-model="createMetadata.link" label="Link" @blur="linkBlurHandler" />
     </div>
     <div class="py-2 px-4">
       <AeButtonGroup>
@@ -223,9 +220,9 @@
           try {
 
             const source = pollIrisContractSource;
-            const pollContract = await sdk.getContractInstance(source);
-            const init = await pollContract.methods.init(this.createMetadata, options, close_height);
-            const addPoll = await contract.registry.methods.add_poll(init.address, this.is_listed);
+            const pollContract = await sdk.getContractInstance({ source });
+            const init = await pollContract.methods.init(this.createMetadata, options, close_height, {omitUnknown: true});
+            const addPoll = await contract.registry.methods.add_poll(init.address, this.is_listed, {omitUnknown: true});
             this.$router.push(`/poll/${addPoll.decodedResult}`);
           } catch (e) {
             this.showLoading = false;
