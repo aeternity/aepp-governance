@@ -33,6 +33,9 @@
     watch: {
       showHints() {
         localStorage.setItem('showHints', String(this.showHints))
+      },
+      $route(to){
+        this.setActiveView(to.name)
       }
     },
     methods: {
@@ -48,9 +51,6 @@
     },
     mounted() {
       this.setActiveView(this.$route.name);
-      this.$router.afterEach((to) => {
-        this.setActiveView(to.name)
-      });
       // true as default, otherwise compare strings
       this.showHints = localStorage.getItem('showHints') === null ? true : localStorage.getItem('showHints') === 'true'
     }

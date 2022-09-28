@@ -46,7 +46,7 @@
           clearInterval(this.interval);
           this.updateElementPosition();
           this.observer = new MutationObserver(this.updateElementPosition);
-          this.observer.observe(document.querySelector(this.target), { attributes: true, childList: true, subtree: true });
+          this.observer.observe(document.querySelector(this.target).parentElement, {  childList: true });
         }
       }, 500);
       window.addEventListener('resize', this.updateElementPosition, false);
