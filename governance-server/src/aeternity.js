@@ -234,7 +234,7 @@ module.exports = class Aeternity {
         return this.cache.getOrSet(["transactionEvent", hash || tx.hash], async () => {
             process.stdout.write(",");
             const {height, nonce, log} = hash
-              ? await this.client.getTransactionInfoByHash(hash).then(res => ({height: res.height, nonce: res.callerNonce, log: res.log}))
+              ? await this.client.api.getTransactionInfoByHash(hash).then(({callInfo}) => ({height: callInfo.height, nonce: callInfo.callerNonce, log: callInfo.log}))
               : ({height: tx.block_height, nonce: tx.tx.nonce, log: tx.tx.log})
             if (log.length === 1) {
                 const topics = ["AddPoll", "Delegation", "RevokeDelegation", "Vote", "RevokeVote"];
