@@ -188,7 +188,7 @@ export default {
         if (this.delegatee.includes('ak_')) {
           this.showLoading = true;
           try {
-            await contract.registry.methods.delegate(this.delegatee);
+            await contract.registry.methods.delegate(this.delegatee, {omitUnknown: true});
             await new Backend(this.networkId).contractEvent("Delegation").catch(console.error);
             await this.loadData();
           } catch (e) {
@@ -202,7 +202,7 @@ export default {
       async revokeDelegation() {
         this.showLoading = true;
         try {
-          await contract.registry.methods.revoke_delegation();
+          await contract.registry.methods.revoke_delegation({omitUnknown: true});
           await new Backend(this.networkId).contractEvent("RevokeDelegation").catch(console.error);
           await this.loadData();
         } catch (e) {
