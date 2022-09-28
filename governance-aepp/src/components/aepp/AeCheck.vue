@@ -59,6 +59,7 @@ export default {
   },
   methods: {
     change(event) {
+      console.log(event);
       let newValue;
       if (this.value === undefined) newValue = event.target.checked;
       else if (this.type === 'radio' || !Array.isArray(this.checked)) newValue = this.value;
