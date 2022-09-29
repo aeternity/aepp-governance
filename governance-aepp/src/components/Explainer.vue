@@ -40,6 +40,7 @@
     },
     methods: {
       setActiveView(name) {
+        // eslint-disable-next-line no-prototype-builtins
         this.activeView = this.views.hasOwnProperty(name) ? this.views[name] : {
           headline: '',
           items: []
