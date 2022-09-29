@@ -3,6 +3,8 @@ const blake2b = require('blake2b');
 const Crypto = require('@aeternity/aepp-sdk').Crypto;
 const BigNumber = require('bignumber.js');
 
+BigInt.prototype.toJSON = function () { return Number(this) }
+
 const util = {};
 
 util.atomsToAe = (atoms) => (new BigNumber(atoms)).dividedBy(new BigNumber(1000000000000000000));
