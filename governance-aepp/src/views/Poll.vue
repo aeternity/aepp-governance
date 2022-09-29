@@ -315,7 +315,7 @@
           } catch (e) {
             // The base-aepp SDK does not support this function yet
           }
-          const accountVote = Array.from(this.pollState.votes.entries()).find(([voter, _]) => voter === this.accountAddress);
+          const accountVote = Array.from(this.pollState.votes.entries()).find(([voter]) => voter === this.accountAddress);
           this.voteOption = accountVote ? Number(accountVote[1]) : null;
         })().catch(e => {
           console.error(e);
