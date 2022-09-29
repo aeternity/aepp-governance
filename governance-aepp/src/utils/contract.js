@@ -38,7 +38,6 @@ contract.delegations = async (address) => {
 };
 
 contract.polls = async () => {
-  await contract.init();
   const polls = await contract.registry.methods.polls();
   return Array.from(polls.decodedResult.entries());
 };

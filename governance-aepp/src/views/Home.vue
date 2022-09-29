@@ -53,7 +53,6 @@
   import BlackHeader from '../components/BlackHeader';
   import CriticalErrorOverlay from '../components/CriticalErrorOverlay';
   import BigNumber from 'bignumber.js';
-  import {toAe} from "@aeternity/aepp-sdk";
   import contract from "@/utils/contract";
   import {toRefs} from "vue";
 
@@ -168,7 +167,7 @@
         this.switchTab(this.availableTabs[(currentIndex + direction) % this.availableTabs.length]);
       },
       async loadData() {
-        if (this.address && this.networkId ==='ae_uat' && this.balance && toAe(this.balance) <= 5) {
+        if (this.address && this.networkId ==='ae_uat' && this.balance && Number(this.balance) < 5) {
           await fetch(`https://testnet.faucet.aepps.com/account/${this.address}`,
             {
               headers: { 'content-type': 'application/x-www-form-urlencoded' },
