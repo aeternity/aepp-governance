@@ -18,7 +18,7 @@
 const {assert} = require('chai');
 const {utils, wallets} = require('@aeternity/aeproject');
 
-const registrySource = utils.getContractContent('./contracts/Registry.aes');
+const registrySource = utils.getContractContent('./contracts/Registry_Compiler_v6.aes');
 const pollSource = utils.getContractContent('./contracts/Poll_Iris.aes');
 
 const hexToUint8 = (hex) => Uint8Array.from(Buffer.from(hex, 'hex'));
@@ -242,6 +242,6 @@ describe('Governance Contracts', () => {
         assert.equal(pollVersion.decodedResult, 2n);
 
         let registryVersion = await registryContract.methods.version();
-        assert.equal(registryVersion.decodedResult, 1n);
+        assert.equal(registryVersion.decodedResult, 2n);
     })
 });

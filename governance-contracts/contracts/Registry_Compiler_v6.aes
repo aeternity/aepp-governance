@@ -18,16 +18,18 @@
 // THIS IS NOT SECURITY AUDITED
 // DO NEVER USE THIS WITHOUT SECURITY AUDIT FIRST
 
+@compiler >= 6
+
 include "List.aes"
 include "Pair.aes"
 
-contract Poll =
+contract interface Poll =
   entrypoint title : () => string
   entrypoint close_height : () => option(int)
 
 // ACTUAL CONTRACT
 
-contract Registry =
+main contract Registry =
 
   record poll_data =
     { poll : Poll
@@ -93,7 +95,7 @@ contract Registry =
     let filter_delegations_account = (delegation_tuple) => Pair.snd(delegation_tuple) == account
     Map.from_list(List.filter(filter_delegations_account, Map.to_list(state.delegations)))
 
-  entrypoint version() : int = 1
+  entrypoint version() : int = 2
 
   // INTERNAL HELPER FUNCTIONS
 
