@@ -54,7 +54,6 @@
   import CriticalErrorOverlay from '../components/CriticalErrorOverlay';
   import BigNumber from 'bignumber.js';
   import contract from "@/utils/contract";
-  import {toRefs} from "vue";
 
   export default {
     name: 'HomePage',
@@ -78,10 +77,6 @@
           y: null,
         },
       };
-    },
-    setup() {
-      const {address, balance, networkId} = toRefs(wallet)
-      return {address, balance, networkId}
     },
     watch: {
       '$route.query.tab'() {
@@ -167,8 +162,8 @@
         this.switchTab(this.availableTabs[(currentIndex + direction) % this.availableTabs.length]);
       },
       async loadData() {
-        if (this.address && this.networkId ==='ae_uat' && this.balance && Number(this.balance) < 5) {
-          await fetch(`https://testnet.faucet.aepps.com/account/${this.address}`,
+        if (wallet.address && wallet.networkId ==='ae_uat' && wallet.balance && Number(wallet.balance) < 5) {
+          await fetch(`https://testnet.faucet.aepps.com/account/${wallet.address}`,
             {
               headers: { 'content-type': 'application/x-www-form-urlencoded' },
               method: 'POST',
@@ -179,7 +174,7 @@
           console.error(e);
           this.error = 'Could not fetch polls.';
         });
-        const fetchOrdering = new Backend(this.networkId).pollOrdering(false).catch(console.error);
+        const fetchOrdering = new Backend(wallet.networkId).pollOrdering(false).catch(console.error);
         const [allPolls, pollOrdering] = await Promise.all([fetchPolls, fetchOrdering]);
 
         this.pollOrdering = pollOrdering;

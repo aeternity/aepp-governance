@@ -109,7 +109,6 @@ import {sdk, wallet} from "@/utils/wallet";
   import CriticalErrorOverlay from "../components/CriticalErrorOverlay";
   import AeInput from '../components/AeInput'
   import contract from "@/utils/contract";
-  import {toRefs} from "vue";
 
 export default {
     name: 'AccountPage',
@@ -137,10 +136,6 @@ export default {
         searchError: null,
         availableTabs: ["delegations", "votes", "polls"]
       }
-    },
-    setup() {
-      const {networkId, isStatic, address} = toRefs(wallet)
-      return {networkId, isStatic, accountAddress: address}
     },
     computed: {},
     watch: {
@@ -189,7 +184,7 @@ export default {
           this.showLoading = true;
           try {
             await contract.registry.methods.delegate(this.delegatee, {omitUnknown: true});
-            await new Backend(this.networkId).contractEvent("Delegation").catch(console.error);
+            await new Backend(wallet.networkId).contractEvent("Delegation").catch(console.error);
             await this.loadData();
           } catch (e) {
             console.error(e);
@@ -203,7 +198,7 @@ export default {
         this.showLoading = true;
         try {
           await contract.registry.methods.revoke_delegation({omitUnknown: true});
-          await new Backend(this.networkId).contractEvent("RevokeDelegation").catch(console.error);
+          await new Backend(wallet.networkId).contractEvent("RevokeDelegation").catch(console.error);
           await this.loadData();
         } catch (e) {
           console.error(e);
@@ -225,7 +220,7 @@ export default {
         this.resetData();
 
         this.address = this.$route.params.account;
-        if(!this.isStatic) this.isOwnAccount = this.address === this.accountAddress;
+        if(!wallet.isStatic) this.isOwnAccount = this.address === wallet.address;
 
         const fetchBalance = sdk.getBalance(this.address).then(balance => {
           this.balance = balance
@@ -240,14 +235,14 @@ export default {
         });
 
 
-        const fetchDelegatedPower = new Backend(this.networkId).delegatedPower(this.address).then(async delegatedPower => {
+        const fetchDelegatedPower = new Backend(wallet.networkId).delegatedPower(this.address).then(async delegatedPower => {
           await fetchBalance;
           if (delegatedPower === null) return;
           this.delegatedPower = delegatedPower.delegatedPower;
           this.totalStake = new BigNumber(this.balance).plus(this.delegatedPower);
         }).catch(console.error);
 
-        const fetchAccountPollVoterAuthor = new Backend(this.networkId).accountPollVoterAuthor(this.address).then(data => {
+        const fetchAccountPollVoterAuthor = new Backend(wallet.networkId).accountPollVoterAuthor(this.address).then(data => {
           if (data === null) return;
           this.votedInPolls = data.votedInPolls.filter(poll => poll[1].is_listed);
           this.votedInPolls = this.votedInPolls.concat(data.delegateeVotes.filter(poll => {
@@ -264,7 +259,7 @@ export default {
         this.showLoading = false;
       },
       async goToOwnAccountPage() {
-        await this.switchAccount(this.accountAddress)
+        await this.switchAccount(wallet.address)
       }
     },
     async mounted() {

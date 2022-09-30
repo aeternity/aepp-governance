@@ -16,8 +16,8 @@
         <!-- LEFT BUTTON> -->
         <div class="flex justify-evenly items-center h-full flex-2">
           <SmallButton :img="images.homeImg" @click="() => $route.path !== '/' && $router.push('/')"/>
-          <SmallButton :img="images.accountImg" v-if="address"
-                       @click="() => $route.path !== `/account/${address}` &&  $router.push(`/account/${address}`)">
+          <SmallButton :img="images.accountImg" v-if="wallet.address"
+                       @click="() => $route.path !== `/account/${wallet.address}` &&  $router.push(`/account/${wallet.address}`)">
           </SmallButton>
         </div>
         <!-- CENTER SECTION -->
@@ -36,7 +36,7 @@
 
         <!-- RIGHT BUTTONS -->
         <div class="flex justify-evenly items-center h-full flex-2">
-          <SmallButton :img="images.createImg" v-if="address"
+          <SmallButton :img="images.createImg" v-if="wallet.address"
                        @click="() => $route.path !== '/create' && $router.push('/create')"/>
           <SmallButton :img="images.backImg" @click="() => $router.go(-1)"/>
         </div>
@@ -53,7 +53,6 @@
   import homeImg from '../assets/home.svg';
   import backImg from '../assets/back.svg';
   import {wallet} from "@/utils/wallet";
-  import {toRefs} from "vue";
 
   export default {
     name: "BottomButtons",
@@ -65,10 +64,7 @@
         searchString: ''
       }
     },
-    setup() {
-      const {address} = toRefs(wallet)
-      return {address}
-    },
+    setup: () => ({wallet}),
     props: {
       home: {
         type: Boolean,

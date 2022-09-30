@@ -3,7 +3,7 @@ import {
 } from '@aeternity/aepp-sdk'
 
 import settings from './settings';
-import {reactive, toRefs} from 'vue'
+import {reactive} from 'vue'
 
 const nodes = [{
   name: 'ae_mainnet', instance: new Node('https://mainnet.aeternity.io'),
@@ -18,9 +18,7 @@ export const wallet = reactive({
 })
 
 export const initWallet = async (eventBus) => {
-  const {walletStatus, isStatic, networkId} = toRefs(wallet)
-
-  walletStatus.value = 'connecting'
+  wallet.walletStatus = 'connecting'
 
   try {
     // try to connect to Superhero Wallet
@@ -31,15 +29,15 @@ export const initWallet = async (eventBus) => {
         if (eventBus) eventBus.emit('dataChange');
       }, onAddressChange: async (addresses) => {
         console.info('onAddressChange:', addresses)
-        await aeConnectToNode(networkId.value)
+        await aeConnectToNode(wallet.networkId)
         if (eventBus) eventBus.emit('dataChange');
       },
     })
 
     await scanForWallets()
 
-    if (walletStatus.value === 'fallback_static') {
-      isStatic.value = true;
+    if (wallet.walletStatus === 'fallback_static') {
+      wallet.isStatic = true;
 
       sdk = new AeSdk({
         compilerUrl: settings.compilerUrl, nodes,
@@ -56,9 +54,7 @@ export const initWallet = async (eventBus) => {
 }
 
 export const scanForWallets = async () => {
-  const {walletStatus, activeWallet} = toRefs(wallet)
-
-  walletStatus.value = 'scanning'
+  wallet.walletStatus = 'scanning'
 
   const detectedWallet = await Promise.race([new Promise((resolve) => {
     const handleWallets = async () => {
@@ -78,11 +74,11 @@ export const scanForWallets = async () => {
     await new Promise((resolve) => {
       const handleWallets = async ({wallets, newWallet}) => {
         try {
-          walletStatus.value = 'asking_permission'
+          wallet.walletStatus = 'asking_permission'
           newWallet = newWallet || Object.values(wallets)[0]
           stopScan()
 
-          activeWallet.value = newWallet
+          wallet.activeWallet = newWallet
 
           const {networkId} = await sdk.connectToWallet(newWallet.getConnection())
           await sdk.subscribeAddress('subscribe', 'current')
@@ -91,7 +87,7 @@ export const scanForWallets = async () => {
           resolve()
         } catch (error) {
           console.error('scanForWallets error:', error)
-          walletStatus.value = 'fallback_static'
+          wallet.walletStatus = 'fallback_static'
         }
       }
 
@@ -99,25 +95,23 @@ export const scanForWallets = async () => {
       const stopScan = walletDetector(scannerConnection, handleWallets)
     })
   } else {
-    walletStatus.value = 'fallback_static'
+    wallet.walletStatus = 'fallback_static'
   }
 }
 
 export const fetchWalletInfo = async () => {
-  const {address, balance, walletStatus, isStatic, networkId} = toRefs(wallet)
-
-  walletStatus.value = 'fetching_info'
+  wallet.walletStatus = 'fetching_info'
 
   try {
-    networkId.value = await sdk.getNetworkId()
-    if (!isStatic.value) {
-      address.value = await sdk.address()
+    wallet.networkId = await sdk.getNetworkId()
+    if (!wallet.isStatic) {
+      wallet.address = await sdk.address()
 
-      balance.value = await sdk.getBalance(address.value, {
+      wallet.balance = await sdk.getBalance(wallet.address, {
         format: AE_AMOUNT_FORMATS.AE,
       })
     }
-    walletStatus.value = 'connected'
+    wallet.walletStatus = 'connected'
   } catch (error) {
     console.error('fetchWalletInfo error:', error)
     return 'fetching failed'
