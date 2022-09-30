@@ -69,7 +69,6 @@
   import help from '../assets/help.json';
   import {wallet} from "@/utils/wallet";
   import Backend from "../utils/backend";
-  import {toRefs} from "vue";
 
   export default {
     name: 'HelpPage',
@@ -81,11 +80,6 @@
         showCard: false,
         views: help
       }
-    },
-    setup() {
-      const {networkId} = toRefs(wallet)
-
-      return {networkId}
     },
     methods: {
       openLink() {
@@ -104,7 +98,7 @@
       }
     },
     mounted() {
-      new Backend(this.networkId).version().then(data => {
+      new Backend(wallet.networkId).version().then(data => {
         this.serverVersion = data.version
       })
     }

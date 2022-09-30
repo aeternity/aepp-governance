@@ -4,8 +4,8 @@
       <BiggerLoader/>
     </div>
     <div v-if="pollState.metadata">
-      <AccountHeader class="mb-4" :address="accountAddress" :poll-address="pollAddress"
-                     v-if="accountAddress && !isClosed" :startOpen="false" :canOpen="true"/>
+      <AccountHeader class="mb-4" :address="wallet.address" :poll-address="pollAddress"
+                     v-if="wallet.address && !isClosed" :startOpen="false" :canOpen="true"/>
       <div v-if="isClosed" class="text-center">
         <div class="text-gray-500 mt-4">POLL CLOSED</div>
       </div>
@@ -75,7 +75,7 @@
         <div v-if="pollState.vote_options">
           <div :key="id" v-for="[id, title] in pollState.vote_options">
             <HintBubble v-if="delegateeVote && delegateeVote.option === id">
-              Your <span v-if="!Object.keys(delegateeVote.delegationTree).includes(accountAddress)">sub-</span>delegatee
+              Your <span v-if="!Object.keys(delegateeVote.delegationTree).includes(wallet.address)">sub-</span>delegatee
               <a class="font-mono text-primary text-xs" href="#"
                  @click.stop.prevent="$router.push(`/account/${delegateeVote.account}`)">
                 {{delegateeVote.account.substr(0,12)}} •••
@@ -88,7 +88,7 @@
             <div class="m-4 ae-card cursor-pointer" @click="showVoters(id)">
               <div class="flex justify-between items-center w-full py-4 px-3">
                 <ae-check class="mr-1" :checked="voteOption" :value="id" type="radio"
-                          @change.self="vote(id)" :disabled="isClosed || !accountAddress"/>
+                          @change.self="vote(id)" :disabled="isClosed || !wallet.address"/>
                 <!-- TODO find better solution than this -->
                 <div class="mr-auto ml-2" style="margin-top: 4px">
               <span
@@ -165,7 +165,6 @@
   import copy from 'copy-to-clipboard';
   import HintBubble from "../components/HintBubble";
   import contract from "@/utils/contract";
-  import {toRefs} from "vue";
   import AeCheck from "@/components/aepp/AeCheck";
   import {formatPercent, timeDifferenceToString, timeStampToString, toAE} from "@/utils/filters";
 
@@ -199,11 +198,7 @@
         }
       };
     },
-    setup() {
-      const {address, balance, networkId} = toRefs(wallet)
-
-      return {accountAddress: address, balance, networkId}
-    },
+    setup: () => ({ wallet }),
     computed: {
       timeDifference() {
         return (this.pollState.close_height - this.height) * 3 * 60 * 1000;
@@ -315,7 +310,7 @@
           } catch (e) {
             // The base-aepp SDK does not support this function yet
           }
-          const accountVote = Array.from(this.pollState.votes.entries()).find(([voter]) => voter === this.accountAddress);
+          const accountVote = Array.from(this.pollState.votes.entries()).find(([voter]) => voter === wallet.address);
           this.voteOption = accountVote ? Number(accountVote[1]) : null;
         })().catch(e => {
           console.error(e);
@@ -323,13 +318,13 @@
           this.continueFunction = () => this.$router.push('/');
         });
 
-        const fetchVotesState = new Backend(this.networkId).votesState(await fetchPollAddress).then(votesState => {
+        const fetchVotesState = new Backend(wallet.networkId).votesState(await fetchPollAddress).then(votesState => {
           if (votesState === null) return;
           this.pollVotesState = votesState;
           this.delegateeVote = this.pollVotesState.stakesForOption
             .map(data => data.votes.find(vote =>
               vote.delegators.some(delegation =>
-                delegation.delegator === this.accountAddress))).find(x => x) || {};
+                delegation.delegator === wallet.address))).find(x => x) || {};
         }).catch(console.error);
 
         await Promise.all([fetchBalance, fetchPollAddress, fetchPollState, fetchVotesState]);

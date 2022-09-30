@@ -2,7 +2,6 @@ import settings from './settings';
 import registryInterface from '../assets/contracts/RegistryInterface.aes';
 import pollContractSource from '../assets/contracts/Poll.aes';
 import pollIrisContractSource from '../assets/contracts/Poll_Iris.aes';
-import {toRefs} from "vue";
 import {sdk, wallet} from "@/utils/wallet";
 
 const contract = {
@@ -12,11 +11,9 @@ const contract = {
 // TODO adjust ACI usage
 
 contract.init = async () => {
-  const {networkId} = toRefs(wallet)
-
   contract.registry = await sdk.getContractInstance({
     source: registryInterface,
-    contractAddress: settings[networkId.value].contractAddress
+    contractAddress: settings[wallet.networkId].contractAddress
   })
 }
 
@@ -43,8 +40,7 @@ contract.polls = async () => {
 };
 
 contract.verifyPollContract = async (pollAddress) => {
-  const {networkId} = toRefs(wallet)
-  const contractCreateBytecode = fetch(`${settings[networkId.value].middlewareUrl}/v2/txs?contract=${pollAddress}&type=contract_create`).then(async res => {
+  const contractCreateBytecode = fetch(`${settings[wallet.networkId].middlewareUrl}/v2/txs?contract=${pollAddress}&type=contract_create`).then(async res => {
     res = await res.json();
     if (res.data.length !== 1) return null;
     const contractCreateTx = res.data[0];

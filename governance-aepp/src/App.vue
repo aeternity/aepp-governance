@@ -31,7 +31,6 @@ import Explainer from './components/Explainer';
 import {wallet} from './utils/wallet';
 import BiggerLoader from './components/BiggerLoader';
 import HintOverlay from './components/HintOverlay';
-import {toRefs} from "vue";
 import {initWallet} from './utils/wallet'
 import contract from "@/utils/contract";
 
@@ -49,15 +48,12 @@ export default {
       },
     };
   },
-  setup() {
-    const {walletStatus, networkId} = toRefs(wallet)
-    return {walletStatus, networkId}
-  },
+  setup: () => ({ wallet }),
   watch: {
-    networkId() {
+    'wallet.networkId'() {
       this.isConnected = false;
     },
-    async walletStatus(status) {
+    async 'wallet.walletStatus'(status) {
       if (status === 'connected' && !this.isConnected) {
         await contract.init();
         this.isConnected = true

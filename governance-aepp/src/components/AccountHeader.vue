@@ -69,7 +69,6 @@
   import Backend from "../utils/backend";
   import BigNumber from "bignumber.js";
   import copy from 'copy-to-clipboard';
-  import {toRefs} from "vue";
   import {toAE} from "@/utils/filters";
 
   export default {
@@ -104,16 +103,12 @@
         open: true
       }
     },
-    setup() {
-      const {address, walletStatus, activeWallet, networkId, isStatic} = toRefs(wallet)
-      return {walletAddress: address, walletStatus, activeWallet, networkId, isStatic}
-    },
     methods: {
       toAE: toAE,
       async loadData() {
-        if(!this.isStatic) this.isOwnAccount = this.walletAddress === this.address;
+        if(!wallet.isStatic) this.isOwnAccount = wallet.walletAddress === this.address;
         this.balance = await sdk.getBalance(this.address);
-        await new Backend(this.networkId).delegatedPower(this.address, this.pollAddress).then(delegatedPower => {
+        await new Backend(wallet.networkId).delegatedPower(this.address, this.pollAddress).then(delegatedPower => {
           if(delegatedPower === null) {
             this.totalStake = new BigNumber(this.balance);
           } else {
