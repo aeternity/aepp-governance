@@ -1,0 +1,324 @@
+{
+  "7.0.1": {
+    "Poll.aes": {
+      "error": "Unbound variable `String.length`; Unbound variable `String.length`"
+    },
+    "Poll_Iris.aes": {
+      "hash": "eb364ab0197ab893c0e26f6b88b7631ce934b46faa4eb5930a1ff63e650a8540"
+    },
+    "Registry.aes": {
+      "error": "Could not deduce the main contract. You can point it out manually with the `main` keyword."
+    },
+    "Registry_Compiler_v6.aes": {
+      "hash": "3431ea46ca41c1aabaf992d6b3d81e48d743f8640be73bfbc92d54b0ddbc3205"
+    }
+  },
+  "6.1.0": {
+    "Poll.aes": {
+      "error": "Unbound variable String.length at line 46, column 13\n; Unbound variable String.length at line 47, column 13\n"
+    },
+    "Poll_Iris.aes": {
+      "hash": "bba9d74a43434182712066172235ae6ad9c93828a4dd9c5db05df5ab53d07a28"
+    },
+    "Registry.aes": {
+      "error": "Could not deduce the main contract. You can point it out manually with the `main` keyword."
+    },
+    "Registry_Compiler_v6.aes": {
+      "hash": "cce88eb84fa0f2356846c9e0e56ae87065329178b9cf3bfe56cf272a1e5f1cae"
+    }
+  },
+  "6.0.2": {
+    "Poll.aes": {
+      "error": "Unbound variable String.length at line 46, column 13\n; Unbound variable String.length at line 47, column 13\n"
+    },
+    "Poll_Iris.aes": {
+      "hash": "8d1aef0f39598e9ce740d4516c8ebdc0f80d011beea011ffc414b2c2a47ccfd6"
+    },
+    "Registry.aes": {
+      "error": "Could not deduce the main contract. You can point it out manually with the `main` keyword."
+    },
+    "Registry_Compiler_v6.aes": {
+      "hash": "909fa99825260ecc8b0f28833aa0427b424ba0fdfa5f103e3af122df7538de19"
+    }
+  },
+  "6.0.1": {
+    "Poll.aes": {
+      "error": "Unbound variable String.length at line 46, column 13\n; Unbound variable String.length at line 47, column 13\n"
+    },
+    "Poll_Iris.aes": {
+      "hash": "b91f165fff5de31b6ca0e4d65764ce240bebc3224c88711232b3c49d0e94ce5c"
+    },
+    "Registry.aes": {
+      "error": "Could not deduce the main contract. You can point it out manually with the `main` keyword."
+    },
+    "Registry_Compiler_v6.aes": {
+      "hash": "e7abb03d9fde0f877d313dad91abad27445e4b67330a04a0d94f63137b2386e8"
+    }
+  },
+  "6.0.0": {
+    "Poll.aes": {
+      "error": "Unbound variable String.length at line 46, column 13\n; Unbound variable String.length at line 47, column 13\n"
+    },
+    "Poll_Iris.aes": {
+      "hash": "1967cd524f6814046fbf1f2321db750a1e3e736cb796a45c0ffe00daeb3c71c0"
+    },
+    "Registry.aes": {
+      "error": "Could not deduce the main contract. You can point it out manually with the `main` keyword."
+    },
+    "Registry_Compiler_v6.aes": {
+      "hash": "08111b2f3b6430f0abff77f8d0a8ee883e265a0b19ff2aa2d0487c44e40a0d7f"
+    }
+  },
+  "5.1.0": {
+    "Poll.aes": {
+      "error": "Unbound variable String.length at line 46, column 13\n; Unbound variable String.length at line 47, column 13\n"
+    },
+    "Poll_Iris.aes": {
+      "hash": "391e84d03aa312beb577fcd3e425bb059797e3e7b9752c7a6780f0e0cfd24869"
+    },
+    "Registry.aes": {
+      "error": "Could not deduce the main contract. You can point it out manually with the `main` keyword."
+    },
+    "Registry_Compiler_v6.aes": {
+      "error": "Cannot compile with this version of the compiler,\nbecause it does not satisfy the constraint 5.1.0 >= 6\n"
+    }
+  },
+  "5.0.0": {
+    "Poll.aes": {
+      "error": "Unbound variable String.length at line 46, column 13\n; Unbound variable String.length at line 47, column 13\n"
+    },
+    "Poll_Iris.aes": {
+      "hash": "8b47f443ccc3040cdff6425129684435565b496c070813af3799c376713efe98"
+    },
+    "Registry.aes": {
+      "hash": "d1ba9a4a3a07b4ba315532c92977e49459a17503c922ab25805701276125290a"
+    },
+    "Registry_Compiler_v6.aes": {
+      "error": "Unexpected identifier interface. Did you mean Interface?\n"
+    }
+  },
+  "4.3.0": {
+    "Poll.aes": {
+      "hash": "ca765d9b33fd9cecaf17cb091b5bd25109b5b8a2fb3dcaf099503b183411c6e8"
+    },
+    "Poll_Iris.aes": {
+      "error": "Couldn't find include file 'String.aes'\n"
+    },
+    "Registry.aes": {
+      "hash": "e573e8322688bbe7db3f2e1474e9f062354b94c57263b4457f91a736fe225abc"
+    },
+    "Registry_Compiler_v6.aes": {
+      "error": "Unexpected identifier interface. Did you mean Interface?\n"
+    }
+  },
+  "4.2.0": {
+    "Poll.aes": {
+      "hash": "c0316f8f0a2b25fc49229b8f38e134f0d2fe38274f2250c0b925911cd9bbadde"
+    },
+    "Poll_Iris.aes": {
+      "error": "Couldn't find include file 'String.aes'\n"
+    },
+    "Registry.aes": {
+      "hash": "e766c1188e010948a933785ba2f75f5f9ac4156108da352e24116beb477fef4d"
+    },
+    "Registry_Compiler_v6.aes": {
+      "error": "Unexpected identifier interface. Did you mean Interface?\n"
+    }
+  },
+  "4.1.0": {
+    "Poll.aes": {
+      "hash": "0cabe7a610c476ad174bd30b1ff6d3559f9cafa6947144a9acb372e0930edb16"
+    },
+    "Poll_Iris.aes": {
+      "error": "Couldn't find include file 'String.aes'\n"
+    },
+    "Registry.aes": {
+      "hash": "281d8daef3f0760b4501245a2735c5fbf7ec85900200f04eb5f34b5f3a4e1212"
+    },
+    "Registry_Compiler_v6.aes": {
+      "error": "Unexpected identifier interface. Did you mean Interface?\n"
+    }
+  },
+  "4.0.0": {
+    "Poll.aes": {
+      "hash": "7f9f069615ceb43a3bae44817ddd3d5260f9cb192e74085d220e114418b56d99"
+    },
+    "Poll_Iris.aes": {
+      "error": "Couldn't find include file 'String.aes'\n"
+    },
+    "Registry.aes": {
+      "hash": "d8392d0e9f1bfbe33d69c53aa2124887fb44d9850f7969aefdf1e15f2bd5eaa7"
+    },
+    "Registry_Compiler_v6.aes": {
+      "error": "Unexpected identifier interface. Did you mean Interface?\n"
+    }
+  },
+  "4.0.0-rc5": {
+    "Poll.aes": {
+      "hash": "3552970fed4d0435c4e446a59f609832c77f1c7a9888f02e211ef425550ce3f2"
+    },
+    "Poll_Iris.aes": {
+      "error": "Unexpected token '@'.\n"
+    },
+    "Registry.aes": {
+      "hash": "72ebdcc650ba52589cae8a25309d8fb2cfb0b2e17dee07d706a2e0c313df9973"
+    },
+    "Registry_Compiler_v6.aes": {
+      "error": "Unexpected token '@'.\n"
+    }
+  },
+  "4.0.0-rc4": {
+    "Poll.aes": {
+      "hash": "c23b4ebeb27268ac7c9eea06309616b0622c3fab5bc6e968eb23dff70117cb74"
+    },
+    "Poll_Iris.aes": {
+      "error": "Unexpected token '@'.\n"
+    },
+    "Registry.aes": {
+      "hash": "4bd4edabd8a1d60dea623e35aa667d3bf8e93e724c0a75e94510136fbb948b3e"
+    },
+    "Registry_Compiler_v6.aes": {
+      "error": "Unexpected token '@'.\n"
+    }
+  },
+  "4.0.0-rc3": {
+    "Poll.aes": {
+      "hash": "cc3aff314b2139ae8eb6b5c326012bc3d1b310512b3285d9b19922eed0cd1e9b"
+    },
+    "Poll_Iris.aes": {
+      "error": "Unexpected token '@'.\n"
+    },
+    "Registry.aes": {
+      "hash": "40b485b69d05dd1bd3ee3d4a88236f8e97f7336c85ecb380faf479c03a464048"
+    },
+    "Registry_Compiler_v6.aes": {
+      "error": "Unexpected token '@'.\n"
+    }
+  },
+  "4.0.0-rc1": {
+    "Poll.aes": {
+      "error": "invalid json response body at http://localhost:3099/compile reason: Unexpected end of JSON input"
+    },
+    "Poll_Iris.aes": {
+      "error": {
+        "reason": "Parse errors\nline 21, column 1: Unexpected token '@'"
+      }
+    },
+    "Registry.aes": {
+      "error": "invalid json response body at http://localhost:3099/compile reason: Unexpected end of JSON input"
+    },
+    "Registry_Compiler_v6.aes": {
+      "error": {
+        "reason": "Parse errors\nline 21, column 1: Unexpected token '@'"
+      }
+    }
+  },
+  "3.2.0": {
+    "Poll.aes": {
+      "hash": "f205dcfb603703cadb11b7b762fae8b6dcb6c8061b9ad6a29baa397b93bf66b3"
+    },
+    "Poll_Iris.aes": {
+      "error": {
+        "reason": "Parse errors\nline 21, column 1: Unexpected token '@'"
+      }
+    },
+    "Registry.aes": {
+      "error": {
+        "reason": "Parse errors\nline 21, column 9: could not find include file 'List.aes'"
+      }
+    },
+    "Registry_Compiler_v6.aes": {
+      "error": {
+        "reason": "Parse errors\nline 21, column 1: Unexpected token '@'"
+      }
+    }
+  },
+  "3.1.0": {
+    "Poll.aes": {
+      "error": {
+        "reason": "Parse errors\nline 45, column 3: Unexpected token id"
+      }
+    },
+    "Poll_Iris.aes": {
+      "error": {
+        "reason": "Parse errors\nline 21, column 1: Unexpected token '@'"
+      }
+    },
+    "Registry.aes": {
+      "error": {
+        "reason": "Parse errors\nline 25, column 3: Unexpected token id"
+      }
+    },
+    "Registry_Compiler_v6.aes": {
+      "error": {
+        "reason": "Parse errors\nline 21, column 1: Unexpected token '@'"
+      }
+    }
+  },
+  "3.0.0": {
+    "Poll.aes": {
+      "error": {
+        "reason": "Parse errors\nline 45, column 3: Unexpected token id"
+      }
+    },
+    "Poll_Iris.aes": {
+      "error": {
+        "reason": "Parse errors\nline 21, column 1: Unexpected token '@'"
+      }
+    },
+    "Registry.aes": {
+      "error": {
+        "reason": "Parse errors\nline 25, column 3: Unexpected token id"
+      }
+    },
+    "Registry_Compiler_v6.aes": {
+      "error": {
+        "reason": "Parse errors\nline 21, column 1: Unexpected token '@'"
+      }
+    }
+  },
+  "2.1.0": {
+    "Poll.aes": {
+      "error": {
+        "reason": "Parse errors\nline 45, column 3: Unexpected token id"
+      }
+    },
+    "Poll_Iris.aes": {
+      "error": {
+        "reason": "Parse errors\nline 21, column 1: Unexpected token '@'"
+      }
+    },
+    "Registry.aes": {
+      "error": {
+        "reason": "Parse errors\nline 25, column 3: Unexpected token id"
+      }
+    },
+    "Registry_Compiler_v6.aes": {
+      "error": {
+        "reason": "Parse errors\nline 21, column 1: Unexpected token '@'"
+      }
+    }
+  },
+  "2.0.0": {
+    "Poll.aes": {
+      "error": {
+        "reason": "Parse errors\nline 45, column 3: Unexpected token id"
+      }
+    },
+    "Poll_Iris.aes": {
+      "error": {
+        "reason": "Parse errors\nline 21, column 1: Unexpected token '@'"
+      }
+    },
+    "Registry.aes": {
+      "error": {
+        "reason": "Parse errors\nline 25, column 3: Unexpected token id"
+      }
+    },
+    "Registry_Compiler_v6.aes": {
+      "error": {
+        "reason": "Parse errors\nline 21, column 1: Unexpected token '@'"
+      }
+    }
+  }
+}
