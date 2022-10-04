@@ -1,4 +1,3 @@
-const fs = require('fs');
 const {AeSdk, Node} = require('@aeternity/aepp-sdk');
 const axios = require('axios');
 
@@ -6,26 +5,10 @@ const util = require("./util");
 const delegationLogic = require("./delegation_logic");
 const {totalSupplyAtHeight} = require("./coinbase");
 
-const registryWithEventsAci = require("../etc/RegistryWithEventsACI.json");
-const pollAci = require("../etc/PollACI.json");
-const pollContractSource = fs.readFileSync(__dirname + "/../etc/Poll.aes", "utf-8");
-const pollIrisContractSource = fs.readFileSync(__dirname + "/../etc/Poll_Iris.aes", "utf-8");
-
-const compilers = [
-    {url: 'https://v400.compiler.aeternity.art', version: 'v4.0.0', pragma: 4},
-    {url: 'https://v410.compiler.aeternity.art', version: 'v4.1.0', pragma: 4},
-    {url: 'https://v420.compiler.aeternity.art', version: 'v4.2.0', pragma: 4},
-    {url: 'https://v421.compiler.aeternity.art', version: 'v4.2.1', pragma: 4},
-    {url: 'https://v430.compiler.aeternity.art', version: 'v4.3.0', pragma: 4},
-    {url: 'https://v500.compiler.aeternity.art', version: 'v5.0.0', pragma: 5},
-    {url: 'https://v600.compiler.aeternity.art', version: 'v6.0.0', pragma: 6},
-    {url: 'https://v601.compiler.aeternity.art', version: 'v6.0.1', pragma: 6},
-    {url: 'https://v602.compiler.aeternity.art', version: 'v6.0.2', pragma: 6},
-    {url: 'https://v610.compiler.aeternity.art', version: 'v6.1.0', pragma: 6},
-    {url: 'https://v701.compiler.aeternity.art', version: 'v7.0.1', pragma: 7},
-];
-
-const tempCallOptions = { gas: 100000000000 };
+const registryWithEventsAci = require("../../governance-contracts/generated/RegistryWithEventsACI.json");
+const pollAci = require("../../governance-contracts/generated/PollACI.json");
+const byteCodeHashes = require("../../governance-contracts/generated/bytecode_hashes.json");
+const crypto = require("crypto");
 
 module.exports = class Aeternity {
     cache;
@@ -68,39 +51,15 @@ module.exports = class Aeternity {
     verifyPollContract = async (pollAddress) => {
         const result = async () => {
             try {
-                const contractCreateBytecode = await axios.get(`${process.env.MIDDLEWARE_URL}/v2/txs?contract=${pollAddress}&type=contract_create`).then(async res => {
-                    if (!res.data) return null;
-                    const contractCreateTx = res.data.data[0];
-                    return contractCreateTx ? contractCreateTx.tx.code : null;
-                });
+                const verifiedHashes = Object.values(byteCodeHashes).map(hashes => hashes["Poll.aes"]?.hash || hashes["Poll_Iris.aes"]?.hash).filter(hash => !!hash)
+                //const contractCreateBytecode = await this.client.getContractByteCode(pollAddress).then(res => res.bytecode); can't be used as the returned bytecode is stripped from the init function and thus won't match the pre-generated hash
+                const contractCreateBytecode = await axios.get(`${process.env.MIDDLEWARE_URL}/v2/txs?contract=${pollAddress}&type=contract_create`).then(async res => res.data?.data[0]?.tx.code);
 
-                const testCompilers = async (compilers, source) => {
-                    return Promise.all(compilers.map(compiler => {
-                        return axios.post(`${compiler.url}/compile`, {
-                            code: source,
-                            options: {backend: 'fate'}
-                        }).then(async res => {
-                            const bytecode = res.data.bytecode;
-                            return {
-                                bytecode: bytecode,
-                                contractCreateBytecode: contractCreateBytecode,
-                                matches: bytecode === contractCreateBytecode,
-                                version: compiler.version
-                            }
-                        });
-                    }));
-                };
-
-                const compilers4Result = await testCompilers(compilers.filter(c => c.pragma === 4), pollContractSource);
-                const compilers5Result = await testCompilers(compilers.filter(c => c.pragma === 5), pollIrisContractSource);
-                const compilers6Result = await testCompilers(compilers.filter(c => c.pragma === 6), pollIrisContractSource);
-                const compilers7Result = await testCompilers(compilers.filter(c => c.pragma === 7), pollIrisContractSource);
-
-                return compilers4Result
-                  .concat(compilers5Result)
-                  .concat(compilers6Result)
-                  .concat(compilers7Result)
-                  .find(test => test.matches) || false;
+                if (contractCreateBytecode) {
+                    const pollBytecodeHash = crypto.createHash('sha256').update(contractCreateBytecode).digest('hex')
+                    return verifiedHashes.includes(pollBytecodeHash)
+                }
+                return false
             } catch (e) {
                 console.error("verifyPollContract", e);
                 return false;
@@ -163,7 +122,7 @@ module.exports = class Aeternity {
 
     polls = async () => {
         return this.cache.getOrSet(["polls"], async () => {
-            const polls = (await this.contract.methods.polls(tempCallOptions)).decodedResult
+            const polls = (await this.contract.methods.polls()).decodedResult
             return Array.from(polls.entries());
         }, this.cache.shortCacheTime);
     };
@@ -178,7 +137,7 @@ module.exports = class Aeternity {
             return contract;
         });
 
-        const pollState = (await pollContract.methods.get_state(tempCallOptions)).decodedResult;
+        const pollState = (await pollContract.methods.get_state()).decodedResult;
         pollState.votes = Object.fromEntries(pollState.votes.entries());
         pollState.vote_options = Object.fromEntries(pollState.vote_options.entries());
         return pollState;
@@ -209,7 +168,7 @@ module.exports = class Aeternity {
             }, this.cache.longCacheTime);
         } else {
             return this.cache.getOrSet(["delegations", closingHeightOrUndefined], async () => {
-                const delegations = (await this.contract.methods.delegations(tempCallOptions)).decodedResult;
+                const delegations = (await this.contract.methods.delegations()).decodedResult;
                 return Array.from(delegations.entries());
             }, this.cache.shortCacheTime);
         }
@@ -234,8 +193,12 @@ module.exports = class Aeternity {
         return this.cache.getOrSet(["transactionEvent", hash || tx.hash], async () => {
             process.stdout.write(",");
             const {height, nonce, log} = hash
-              ? await this.client.api.getTransactionInfoByHash(hash).then(({callInfo}) => ({height: callInfo.height, nonce: callInfo.callerNonce, log: callInfo.log}))
-              : ({height: tx.block_height, nonce: tx.tx.nonce, log: tx.tx.log})
+                ? await this.client.api.getTransactionInfoByHash(hash).then(({callInfo}) => ({
+                    height: callInfo.height,
+                    nonce: callInfo.callerNonce,
+                    log: callInfo.log
+                }))
+                : ({height: tx.block_height, nonce: tx.tx.nonce, log: tx.tx.log})
             if (log.length === 1) {
                 const topics = ["AddPoll", "Delegation", "RevokeDelegation", "Vote", "RevokeVote"];
                 const topic = topics.find(topic => util.hashTopic(topic) === util.topicHashFromResult(log));
