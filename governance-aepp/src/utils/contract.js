@@ -29,7 +29,7 @@ contract.delegations = async (address) => {
       delegator: delegator,
       delegatee: delegatee,
       delegatorAmount: await sdk.getBalance(delegator),
-      includesIndirectDelegations: delegateeDelegations.length !== 0,
+      includesIndirectDelegations: delegateeDelegations.size !== 0,
     };
   }));
 };

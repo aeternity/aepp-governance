@@ -170,7 +170,13 @@ module.exports = class Logic {
         const closingHeightOrUndefined = await this.aeternity.getClosingHeightOrUndefined(pollCloseHeight);
         const votingAccountStakes = [];
         for (let vote of votingAccounts) {
-            const {votingPower, balance, delegatedPower, delegationTree, flattenedDelegationTree} = await this.balancePlusVotingPower(vote.account, closingHeightOrUndefined, ignoreAccounts);
+            const {
+                votingPower,
+                balance,
+                delegatedPower,
+                delegationTree,
+                flattenedDelegationTree
+            } = await this.balancePlusVotingPower(vote.account, closingHeightOrUndefined, ignoreAccounts);
             votingAccountStakes.push({
                 ...vote, ...{
                     stake: votingPower,
@@ -217,7 +223,11 @@ module.exports = class Logic {
 
     balancePlusVotingPower = async (address, height, ignoreAccounts = []) => {
         const balance = await this.balanceAtHeight(address, height);
-        const {delegatedPower, delegationTree, flattenedDelegationTree} = await this.delegatedPower(address, height, ignoreAccounts);
+        const {
+            delegatedPower,
+            delegationTree,
+            flattenedDelegationTree
+        } = await this.delegatedPower(address, height, ignoreAccounts);
 
         process.stdout.write("/");
 
@@ -265,12 +275,16 @@ module.exports = class Logic {
         const aeternity = this.aeternity;
         const balanceAtHeight = this.balanceAtHeight;
 
-        async function discoverDelegationChain(address) {
+        async function discoverDelegationChain(address, checkedAddresses = []) {
+            process.stdout.write("~");
+
             const nextLayerAccounts = searchDelegatee ? await aeternity.delegatee(address, height) : await aeternity.delegators(address, height);
             return nextLayerAccounts.reduce(async (promiseAcc, [delegator, delegatee]) => {
                 const nextAccount = searchDelegatee ? delegatee : delegator;
-                const ignoreAccount = nextAccount === initialAddress || ignoreAccounts.includes(nextAccount);
-                const recursiveDelegations = ignoreAccount ? [] : await discoverDelegationChain(nextAccount);
+                const ignoreAccount = nextAccount === initialAddress || ignoreAccounts.includes(nextAccount) || checkedAddresses.includes(nextAccount);
+
+                checkedAddresses.push(address)
+                const recursiveDelegations = ignoreAccount ? [] : await discoverDelegationChain(nextAccount, checkedAddresses);
 
                 if (ignoreAccount) {
                     return promiseAcc;
