@@ -13,6 +13,7 @@
     "copy-to-clipboard": "^3.3.2",
     "core-js": "^3.25.3",
     "mitt": "^3.0.0",
+    "node-polyfill-webpack-plugin": "^2.0.1",
     "raw-loader": "^4.0.2",
     "sass": "^1.55.0",
     "sass-loader": "^13.0.2",
