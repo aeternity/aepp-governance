@@ -70,7 +70,7 @@ const compileContracts = async (compilerVersions) => {
 
                 if (!compiled.bytecode && Array.isArray(compiled)) console.log(contract, compiler.version, compiled.map(e => e.message).join("; "));
                 acc[contract] = compiled.bytecode
-                    ? {hash: crypto.createHash('sha256').update(compiled.bytecode).digest('hex')}
+                    ? {hash: crypto.createHash('sha256').update(compiled.bytecode).digest('hex'), bytecode: compiled.bytecode}
                     : null
             } catch (e) {
                 acc[contract] = {error: e.message};
