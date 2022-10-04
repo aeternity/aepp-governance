@@ -1,6 +1,6 @@
 import settings from './settings';
-import registryInterface from '../assets/contracts/RegistryInterface.aes';
 import byteCodeHashes from '../../../governance-contracts/generated/bytecode_hashes.json';
+import registryWithEventsAci from '../../../governance-contracts/generated/RegistryWithEventsACI.json';
 import {sdk, wallet} from "@/utils/wallet";
 import crypto from "crypto";
 
@@ -8,11 +8,9 @@ const contract = {
   registry: null
 };
 
-// TODO adjust ACI usage
-
 contract.init = async () => {
   contract.registry = await sdk.getContractInstance({
-    source: registryInterface,
+    aci: registryWithEventsAci,
     contractAddress: settings[wallet.networkId].contractAddress
   })
 }

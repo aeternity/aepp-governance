@@ -153,7 +153,7 @@
 
 <script>
   import {sdk, wallet} from "@/utils/wallet";
-  import pollContractSource from '../assets/contracts/PollInterface.aes';
+  import pollAci from"../../../governance-contracts/generated/PollACI.json";
   import Backend from "../utils/backend";
   import BiggerLoader from '../components/BiggerLoader';
   import AeIdentityLight from '../components/AeIdentityLight';
@@ -301,7 +301,7 @@
         });
 
         const fetchPollState = (async () => {
-          this.pollContract = await sdk.getContractInstance({source: pollContractSource, contractAddress: await fetchPollAddress});
+          this.pollContract = await sdk.getContractInstance({aci: pollAci, contractAddress: await fetchPollAddress});
           this.pollState = (await this.pollContract.methods.get_state()).decodedResult;
           this.pollState.vote_options = Array.from(this.pollState.vote_options.entries()).map(([id, value]) => [Number(id), value]);
           this.isClosed = this.pollState.close_height <= parseInt(await sdk.getHeight());
