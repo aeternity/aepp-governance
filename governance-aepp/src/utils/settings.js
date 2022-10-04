@@ -14,7 +14,7 @@ export default {
     nodeUrl: 'https://mainnet.aeternity.io',
     middlewareUrl: 'https://mainnet.aeternity.io/mdw/',
     contractAddress: 'ct_ouZib4wT9cNwgRA1pxgA63XEUd8eQRrG8PcePDEYogBc1VYTq',
-    //backendUrl: 'https://server.governance.aeternity.art',
-    backendUrl: 'http://localhost:3001'
+    backendUrl: 'https://server.governance.aeternity.art',
+    // backendUrl: 'http://localhost:3001'
   }
 };
