@@ -1,8 +1,8 @@
 import settings from './settings';
 import registryInterface from '../assets/contracts/RegistryInterface.aes';
-import pollContractSource from '../assets/contracts/Poll.aes';
-import pollIrisContractSource from '../assets/contracts/Poll_Iris.aes';
+import byteCodeHashes from '../../../governance-contracts/generated/bytecode_hashes.json';
 import {sdk, wallet} from "@/utils/wallet";
+import crypto from "crypto";
 
 const contract = {
   registry: null
@@ -40,42 +40,15 @@ contract.polls = async () => {
 };
 
 contract.verifyPollContract = async (pollAddress) => {
-  const contractCreateBytecode = fetch(`${settings[wallet.networkId].middlewareUrl}/v2/txs?contract=${pollAddress}&type=contract_create`).then(async res => {
-    res = await res.json();
-    if (res.data.length !== 1) return null;
-    const contractCreateTx = res.data[0];
-    return contractCreateTx ? contractCreateTx.tx.code : null;
-  });
+  const verifiedHashes = Object.values(byteCodeHashes).map(hashes => hashes["Poll.aes"]?.hash || hashes["Poll_Iris.aes"]?.hash).filter(hash => !!hash)
+  //const contractCreateBytecode = await this.client.getContractByteCode(pollAddress).then(res => res.bytecode); can't be used as the returned bytecode is stripped from the init function and thus won't match the pre-generated hash
+  const contractCreateBytecode = await fetch(`${settings[wallet.networkId].middlewareUrl}/v2/txs?contract=${pollAddress}&type=contract_create`).then(async res => res.json().then(json => json.data[0]?.tx.code));
 
-  const testCompilers = async (compilers, source) => {
-    return Promise.all(compilers.map(async compiler => {
-      const compilerBytecode = await fetch(`${compiler.url}/compile`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          code: source,
-          options: {'backend': 'fate'},
-        }),
-      }).then(async res => (await res.json()).bytecode);
-
-      return {
-        bytecode: compilerBytecode,
-        matches: compilerBytecode === (await contractCreateBytecode),
-        version: compiler.version,
-      };
-    }));
+  if (contractCreateBytecode) {
+    const pollBytecodeHash = crypto.createHash('sha256').update(contractCreateBytecode).digest('hex')
+    return verifiedHashes.includes(pollBytecodeHash)
   }
-
-  const compilers4Result = await testCompilers(settings.compilers.filter(c => c.pragma === 4), pollContractSource)
-  const compilers5Result = await testCompilers(settings.compilers.filter(c => c.pragma === 5), pollIrisContractSource)
-  const compilers6Result = await testCompilers(settings.compilers.filter(c => c.pragma === 6), pollIrisContractSource)
-  const compilers7Result = await testCompilers(settings.compilers.filter(c => c.pragma === 7), pollIrisContractSource)
-
-  return compilers4Result
-    .concat(compilers5Result)
-    .concat(compilers6Result)
-    .concat(compilers7Result)
-    .find(test => test.matches);
+  return false
 };
 
 export default contract;
