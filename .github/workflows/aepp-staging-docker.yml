@@ -53,7 +53,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: aeternity/aepp-governance
+          images: aeternitybot/governance-aepp
           tags: |
             type=raw,value=latest,enable=${{ endsWith(GitHub.ref, 'master') }}
             type=ref,event=tag
