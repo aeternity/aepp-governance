@@ -19,10 +19,11 @@ jobs:
     runs-on: ubuntu-latest
     name: Aepp Governance Staging Build Docker
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-
+          ref: ${{ github.event.pull_request.head.sha }}
+      
       - name: Set up Docker Buildx
         id: buildx
         # Use the action from the master, as we've seen some inconsistencies with @v1
@@ -54,7 +55,7 @@ jobs:
         with:
           images: aeternity/aepp-governance
           tags: |
-            type=raw,value=latest,enable=${{ endsWith(GitHub.ref, 'main') }}
+            type=raw,value=latest,enable=${{ endsWith(GitHub.ref, 'master') }}
             type=ref,event=tag
             type=raw,value=stg,event=pr
 
@@ -69,8 +70,11 @@ jobs:
         if: github.event_name == 'pull_request' && github.event.action == 'opened' || github.event.action == 'synchronize'
         uses: docker/build-push-action@v2
         with:
-          context: ./aepp
-          file: ./aepp/Dockerfile
+          context: ./governance-aepp/
+          file: ./governance-aepp/Dockerfile
+          build-args: | # what they should be for staging ?
+            VUE_APP_AE_UAT_BACKEND_URL: "https://governance.stg.aepps.com"
+            VUE_APP_DEFAULT_NETWORK_ID: "ae_uat"
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
