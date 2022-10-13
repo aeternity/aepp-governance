@@ -24,7 +24,7 @@
           />
         </div>
         <div class="text-sm font-bold font-mono ml-auto" v-if="balance !== null">
-          {{balance | toAE}}
+          {{toAE(balance)}}
         </div>
         <div class="w-5" v-if="canOpen"></div>
       </div>
@@ -35,7 +35,7 @@
           Delegators votes can overwrite delegation
         </div>
         <div class="text-sm font-bold font-mono ml-auto text-right">
-          {{delegatedPower | toAE}}
+          {{toAE(delegatedPower)}}
         </div>
         <div class="w-5" v-if="canOpen"></div>
       </div>
@@ -51,7 +51,7 @@
           Estimated voting power
         </div>
         <div class="text-sm font-bold font-mono ml-auto leading-tight mt-1" v-if="totalStake">
-          {{totalStake | toAE}}
+          {{toAE(totalStake)}}
         </div>
         <div class="w-5 flex justify-center items-center ml-2 ae-transition-300" v-if="canOpen" @click="open = !open"
              :class="{'rotate-90': open}">
@@ -65,12 +65,11 @@
 
 <script>
   import AeIdentityLight from "./AeIdentityLight";
-  import aeternity from "../utils/aeternity";
+  import {sdk, wallet} from "@/utils/wallet";
   import Backend from "../utils/backend";
   import BigNumber from "bignumber.js";
   import copy from 'copy-to-clipboard';
-  import { EventBus } from '../utils/eventBus';
-  import Util from '../utils/util';
+  import {toAE} from "@/utils/filters";
 
   export default {
     name: "AccountHeader",
@@ -105,10 +104,11 @@
       }
     },
     methods: {
+      toAE: toAE,
       async loadData() {
-        if(!aeternity.static) this.isOwnAccount = (await aeternity.client.address()) === this.address;
-        this.balance = await aeternity.client.getBalance(this.address);
-        await new Backend(aeternity.networkId).delegatedPower(this.address, this.pollAddress).then(delegatedPower => {
+        if(!wallet.isStatic) this.isOwnAccount = wallet.walletAddress === this.address;
+        this.balance = await sdk.getBalance(this.address);
+        await new Backend(wallet.networkId).delegatedPower(this.address, this.pollAddress).then(delegatedPower => {
           if(delegatedPower === null) {
             this.totalStake = new BigNumber(this.balance);
           } else {
@@ -134,12 +134,12 @@
       }
     },
     created() {
-      EventBus.$on('dataChange', this.loadData)
+      this.eventBus.on('dataChange', this.loadData)
       this.loadData();
       this.open = this.startOpen;
     },
-    beforeDestroy() {
-      EventBus.$off('dataChange', this.loadData)
+    beforeUnmount() {
+      this.eventBus.off('dataChange', this.loadData)
     }
   }
 </script>

@@ -15,10 +15,10 @@
 
 <script>
   import ExplainerItem from "./ExplainerItem";
-  import help from '../data/help.json'
+  import help from '../assets/help.json'
 
   export default {
-    name: "Explainer",
+    name: "ExplainerComponent",
     components: {ExplainerItem},
     data() {
       return {
@@ -33,10 +33,14 @@
     watch: {
       showHints() {
         localStorage.setItem('showHints', String(this.showHints))
+      },
+      $route(to){
+        this.setActiveView(to.name)
       }
     },
     methods: {
       setActiveView(name) {
+        // eslint-disable-next-line no-prototype-builtins
         this.activeView = this.views.hasOwnProperty(name) ? this.views[name] : {
           headline: '',
           items: []
@@ -48,9 +52,6 @@
     },
     mounted() {
       this.setActiveView(this.$route.name);
-      this.$router.afterEach((to) => {
-        this.setActiveView(to.name)
-      });
       // true as default, otherwise compare strings
       this.showHints = localStorage.getItem('showHints') === null ? true : localStorage.getItem('showHints') === 'true'
     }

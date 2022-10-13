@@ -4,8 +4,8 @@
       <BiggerLoader/>
     </div>
     <div v-if="pollState.metadata">
-      <AccountHeader class="mb-4" :address="accountAddress" :poll-address="pollAddress"
-                     v-if="accountAddress && !isClosed" :startOpen="false" :canOpen="true"/>
+      <AccountHeader class="mb-4" :address="wallet.address" :poll-address="pollAddress"
+                     v-if="wallet.address && !isClosed" :startOpen="false" :canOpen="true"/>
       <div v-if="isClosed" class="text-center">
         <div class="text-gray-500 mt-4">POLL CLOSED</div>
       </div>
@@ -54,16 +54,16 @@
 
       <div class="text-center w-full mt-2 text-gray-500 text-sm">
         <div class="inline-block" v-if="pollVotesState && pollVotesState.totalStake">
-          Stake: {{pollVotesState.totalStake | toAE(0)}} ({{pollVotesState.percentOfTotalSupply | formatPercent(2)}})
+          Stake: {{toAE(pollVotesState.totalStake)}} ({{formatPercent(pollVotesState.percentOfTotalSupply, 2)}})
         </div>
         <div v-if="typeof pollState.close_height !== 'number'" class="inline-block">
           - Closes never
         </div>
         <div v-else-if="!isClosed">
-          Closes in ~{{timeDifference | timeDifferenceToString}} (Block {{pollState.close_height}})
+          Closes in ~{{timeDifferenceString}} (Block {{pollState.close_height}})
         </div>
         <div v-else-if="isClosed && closeBlock">
-          Closed on {{closeBlock.keyBlock.time | timeStampToString}} (Block {{pollState.close_height}})
+          Closed on {{closeBlockTimeString}} (Block {{pollState.close_height}})
         </div>
         <div v-else-if="isClosed && !closeBlock">
           Closed at block {{pollState.close_height}}
@@ -75,7 +75,7 @@
         <div v-if="pollState.vote_options">
           <div :key="id" v-for="[id, title] in pollState.vote_options">
             <HintBubble v-if="delegateeVote && delegateeVote.option === id">
-              Your <span v-if="!Object.keys(delegateeVote.delegationTree).includes(accountAddress)">sub-</span>delegatee
+              Your <span v-if="!Object.keys(delegateeVote.delegationTree).includes(wallet.address)">sub-</span>delegatee
               <a class="font-mono text-primary text-xs" href="#"
                  @click.stop.prevent="$router.push(`/account/${delegateeVote.account}`)">
                 {{delegateeVote.account.substr(0,12)}} •••
@@ -87,13 +87,13 @@
             </HintBubble>
             <div class="m-4 ae-card cursor-pointer" @click="showVoters(id)">
               <div class="flex justify-between items-center w-full py-4 px-3">
-                <ae-check class="mr-1" v-model="voteOption" :value="id" type="radio" @click.stop.prevent
-                          @change="vote(id)" :disabled="isClosed || !accountAddress"/>
+                <ae-check class="mr-1" :checked="voteOption" :value="id" type="radio"
+                          @change.self="vote(id)" :disabled="isClosed || !wallet.address"/>
                 <!-- TODO find better solution than this -->
                 <div class="mr-auto ml-2" style="margin-top: 4px">
               <span
-                class="font-bold" v-if="pollVotesState">{{pollVotesState.stakesForOption[id].percentageOfTotal | formatPercent}}</span>
-                  <span>{{title}}</span>
+                class="font-bold" v-if="pollVotesState">{{formatPercent(pollVotesState.stakesForOption[id].percentageOfTotal)}}</span>
+                  <span>&nbsp;{{title}}</span>
                 </div>
                 <div class="min-w-3" style="margin-top: 4px" v-if="pollVotesState">
                   <img src="../assets/back_gray.svg" class="ae-transition-300" alt="show poll state"
@@ -107,8 +107,8 @@
             </div>
             <div class="text-gray-500 text-sm mx-4" v-show="votersForOption.id != null && votersForOption.id === id">
               <div class="text-gray-500 text-sm my-1 mx-2" v-if="pollVotesState">
-                {{pollVotesState.stakesForOption[id].percentageOfTotal | formatPercent(2)}}
-                ({{pollVotesState.stakesForOption[id].optionStake | toAE}}) -
+                {{formatPercent(pollVotesState.stakesForOption[id].percentageOfTotal, 2)}}
+                ({{toAE(pollVotesState.stakesForOption[id].optionStake)}}) -
                 {{pollVotesState.stakesForOption[id].votes.length}} Votes -
                 {{pollVotesState.stakesForOption[id].delegatorsCount}} Delegators
               </div>
@@ -152,11 +152,8 @@
 </template>
 
 <script>
-
-  import {AeCheck} from "@aeternity/aepp-components"
-
-  import aeternity from "../utils/aeternity";
-  import pollContractSource from '../assets/contracts/PollInterface.aes';
+  import {sdk, wallet} from "@/utils/wallet";
+  import pollAci from"../../../governance-contracts/generated/PollACI.json";
   import Backend from "../utils/backend";
   import BiggerLoader from '../components/BiggerLoader';
   import AeIdentityLight from '../components/AeIdentityLight';
@@ -167,10 +164,12 @@
   import AccountTreeLine from "../components/AccountTreeLine";
   import copy from 'copy-to-clipboard';
   import HintBubble from "../components/HintBubble";
-  import { EventBus } from '../utils/eventBus';
+  import contract from "@/utils/contract";
+  import AeCheck from "@/components/aepp/AeCheck";
+  import {formatPercent, timeDifferenceToString, timeStampToString, toAE} from "@/utils/filters";
 
   export default {
-    name: 'Home',
+    name: 'PollPage',
     components: {
       HintBubble,
       AccountTreeLine,
@@ -179,8 +178,6 @@
     },
     data() {
       return {
-        accountAddress: null,
-        balance: null,
         showLoading: true,
         pollId: null,
         delegateeVote: {},
@@ -201,14 +198,23 @@
         }
       };
     },
+    setup: () => ({ wallet }),
     computed: {
       timeDifference() {
         return (this.pollState.close_height - this.height) * 3 * 60 * 1000;
+      },
+      timeDifferenceString() {
+        return timeDifferenceToString(this.timeDifference)
+      },
+      closeBlockTimeString() {
+        return timeStampToString(this.closeBlock.keyBlock.time)
       }
     },
     methods: {
+      formatPercent: formatPercent,
+      toAE: toAE,
       openLink(mode, url) {
-        var target = url ? url : this.pollState.metadata.link;
+        let target = url ? url : this.pollState.metadata.link;
 
         if (window.parent === window) {
           // No Iframe
@@ -233,7 +239,7 @@
         this.showLoading = true;
         this.voteOption = id;
         try {
-          await this.pollContract.methods.vote(this.voteOption);
+          await this.pollContract.methods.vote(this.voteOption,{omitUnknown: true});
         } catch (e) {
           console.error(e);
           this.error = 'Could not process your vote. Please try again.';
@@ -250,7 +256,7 @@
       async revokeVote() {
         this.showLoading = true;
         try {
-          await this.pollContract.methods.revoke_vote();
+          await this.pollContract.methods.revoke_vote({omitUnknown: true});
           await this.loadData();
         } catch (e) {
           console.error(e);
@@ -284,15 +290,8 @@
         this.pollId = this.$route.params.id;
 
         this.votersForOption = {};
-        var fetchBalance = Promise.resolve();
-        if (!aeternity.static) {
-          this.accountAddress = await aeternity.client.address();
-          fetchBalance = aeternity.client.getBalance(this.accountAddress).then(balance => {
-            this.balance = balance
-          });
-        }
-
-        const fetchPollAddress = aeternity.contract.methods.poll(this.pollId).then(poll => {
+        let fetchBalance = Promise.resolve();
+        const fetchPollAddress = contract.registry.methods.poll(this.pollId).then(poll => {
           this.pollAddress = poll.decodedResult.poll;
           return this.pollAddress;
         }).catch(e => {
@@ -302,34 +301,35 @@
         });
 
         const fetchPollState = (async () => {
-          this.pollContract = await aeternity.client.getContractInstance(pollContractSource, {contractAddress: await fetchPollAddress});
-          this.pollState = (await this.pollContract.methods.get_state(aeternity.tempCallOptions)).decodedResult;
-          this.isClosed = this.pollState.close_height <= parseInt(await aeternity.client.height());
+          this.pollContract = await sdk.getContractInstance({aci: pollAci, contractAddress: await fetchPollAddress});
+          this.pollState = (await this.pollContract.methods.get_state()).decodedResult;
+          this.pollState.vote_options = Array.from(this.pollState.vote_options.entries()).map(([id, value]) => [Number(id), value]);
+          this.isClosed = this.pollState.close_height <= parseInt(await sdk.getHeight());
           try {
-            this.closeBlock = this.isClosed ? await aeternity.client.getGeneration(this.pollState.close_height) : null;
+            this.closeBlock = this.isClosed ? await sdk.getGeneration(this.pollState.close_height) : null;
           } catch (e) {
             // The base-aepp SDK does not support this function yet
           }
-          const accountVote = this.pollState.votes.find(([voter, _]) => voter === this.accountAddress);
-          this.voteOption = accountVote ? accountVote[1] : null;
+          const accountVote = Array.from(this.pollState.votes.entries()).find(([voter]) => voter === wallet.address);
+          this.voteOption = accountVote ? Number(accountVote[1]) : null;
         })().catch(e => {
           console.error(e);
           this.error = 'Could not fetch poll state.';
           this.continueFunction = () => this.$router.push('/');
         });
 
-        const fetchVotesState = new Backend(aeternity.networkId).votesState(await fetchPollAddress).then(votesState => {
+        const fetchVotesState = new Backend(wallet.networkId).votesState(await fetchPollAddress).then(votesState => {
           if (votesState === null) return;
           this.pollVotesState = votesState;
           this.delegateeVote = this.pollVotesState.stakesForOption
             .map(data => data.votes.find(vote =>
               vote.delegators.some(delegation =>
-                delegation.delegator === this.accountAddress))).find(x => x) || {};
+                delegation.delegator === wallet.address))).find(x => x) || {};
         }).catch(console.error);
 
         await Promise.all([fetchBalance, fetchPollAddress, fetchPollState, fetchVotesState]);
 
-        aeternity.verifyPollContract(await fetchPollAddress).then(verifiedPoll => {
+        contract.verifyPollContract(await fetchPollAddress).then(verifiedPoll => {
           if (!verifiedPoll) {
             this.error = 'Could not verify poll contract correctness, proceed with caution.'
             this.continueFunction = () => {this.error = null}
@@ -340,13 +340,13 @@
           this.continueFunction = () => {this.error = null}
         })
 
-        this.height = await aeternity.client.height();
+        this.height = await sdk.getHeight();
 
         this.showLoading = false;
       }
     },
     async mounted() {
-      EventBus.$on('dataChange', this.loadData)
+      this.eventBus.on('dataChange', this.loadData)
       try {
         await this.loadData();
       } catch (e) {
@@ -358,8 +358,8 @@
         this.showLoading = false;
       }
     },
-    beforeDestroy() {
-      EventBus.$off('dataChange', this.loadData)
+    beforeUnmount() {
+      this.eventBus.off('dataChange', this.loadData)
     }
   };
 </script>

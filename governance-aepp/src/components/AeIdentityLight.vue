@@ -3,32 +3,35 @@
     <div class="flex-row">
       <ae-identicon class="avatar" :address='address'/>
       <span :class="['identity-name-position', collapsedModifier]">
-        <span role="heading" :class="['identity-name', collapsedModifier]">{{name}}</span>
+        <span role="heading" :class="['identity-name', collapsedModifier]">{{ name }}</span>
         <small class="truncated-address cursor-pointer" v-if="collapsed" @click="$emit('click')">
-           {{address | shorten}} •••
+           {{ shortAddress }} •••
         </small>
       </span>
       <div class="balances">
         <div class="balance token">
-          <span class="amount">{{additionalText}}</span>
-          <span class="amount">{{balance | toAE}}</span>
-          <span class="currency-symbol">{{currency}}</span>
+          <span class="amount">{{ additionalText }}</span>
+          <span class="amount">{{ toAE(balance) }}</span>
+          <span class="currency-symbol">{{ currency }}</span>
         </div>
       </div>
     </div>
-    <div
-      v-if="!collapsed"
-      v-for="(chunk, idx) in chunkAddress"
-      :key="idx"
-      class="chunk-row">
-      <div v-for="(data, idx) in chunk" :key="idx" class="chunk">
-        {{data}}
+    <div v-if="!collapsed">
+      <div
+        v-for="(chunk, idx) in chunkAddress"
+        :key="idx"
+        class="chunk-row">
+        <div v-for="(data, idx) in chunk" :key="idx" class="chunk">
+          {{ data }}
+        </div>
       </div>
     </div>
   </div>
 </template>
 <script>
-    import AeIdenticon from '@aeternity/aepp-components/src/components/ae-identicon/ae-identicon.vue'
+
+import AeIdenticon from "@/components/aepp/AeIdenticon";
+import {shorten, toAE} from "@/utils/filters";
 
     /**
      * Displays an Identity with an avatar blockie, the address and an amount of ether
@@ -75,6 +78,9 @@
                 default: false,
             },
         },
+        methods:  {
+          toAE: toAE
+        },
         computed: {
             classObject() {
                 return [
@@ -95,14 +101,14 @@
             collapsedModifier() {
                 return this.collapsed ? '_collapsed' : ''
             },
-        },
-        filters: {
-            shorten: value => value.substr(0, 12),
+            shortAddress() {
+              return shorten(this.address)
+            }
         },
     }
 </script>
 <style lang="scss" scoped>
-  @import '~@aeternity/aepp-components/src/styles/fallback/variables';
+  @import '@/styles/variables.scss';
 
   .ae-identity-light._invert {
     color: $white;

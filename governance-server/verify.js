@@ -3,9 +3,9 @@ const Aeternity = require("./src/aeternity");
 const Logic = require("./src/logic");
 
 const findPollAddress = (arg, polls) => {
-    var poll = null;
+    let poll = null;
     if (!isNaN(parseInt(arg))) {
-        poll = polls.find(([id, _]) => id === parseInt(arg))
+        poll = polls.find(([id, _]) => Number(id) === parseInt(arg))
     } else {
         if (arg.startsWith("ct_")) {
             poll = polls.find(([_, data]) => data.poll === arg)
@@ -20,7 +20,7 @@ const findPollAddress = (arg, polls) => {
 const verify = async () => {
 
     const verifyConstants = {
-        nodeUrl: "https://mainnet.aeternal.io/",
+        nodeUrl: "https://mainnet.aeternity.io/",
         compilerUrl: "https://compiler.aepps.com",
         registryContract: "ct_ouZib4wT9cNwgRA1pxgA63XEUd8eQRrG8PcePDEYogBc1VYTq"
     };
@@ -41,7 +41,7 @@ const verify = async () => {
     console.log("Percentage of total supply:", parseFloat(pollState.percentOfTotalSupply).toFixed(2), "%");
     console.log("Number of votes:", pollState.voteCount);
     pollState.stakesForOption.forEach(option => {
-        const optionName = pollState.pollState.vote_options[parseInt(option.option)][1];
+        const optionName = pollState.pollState.vote_options[parseInt(option.option)];
         console.log("Votes for Option:", optionName, parseFloat(option.percentageOfTotal).toFixed(2), "%")
     });
 };

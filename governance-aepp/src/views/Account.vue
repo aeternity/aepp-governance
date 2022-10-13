@@ -12,7 +12,7 @@
         <ae-identity-light
           :collapsed="true"
           :balance="''"
-          @click="$router.push(`/account/${delegation}`)"
+          @click="switchAccount(delegation)"
           :address="delegation"
         />
         <div v-if="isOwnAccount" class="flex ml-auto">
@@ -45,6 +45,7 @@
     </div>
 
     <div v-if="activeTab === 'delegations'" id="account-tab-delegations">
+      <span v-if="activeTab === 'delegations'" hidden>{{activeTab}}</span>
       <div v-if="delegations.length">
         <div v-for="{delegator, delegatorAmount, includesIndirectDelegations} in delegations"
              :key="delegator" class="ae-card py-4 mx-4 my-2">
@@ -52,7 +53,7 @@
             :collapsed="true"
             :balance="delegatorAmount"
             :address="delegator"
-            @click="$router.push(`/account/${delegator}`)"
+            @click="switchAccount(delegator)"
             class="mx-4"
           />
           <div v-if="includesIndirectDelegations" class="mx-4 mt-1 text-xs">(includes more indirect delegations)</div>
@@ -63,9 +64,10 @@
       </div>
     </div>
     <div v-if="activeTab === 'votes'" id="account-tab-votes">
+      <span v-if="activeTab === 'votes'" hidden>{{activeTab}}</span>
       <div v-if="votedInPolls.length" class="mt-1">
         <div class="my-2" v-for="[id, data] in votedInPolls" :key="id">
-          <PollListing :id="id" :data="data" :showVote="true" class="mx-4"/>
+          <PollListing :id="Number(id)" :data="data" :showVote="true" class="mx-4"/>
         </div>
       </div>
       <div v-else class="text-gray-500 text-xl text-center my-8">
@@ -73,9 +75,10 @@
       </div>
     </div>
     <div v-if="activeTab === 'polls'" id="account-tab-polls">
+      <span v-if="activeTab === 'polls'" hidden>{{activeTab}}</span>
       <div v-if="authorOfPolls.length" class="mt-1">
         <div class="my-2" v-for="[id, data] in authorOfPolls" :key="id">
-          <PollListing :id="id" :data="data" class="mx-4"/>
+          <PollListing :id="Number(id)" :data="data" class="mx-4"/>
         </div>
       </div>
       <div v-else class="text-gray-500 text-xl text-center py-4 my-4">
@@ -84,7 +87,7 @@
     </div>
     <BottomButtons htmlId="account-nav-buttons" :search-bar="true" :search-button="true" @searchSubmit="handleSearch"
                    :key="`bottomButtons${address}`"/>
-    <div class="fixed flex bottom-36 px-8 w-full" v-if="searchError">
+    <div class="fixed bottom-36 px-8 w-full max-w-desktop" v-if="searchError" @click.once="searchError = null">
       <div class="flex-1 rounded-full bg-gray-500 text-white px-4 py-2 ae-error-field">
         {{searchError}}
       </div>
@@ -94,7 +97,7 @@
 </template>
 
 <script>
-  import aeternity from "../utils/aeternity";
+import {sdk, wallet} from "@/utils/wallet";
   import * as Crypto from '@aeternity/aepp-sdk/es/utils/crypto';
   import BiggerLoader from '../components/BiggerLoader'
   import AeIdentityLight from '../components/AeIdentityLight'
@@ -105,10 +108,10 @@
   import AccountHeader from "../components/AccountHeader";
   import CriticalErrorOverlay from "../components/CriticalErrorOverlay";
   import AeInput from '../components/AeInput'
-  import { EventBus } from '../utils/eventBus';
+  import contract from "@/utils/contract";
 
-  export default {
-    name: 'Home',
+export default {
+    name: 'AccountPage',
     components: {
       CriticalErrorOverlay,
       AccountHeader,
@@ -135,20 +138,24 @@
       }
     },
     computed: {},
-    beforeRouteUpdate(to, from, next) {
-      next();
-      if (this.address !== this.$route.params.account) this.loadData();
-      else this.activeTab = this.$route.query.tab ? this.$route.query.tab : 'delegations'
+    watch: {
+      $route(to){
+        if (this.address !== to.params.account) this.loadData();
+        else this.activeTab = to.query.tab ? to.query.tab : 'delegations'
+      }
     },
     methods: {
       handleSearch(searchText) {
-        this.searchError = '';
+        this.searchError = null;
         if (!searchText) return this.searchError = 'Please enter an address';
         if (Crypto.isAddressValid(searchText)) {
-          this.$router.push(`/account/${searchText}`)
+          this.switchAccount(searchText)
         } else {
           this.searchError = 'The address is not valid'
         }
+      },
+      switchAccount(account) {
+        if (account) this.$router.push({name: 'account', params: {account}});
       },
       switchTab(newTab) {
         if (this.activeTab !== newTab) this.$router.push({query: {tab: newTab}})
@@ -176,8 +183,8 @@
         if (this.delegatee.includes('ak_')) {
           this.showLoading = true;
           try {
-            await aeternity.contract.methods.delegate(this.delegatee);
-            await new Backend(aeternity.networkId).contractEvent("Delegation").catch(console.error);
+            await contract.registry.methods.delegate(this.delegatee, {omitUnknown: true});
+            await new Backend(wallet.networkId).contractEvent("Delegation").catch(console.error);
             await this.loadData();
           } catch (e) {
             console.error(e);
@@ -190,8 +197,8 @@
       async revokeDelegation() {
         this.showLoading = true;
         try {
-          await aeternity.contract.methods.revoke_delegation();
-          await new Backend(aeternity.networkId).contractEvent("RevokeDelegation").catch(console.error);
+          await contract.registry.methods.revoke_delegation({omitUnknown: true});
+          await new Backend(wallet.networkId).contractEvent("RevokeDelegation").catch(console.error);
           await this.loadData();
         } catch (e) {
           console.error(e);
@@ -213,29 +220,29 @@
         this.resetData();
 
         this.address = this.$route.params.account;
-        if(!aeternity.static) this.isOwnAccount = this.address === (await aeternity.client.address());
+        if(!wallet.isStatic) this.isOwnAccount = this.address === wallet.address;
 
-        const fetchBalance = aeternity.client.getBalance(this.address).then(balance => {
+        const fetchBalance = sdk.getBalance(this.address).then(balance => {
           this.balance = balance
         });
-        const fetchDelegation = aeternity.delegation(this.address).catch(e => {
+        const fetchDelegation = contract.delegation(this.address).catch(e => {
           console.error(e);
           this.error = 'Could not fetch delegation.'
         });
-        const fetchDelegations = aeternity.delegations(this.address).catch(e => {
+        const fetchDelegations = contract.delegations(this.address).catch(e => {
           console.error(e);
           this.error = 'Could not fetch delegations.'
         });
 
 
-        const fetchDelegatedPower = new Backend(aeternity.networkId).delegatedPower(this.address).then(async delegatedPower => {
+        const fetchDelegatedPower = new Backend(wallet.networkId).delegatedPower(this.address).then(async delegatedPower => {
           await fetchBalance;
           if (delegatedPower === null) return;
           this.delegatedPower = delegatedPower.delegatedPower;
           this.totalStake = new BigNumber(this.balance).plus(this.delegatedPower);
         }).catch(console.error);
 
-        const fetchAccountPollVoterAuthor = new Backend(aeternity.networkId).accountPollVoterAuthor(this.address).then(data => {
+        const fetchAccountPollVoterAuthor = new Backend(wallet.networkId).accountPollVoterAuthor(this.address).then(data => {
           if (data === null) return;
           this.votedInPolls = data.votedInPolls.filter(poll => poll[1].is_listed);
           this.votedInPolls = this.votedInPolls.concat(data.delegateeVotes.filter(poll => {
@@ -252,18 +259,18 @@
         this.showLoading = false;
       },
       async goToOwnAccountPage() {
-        await this.$router.push(`/account/${(await aeternity.client.address())}`)
+        await this.switchAccount(wallet.address)
       }
     },
     async mounted() {
-      EventBus.$on('dataChange', this.goToOwnAccountPage)
+      this.eventBus.on('dataChange', this.goToOwnAccountPage)
       await this.loadData();
       this.activeTab = this.$route.query.tab ? this.$route.query.tab : "delegations";
       document.addEventListener('touchstart', this.touchStartEvent, false);
       document.addEventListener('touchend', this.touchEndEvent, false);
     },
-    beforeDestroy() {
-      EventBus.$off('dataChange', this.goToOwnAccountPage)
+    beforeUnmount() {
+      this.eventBus.off('dataChange', this.goToOwnAccountPage)
       document.removeEventListener('touchstart', this.touchStartEvent, false);
       document.removeEventListener('touchend', this.touchEndEvent, false);
     }

@@ -63,7 +63,7 @@
         else this.$router.go(-1);
       }
     },
-    beforeDestroy() {
+    beforeUnmount() {
       if (this.activeTimeout) clearTimeout(this.activeTimeout);
     }
   };

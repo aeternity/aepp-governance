@@ -1,9 +1,9 @@
-import BlockchainUtil from "./util";
+import {toAe} from "@aeternity/aepp-sdk";
 
 export function toAE(num, decimalPlaces) {
   if (num) {
     if(typeof decimalPlaces === 'undefined') decimalPlaces = 2;
-    return BlockchainUtil.atomsToAe(num).toFixed(decimalPlaces) + " AE";
+    return Number(toAe(num)).toFixed(decimalPlaces) + " AE";
   } else {
     return "";
   }
@@ -47,4 +47,8 @@ export function timeStampToString(timestamp) {
   } else {
     return ''
   }
+}
+
+export function shorten(value){
+  return value.substr(0, 12);
 }

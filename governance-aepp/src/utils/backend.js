@@ -1,4 +1,4 @@
-import settings from "../data/settings";
+import settings from "./settings";
 
 const wrapTry = async (f) => {
   try {
@@ -55,6 +55,9 @@ export default class Backend {
     return fetch(`${this.BACKEND_URL}/contractEvent`, {
       body: JSON.stringify({topic: topic, poll: poll}),
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
   });
 

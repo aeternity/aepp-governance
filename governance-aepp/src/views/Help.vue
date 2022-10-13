@@ -66,12 +66,12 @@
   import BlackHeader from "../components/BlackHeader";
   import BottomButtons from "../components/BottomButtons";
   import copy from 'copy-to-clipboard';
-  import help from '../data/help.json';
-  import aeternity from "../utils/aeternity";
+  import help from '../assets/help.json';
+  import {wallet} from "@/utils/wallet";
   import Backend from "../utils/backend";
 
   export default {
-    name: 'Help',
+    name: 'HelpPage',
     components: {BlackHeader, BottomButtons},
     data() {
       return {
@@ -98,7 +98,7 @@
       }
     },
     mounted() {
-      new Backend(aeternity.networkId).version().then(data => {
+      new Backend(wallet.networkId).version().then(data => {
         this.serverVersion = data.version
       })
     }

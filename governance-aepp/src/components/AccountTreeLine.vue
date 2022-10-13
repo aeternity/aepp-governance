@@ -13,7 +13,7 @@
         (<span class="text-primary cursor-pointer">{{totalTreeDepth}}D</span>)
       </span>
         <span>
-        {{totalBalance | toAE}}
+        {{toAE(totalBalance)}}
       </span>
       </div>
     </div>
@@ -31,6 +31,7 @@
 <script>
   import AeIdentityLight from '../components/AeIdentityLight'
   import BigNumber from 'bignumber.js'
+  import {toAE} from "@/utils/filters";
 
   export default {
     name: "AccountTreeLine",
@@ -45,6 +46,7 @@
       }
     },
     methods: {
+      toAE: toAE,
       obtainTotalNumberOfDelegations(tree) {
         let treeArray = Object.keys(tree);
         if (!treeArray.length) return 0;

@@ -13,5 +13,5 @@ cd aepp-governance/governance-aepp && npm install
 
 Once the setup is completed you can simply run
 ```
-npm run dev
+npm run serve
 ```

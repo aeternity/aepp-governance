@@ -1,25 +1,13 @@
-import './main.css'
-/**
- * This will only include font files
- */
+import './styles/main.css'
 
-import Vue from 'vue'
-import VueRouter from 'vue-router'
+import {createApp} from 'vue'
 import App from './App.vue'
 import router from './router'
-import * as filters from './utils/filters'
+import mitt from 'mitt';
 
+const eventBus = mitt()
 
-Vue.use(VueRouter);
+const app = createApp(App)
 
-Vue.config.productionTip = false;
-
-
-Object.keys(filters).forEach(key => {
-  Vue.filter(key, filters[key])
-});
-
-export default new Vue({
-  router: router,
-  render: h => h(App)
-}).$mount('#app')
+app.config.globalProperties.eventBus = eventBus
+app.use(router).mount('#app')

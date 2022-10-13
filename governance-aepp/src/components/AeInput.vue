@@ -13,14 +13,14 @@
         class="ae-input"
         :class="{ aemount }"
         :id="id"
-        :value="value"
+        :value="modelValue"
         @focus="focus = true"
         @blur="(event) => {
         propagateEvent(event);
         focus = false
         }"
         @input="propagateEventValue"
-        v-if="!$slots.default && !$scopedSlots.default"
+        v-if="!$slots.default"
         v-bind="$attrs"
       />
       <!--
@@ -40,14 +40,13 @@
   </div>
 </template>
 <script>
-import { events } from '@aeternity/aepp-components/src/mixins';
 
 export default {
   name: 'ae-input',
-  mixins: [events],
   data() {
     return { focus: false };
   },
+  emits: ['update:modelValue', 'blur'],
   props: {
     /**
      * ID of the component/input
@@ -57,7 +56,7 @@ export default {
     /**
      * Actual input element value
      */
-    value: [String, Number],
+    modelValue: [String, Number],
 
     /**
      * Property to define label of input, used to set
@@ -80,13 +79,22 @@ export default {
      */
     error: Boolean,
   },
+  methods: {
+    propagateEvent(event) {
+      this.$emit(event.type, event);
+    },
+
+    propagateEventValue(event) {
+      this.$emit('update:modelValue', event.target.value);
+    },
+  }
 };
 </script>
 <style lang="scss" scoped>
-@import '~@aeternity/aepp-components/src/styles/globals/mixins';
-@import '~@aeternity/aepp-components/src/styles/variables/animations';
-@import '~@aeternity/aepp-components/src/styles/variables/colors';
-@import '~@aeternity/aepp-components/src/styles/placeholders/typography';
+@import '@/styles/mixins.scss';
+@import '@/styles/animations.scss';
+@import '@/styles/colors.scss';
+@import '@/styles/typography.scss';
 
 .ae-input-container {
   user-select: none;

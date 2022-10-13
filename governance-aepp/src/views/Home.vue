@@ -4,24 +4,24 @@
       <BiggerLoader/>
     </div>
     <div class="fixed w-full top-0 max-w-desktop">
-      <BlackHeader :show-number-input="true" @submit="showPoll" @input="handleIdInput">
+      <BlackHeader :show-number-input="true" @submit.self="showPoll" @input="handleIdInput">
         {{activeTab}} Polls
       </BlackHeader>
       <div class="flex bg-gray-ae text-gray-200" id="home-tab-switcher">
-        <div v-if="pollOrdering" :class="{active: activeTab === 'hot'}" @click="switchTab('hot')" class="tab">
-          <span>HOT</span>
+        <div v-if="pollOrdering" :class="{active: activeTab === 'hot'}" @click="switchTab('hot')" class="tab flex-1 text-center pb-2 relative">
+          <span class="cursor-pointer inline-block">HOT</span>
         </div>
-        <div :class="{active: activeTab === 'closing'}" @click="switchTab('closing')" class="tab">
-          <span>CLOSING</span>
+        <div :class="{active: activeTab === 'closing'}" @click="switchTab('closing')" class="tab flex-1 text-center pb-2 relative">
+          <span class="cursor-pointer inline-block">CLOSING</span>
         </div>
-        <div v-if="pollOrdering" :class="{active: activeTab === 'stake'}" @click="switchTab('stake')" class="tab">
-          <span>STAKE</span>
+        <div v-if="pollOrdering" :class="{active: activeTab === 'stake'}" @click="switchTab('stake')" class="tab flex-1 text-center pb-2 relative">
+          <span class="cursor-pointer inline-block">STAKE</span>
         </div>
-        <div :class="{active: activeTab === 'new'}" @click="switchTab('new')" class="tab">
-          <span>NEW</span>
+        <div :class="{active: activeTab === 'new'}" @click="switchTab('new')" class="tab flex-1 text-center pb-2 relative">
+          <span class="cursor-pointer inline-block">NEW</span>
         </div>
-        <div :class="{active: activeTab === 'closed'}" @click="switchTab('closed')" class="tab">
-          <span>CLOSED</span>
+        <div :class="{active: activeTab === 'closed'}" @click="switchTab('closed')" class="tab flex-1 text-center pb-2 relative">
+          <span class="cursor-pointer inline-block">CLOSED</span>
         </div>
       </div>
     </div>
@@ -29,7 +29,7 @@
       <transition name="fade">
         <div v-show="polls" class="mx-4 mt-6" :key="activeTab">
           <div class="my-2" :key="id" v-for="[id, data] in polls">
-            <PollListing :id="id" :data="data"/>
+            <PollListing :id="Number(id)" :data="data"/>
           </div>
         </div>
       </transition>
@@ -45,7 +45,7 @@
 </template>
 
 <script>
-  import aeternity from '../utils/aeternity';
+  import {sdk, wallet} from '@/utils/wallet';
   import Backend from '../utils/backend';
   import BiggerLoader from '../components/BiggerLoader';
   import PollListing from '../components/PollListing';
@@ -53,18 +53,15 @@
   import BlackHeader from '../components/BlackHeader';
   import CriticalErrorOverlay from '../components/CriticalErrorOverlay';
   import BigNumber from 'bignumber.js';
-  import { EventBus } from '../utils/eventBus';
-  import Util from '../utils/util'
+  import contract from "@/utils/contract";
 
   export default {
-    name: 'Home',
+    name: 'HomePage',
     components: { BlackHeader, BottomButtons, PollListing, BiggerLoader, CriticalErrorOverlay },
     data() {
       return {
         error: null,
         showLoading: true,
-        address: null,
-        balance: null,
         activeTab: null,
         availableTabs: ['hot', 'closing', 'stake', 'new', 'closed'],
         pollOverview: [],
@@ -98,7 +95,7 @@
         }
       },
       showPoll(id) {
-        if (this.allPolls.find(poll => poll[0] === parseInt(id)))
+        if (this.allPolls.find(poll => poll[0] === BigInt(id)))
           this.$router.push(`/poll/${id}`);
         else
           this.error = `Could not find poll with id "${id}".`;
@@ -111,8 +108,8 @@
 
         switch (this.activeTab) {
           case 'hot':
-            this.polls = this.activePolls.filter(([id, _]) => this.pollOrdering.ordering.includes(id)).sort((a, b) => {
-              return this.pollOrdering.ordering.indexOf(a[0]) - this.pollOrdering.ordering.indexOf(b[0]);
+            this.polls = this.activePolls.filter(([id]) => this.pollOrdering.ordering.includes(Number(id))).sort((a, b) => {
+              return this.pollOrdering.ordering.indexOf(Number(a[0])) - this.pollOrdering.ordering.indexOf(Number(b[0]));
             });
             break;
           case 'stake':
@@ -121,19 +118,19 @@
               return new BigNumber(b.totalStake).comparedTo(a.totalStake);
             }).map(poll => poll.id);
             this.polls = this.activePolls.sort((a, b) => {
-              return stakeOrdering.indexOf(a[0]) - stakeOrdering.indexOf(b[0]);
+              return stakeOrdering.indexOf(Number(a[0])) - stakeOrdering.indexOf(Number(b[0]));
             });
             break;
           case 'closing':
-            this.polls = this.activePolls.filter(([_, data]) => data.close_height).sort((a, b) => {
-              return (a[1].close_height || b[1].close_height) ? (!a[1].close_height ? 1 : !b[1].close_height ? 1 : a[1].close_height - b[1].close_height) : 0;
+            this.polls = this.activePolls.filter(([, data]) => data.close_height).sort((a, b) => {
+              return (a[1].close_height || b[1].close_height) ? (!a[1].close_height ? 1 : !b[1].close_height ? 1 : Number(a[1].close_height) - Number(b[1].close_height)) : 0;
             });
             break;
           case 'new':
-            this.polls = this.activePolls.sort((a, b) => b[0] - a[0]);
+            this.polls = this.activePolls.sort((a, b) => Number(b[0]) - Number(a[0]));
             break;
           case 'closed':
-            this.polls = this.closedPolls.sort((a, b) => b[1].close_height - a[1].close_height);
+            this.polls = this.closedPolls.sort((a, b) => Number(b[1].close_height) - Number(a[1].close_height));
             break;
         }
       },
@@ -165,33 +162,29 @@
         this.switchTab(this.availableTabs[(currentIndex + direction) % this.availableTabs.length]);
       },
       async loadData() {
-        if(!aeternity.static) {
-          this.address = await aeternity.client.address();
-          this.balance = await aeternity.client.getBalance(this.address);
-
-          if (!aeternity.isMainnet() && Util.atomsToAe(this.balance) <= 5) {
-            await fetch(`https://testnet.faucet.aepps.com/account/${this.address}`,
-              {
-                headers: { 'content-type': 'application/x-www-form-urlencoded' },
-                method: 'POST',
-              }).catch(console.error);
-          }
+        if (wallet.address && wallet.networkId ==='ae_uat' && wallet.balance && Number(wallet.balance) < 5) {
+          await fetch(`https://testnet.faucet.aepps.com/account/${wallet.address}`,
+            {
+              headers: { 'content-type': 'application/x-www-form-urlencoded' },
+              method: 'POST',
+            }).catch(console.error);
         }
 
-        const fetchPolls = aeternity.polls().catch(e => {
+        const fetchPolls = contract.polls().catch(e => {
           console.error(e);
           this.error = 'Could not fetch polls.';
         });
-        const fetchOrdering = new Backend(aeternity.networkId).pollOrdering(false).catch(console.error);
+        const fetchOrdering = new Backend(wallet.networkId).pollOrdering(false).catch(console.error);
         const [allPolls, pollOrdering] = await Promise.all([fetchPolls, fetchOrdering]);
 
         this.pollOrdering = pollOrdering;
-        this.allPolls = allPolls.filter(([_, data]) => data.title.length <= 50);
+        this.allPolls = allPolls.filter(([, data]) => data.title.length <= 50);
 
         if (this.allPolls) {
-          let height = await aeternity.client.height()
-          this.closedPolls = this.allPolls.filter(([_, data]) => data.is_listed).filter(poll => typeof poll[1].close_height === 'number' && poll[1].close_height <= height);
-          this.activePolls = this.allPolls.filter(([_, data]) => data.is_listed).filter(poll => typeof poll[1].close_height !== 'number' || poll[1].close_height > height);
+          let height = BigInt(await sdk.getHeight())
+
+          this.closedPolls = this.allPolls.filter(([, poll]) => poll.is_listed).filter(([, poll]) => poll.close_height && poll.close_height <= height);
+          this.activePolls = this.allPolls.filter(([, poll]) => poll.is_listed).filter(([, poll]) => !poll.close_height || poll.close_height > height);
         }
 
         // Only overwrite if active tab is not set yet
@@ -211,37 +204,32 @@
     },
 
     async mounted() {
-      EventBus.$on('dataChange', this.loadData);
+      this.eventBus.on('dataChange', this.loadData);
 
       await this.loadData();
     },
     created() {
       this.activeTab = this.$route.query.tab ? this.$route.query.tab : null;
     },
-    beforeDestroy() {
+    beforeUnmount() {
       document.removeEventListener('touchstart', this.touchStartEvent, false);
       document.removeEventListener('touchend', this.touchEndEvent, false);
-      EventBus.$off('dataChange', this.loadData);
+      this.eventBus.off('dataChange', this.loadData);
     },
   };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
   .bg-gray-ae {
     background-color: #333333;
   }
 
   .tab {
-    @apply flex-1 text-center pb-2 relative;
     font-size: .825rem;
   }
 
   .tab.active {
     font-weight: bold;
-  }
-
-  .tab span {
-    @apply cursor-pointer inline-block;
   }
 
   .tab.active::after {

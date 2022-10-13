@@ -7,80 +7,18 @@ services:
     ports:
       - 3000:3000
     links:
-      - aeternity_proxy
       - redis
-      - middleware
-      - compiler
     environment:
-      - CONTRACT_ADDRESS=ct_2cFxfeheJGfy4cwBWmeJ2wiiRM9BvJh6cCevdsoGv2VNascjsc
-      - NODE_URL=http://aeternity_proxy:3013/
-      - COMPILER_URL=http://compiler:3080
-      - WEBSOCKET_URL=ws://middleware:3020
-      - MIDDLEWARE_URL=http://middleware:8000
+      - COMPILER_URL=https://compiler.aeternity.io
+      - CONTRACT_ADDRESS=ct_ouZib4wT9cNwgRA1pxgA63XEUd8eQRrG8PcePDEYogBc1VYTq
+      - KEEP_HOT_INTERVAL=60000
+      - MIDDLEWARE_URL=https://mainnet.aeternity.io/mdw
+      - NODE_URL=https://mainnet.aeternity.io/
+      - PORT=3000
       - REDIS_URL=redis://redis:6379
-
-  aeternity:
-    image: aeternity/aeternity
-    restart: unless-stopped
-    hostname: aeternity
-    volumes:
-      - ./aeternity.yaml:/home/aeternity/.aeternity/aeternity/aeternity.yaml
-      - ./.data/aeternity:/home/aeternity/node/data/mnesia
-
-  compiler:
-    image: aeternity/aesophia_http
-    restart: unless-stopped
-    hostname: compiler
-    ports:
-      - 3080:3080
-
-  aeternity_proxy:
-    image: nginx
-    restart: unless-stopped
-    hostname: aeternity_proxy
-    links:
-      - aeternity
-    volumes:
-      - ./proxy.conf:/etc/nginx/conf.d/default.conf
-    logging:
-      driver: none
-    ports:
-      - 3013:3013
-
-  middleware_db:
-    image: postgres
-    restart: unless-stopped
-    environment:
-      - POSTGRES_USER=middleware
-      - POSTGRES_PASSWORD=middleware
-      - POSTGRES_DB=middleware
-    volumes:
-      - ./.data/middleware:/var/lib/postgresql/data
-
-  middleware:
-    image: aeternity/aeternal
-    restart: unless-stopped
-    hostname: middleware
-    entrypoint: ./aeternal -p -s -w
-    environment:
-      - RUST_BACKTRACE=full
-      - RUST_LOG=mdw
-      - NODE_URL=http://aeternity_proxy:3013
-      - DATABASE_URL=postgres://middleware:middleware@middleware_db/middleware
-    depends_on:
-      - aeternity
-    links:
-      - aeternity_proxy
-      - middleware_db
-    ports:
-      - 3020:3020
-      - 8000:80
-    logging:
-      driver: none
+      - WEBSOCKET_URL=wss://mainnet.aeternity.io/mdw/websocket
 
   redis:
     image: redis
     restart: unless-stopped
     hostname: redis
-    ports:
-      - 6379:6379

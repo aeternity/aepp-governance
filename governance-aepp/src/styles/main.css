@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.max-w-desktop {
+  max-width: 700px;
+  width: 100%;
+}
+
+.max-w-85 {
+  max-width: 85%;
+}
+
+.bg-primary {
+  background-color: #FF0D6A;
+}
+
+.opacity-40 {
+  opacity: .4;
+}
+
+.text-primary {
+  color: #FF0D6A;
+}
+
+.h1 {
+  font-size: 2rem;
+}
+
+.h2 {
+  font-size: 1.5rem;
+}
+
+.overlay-loader {
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 100;
+  width: 100%;
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 150px;
+  background-color: rgba(255, 255, 255, 0.85);
+  overflow: hidden;
+}
+
+.label {
+  font-size: 13px;
+  line-height: 1.23;
+  color: #76818c;
+}
+
+.ae-card {
+  border-radius: 5px;
+  box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.15);
+  background-color: #ffffff;
+}
+
+
+.rotate-90 {
+  transform: rotate(-90deg);
+}
+.rotate-180 {
+  transform: rotate(-180deg);
+}
+
+
+.border-primary {
+  border-color: #FF0D6A;
+}
+
+.ae-transition-300 {
+  transition: 300ms;
+}
+
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .3s;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */
+{
+  opacity: 0;
+}

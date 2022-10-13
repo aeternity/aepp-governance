@@ -26,12 +26,10 @@
       </ul>
     </div>
     <div class="py-2 px-4">
-      <ae-input :error="!!errors.titleError" v-model="createMetadata.title" label="Title">
-      </ae-input>
+      <ae-input :error="!!errors.titleError" v-model="createMetadata.title" label="Title" />
     </div>
     <div class="py-2 px-4">
-      <ae-input :error="!!errors.descriptionError" v-model="createMetadata.description" label="Description">
-      </ae-input>
+      <ae-input :error="!!errors.descriptionError" v-model="createMetadata.description" label="Description" />
     </div>
     <div class="mt-2">
       <HintBubble v-if="showForumHint">
@@ -40,8 +38,7 @@
       </HintBubble>
     </div>
     <div class="pb-2 px-4">
-      <ae-input :error="!!errors.linkError" v-model="createMetadata.link" label="Link" @blur="linkBlurHandler">
-      </ae-input>
+      <ae-input :error="!!errors.linkError" v-model="createMetadata.link" label="Link" @blur="linkBlurHandler" />
     </div>
     <div class="py-2 px-4">
       <AeButtonGroup>
@@ -96,10 +93,7 @@
 
 <script>
 
-  import {AeButton, AeButtonGroup} from "@aeternity/aepp-components"
 
-  import aeternity from "../utils/aeternity";
-  import pollContractSource from '../assets/contracts/Poll.aes';
   import pollIrisContractSource from '../assets/contracts/Poll_Iris.aes';
   import BiggerLoader from '../components/BiggerLoader';
   import BottomButtons from "../components/BottomButtons";
@@ -108,9 +102,13 @@
   import CriticalErrorOverlay from "../components/CriticalErrorOverlay";
   import AeInput from "../components/AeInput";
   import HintBubble from "../components/HintBubble";
+  import {sdk} from "@/utils/wallet";
+  import contract from "@/utils/contract";
+  import AeButton from "@/components/aepp/AeButton";
+  import AeButtonGroup from "@/components/aepp/AeButtonGroup";
 
   export default {
-    name: 'Home',
+    name: 'CreatePage',
     components: {
       CriticalErrorOverlay,
       HintBubble,
@@ -221,10 +219,10 @@
 
           try {
 
-            const source = aeternity.isIrisCompiler() ? pollIrisContractSource : pollContractSource;
-            const pollContract = await aeternity.client.getContractInstance(source);
-            const init = await pollContract.methods.init(this.createMetadata, options, close_height);
-            const addPoll = await aeternity.contract.methods.add_poll(init.address, this.is_listed);
+            const source = pollIrisContractSource;
+            const pollContract = await sdk.getContractInstance({ source });
+            const init = await pollContract.methods.init(this.createMetadata, options, close_height, {omitUnknown: true});
+            const addPoll = await contract.registry.methods.add_poll(init.address, this.is_listed, {omitUnknown: true});
             this.$router.push(`/poll/${addPoll.decodedResult}`);
           } catch (e) {
             this.showLoading = false;
@@ -253,8 +251,7 @@
       }
     },
     async created() {
-      await aeternity.initClient();
-      this.height = await aeternity.client.height();
+      this.height = await sdk.getHeight();
       this.heightTimestamp = Date.now();
       this.closeHeight = 20 * 24 * 30 + this.height;
       this.updateDateInputs();

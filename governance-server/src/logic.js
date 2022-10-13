@@ -67,8 +67,8 @@ module.exports = class Logic {
             const maxStake = BigNumber.max(...pollsData.map(poll => poll.totalStake), '1');
 
             const pollsScores = pollsData.map(poll => {
-                const closesInBlocks = poll.closeHeight - height;
-                const considerCloseHeight = poll.closeHeight ? closesInBlocks > 0 && closesInBlocks <= considerCloseBlocks ? closesInBlocks : null : null;
+                const closesInBlocks = Number(poll.closeHeight) - height;
+                const considerCloseHeight = Number(poll.closeHeight) ? closesInBlocks > 0 && closesInBlocks <= considerCloseBlocks ? closesInBlocks : null : null;
                 poll.considerCloseHeight = considerCloseHeight;
 
                 poll.closeScore = considerCloseHeight ? Math.abs(considerCloseBlocks - considerCloseHeight) / considerCloseBlocks : 0;
@@ -101,8 +101,8 @@ module.exports = class Logic {
             const {pollState, votingAccountList} = await this.pollStateAndVotingAccounts(data.poll, true);
 
             const getVoteForAccount = (account) => {
-                const voteId = pollState.votes.find(([voter, _]) => voter === account)[1];
-                const voteOption = pollState.vote_options.find(([id]) => id === voteId)[1];
+                const voteId = pollState.votes[account];
+                const voteOption = pollState.vote_options[voteId];
                 return {vote: voteOption};
             };
 
@@ -142,7 +142,7 @@ module.exports = class Logic {
         const result = async () => {
             const pollState = await this.aeternity.pollState(address);
 
-            const votingAccounts = pollState.votes.map(([account, option]) => {
+            const votingAccounts = Object.entries(pollState.votes).map(([account, option]) => {
                 return {
                     account: account,
                     option: option
@@ -170,7 +170,13 @@ module.exports = class Logic {
         const closingHeightOrUndefined = await this.aeternity.getClosingHeightOrUndefined(pollCloseHeight);
         const votingAccountStakes = [];
         for (let vote of votingAccounts) {
-            const {votingPower, balance, delegatedPower, delegationTree, flattenedDelegationTree} = await this.balancePlusVotingPower(vote.account, closingHeightOrUndefined, ignoreAccounts);
+            const {
+                votingPower,
+                balance,
+                delegatedPower,
+                delegationTree,
+                flattenedDelegationTree
+            } = await this.balancePlusVotingPower(vote.account, closingHeightOrUndefined, ignoreAccounts);
             votingAccountStakes.push({
                 ...vote, ...{
                     stake: votingPower,
@@ -185,7 +191,7 @@ module.exports = class Logic {
     };
 
     stakesForOption = (voteOptions, votingAccountStakes, totalStake) => {
-        const voteOptionsEmptyVotes = voteOptions.reduce((acc, [id, _]) => {
+        const voteOptionsEmptyVotes = Object.keys(voteOptions).reduce((acc, id) => {
             return {...acc, ...{[id.toString()]: []}}
         }, {});
 
@@ -217,7 +223,11 @@ module.exports = class Logic {
 
     balancePlusVotingPower = async (address, height, ignoreAccounts = []) => {
         const balance = await this.balanceAtHeight(address, height);
-        const {delegatedPower, delegationTree, flattenedDelegationTree} = await this.delegatedPower(address, height, ignoreAccounts);
+        const {
+            delegatedPower,
+            delegationTree,
+            flattenedDelegationTree
+        } = await this.delegatedPower(address, height, ignoreAccounts);
 
         process.stdout.write("/");
 
@@ -232,13 +242,13 @@ module.exports = class Logic {
 
     balanceAtHeight = async (account, height) => {
         return this.cache.getOrSet(["balanceAtHeight", height, account], async () => {
-            const heightOption = height ? {height: height} : {};
+            const heightOption = height ? {height: Number(height)} : {};
             process.stdout.write("+");
 
-            const balance = await this.aeternity.client.balance(account, heightOption).catch(async (e) => {
+            const balance = await this.aeternity.client.getBalance(account, heightOption).catch(async (e) => {
                 if (e.message.includes("Height not available")) {
                     // account balance will fail if not yet at closing height, use current height for a temporary result
-                    return await this.aeternity.client.balance(account).catch((e) => {
+                    return await this.aeternity.client.getBalance(account).catch((e) => {
                         console.error(e);
                         return '0'
                     });
@@ -265,12 +275,16 @@ module.exports = class Logic {
         const aeternity = this.aeternity;
         const balanceAtHeight = this.balanceAtHeight;
 
-        async function discoverDelegationChain(address) {
+        async function discoverDelegationChain(address, checkedAddresses = []) {
+            process.stdout.write("~");
+
             const nextLayerAccounts = searchDelegatee ? await aeternity.delegatee(address, height) : await aeternity.delegators(address, height);
             return nextLayerAccounts.reduce(async (promiseAcc, [delegator, delegatee]) => {
                 const nextAccount = searchDelegatee ? delegatee : delegator;
-                const ignoreAccount = nextAccount === initialAddress || ignoreAccounts.includes(nextAccount);
-                const recursiveDelegations = ignoreAccount ? [] : await discoverDelegationChain(nextAccount);
+                const ignoreAccount = nextAccount === initialAddress || ignoreAccounts.includes(nextAccount) || checkedAddresses.includes(nextAccount);
+
+                checkedAddresses.push(address)
+                const recursiveDelegations = ignoreAccount ? [] : await discoverDelegationChain(nextAccount, checkedAddresses);
 
                 if (ignoreAccount) {
                     return promiseAcc;

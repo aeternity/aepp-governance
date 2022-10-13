@@ -8,7 +8,7 @@
           <input v-model="searchString" type="search" placeholder="Search..."
                  class="rounded-full flex-1 bg-white h-full flex justify-center items-center px-4 w-full search-bar"/>
         </label>
-        <SmallButton :img="images.searchImg" v-if="searchButton"
+        <SmallButton :img="images.searchImg" v-if="searchButton" class="ml-2"
                      @click="$emit('searchSubmit', searchString)"/>
       </div>
       <!-- BUTTONS -->
@@ -16,8 +16,8 @@
         <!-- LEFT BUTTON> -->
         <div class="flex justify-evenly items-center h-full flex-2">
           <SmallButton :img="images.homeImg" @click="() => $route.path !== '/' && $router.push('/')"/>
-          <SmallButton :img="images.accountImg" v-if="account"
-                       @click="() => $route.path !== `/account/${account}` &&  $router.push(`/account/${account}`)">
+          <SmallButton :img="images.accountImg" v-if="wallet.address"
+                       @click="() => $route.path !== `/account/${wallet.address}` &&  $router.push(`/account/${wallet.address}`)">
           </SmallButton>
         </div>
         <!-- CENTER SECTION -->
@@ -36,7 +36,7 @@
 
         <!-- RIGHT BUTTONS -->
         <div class="flex justify-evenly items-center h-full flex-2">
-          <SmallButton :img="images.createImg" v-if="account"
+          <SmallButton :img="images.createImg" v-if="wallet.address"
                        @click="() => $route.path !== '/create' && $router.push('/create')"/>
           <SmallButton :img="images.backImg" @click="() => $router.go(-1)"/>
         </div>
@@ -52,8 +52,7 @@
   import accountImg from '../assets/account.svg';
   import homeImg from '../assets/home.svg';
   import backImg from '../assets/back.svg';
-  import aeternity from "../utils/aeternity";
-  import { EventBus } from '../utils/eventBus';
+  import {wallet} from "@/utils/wallet";
 
   export default {
     name: "BottomButtons",
@@ -62,10 +61,10 @@
       return {
         view: 'buttons',
         images: {searchImg, createImg, accountImg, homeImg, backImg},
-        account: null,
         searchString: ''
       }
     },
+    setup: () => ({wallet}),
     props: {
       home: {
         type: Boolean,
@@ -114,19 +113,7 @@
         if (this.view === 'buttons') this.view = 'search';
         else if (this.view === 'search') this.view = 'buttons';
       },
-      async loadData()  {
-        if (!aeternity.static) {
-          this.account = await aeternity.client.address()
-        }
-      }
     },
-    created() {
-      EventBus.$on('dataChange', this.loadData)
-      this.loadData()
-    },
-    beforeDestroy() {
-      EventBus.$off('dataChange', this.loadData)
-    }
   }
 </script>
 
@@ -168,6 +155,8 @@
   }
 
   button[disabled] {
-    @apply text-gray-500 cursor-not-allowed
+    /* workaround for @apply text-gray-500 cursor-not-allowed*/
+    color: #a0aec0;
+    cursor: not-allowed;
   }
 </style>
