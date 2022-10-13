@@ -1,20 +1,20 @@
 export default {
-  defaultNetworkId: 'ae_mainnet',
-  compilerUrl: 'https://compiler.aepps.com',
+  defaultNetworkId: process.env.VUE_APP_DEFAULT_NETWORK_ID || 'ae_mainnet',
+  compilerUrl: process.env.VUE_APP_COMPILER_URL || 'https://compiler.aepps.com',
 
   ae_uat: {
-    nodeUrl: 'https://testnet.aeternity.io',
-    middlewareUrl: 'https://testnet.aeternity.io/mdw/',
-    contractAddress: 'ct_2nritSnqW6zooEL4g2SMW5pf12GUbrNyZ17osTLrap7wXiSSjf',
-    backendUrl: 'https://testnet.server.governance.aeternity.art',
+    nodeUrl: process.env.VUE_APP_AE_UAT_NODE_URL || 'https://testnet.aeternity.io',
+    middlewareUrl: process.env.VUE_APP_AE_UAT_MDW_URL || 'https://testnet.aeternity.io/mdw/',
+    contractAddress: process.env.VUE_APP_AE_UAT_CONTRACT_ADDRESS || 'ct_2nritSnqW6zooEL4g2SMW5pf12GUbrNyZ17osTLrap7wXiSSjf',
+    backendUrl: process.env.VUE_APP_AE_UAT_BACKEND_URL ||  'https://testnet.server.governance.aeternity.art',
     // backendUrl: 'http://localhost:3002'
   },
 
   ae_mainnet: {
-    nodeUrl: 'https://mainnet.aeternity.io',
-    middlewareUrl: 'https://mainnet.aeternity.io/mdw/',
-    contractAddress: 'ct_ouZib4wT9cNwgRA1pxgA63XEUd8eQRrG8PcePDEYogBc1VYTq',
-    backendUrl: 'https://server.governance.aeternity.art',
+    nodeUrl: process.env.VUE_APP_AE_MAINNET_NODE_URL || 'https://mainnet.aeternity.io',
+    middlewareUrl: process.env.VUE_APP_AE_MAINNET_MDW_URL || 'https://mainnet.aeternity.io/mdw/',
+    contractAddress: process.env.VUE_APP_AE_MAINNET_CONTRACT_ADDRESS || 'ct_ouZib4wT9cNwgRA1pxgA63XEUd8eQRrG8PcePDEYogBc1VYTq',
+    backendUrl: process.env.VUE_APP_AE_MAINNET_BACKEND_URL ||  'https://server.governance.aeternity.art',
     // backendUrl: 'http://localhost:3001'
   }
 };
