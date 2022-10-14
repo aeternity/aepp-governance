@@ -1,23 +1,23 @@
-name: Aepp Governance Staging Pipeline
+name: Governance Server Staging Pipeline
 
 on:
   pull_request:
     paths:
-      - 'governance-aepp/**'
+      - 'governance-server/**'
     branches: [ master ]
     types: [ opened, synchronize, closed ]
 
 env:
   PR_NUMBER: ${{ github.event.pull_request.number }}
   ENV: "stg"
-  APP: "aepp-governance"
+  APP: "governance-server-testnet"
 
 concurrency: governance_staging_environment
 
 jobs:
-  main:
+  master:
     runs-on: ubuntu-latest
-    name: Aepp Governance Staging Build Docker
+    name: Server Governance Staging Build Docker
     steps:
       - uses: actions/checkout@v3
         with:
@@ -53,11 +53,11 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: aeternitybot/governance-aepp
+          images: aeternitybot/governance-server-testnet
           tags: |
             type=raw,value=latest,enable=${{ endsWith(GitHub.ref, 'master') }}
             type=ref,event=tag
-            type=raw,value=stg,event=pr
+            type=ref,event=pr
 
       - name: Get commit sha on PR Sync
         if: github.event_name == 'pull_request' && github.event.action == 'synchronize'
@@ -70,11 +70,8 @@ jobs:
         if: github.event_name == 'pull_request' && github.event.action == 'opened' || github.event.action == 'synchronize'
         uses: docker/build-push-action@v2
         with:
-          context: ./governance-aepp/
-          file: ./governance-aepp/Dockerfile
-          build-args: | # what they should be for staging ?
-            VUE_APP_AE_UAT_BACKEND_URL: "https://governance-testnet.stg.aepps.com"
-            VUE_APP_AE_MAINNET_BACKEND_URL: "https://governance-mainnet.stg.aepps.com"
+          context: ./governance-server
+          file: ./governance-server/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -102,7 +99,7 @@ jobs:
         uses: aeternity/ae-github-actions/argocd-pr-sync@v4
         with:
           git-sha: ${{ steps.git-sha.outputs.git-sha }}
-          url-prefix: stg
+          url-prefix: pr-${{ env.PR_NUMBER }}
           env: ${{ env.ENV }}
           app: ${{ env.APP }}
 
@@ -110,7 +107,7 @@ jobs:
         if: github.event_name == 'pull_request' && github.event.action == 'opened'
         uses: aeternity/ae-github-actions/argocd-deploy@v4
         with:
-          url-prefix: stg
+          url-prefix: pr-${{ env.PR_NUMBER }}
           env: ${{ env.ENV }}
           app: ${{ env.APP }}
 
@@ -118,7 +115,7 @@ jobs:
         if: github.event_name == 'pull_request' && github.event.action == 'closed' && startsWith(github.head_ref, 'release') != true
         uses: aeternity/ae-github-actions/argocd-undeploy@v4
         with:
-          url-prefix: stg
+          url-prefix: pr-${{ env.PR_NUMBER }}
           env: ${{ env.ENV }}
           app: ${{ env.APP }}
 
@@ -128,7 +125,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          msg: Deployed to https://stg-${{ env.APP }}.${{ env.ENV }}.aepps.com
+          msg: Deployed to https://pr-${{ env.PR_NUMBER }}-${{ env.APP }}.${{ env.ENV }}.aepps.com
           check_for_duplicate_msg: true
 
       - name: Push changes
