@@ -1,6 +1,6 @@
-FROM node:12-alpine as build
+FROM node:14-buster as build
 
-RUN apk add --no-cache git
+RUN apt-get update && apt-get install -y git build-essential
 RUN adduser --disabled-password --gecos "" app
 
 WORKDIR /app
