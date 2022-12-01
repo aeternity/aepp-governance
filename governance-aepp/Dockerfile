@@ -6,6 +6,12 @@ WORKDIR /app/governance-aepp
 COPY governance-aepp/package.json /app/governance-aepp
 RUN npm install
 
+ARG VUE_APP_AE_MAINNET_BACKEND_URL
+ENV VUE_APP_AE_MAINNET_BACKEND_URL=${VUE_APP_AE_MAINNET_BACKEND_URL}
+
+ARG VUE_APP_AE_UAT_BACKEND_URL
+ENV VUE_APP_AE_UAT_BACKEND_URL=${VUE_APP_AE_UAT_BACKEND_URL}
+
 COPY governance-aepp /app/governance-aepp
 COPY governance-contracts/generated /app/governance-contracts/generated
 RUN npm run build
