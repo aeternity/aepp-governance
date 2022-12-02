@@ -48,12 +48,17 @@ module.exports = class Aeternity {
         return (await this.client.getNodeInfo()).nodeNetworkId
     };
 
+    getContractCreateByteCode = async (pollAddress) => {
+        return this.cache.getOrSet(["getContractCreateByteCode", pollAddress], async () =>
+            axios.get(`${process.env.MIDDLEWARE_URL}/v2/txs?contract=${pollAddress}&type=contract_create`).then(async res => res.data?.data[0]?.tx.code));
+    };
+
     verifyPollContract = async (pollAddress) => {
         const result = async () => {
             try {
                 const verifiedHashes = Object.values(byteCodeHashes).map(hashes => hashes["Poll.aes"]?.hash || hashes["Poll_Iris.aes"]?.hash).filter(hash => !!hash)
                 //const contractCreateBytecode = await this.client.getContractByteCode(pollAddress).then(res => res.bytecode); can't be used as the returned bytecode is stripped from the init function and thus won't match the pre-generated hash
-                const contractCreateBytecode = await axios.get(`${process.env.MIDDLEWARE_URL}/v2/txs?contract=${pollAddress}&type=contract_create`).then(async res => res.data?.data[0]?.tx.code);
+                const contractCreateBytecode = await this.getContractCreateByteCode(pollAddress);
 
                 if (contractCreateBytecode) {
                     const pollBytecodeHash = crypto.createHash('sha256').update(contractCreateBytecode).digest('hex')
@@ -123,7 +128,14 @@ module.exports = class Aeternity {
     polls = async () => {
         return this.cache.getOrSet(["polls"], async () => {
             const polls = (await this.contract.methods.polls()).decodedResult
-            return Array.from(polls.entries());
+            const verifiedPolls = await Promise.all(Array.from(polls.entries())
+                .map(([id, data]) => this.verifyPollContract(data.poll)
+                    .then(verified => ([id, {...data, verified}]))
+                    .catch(e => {
+                        console.error("verifyPollContract", e);
+                        return [id, {...data, verified: false}];
+                    })));
+            return verifiedPolls.filter(([_, data]) => data.verified);
         }, this.cache.shortCacheTime);
     };
 
