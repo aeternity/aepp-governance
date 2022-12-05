@@ -59,7 +59,7 @@ aeternity.initStaticClient = async () => {
   // MAINNET
   */
   return Universal({
-    compilerUrl: settings.ae_mainnet.compilerUrl,
+    compilerUrl: settings.compilerUrl,
     nodes: [
       {
         name: 'mainnet',
@@ -95,7 +95,7 @@ aeternity.initClient = async () => {
   if (process && process.env && process.env.PRIVATE_KEY && process.env.PUBLIC_KEY) {
     aeternity.client = await Universal({
       nodes: [{name: 'testnet', instance: await Node({url: settings.ae_uat.nodeUrl})}],
-      compilerUrl: settings.ae_uat.compilerUrl,
+      compilerUrl: settings.compilerUrl,
       accounts: [
         MemoryAccount({keypair: {secretKey: process.env.PRIVATE_KEY, publicKey: process.env.PUBLIC_KEY}}),
       ],
@@ -156,7 +156,7 @@ aeternity.initWalletSearch = async (successCallback) => {
       {name: 'ae_mainnet', instance: await Node({url: settings.ae_mainnet.nodeUrl})},
       {name: 'ae_uat', instance: await Node({url: settings.ae_uat.nodeUrl})}
     ],
-    compilerUrl: settings.ae_mainnet.compilerUrl,
+    compilerUrl: settings.compilerUrl,
     onNetworkChange (params) {
       this.selectNode(params.networkId); // params.networkId needs to be defined as node in RpcAepp
       aeternity.initProvider();
