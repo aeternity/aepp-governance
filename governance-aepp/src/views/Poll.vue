@@ -328,18 +328,6 @@
         }).catch(console.error);
 
         await Promise.all([fetchBalance, fetchPollAddress, fetchPollState, fetchVotesState]);
-
-        aeternity.verifyPollContract(await fetchPollAddress).then(verifiedPoll => {
-          if (!verifiedPoll) {
-            this.error = 'Could not verify poll contract correctness, proceed with caution.'
-            this.continueFunction = () => {this.error = null}
-          }
-        }).catch((e) => {
-          console.error(e);
-          this.error = 'Could not verify poll contract correctness, proceed with caution.'
-          this.continueFunction = () => {this.error = null}
-        })
-
         this.height = await aeternity.client.height();
 
         this.showLoading = false;

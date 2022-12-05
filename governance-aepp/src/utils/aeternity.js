@@ -4,8 +4,6 @@ import Detector from "@aeternity/aepp-sdk/es/utils/aepp-wallet-communication/wal
 
 import registryContractSource from '../assets/contracts/RegistryInterface.aes';
 import settings from '../data/settings';
-import pollContractSource from '../assets/contracts/Poll.aes';
-import pollIrisContractSource from '../assets/contracts/Poll_Iris.aes';
 import { EventBus } from './eventBus';
 
 const aeternity = {
@@ -129,7 +127,7 @@ aeternity.scanForWallets = async (successCallback) => {
     connectionInfo: { id: 'spy' },
   });
   const detector = await Detector({ connection: scannerConnection });
-  const handleWallets = async function ({ wallets, newWallet }) {
+  const handleWallets = async function ({ _, newWallet }) {
     detector.stopScan();
     const connected = await aeternity.rpcClient.connectToWallet(await newWallet.getConnection());
     aeternity.rpcClient.selectNode(connected.networkId); // connected.networkId needs to be defined as node in RpcAepp
@@ -198,41 +196,4 @@ aeternity.polls = async () => {
   return polls.decodedResult;
 };
 
-
-aeternity.verifyPollContract = async (pollAddress) => {
-  const contractCreateBytecode = fetch(`${settings[aeternity.networkId].middlewareUrl}/txs/backward/and?contract=${pollAddress}&type=contract_create`).then(async res => {
-    res = await res.json();
-    if (res.data.length !== 1) return null;
-    const contractCreateTx = res.data[0];
-    return contractCreateTx ? contractCreateTx.tx.code : null;
-  });
-
-  const testCompilers = async (compilers, source) => {
-    return Promise.all(compilers.map(async compiler => {
-      const compilerBytecode = await fetch(`${compiler.url}/compile`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          code: source,
-          options: { 'backend': 'fate' },
-        }),
-      }).then(async res => (await res.json()).bytecode);
-
-      return {
-        bytecode: compilerBytecode,
-        matches: compilerBytecode === (await contractCreateBytecode),
-        version: compiler.version,
-      };
-    }));
-  }
-
-  const compilers4Result = await testCompilers(settings.compilers.filter(c => c.pragma === 4), pollContractSource)
-  const compilers5Result = await testCompilers(settings.compilers.filter(c => c.pragma === 5), pollIrisContractSource)
-  const compilers6Result = await testCompilers(settings.compilers.filter(c => c.pragma === 6), pollIrisContractSource)
-
-  return compilers4Result
-    .concat(compilers5Result)
-    .concat(compilers6Result)
-    .find(test => test.matches);
-};
 export default aeternity;
