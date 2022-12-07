@@ -6,9 +6,9 @@ import settings from './settings';
 import {reactive} from 'vue'
 
 const nodes = [{
-  name: 'ae_mainnet', instance: new Node('https://mainnet.aeternity.io'),
+  name: 'ae_mainnet', instance: new Node(settings.ae_mainnet.nodeUrl),
 }, {
-  name: 'ae_uat', instance: new Node('https://testnet.aeternity.io')
+  name: 'ae_uat', instance: new Node(settings.ae_uat.nodeUrl)
 }]
 
 export let sdk = null
@@ -23,7 +23,7 @@ export const initWallet = async (eventBus) => {
   try {
     // try to connect to Superhero Wallet
     sdk = new AeSdkAepp({
-      name: 'AEPP', nodes, compilerUrl: settings.compilerUrl, onNetworkChange: async (network) => {
+      name: 'AEPP', nodes, onNetworkChange: async (network) => {
         console.info('onNetworkChange:', network)
         await aeConnectToNode(network.networkId)
         if (eventBus) eventBus.emit('dataChange');
@@ -39,9 +39,7 @@ export const initWallet = async (eventBus) => {
     if (wallet.walletStatus === 'fallback_static') {
       wallet.isStatic = true;
 
-      sdk = new AeSdk({
-        compilerUrl: settings.compilerUrl, nodes,
-      })
+      sdk = new AeSdk({ nodes })
 
       await aeConnectToNode(settings.defaultNetworkId)
     }

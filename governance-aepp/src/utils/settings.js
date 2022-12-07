@@ -1,6 +1,5 @@
 export default {
   defaultNetworkId: process.env.VUE_APP_DEFAULT_NETWORK_ID || 'ae_mainnet',
-  compilerUrl: process.env.VUE_APP_COMPILER_URL || 'https://compiler.aepps.com',
 
   ae_uat: {
     nodeUrl: process.env.VUE_APP_AE_UAT_NODE_URL || 'https://testnet.aeternity.io',
