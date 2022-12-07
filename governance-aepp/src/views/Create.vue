@@ -92,9 +92,6 @@
 </template>
 
 <script>
-
-
-  import pollIrisContractSource from '../assets/contracts/Poll_Iris.aes';
   import BiggerLoader from '../components/BiggerLoader';
   import BottomButtons from "../components/BottomButtons";
   import BlackHeader from "../components/BlackHeader";
@@ -106,6 +103,8 @@
   import contract from "@/utils/contract";
   import AeButton from "@/components/aepp/AeButton";
   import AeButtonGroup from "@/components/aepp/AeButtonGroup";
+  import pollAci from"../../../governance-contracts/generated/PollACI.json";
+  import byteCodeHashes from '../../../governance-contracts/generated/bytecode_hashes.json';
 
   export default {
     name: 'CreatePage',
@@ -218,9 +217,7 @@
             }).reduce((acc, option) => Object.assign(acc, {[option.id]: option.text}), {});
 
           try {
-
-            const source = pollIrisContractSource;
-            const pollContract = await sdk.getContractInstance({ source });
+            const pollContract = await sdk.getContractInstance({ aci: pollAci, bytecode: byteCodeHashes["7.0.1"]["Poll_Iris.aes"].bytecode });
             const init = await pollContract.methods.init(this.createMetadata, options, close_height, {omitUnknown: true});
             const addPoll = await contract.registry.methods.add_poll(init.address, this.is_listed, {omitUnknown: true});
             this.$router.push(`/poll/${addPoll.decodedResult}`);
