@@ -50,7 +50,8 @@ module.exports = class Aeternity {
 
     getContractCreateByteCode = async (pollAddress) => {
         return this.cache.getOrSet(["getContractCreateByteCode", pollAddress], async () =>
-            axios.get(`${process.env.MIDDLEWARE_URL}/v2/txs?contract=${pollAddress}&type=contract_create`).then(async res => res.data?.data[0]?.tx.code));
+                axios.get(`${process.env.MIDDLEWARE_URL}/v2/txs?contract=${pollAddress}&type=contract_create`).then(async res => res.data?.data[0]?.tx.code),
+            this.cache.longCacheTime);
     };
 
     verifyPollContract = async (pollAddress) => {
