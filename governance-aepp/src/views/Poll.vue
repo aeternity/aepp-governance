@@ -57,7 +57,7 @@
           Stake: {{toAE(pollVotesState.totalStake)}} ({{formatPercent(pollVotesState.percentOfTotalSupply, 2)}})
         </div>
         <div v-if="typeof pollState.close_height !== 'number'" class="inline-block">
-          - Closes never
+          &nbsp;- Closes never
         </div>
         <div v-else-if="!isClosed">
           Closes in ~{{timeDifferenceString}} (Block {{pollState.close_height}})
@@ -304,6 +304,7 @@
           this.pollContract = await sdk.getContractInstance({aci: pollAci, contractAddress: await fetchPollAddress});
           this.pollState = (await this.pollContract.methods.get_state()).decodedResult;
           this.pollState.vote_options = Array.from(this.pollState.vote_options.entries()).map(([id, value]) => [Number(id), value]);
+          this.pollState.close_height = Number(this.pollState.close_height);
           this.isClosed = this.pollState.close_height <= parseInt(await sdk.getHeight());
           try {
             this.closeBlock = this.isClosed ? await sdk.getGeneration(this.pollState.close_height) : null;

@@ -27,7 +27,7 @@ const init = async () => {
 const errorHandler = (f) => {
     return (req, res, next) => {
         try {
-            f(req, res, next);
+            f(req, res, next).catch(e => next(e));
         } catch (e) {
             next(e);
         }
@@ -70,6 +70,7 @@ app.get('/pollOverview/:address', errorHandler(async (req, res) => {
 
     const start = new Date().getTime();
     const data = await logic.cachedPollState(address);
+    if(!data) throw Error("poll not found or verified")
 
     if (new Date().getTime() - start > 10) console.log("\nrequest pollOverview", address, new Date().getTime() - start, "ms");
     res.json(data)
@@ -103,4 +104,10 @@ app.get('/version', (req, res) => {
     res.json({version: GIT_REV ? GIT_REV : "local"})
 });
 
-init();
+app.use((err, req, res, next) => {
+    if(!err.message.includes('verified')) console.error(err.stack);
+    if (res.headersSent) return;
+    res.status(500).send(err.message);
+});
+
+void init();

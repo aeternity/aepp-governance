@@ -19,7 +19,7 @@ module.exports = class Logic {
 
     cachedPollState = async (address) => {
         const height = await this.aeternity.height();
-        return this.cache.getOrSet(["pollOverview", address, height], () => this.pollVotesState(address), this.cache.shortCacheTime);
+        return this.cache.getOrSet(["pollOverview", address, height], () => this.pollVotesState(address).catch(() => null), this.cache.shortCacheTime);
     };
 
     pollOrdering = async (closed = false) => {
@@ -42,25 +42,18 @@ module.exports = class Logic {
                     }
                 });
 
-            const allPollsData = await polls.asyncMap(async ([id, data]) => {
+            const pollsData = await polls.asyncMap(async ([id, data]) => {
                 const state = await this.cachedPollState(data.poll);
-                const verified = await this.aeternity.verifyPollContract(data.poll).catch(e => {
-                    console.error("verifyPollContract", e);
-                    return null
-                });
 
                 return {
                     id: id,
                     poll: data.poll,
-                    verified: verified,
                     totalStake: state.totalStake,
                     voteCount: state.voteCount,
                     closeHeight: state.pollState.close_height ? state.pollState.close_height : null,
                     delegationCount: state.stakesAtHeight.reduce((acc, cur) => acc + cur.delegators.length, 0)
                 }
             });
-
-            const pollsData = allPollsData.filter(poll => !!poll.verified);
 
             const maxVotes = Math.max(...pollsData.map(poll => poll.voteCount), 1);
             const maxDelegations = Math.max(...pollsData.map(poll => poll.delegationCount), 1);
@@ -118,6 +111,7 @@ module.exports = class Logic {
     };
 
     pollVotesState = async (address) => {
+        if(!(await this.aeternity.verifyPollContract(address))) throw Error("poll not verified")
         const {pollState, votingAccounts, votingAccountList} = await this.pollStateAndVotingAccounts(address);
         await this.aeternity.delegations(pollState.close_height);
 
