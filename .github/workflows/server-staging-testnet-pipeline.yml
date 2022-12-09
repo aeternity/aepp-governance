@@ -17,7 +17,7 @@ concurrency: governance_staging_environment
 jobs:
   master:
     runs-on: ubuntu-latest
-    name: Server Governance Staging Build Docker
+    name: Server Governance Staging Build Pipeline
     steps:
       - uses: actions/checkout@v3
         with:

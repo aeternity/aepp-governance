@@ -17,7 +17,7 @@ concurrency: governance_staging_environment
 jobs:
   main:
     runs-on: ubuntu-latest
-    name: Aepp Governance Staging Build Docker
+    name: Aepp Governance Staging Build Pipeline
     steps:
       - uses: actions/checkout@v3
         with:
