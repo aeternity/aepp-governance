@@ -63,11 +63,10 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: aeternitybot/governance-server--testnet
+          images: aeternitybot/governance-server
           tags: |
             type=raw,value=latest,enable=${{ endsWith(GitHub.ref, 'master') }}
             type=raw,value=${{ steps.release.outputs.tag_name }},enable=${{ endsWith(GitHub.ref, 'master') }}
-            type=ref,event=tag
             type=ref,event=pr
 
       - name: Build and push docker image

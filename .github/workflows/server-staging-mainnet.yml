@@ -53,10 +53,8 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: aeternitybot/governance-server-mainnet
+          images: aeternitybot/governance-server
           tags: |
-            type=raw,value=latest,enable=${{ endsWith(GitHub.ref, 'master') }}
-            type=ref,event=tag
             type=ref,event=pr
 
       - name: Get commit sha on PR Sync
