@@ -68,7 +68,6 @@ jobs:
             type=raw,value=latest,enable=${{ endsWith(GitHub.ref, 'master') }}
             type=raw,value=${{ steps.release.outputs.tag_name }},enable=${{ endsWith(GitHub.ref, 'master') }}
             type=ref,event=tag
-            type=ref,event=pr
 
       - name: Build and push docker image
         if: |
@@ -78,9 +77,9 @@ jobs:
         with:
           context: ./governance-aepp/
           file: ./governance-aepp/Dockerfile
-          build-args: | # what they should be for staging ?
-            VUE_APP_AE_UAT_BACKEND_URL: "https://governance-testnet.prd.aepps.com"
-            VUE_APP_AE_MAINNET_BACKEND_URL: "https://governance-mainnet.prd.aepps.com"
+          build-args: | 
+            VUE_APP_AE_UAT_BACKEND_URL: "https://governance-server-testnet.prd.aepps.com"
+            VUE_APP_AE_MAINNET_BACKEND_URL: "https://governance-server-mainnet.prd.aepps.com"
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

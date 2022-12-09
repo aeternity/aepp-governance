@@ -54,10 +54,8 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: aeternitybot/governance-aepp
-          tags: |
-            type=raw,value=latest,enable=${{ endsWith(GitHub.ref, 'master') }}
-            type=ref,event=tag
-            type=raw,value=stg,event=pr
+          tags: |   
+            type=ref,event=pr
 
       - name: Get commit sha on PR Sync
         if: github.event_name == 'pull_request' && github.event.action == 'synchronize'
@@ -73,8 +71,8 @@ jobs:
           context: ./governance-aepp/
           file: ./governance-aepp/Dockerfile
           build-args: | # what they should be for staging ?
-            VUE_APP_AE_UAT_BACKEND_URL: "https://governance-testnet.stg.aepps.com"
-            VUE_APP_AE_MAINNET_BACKEND_URL: "https://governance-mainnet.stg.aepps.com"
+            VUE_APP_AE_UAT_BACKEND_URL: "https://governance-server-testnet.prd.aepps.com"
+            VUE_APP_AE_MAINNET_BACKEND_URL: "https://governance-server-mainnet.prd.aepps.com"
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
