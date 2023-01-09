@@ -12,5 +12,5 @@
  - install dependencies `npm install`
  - in `docker-compose.yml` set `NODE_URL` to url of your node
  - use `docker-compose up -d` to run dependencies (middleware + db, redis)
- - set environment variables `WEBSOCKET_URL` of middleware, `NODE_URL`, `CONTRACT_ADDRESS` of registry contract, `REDIS_URL` as cache, `COMPILER_URL` and `MIDDLEWARE_URL`
+ - set environment variables `WEBSOCKET_URL` of middleware, `NODE_URL`, `CONTRACT_ADDRESS` of registry contract, `REDIS_URL` as cache and `MIDDLEWARE_URL`
  - `npm start`

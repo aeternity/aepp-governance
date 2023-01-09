@@ -21,7 +21,6 @@ module.exports = class Aeternity {
         this.cache = this.verifyConstants ? require('./mock') : require('./cache');
 
         if (!this.verifyConstants && !process.env.NODE_URL) throw "NODE_URL is not set";
-        if (!this.verifyConstants && !process.env.COMPILER_URL) throw "COMPILER_URL is not set";
         if (!this.verifyConstants && !process.env.CONTRACT_ADDRESS) throw "CONTRACT_ADDRESS is not set";
 
         this.contractAddress = process.env.CONTRACT_ADDRESS || this.verifyConstants.registryContract;
@@ -31,7 +30,7 @@ module.exports = class Aeternity {
     init = async () => {
         if (!this.client) {
             this.client = new AeSdk({
-                compilerUrl: process.env.COMPILER_URL || this.verifyConstants.compilerUrl, nodes: [{
+                nodes: [{
                     name: 'node', instance: new Node(process.env.NODE_URL || this.verifyConstants.nodeUrl),
                 }],
             });
@@ -83,7 +82,7 @@ module.exports = class Aeternity {
     };
 
     iterateMdw = async (next) => {
-        const result = await axios.get(`${process.env.MIDDLEWARE_URL}/${next}`).then(res => res.data);
+        const result = await axios.get(`${process.env.MIDDLEWARE_URL}${next}`).then(res => res.data);
         if (result.next) {
             return result.data.concat(await this.iterateMdw(result.next));
         }
@@ -91,7 +90,7 @@ module.exports = class Aeternity {
     }
 
     middlewareContractTransactions = (height) => {
-        return this.iterateMdw(`txs/gen/${height}-0?contract=${this.contractAddress}&type=contract_call&limit=100`);
+        return this.iterateMdw(`/v2/txs?scope=gen:${height}-0&contract=${this.contractAddress}&type=contract_call&limit=100`);
     }
 
     nodeContractTransactions = async (registryCreationHeight, height) => {

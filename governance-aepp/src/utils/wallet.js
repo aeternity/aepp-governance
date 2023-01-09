@@ -23,7 +23,9 @@ export const initWallet = async (eventBus) => {
   try {
     // try to connect to Superhero Wallet
     sdk = new AeSdkAepp({
-      name: 'AEPP', nodes, onNetworkChange: async (network) => {
+      name: 'AEPP',
+      nodes,
+      onNetworkChange: async (network) => {
         console.info('onNetworkChange:', network)
         await aeConnectToNode(network.networkId)
         if (eventBus) eventBus.emit('dataChange');
