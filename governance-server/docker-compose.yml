@@ -9,7 +9,6 @@ services:
     links:
       - redis
     environment:
-      - COMPILER_URL=https://compiler.aeternity.io
       - CONTRACT_ADDRESS=ct_ouZib4wT9cNwgRA1pxgA63XEUd8eQRrG8PcePDEYogBc1VYTq
       - KEEP_HOT_INTERVAL=60000
       - MIDDLEWARE_URL=https://mainnet.aeternity.io/mdw

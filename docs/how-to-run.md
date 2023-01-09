@@ -20,11 +20,11 @@ Additionally [governance-server](../governance-server) contains a script to inde
 
 **Requirements**
  - deployed registry contract address
- - [hosted compiler](https://github.com/aeternity/aesophia_http) and [aeternity full-node](https://github.com/aeternity/aeternity) with debug endpoints url
+ - [aeternity full-node](https://github.com/aeternity/aeternity) with debug endpoints url
  - redis
- - [middleware/aeternal](https://github.com/aeternity/aeternal) (optional, for better performance)
+ - [middleware](https://github.com/aeternity/ae_mdw) (optional, for better performance)
  
- **Running (with hosted mainnet node)**
+ **Running (locally with hosted mainnet node)**
 ```
 cd governance-server
 npm install
@@ -32,28 +32,21 @@ npm install
 docker run --name server-redis -p 6379:6379 -d redis
 
 CONTRACT_ADDRESS=ct_ouZib4wT9cNwgRA1pxgA63XEUd8eQRrG8PcePDEYogBc1VYTq \
-NODE_URL=https://mainnet.aeternal.io/ \
-COMPILER_URL=https://compiler.aepps.com \
-WEBSOCKET_URL=wss://mainnet.aeternal.io/websocket \
+NODE_URL=https://mainnet.aeternity.io/ \
+WEBSOCKET_URL=wss://mainnet.aeternity.io/mdw/websocket \
 REDIS_URL=redis://localhost:6379 \
-MIDDLEWARE_URL=https://mainnet.aeternal.io/ \
+MIDDLEWARE_URL=https://mainnet.aeternity.io/mdw \
 PORT=3000 \
 npm run start
 ```
 
-**Running (all local with mainnet)**
+**Running (using docker compose)**
 ```
 cd governance-server
-
-# create data dir for aeternity node
-mkdir -p .data/aeternity
-sudo chown -R 1000:1000 .data/aeternity
 
 docker-compose up -d
 
 # check logs using docker-compose logs -f
-# wait for node to sync to 100%, see localhost:3013/v2/status
-# eventually restart the server afterwards docker-compose restart server
 ```
 
 ## Aepp

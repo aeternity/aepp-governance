@@ -29,7 +29,7 @@ Votes for Option: Awesome 99.83 %
 Votes for Option: Ok 0.17 %
 ```
 
-To speed up the verification process you can provide a middleware url, that is used to fetch some data more efficiently, e.g. `MIDDLEWARE_URL=https://mainnet.aeternal.io/ npm run verify 1`.
+To speed up the verification process you can provide a middleware url, that is used to fetch some data more efficiently, e.g. `MIDDLEWARE_URL=https://mainnet.aeternity.io/mdw npm run verify 1`.
 
 ## Explanation
 
