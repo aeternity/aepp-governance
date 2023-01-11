@@ -10,7 +10,7 @@ on:
 env:
   PR_NUMBER: ${{ github.event.pull_request.number }}
   ENV: "stg"
-  APP: "aepp-governance"
+  APP: "governance-aepp"
 
 concurrency: governance_staging_environment
 
