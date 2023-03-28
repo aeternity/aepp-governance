@@ -3,12 +3,14 @@
 This repository will hold the full system used for the aeternity polling system.
 It consists of the used smart contracts, including their tests.
 A trustless backend service used for aggregation and caching of results for better presentation.
-Additionally there will be an frontend-aepp that allows for user-friendly registration, discovery and participation in polls.
+Additionally, there will be an frontend-aepp that allows for user-friendly registration, discovery and participation in polls.
 
 ## Resources
 
  - [GUIDE: How to verify results](./docs/how-to-verify-results.md)
  - [GUIDE: How to run governance locally](./docs/how-to-run.md)
+ - [GUIDE: How the governance contract works](./docs/how-to-governance-contract.md)
+ - [GUIDE: How the governance backend works](./docs/how-to-governance-backend.md)
 
 ## Introduction
 
@@ -17,7 +19,7 @@ Earlier this year there was a proposal to include a polling system directly in t
 This project aims to build a first version of the aeternity polling system as smart contract and aepp to explore governance models better, so in a later stage a more informed decision can be made of what to include on protocol level.
  
 The governance aepp will implement a delegated weighted polling mechanism, polls and votes will be registered on-chain together with minimal meta information.
-Discussions around poll proposals should happen off-chain, e.g. the aeternity forum.
+Discussions about poll proposals should happen off-chain, e.g. the aeternity forum.
 Due to building this as smart contract system a few limitations are introduced, for example the final poll results will not be published within the smart contract, but will be verifiable using external scripts.
  
 ## Rules
