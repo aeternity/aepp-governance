@@ -42,7 +42,7 @@ cache.getOrSet = async (keys, asyncFetchData, expire = null) => {
 
         const start = new Date().getTime();
         const data = await asyncFetchData();
-        cache.set(keys, data, expire);
+        await cache.set(keys, data, expire);
         (new Date().getTime() - start > 50) ? console.log("\n   cache", key, new Date().getTime() - start, "ms") : process.stdout.write("'");
 
         return data;
@@ -52,11 +52,7 @@ cache.getOrSet = async (keys, asyncFetchData, expire = null) => {
 cache.set = async (keys, data, expire = null) => {
     const key = buildKey(keys);
 
-    if (expire) {
-        await client.set(key, JSON.stringify(data), "EX", expire);
-    } else {
-        await client.set(key, JSON.stringify(data));
-    }
+    await client.set(key, JSON.stringify(data), expire ? {EX: expire} : {});
 };
 
 cache.delByPrefix = async (prefixes) => {
@@ -77,7 +73,7 @@ const addPollInvalidationListeners = async (aeternity) => {
     polls.forEach(([_, data]) => addPollInvalidationListener(data.poll));
 };
 
-const addPollInvalidationListener = async (poll) => {
+const addPollInvalidationListener = (poll) => {
     if (cache.wsconnection) {
         cache.wsconnection.send(JSON.stringify({op: "Subscribe", payload: "Object", target: poll}));
     } else {
@@ -113,11 +109,13 @@ cache.handleContractEvent = async (event) => {
 };
 
 cache.startInvalidator = (aeternity) => {
-    addPollInvalidationListeners(aeternity);
     const wsclient = new WebSocketClient();
     wsclient.connect(process.env.WEBSOCKET_URL);
+
     wsclient.on('connectFailed', console.error);
     wsclient.on('connect', connection => {
+        void addPollInvalidationListeners(aeternity);
+
         cache.wsconnection = connection;
         cache.wsconnection.send(JSON.stringify({op: "Subscribe", payload: "KeyBlocks"}));
         cache.wsconnection.send(JSON.stringify({op: "Subscribe", payload: "Transactions"}));
@@ -143,7 +141,7 @@ cache.startInvalidator = (aeternity) => {
                 }
                 if (data.subscription === "Object") {
                     const event = await aeternity.transactionEvent({hash: data.payload.hash});
-                    if (event) cache.handleContractEvent(event);
+                    if (event) void cache.handleContractEvent(event);
                 }
             }
         });
@@ -164,7 +162,7 @@ cache.keepHot = (aeternity) => {
         console.log("\n  cache keepHot", new Date().getTime() - start, "ms");
     };
 
-    keepHotLogic();
+    void keepHotLogic();
     setInterval(keepHotLogic, cache.keepHotInterval);
 };
 
