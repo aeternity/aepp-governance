@@ -239,7 +239,7 @@
         this.showLoading = true;
         this.voteOption = id;
         try {
-          await this.pollContract.methods.vote(this.voteOption,{omitUnknown: true});
+          await this.pollContract.vote(this.voteOption,{omitUnknown: true});
         } catch (e) {
           console.error(e);
           this.error = 'Could not process your vote. Please try again.';
@@ -256,7 +256,7 @@
       async revokeVote() {
         this.showLoading = true;
         try {
-          await this.pollContract.methods.revoke_vote({omitUnknown: true});
+          await this.pollContract.revoke_vote({omitUnknown: true});
           await this.loadData();
         } catch (e) {
           console.error(e);
@@ -291,7 +291,7 @@
 
         this.votersForOption = {};
         let fetchBalance = Promise.resolve();
-        const fetchPollAddress = contract.registry.methods.poll(this.pollId).then(poll => {
+        const fetchPollAddress = contract.registry.poll(this.pollId).then(poll => {
           this.pollAddress = poll.decodedResult.poll;
           return this.pollAddress;
         }).catch(e => {
@@ -301,8 +301,8 @@
         });
 
         const fetchPollState = (async () => {
-          this.pollContract = await sdk.getContractInstance({aci: pollAci, contractAddress: await fetchPollAddress});
-          this.pollState = (await this.pollContract.methods.get_state()).decodedResult;
+          this.pollContract = await sdk.initializeContract({aci: pollAci, address: await fetchPollAddress});
+          this.pollState = (await this.pollContract.get_state()).decodedResult;
           this.pollState.vote_options = Array.from(this.pollState.vote_options.entries()).map(([id, value]) => [Number(id), value]);
           this.pollState.close_height = Number(this.pollState.close_height);
           this.isClosed = this.pollState.close_height <= parseInt(await sdk.getHeight());

@@ -103,9 +103,9 @@ export const fetchWalletInfo = async () => {
   wallet.walletStatus = 'fetching_info'
 
   try {
-    wallet.networkId = await sdk.getNetworkId()
+    wallet.networkId = await sdk.api.getNetworkId()
     if (!wallet.isStatic) {
-      wallet.address = await sdk.address()
+      wallet.address = await sdk.address
 
       wallet.balance = await sdk.getBalance(wallet.address, {
         format: AE_AMOUNT_FORMATS.AE,

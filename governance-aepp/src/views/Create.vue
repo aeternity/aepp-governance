@@ -217,9 +217,9 @@
             }).reduce((acc, option) => Object.assign(acc, {[option.id]: option.text}), {});
 
           try {
-            const pollContract = await sdk.getContractInstance({ aci: pollAci, bytecode: byteCodeHashes["7.0.1"]["Poll_Iris.aes"].bytecode });
-            const init = await pollContract.methods.init(this.createMetadata, options, close_height, {omitUnknown: true});
-            const addPoll = await contract.registry.methods.add_poll(init.address, this.is_listed, {omitUnknown: true});
+            const pollContract = await sdk.initializeContract({ aci: pollAci, bytecode: byteCodeHashes["8.0.0"]["Poll_Iris.aes"].bytecode });
+            const init = await pollContract.init(this.createMetadata, options, close_height, {omitUnknown: true});
+            const addPoll = await contract.registry.add_poll(init.address, this.is_listed, {omitUnknown: true});
             this.$router.push(`/poll/${addPoll.decodedResult}`);
           } catch (e) {
             this.showLoading = false;

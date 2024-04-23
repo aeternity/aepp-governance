@@ -98,7 +98,6 @@
 
 <script>
 import {sdk, wallet} from "@/utils/wallet";
-  import * as Crypto from '@aeternity/aepp-sdk/es/utils/crypto';
   import BiggerLoader from '../components/BiggerLoader'
   import AeIdentityLight from '../components/AeIdentityLight'
   import BigNumber from 'bignumber.js';
@@ -109,6 +108,7 @@ import {sdk, wallet} from "@/utils/wallet";
   import CriticalErrorOverlay from "../components/CriticalErrorOverlay";
   import AeInput from '../components/AeInput'
   import contract from "@/utils/contract";
+  import {isAddressValid} from "@aeternity/aepp-sdk";
 
 export default {
     name: 'AccountPage',
@@ -148,7 +148,7 @@ export default {
       handleSearch(searchText) {
         this.searchError = null;
         if (!searchText) return this.searchError = 'Please enter an address';
-        if (Crypto.isAddressValid(searchText)) {
+        if (isAddressValid(searchText)) {
           this.switchAccount(searchText)
         } else {
           this.searchError = 'The address is not valid'
@@ -183,7 +183,7 @@ export default {
         if (this.delegatee.includes('ak_')) {
           this.showLoading = true;
           try {
-            await contract.registry.methods.delegate(this.delegatee, {omitUnknown: true});
+            await contract.registry.delegate(this.delegatee, {omitUnknown: true});
             await new Backend(wallet.networkId).contractEvent("Delegation").catch(console.error);
             await this.loadData();
           } catch (e) {
@@ -197,7 +197,7 @@ export default {
       async revokeDelegation() {
         this.showLoading = true;
         try {
-          await contract.registry.methods.revoke_delegation({omitUnknown: true});
+          await contract.registry.revoke_delegation({omitUnknown: true});
           await new Backend(wallet.networkId).contractEvent("RevokeDelegation").catch(console.error);
           await this.loadData();
         } catch (e) {

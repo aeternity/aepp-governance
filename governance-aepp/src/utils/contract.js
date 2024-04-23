@@ -9,20 +9,20 @@ const contract = {
 };
 
 contract.init = async () => {
-  contract.registry = await sdk.getContractInstance({
+  contract.registry = await sdk.initializeContract({
     aci: registryWithEventsAci,
-    contractAddress: settings[wallet.networkId].contractAddress
+    address: settings[wallet.networkId].contractAddress
   })
 }
 
 contract.delegation = async (address) => {
-  return (await contract.registry.methods.delegatee(address)).decodedResult;
+  return (await contract.registry.delegatee(address)).decodedResult;
 };
 
 contract.delegations = async (address) => {
-  const delegationsResult = await contract.registry.methods.delegators(address);
+  const delegationsResult = await contract.registry.delegators(address);
   return Promise.all(Array.from(delegationsResult.decodedResult.entries()).map(async ([delegator, delegatee]) => {
-    const delegateeDelegations = (await contract.registry.methods.delegators(delegator)).decodedResult;
+    const delegateeDelegations = (await contract.registry.delegators(delegator)).decodedResult;
     return {
       delegator: delegator,
       delegatee: delegatee,
@@ -33,7 +33,7 @@ contract.delegations = async (address) => {
 };
 
 contract.polls = async () => {
-  const polls = await contract.registry.methods.polls();
+  const polls = await contract.registry.polls();
   return Array.from(polls.decodedResult.entries());
 };
 

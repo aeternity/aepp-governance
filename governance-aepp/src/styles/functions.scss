@@ -16,6 +16,6 @@
 /// Pixels to REM
 /// @access private
 /// @param {String} $px - amount of Pixels.
-@function rem($px) {
+@function toRem($px) {
   @return #{$px / $base-font-size}rem;
 }
