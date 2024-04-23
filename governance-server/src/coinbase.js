@@ -1,5 +1,4 @@
 const BigNumber = require('bignumber.js')
-const axios = require('axios');
 const Util = require('./util');
 
 const MULTIPLIER = new BigNumber(1000000000000000000);
@@ -43,7 +42,7 @@ async function totalSupplyAtHeight(cache, networkId, height) {
   const migrationAccounts = await Promise.all(urls
     .filter(url => url.height < height)
     .map(url => cache.getOrSet(["migrationAccounts", url.accounts], () => {
-      return axios.get(url.accounts).then(res => res.data)
+      return fetch(url.accounts).then(res => res.json())
     })));
 
   const totalMigratedAmount = migrationAccounts

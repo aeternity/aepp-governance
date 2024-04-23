@@ -1,5 +1,4 @@
 const {AeSdk, Node} = require('@aeternity/aepp-sdk');
-const axios = require('axios');
 
 const util = require("./util");
 const delegationLogic = require("./delegation_logic");
@@ -28,15 +27,15 @@ module.exports = class Aeternity {
 
 
     init = async () => {
-        if (!this.client) {
+        if (!this.client || !this.contract) {
             this.client = new AeSdk({
                 nodes: [{
                     name: 'node', instance: new Node(process.env.NODE_URL || this.verifyConstants.nodeUrl),
                 }],
             });
 
-            this.contract = await this.client.getContractInstance({
-                aci: registryWithEventsAci, contractAddress: this.contractAddress
+            this.contract = await this.client.initializeContract({
+                aci: registryWithEventsAci, address: this.contractAddress
             });
 
             console.log("initialized aeternity sdk");
@@ -49,7 +48,7 @@ module.exports = class Aeternity {
 
     getContractCreateByteCode = async (pollAddress) => {
         return this.cache.getOrSet(["getContractCreateByteCode", pollAddress], async () =>
-                axios.get(`${process.env.MIDDLEWARE_URL}/v2/txs?contract=${pollAddress}&type=contract_create`).then(async res => res.data?.data[0]?.tx.code),
+                fetch(`${process.env.MIDDLEWARE_URL}/v2/txs?contract=${pollAddress}&type=contract_create`).then(res => res.json()).then(async res => res?.data[0]?.tx.code),
             this.cache.longCacheTime);
     };
 
@@ -77,12 +76,12 @@ module.exports = class Aeternity {
     registryCreationHeight = async () => {
         return this.cache.getOrSet(["registryCreationHeight"], async () => {
             process.stdout.write(".");
-            return (await this.contract.methods.created_height()).decodedResult
+            return (await this.contract.created_height()).decodedResult
         });
     };
 
     iterateMdw = async (next) => {
-        const result = await axios.get(`${process.env.MIDDLEWARE_URL}${next}`).then(res => res.data);
+        const result = await fetch(`${process.env.MIDDLEWARE_URL}${next}`).then(res => res.json());
         if (result.next) {
             return result.data.concat(await this.iterateMdw(result.next));
         }
@@ -127,7 +126,7 @@ module.exports = class Aeternity {
 
     polls = async () => {
         return this.cache.getOrSet(["polls"], async () => {
-            const polls = (await this.contract.methods.polls()).decodedResult
+            const polls = (await this.contract.polls()).decodedResult
             const verifiedPolls = await Promise.all(Array.from(polls.entries())
                 .map(([id, data]) => this.verifyPollContract(data.poll)
                     .then(verified => ([id, {...data, verified}]))
@@ -141,15 +140,15 @@ module.exports = class Aeternity {
 
     pollState = async (address) => {
         const pollAddress = address.replace("ak_", "ct_");
-        const pollContract = this.pollContracts[pollAddress] ? this.pollContracts[pollAddress] : await this.client.getContractInstance({
+        const pollContract = this.pollContracts[pollAddress] ? this.pollContracts[pollAddress] : await this.client.initializeContract({
             aci: pollAci,
-            contractAddress: pollAddress
+            address: pollAddress
         }).then(contract => {
             this.pollContracts[pollAddress] = contract;
             return contract;
         });
 
-        const pollState = (await pollContract.methods.get_state()).decodedResult;
+        const pollState = (await pollContract.get_state()).decodedResult;
         pollState.votes = Object.fromEntries(pollState.votes.entries());
         pollState.vote_options = Object.fromEntries(pollState.vote_options.entries());
         return pollState;
@@ -180,7 +179,7 @@ module.exports = class Aeternity {
             }, this.cache.longCacheTime);
         } else {
             return this.cache.getOrSet(["delegations", closingHeightOrUndefined], async () => {
-                const delegations = (await this.contract.methods.delegations()).decodedResult;
+                const delegations = (await this.contract.delegations()).decodedResult;
                 return Array.from(delegations.entries());
             }, this.cache.shortCacheTime);
         }
@@ -198,7 +197,7 @@ module.exports = class Aeternity {
     };
 
     height = async () => {
-        return this.cache.getOrSet(["height"], () => this.client.height(), this.cache.shortCacheTime);
+        return this.cache.getOrSet(["height"], () => this.client.getHeight(), this.cache.shortCacheTime);
     };
 
     transactionEvent = async ({hash, tx}) => {
@@ -214,7 +213,7 @@ module.exports = class Aeternity {
             if (log.length === 1) {
                 const topics = ["AddPoll", "Delegation", "RevokeDelegation", "Vote", "RevokeVote"];
                 const topic = topics.find(topic => util.hashTopic(topic) === util.topicHashFromResult(log));
-                const decodedUsingContract = this.contract.decodeEvents(log)[0].args
+                const decodedUsingContract = this.contract.$decodeEvents(log)[0].args
 
                 switch (topic) {
                     case "AddPoll":
