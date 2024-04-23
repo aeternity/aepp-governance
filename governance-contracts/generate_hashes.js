@@ -50,7 +50,7 @@ services:
 };
 
 const compileContracts = async (compilerVersions) => {
-    const hashes = await compilerVersions.reduce(async (compilerAccPromise, compilerVersion) => {
+    const hashes = await compilerVersions.filter(compilerVersion => compilerVersion.port < 3091).reduce(async (compilerAccPromise, compilerVersion) => {
         const compilerAcc = await compilerAccPromise;
         const compiler = await fetch('http://localhost:' + compilerVersion.port + '/version').then(res => res.json());
         console.log(compiler.version)

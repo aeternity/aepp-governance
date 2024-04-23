@@ -2,3 +2,4 @@ node_modules/
 .aeproject-store/
 .idea/
 package-lock.json
+docker-compose.compilers.yml
