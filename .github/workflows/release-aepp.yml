@@ -11,7 +11,9 @@ jobs:
     with:
       FILE: ./governance-aepp/Dockerfile
       CONTEXT: .
-      BUILD_ARGS: COMMAND=prd
+      BUILD_ARGS: |
+        COMMAND=prd
+        GIT_REV=${{ github.ref_name }}
       REPOSITORY: "aeternity/aepp-governance"
   deploy-aepp:
     needs: [publish-aepp]

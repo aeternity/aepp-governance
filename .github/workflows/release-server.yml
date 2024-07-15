@@ -11,6 +11,8 @@ jobs:
     with:
       FILE: ./governance-server/Dockerfile
       CONTEXT: .
+      BUILD_ARGS: |
+        GIT_REV=${{ github.ref_name }}
       REPOSITORY: "aeternity/governance-server"
   deploy-server-testnet:
     needs: [publish-server]
