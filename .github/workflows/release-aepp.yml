@@ -10,7 +10,7 @@ jobs:
     secrets: inherit
     with:
       FILE: ./governance-aepp/Dockerfile
-      CONTEXT: ./governance-aepp
+      CONTEXT: .
       BUILD_ARGS: COMMAND=prd
       REPOSITORY: "aeternity/aepp-governance"
   deploy-aepp:

@@ -10,7 +10,7 @@ jobs:
     secrets: inherit
     with:
       FILE: ./governance-aepp/Dockerfile
-      CONTEXT: ./governance-aepp
+      CONTEXT: .
       BUILD_ARGS: |
         VUE_APP_AE_UAT_BACKEND_URL="https://governance-server-testnet.stg.aepps.com"
         VUE_APP_AE_MAINNET_BACKEND_URL="https://governance-server-mainnet.stg.aepps.com"
@@ -29,7 +29,7 @@ jobs:
     secrets: inherit
     with:
       FILE: ./governance-server/Dockerfile
-      CONTEXT: ./governance-server
+      CONTEXT: .
       REPOSITORY: "aeternity/governance-server"
   deploy-server:
     needs: [publish-server]

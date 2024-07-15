@@ -10,7 +10,7 @@ jobs:
     secrets: inherit
     with:
       FILE: ./governance-server/Dockerfile
-      CONTEXT: ./governance-server
+      CONTEXT: .
       REPOSITORY: "aeternity/governance-server"
   deploy-server-testnet:
     needs: [publish-server]
