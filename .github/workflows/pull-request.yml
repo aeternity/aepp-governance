@@ -12,6 +12,7 @@ jobs:
       FILE: ./governance-aepp/Dockerfile
       CONTEXT: .
       BUILD_ARGS: |
+        GIT_REV=${{ github.sha }}
         VUE_APP_AE_UAT_BACKEND_URL="https://pr-${{ github.event.number }}-governance-server-testnet.stg.aepps.com"
         VUE_APP_AE_MAINNET_BACKEND_URL="https://governance-server-mainnet.prd.aepps.com"
       REPOSITORY: "aeternity/aepp-governance"
@@ -31,6 +32,7 @@ jobs:
       FILE: ./governance-server/Dockerfile
       CONTEXT: .
       REPOSITORY: "aeternity/governance-server"
+      BUILD_ARGS: GIT_REV=${{ github.sha }}
   deploy-server-testnet:
     needs: [publish-server]
     uses: aeternity/github-actions/.github/workflows/_deploy-gitops.yml@v2.3.1
