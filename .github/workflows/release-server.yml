@@ -6,7 +6,7 @@ on:
 
 jobs:
   publish-server:
-    uses: aeternity/github-actions/.github/workflows/_publish-ecr.yml@v2.2.0
+    uses: aeternity/github-actions/.github/workflows/_publish-ecr.yml@v2.3.1
     secrets: inherit
     with:
       FILE: ./governance-server/Dockerfile
@@ -14,7 +14,7 @@ jobs:
       REPOSITORY: "aeternity/governance-server"
   deploy-server-testnet:
     needs: [publish-server]
-    uses: aeternity/github-actions/.github/workflows/_deploy-gitops.yml@v2.2.0
+    uses: aeternity/github-actions/.github/workflows/_deploy-gitops.yml@v2.3.1
     secrets: inherit
     with:
       DEPLOY_ENV: prd
@@ -22,7 +22,7 @@ jobs:
       DEPLOY_TAG: ${{ github.ref_name }}
   deploy-server-mainnet:
     needs: [publish-server, deploy-server-testnet]
-    uses: aeternity/github-actions/.github/workflows/_deploy-gitops.yml@v2.2.0
+    uses: aeternity/github-actions/.github/workflows/_deploy-gitops.yml@v2.3.1
     secrets: inherit
     with:
       DEPLOY_ENV: prd
