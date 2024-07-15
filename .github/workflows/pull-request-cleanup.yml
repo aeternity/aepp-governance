@@ -28,6 +28,7 @@ jobs:
       REPOSITORY: aepp-governance
   rollback-server:
     uses: aeternity/github-actions/.github/workflows/_rollback-gitops.yml@v2.3.1
+    needs: [ rollback-aepp ] # don't overlap GIT changes with the other rollback
     secrets: inherit
     with:
       DEPLOY_ENV: stg
