@@ -1,7 +1,7 @@
 {
   "release-type": "node",
   "packages": {
-    "aepp-governance": {},
+    "governance-aepp": {},
     "governance-server": {}
   }
 }
