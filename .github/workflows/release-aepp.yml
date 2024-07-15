@@ -1,0 +1,24 @@
+name: release-aepp
+
+on:
+  push:
+    tags: [ "aepp-governance-v*" ]
+
+jobs:
+  publish-aepp:
+    uses: aeternity/github-actions/.github/workflows/_publish-ecr.yml@v2.2.0
+    secrets: inherit
+    with:
+      FILE: ./governance-aepp/Dockerfile
+      CONTEXT: .
+      BUILD_ARGS: COMMAND=prd
+      REPOSITORY: "aeternity/aepp-governance"
+  deploy-aepp:
+    needs: [publish-aepp]
+    uses: aeternity/github-actions/.github/workflows/_deploy-gitops.yml@v2.2.0
+    secrets: inherit
+    with:
+      DEPLOY_ENV: prd
+      DEPLOY_APP: aepp-governance
+      DEPLOY_TAG: ${{ github.ref_name }}
+      DEPLOY_SUBDOMAIN: governance
