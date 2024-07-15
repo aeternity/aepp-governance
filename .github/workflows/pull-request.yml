@@ -1,0 +1,42 @@
+name: pull-request
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  publish-aepp:
+    uses: aeternity/github-actions/.github/workflows/_publish-ecr.yml@v2.3.1
+    secrets: inherit
+    with:
+      FILE: ./governance-aepp/Dockerfile
+      CONTEXT: ./governance-aepp
+      BUILD_ARGS: |
+        VUE_APP_AE_UAT_BACKEND_URL="https://pr-${{ github.event.number }}-governance-server-testnet.stg.aepps.com"
+        VUE_APP_AE_MAINNET_BACKEND_URL="https://governance-server-mainnet.prd.aepps.com"
+      REPOSITORY: "aeternity/aepp-governance"
+  deploy-aepp:
+    needs: [publish-aepp]
+    uses: aeternity/github-actions/.github/workflows/_deploy-gitops.yml@v2.3.1
+    secrets: inherit
+    with:
+      DEPLOY_ENV: stg
+      DEPLOY_APP: aepp-governance
+      DEPLOY_VERSION: "pr-${{ github.event.number }}"
+      DEPLOY_SUBDOMAIN: "pr-${{ github.event.number }}-governance"
+  publish-server:
+    uses: aeternity/github-actions/.github/workflows/_publish-ecr.yml@v2.3.1
+    secrets: inherit
+    with:
+      FILE: ./governance-server/Dockerfile
+      CONTEXT: ./governance-server
+      REPOSITORY: "aeternity/governance-server"
+  deploy-server-testnet:
+    needs: [publish-server]
+    uses: aeternity/github-actions/.github/workflows/_deploy-gitops.yml@v2.3.1
+    secrets: inherit
+    with:
+      DEPLOY_ENV: stg
+      DEPLOY_APP: governance-server-testnet
+      DEPLOY_VERSION: "pr-${{ github.event.number }}"
+      DEPLOY_SUBDOMAIN: "pr-${{ github.event.number }}-governance-server-testnet"
