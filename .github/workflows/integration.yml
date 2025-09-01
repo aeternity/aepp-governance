@@ -13,8 +13,8 @@ jobs:
       CONTEXT: .
       BUILD_ARGS: |
         GIT_REV=${{ github.sha }}
-        VUE_APP_AE_UAT_BACKEND_URL="https://governance-server-testnet.stg.aepps.com"
-        VUE_APP_AE_MAINNET_BACKEND_URL="https://governance-server-mainnet.stg.aepps.com"
+        VUE_APP_AE_UAT_BACKEND_URL="https://governance-server-testnet.stg.service.aepps.com"
+        VUE_APP_AE_MAINNET_BACKEND_URL="https://governance-server-mainnet.stg.service.aepps.com"
       REPOSITORY: "aeternity/aepp-governance"
   deploy-aepp:
     needs: [publish-aepp]

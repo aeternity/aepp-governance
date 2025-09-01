@@ -12,8 +12,8 @@ Verifying the final or intermediate result of any poll is also possible without 
 ## Backend routes and usage
 
 The backend is currently deployed at:
- - Testnet: https://governance-server-testnet.prd.aepps.com
- - Mainnet: https://governance-server-mainnet.prd.aepps.com
+ - Testnet: https://governance-server-testnet.prd.service.aepps.com
+ - Mainnet: https://governance-server-mainnet.prd.service.aepps.com
 
 Routes:
  - `GET /votesState/:poll_contract_address` detailed state of polling result for a specific poll address
