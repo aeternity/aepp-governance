@@ -14,7 +14,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@aeternity/aepp-sdk": "^13.3.2",
+    "@aeternity/aepp-sdk": "^15.0.0",
     "async-lock": "^1.4.1",
     "bignumber.js": "^9.1.2",
     "blake2b": "^2.1.4",

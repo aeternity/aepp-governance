@@ -1,6 +1,4 @@
-const BN = require('bn.js');
 const blake2b = require('blake2b');
-const Crypto = require('@aeternity/aepp-sdk').Crypto;
 const BigNumber = require('bignumber.js');
 
 BigInt.prototype.toJSON = function () { return Number(this) }
@@ -41,8 +39,6 @@ util.toBytes = (val, big = false) => {
 util.topicHashFromResult = log => util.toBytes(log[0].topics[0], true).toString('hex');
 
 util.eventArgument = (log, index) => log[0].topics[index + 1];
-
-util.encodeEventAddress = (log, index, prefix) => `${prefix}${Crypto.encodeBase58Check(new BN(util.eventArgument(log, index)).toBuffer('be', 32))}`;
 
 util.range = (start, end) => {
     return (new Array(BigInt(end) - BigInt(start) + 1n)).fill(undefined).map((_, i) => i + start);

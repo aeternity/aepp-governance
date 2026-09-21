@@ -100,6 +100,7 @@
   import AeInput from "../components/AeInput";
   import HintBubble from "../components/HintBubble";
   import {sdk} from "@/utils/wallet";
+  import {Contract} from '@aeternity/aepp-sdk';
   import contract from "@/utils/contract";
   import AeButton from "@/components/aepp/AeButton";
   import AeButtonGroup from "@/components/aepp/AeButtonGroup";
@@ -217,7 +218,7 @@
             }).reduce((acc, option) => Object.assign(acc, {[option.id]: option.text}), {});
 
           try {
-            const pollContract = await sdk.initializeContract({ aci: pollAci, bytecode: byteCodeHashes["8.0.0"]["Poll_Iris.aes"].bytecode });
+            const pollContract = await Contract.initialize({ ...sdk.getContext(), aci: pollAci, bytecode: byteCodeHashes["8.0.0"]["Poll_Iris.aes"].bytecode });
             const init = await pollContract.init(this.createMetadata, options, close_height, {omitUnknown: true});
             const addPoll = await contract.registry.add_poll(init.address, this.is_listed, {omitUnknown: true});
             this.$router.push(`/poll/${addPoll.decodedResult}`);

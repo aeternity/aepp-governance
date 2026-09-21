@@ -7,7 +7,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "@aeternity/aepp-sdk": "^13.3.2",
+    "@aeternity/aepp-sdk": "^15.0.0",
     "@download/blockies": "^1.0.3",
     "bignumber.js": "^9.1.2",
     "copy-to-clipboard": "^3.3.3",

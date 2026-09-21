@@ -153,6 +153,7 @@
 
 <script>
   import {sdk, wallet} from "@/utils/wallet";
+  import {Contract} from '@aeternity/aepp-sdk';
   import pollAci from"../../../governance-contracts/generated/PollACI.json";
   import Backend from "../utils/backend";
   import BiggerLoader from '../components/BiggerLoader';
@@ -301,7 +302,7 @@
         });
 
         const fetchPollState = (async () => {
-          this.pollContract = await sdk.initializeContract({aci: pollAci, address: await fetchPollAddress});
+          this.pollContract = await Contract.initialize({...sdk.getContext(), aci: pollAci, address: await fetchPollAddress});
           this.pollState = (await this.pollContract.get_state()).decodedResult;
           this.pollState.vote_options = Array.from(this.pollState.vote_options.entries()).map(([id, value]) => [Number(id), value]);
           this.pollState.close_height = Number(this.pollState.close_height);
