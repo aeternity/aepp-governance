@@ -1,4 +1,4 @@
-const {AeSdk, Node} = require('@aeternity/aepp-sdk');
+const {AeSdk, Contract, Node} = require('@aeternity/aepp-sdk');
 
 const util = require("./util");
 const delegationLogic = require("./delegation_logic");
@@ -34,8 +34,8 @@ module.exports = class Aeternity {
                 }],
             });
 
-            this.contract = await this.client.initializeContract({
-                aci: registryWithEventsAci, address: this.contractAddress
+            this.contract = await Contract.initialize({
+                ...this.client.getContext(), aci: registryWithEventsAci, address: this.contractAddress
             });
 
             console.log("initialized aeternity sdk");
@@ -140,7 +140,8 @@ module.exports = class Aeternity {
 
     pollState = async (address) => {
         const pollAddress = address.replace("ak_", "ct_");
-        const pollContract = this.pollContracts[pollAddress] ? this.pollContracts[pollAddress] : await this.client.initializeContract({
+        const pollContract = this.pollContracts[pollAddress] ? this.pollContracts[pollAddress] : await Contract.initialize({
+            ...this.client.getContext(),
             aci: pollAci,
             address: pollAddress
         }).then(contract => {

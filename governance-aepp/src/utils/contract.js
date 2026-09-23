@@ -3,13 +3,15 @@ import byteCodeHashes from '../../../governance-contracts/generated/bytecode_has
 import registryWithEventsAci from '../../../governance-contracts/generated/RegistryWithEventsACI.json';
 import {sdk, wallet} from "@/utils/wallet";
 import crypto from "crypto";
+import {Contract} from '@aeternity/aepp-sdk';
 
 const contract = {
   registry: null
 };
 
 contract.init = async () => {
-  contract.registry = await sdk.initializeContract({
+  contract.registry = await Contract.initialize({
+    ...sdk.getContext(),
     aci: registryWithEventsAci,
     address: settings[wallet.networkId].contractAddress
   })
