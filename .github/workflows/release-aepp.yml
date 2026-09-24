@@ -22,6 +22,7 @@ jobs:
     uses: aeternity/github-actions/.github/workflows/_deploy-gitops.yml@v2.4.0
     secrets: inherit
     with:
+      DEPLOY_REPO: aeternity/gitops-apps-aelabs
       DEPLOY_ENV: prd
       DEPLOY_APP: aepp-governance
       DEPLOY_TAG: ${{ github.ref_name }}
