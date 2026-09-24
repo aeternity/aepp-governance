@@ -7,7 +7,7 @@ on:
 
 jobs:
   rollback-aepp:
-    uses: aeternity/github-actions/.github/workflows/_rollback-gitops.yml@v2.3.1
+    uses: aeternity/github-actions/.github/workflows/_rollback-gitops.yml@v2.4.0
     secrets: inherit
     with:
       DEPLOY_ENV: stg
@@ -15,19 +15,19 @@ jobs:
       DEPLOY_VERSION: "pr-${{ github.event.number }}"
       DEPLOY_SUBDOMAIN: "pr-${{ github.event.number }}-governance"
   delete-tag-aepp:
-    uses: aeternity/github-actions/.github/workflows/_delete-tag-ecr.yml@v2.3.1
+    uses: aeternity/github-actions/.github/workflows/_delete-tag-ecr.yml@v2.4.0
     secrets: inherit
     with:
       REPOSITORY: "aepp-governance"
       TAG: "pr-${{ github.event.number }}"
   cleanup-aepp:
-    uses: aeternity/github-actions/.github/workflows/_cleanup-ecr.yml@v2.3.1
+    uses: aeternity/github-actions/.github/workflows/_cleanup-ecr.yml@v2.4.0
     needs: [ delete-tag-aepp ]
     secrets: inherit
     with:
       REPOSITORY: aepp-governance
   rollback-server:
-    uses: aeternity/github-actions/.github/workflows/_rollback-gitops.yml@v2.3.1
+    uses: aeternity/github-actions/.github/workflows/_rollback-gitops.yml@v2.4.0
     needs: [ rollback-aepp ] # don't overlap GIT changes with the other rollback
     secrets: inherit
     with:
@@ -36,13 +36,13 @@ jobs:
       DEPLOY_VERSION: "pr-${{ github.event.number }}"
       DEPLOY_SUBDOMAIN: "pr-${{ github.event.number }}-governance-server-testnet"
   delete-tag-server:
-    uses: aeternity/github-actions/.github/workflows/_delete-tag-ecr.yml@v2.3.1
+    uses: aeternity/github-actions/.github/workflows/_delete-tag-ecr.yml@v2.4.0
     secrets: inherit
     with:
       REPOSITORY: "governance-server"
       TAG: "pr-${{ github.event.number }}"
   cleanup-server:
-    uses: aeternity/github-actions/.github/workflows/_cleanup-ecr.yml@v2.3.1
+    uses: aeternity/github-actions/.github/workflows/_cleanup-ecr.yml@v2.4.0
     needs: [ delete-tag-server ]
     secrets: inherit
     with:
