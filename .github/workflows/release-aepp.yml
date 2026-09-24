@@ -19,11 +19,28 @@ jobs:
       REPOSITORY: "aeternity/aepp-governance"
   deploy-aepp:
     needs: [publish-aepp]
-    uses: aeternity/github-actions/.github/workflows/_deploy-gitops.yml@v2.4.0
-    secrets: inherit
-    with:
-      DEPLOY_REPO: aeternity/gitops-apps-aelabs
-      DEPLOY_ENV: prd
-      DEPLOY_APP: aepp-governance
-      DEPLOY_TAG: ${{ github.ref_name }}
-      DEPLOY_SUBDOMAIN: governance
+    runs-on: ubuntu-24.04
+    environment: production
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          repository: aeternity/gitops-apps-aelabs.git
+          token: ${{ secrets.BOT_GITHUB_TOKEN }}
+          ref: prd
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Production Deploy
+        uses: aeternity/ae-github-actions/argocd-deploy@v7.4.0
+        with:
+          git-sha: ${{ github.sha }}
+          url-prefix: ${{ github.ref_name }}
+          env: prd
+          app: aepp-governance
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          repository: aeternity/gitops-apps-aelabs
+          github_token: ${{ secrets.BOT_GITHUB_TOKEN }}
+          branch: prd
