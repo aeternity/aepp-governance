@@ -4,6 +4,8 @@ on:
   push:
     tags: [ "governance-aepp-v*" ]
 
+concurrency: aepp-governance_production_environment
+
 jobs:
   publish-aepp:
     uses: aeternity/github-actions/.github/workflows/_publish-ecr.yml@v2.4.0
